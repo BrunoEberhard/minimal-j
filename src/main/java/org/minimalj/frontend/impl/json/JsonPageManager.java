@@ -249,7 +249,9 @@ public class JsonPageManager implements PageManager {
 		}
 		
 		if (input.containsObject("logout")) {
-			Backend.getInstance().getAuthentication().getLogoutAction().run();
+			if (Subject.getCurrent() != null) {
+				Backend.getInstance().getAuthentication().getLogoutAction().run();
+			}
 			if (Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
 				Backend.getInstance().getAuthentication().showLogin();
 			}
