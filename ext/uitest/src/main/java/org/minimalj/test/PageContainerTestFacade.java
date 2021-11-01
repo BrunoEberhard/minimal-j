@@ -42,14 +42,11 @@ public interface PageContainerTestFacade {
 	public interface NavigationTestFacade {
 
 		public Runnable get(String text);
-		
-		public default void run(String resourceName) {
-			String text = Resources.getString(resourceName);
+
+		public default void run(String text) {
 			Runnable runnable = get(text);
-			Assert.assertNotNull("Menu with resourceName " + resourceName +" / text " + text + " should exsist", runnable);
 			runnable.run();
 		}
-
 	}
 	
 	public interface PageTestFacade {
@@ -94,6 +91,10 @@ public interface PageContainerTestFacade {
 
 		public FormElementTestFacade getElement(String caption);
 
+		public default FormElementTestFacade getElement(int row, int column) {
+			return null;
+		}
+
 		public default FormElementTestFacade element(Object key) {
 			PropertyInterface property = Keys.getProperty(key);
 			String caption = Resources.getPropertyName(property);
@@ -120,6 +121,19 @@ public interface PageContainerTestFacade {
 		public String getLine(int line);
 
 		public List<ActionTestFacade> getLineActions(int line);
+		
+		public default FormElementTestFacade groupItem(int pos) {
+			return null;
+		}
+
+		public default boolean isChecked() {
+			return false;
+		}
+
+		public default void setChecked(boolean checked) {
+			// TODO
+		}
+
 	}
 
 	public interface TableTestFacade {
@@ -131,7 +145,11 @@ public interface PageContainerTestFacade {
 		public String getHeader(int column);
 		
 		public String getValue(int row, int column);
-		
+
+		public default void activate(int row, int column) {
+			// TODO
+		}
+
 		public void activate(int row);
 		
 		public default void select(int row) {
@@ -146,7 +164,6 @@ public interface PageContainerTestFacade {
 			for (int row = 0; row < getRowCount(); row++) {
 				for (int column = 0; column < getColumnCount(); column++) {
 					String value = getValue(row, column);
-					System.out.println(value);
 					if (StringUtils.equals(text, value)) {
 						return row;
 					}

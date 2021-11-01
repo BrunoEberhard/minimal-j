@@ -338,6 +338,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			WebElement element = form.findElement(By.id(id));
 			return new HtmlFormElementTestFacade(element);
 		}
+		
+		@Override
+		public FormElementTestFacade getElement(int row, int column) {
+			WebElement rowElement = form.findElements(By.xpath("./div")).get(row);
+			WebElement element = rowElement.findElements(By.xpath("./div")).get(column);
+			return new HtmlFormElementTestFacade(element);
+		}
 	}
 
 	private class HtmlFormElementTestFacade implements FormElementTestFacade {
@@ -363,7 +370,29 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			HtmlTestFacade.this.setText(formElement, value);
 			waitScript();
 		}
+		
+		@Override
+		public boolean isChecked() {
+			WebElement element = formElement;
+			if (!element.getTagName().equalsIgnoreCase("input")) {
+				element = element.findElement(By.xpath(".//input"));
+			}
+			return element.getAttribute("checked") != null;
+		}
 
+		@Override
+		public void setChecked(boolean checked) {
+			WebElement element = formElement;
+			if (!element.getTagName().equalsIgnoreCase("input")) {
+				element = element.findElement(By.xpath(".//input"));
+			}
+			boolean isChecked = isChecked();
+			if (isChecked != checked) {
+				element.click();
+			}
+			waitScript();
+		}
+		
 		@Override
 		public String getValidation() {
 			String id = formElement.getAttribute("id");
@@ -421,6 +450,12 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 				}
 			};
 		}
+		
+		@Override
+		public FormElementTestFacade groupItem(int pos) {
+			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div")).get(pos);
+			return new HtmlFormElementTestFacade(groupItemElement);
+		}
 	}
 
 	private class HtmlTableTestFacade implements TableTestFacade {
@@ -433,7 +468,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		@Override
 		public int getColumnCount() {
 			WebElement thead = table.findElement(By.tagName("thead"));
-			return thead.findElements(By.tagName("th")).size();
+			return thead.findElements(By.cssSelector("th.col")).size();
 		}
 
 		@Override
@@ -445,7 +480,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 		@Override
 		public String getHeader(int column) {
 			WebElement thead = table.findElement(By.tagName("thead"));
-			return thead.findElements(By.tagName("th")).get(column).getText();
+			return thead.findElements(By.cssSelector("th.col")).get(column).getText();
 		}
 
 		@Override
@@ -453,6 +488,16 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			return tr.findElements(By.tagName("td")).get(column).getText();
+		}
+
+		@Override
+		public void activate(int row, int column) {
+			WebElement tbody = table.findElement(By.tagName("tbody"));
+			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
+			WebElement td = tr.findElements(By.tagName("td")).get(column);
+			Actions action = new Actions(driver);
+			action.click(td).perform();
+			waitScript();
 		}
 
 		@Override
@@ -532,7 +577,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			element.sendKeys("\t");
 		}
 	}
-
+	
 	public void waitScript() {
 		waitScript((JavascriptExecutor) driver);
 	}
