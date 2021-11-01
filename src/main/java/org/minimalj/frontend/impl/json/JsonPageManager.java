@@ -107,7 +107,7 @@ public class JsonPageManager implements PageManager {
 					} catch (ComponentUnknowException x) {
 						logger.log(Level.WARNING, x.getMessage(), x);
 						output = new JsonOutput();
-						show(visiblePageAndDetailsList.getPageIds());
+						show(visiblePageAndDetailsList.getPageIds(), true);
 					} catch (Exception x) {
 						output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
 						logger.log(Level.SEVERE, x.getMessage(), x);
@@ -160,7 +160,7 @@ public class JsonPageManager implements PageManager {
 			if (initialize instanceof List) {
 				List<String> pageIds = (List<String>) initialize;
 				if (!pageIds.isEmpty() && pageStore.valid(pageIds)) {
-					onLogin = () -> show(pageIds);
+					onLogin = () -> show(pageIds, true);
 				}
 			}
 
@@ -263,7 +263,7 @@ public class JsonPageManager implements PageManager {
 		List<String> pageIds = (List<String>) input.getObject("showPages");
 		if (pageIds != null) {
 			if (pageStore.valid(pageIds)) {
-				show(pageIds);
+				show(pageIds, true);
 			} else {
 				Page page = new ExpiredPage();
 				String pageId = pageStore.put(page);
@@ -325,7 +325,7 @@ public class JsonPageManager implements PageManager {
 		return pageId;
 	}
 
-	private void show(List<String> pageIds) {
+	private void show(List<String> pageIds, boolean loginNotAuthorized) {
 		if (!pageStore.valid(pageIds)) {
 			Frontend.show(Application.getInstance().createDefaultPage());
 			return;
@@ -352,9 +352,11 @@ public class JsonPageManager implements PageManager {
 			output.add("horizontalDetailLayout", pageIds.size() > 0 && horizontalPageIds.contains(pageIds.get(pageIds.size() - 1)));
 			output.add("showPages", jsonList);
 			updateTitle(firstPage != null ? firstPage : null);
-		} else {
-			onLogin = () -> show(pageIds);
+		} else if (loginNotAuthorized) {
+			onLogin = () -> show(pageIds, false);
 			authentication.showLogin();
+		} else {
+			show(Application.getInstance().createDefaultPage());
 		}
 	}
 	
