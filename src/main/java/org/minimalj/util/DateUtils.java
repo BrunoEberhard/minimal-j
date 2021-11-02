@@ -13,12 +13,16 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 
 
 public class DateUtils {
+	// for the next 5 year convert 01.01.xx to 01.01.20xx. Else to 01.01.19xx
+	private static final String SWITCH_YEAR = Configuration.get("MjSwitchYear", String.valueOf(LocalDate.now().getYear() % 100 + 5));
+	
 	private static final Map<Locale, DateTimeFormatter> dateFormatByLocale = new HashMap<>();
 	private static final Map<Locale, Boolean> germanDateStyle = new HashMap<>();
 	
@@ -163,7 +167,7 @@ public class DateUtils {
 	}
 
 	private static String completeYear(String year) {
-		if (year.length() == 2 && year.compareTo("20") < 1) year = "20" + year;
+		if (year.length() == 2 && year.compareTo(SWITCH_YEAR) < 1) year = "20" + year;
 		if (year.length() == 2) year = "19" + year;
 		return year;
 	}
