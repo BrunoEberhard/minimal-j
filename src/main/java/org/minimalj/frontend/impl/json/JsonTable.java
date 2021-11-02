@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
@@ -23,7 +24,7 @@ import org.minimalj.util.resources.Resources;
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
-	private static final int PAGE_SIZE = 50;
+	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "100"));
 
 	private final JsonPageManager pageManager;
 	private final Object[] keys;
