@@ -160,7 +160,9 @@ public class JsonPageManager implements PageManager {
 			if (initialize instanceof List) {
 				List<String> pageIds = (List<String>) initialize;
 				if (!pageIds.isEmpty() && pageStore.valid(pageIds)) {
-					onLogin = () -> show(pageIds, true);
+					onLogin = () -> show(pageIds, false);
+				} else {
+					onLogin = () -> show(Application.getInstance().createDefaultPage());
 				}
 			}
 
@@ -374,7 +376,11 @@ public class JsonPageManager implements PageManager {
 		if (subject == null && initializing && Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
 			Backend.getInstance().getAuthentication().showLogin();
 		} else if (onLogin != null) {
-			onLogin.run();
+			try {
+				onLogin.run();
+			} finally {
+				onLogin = null;
+			}
 		} else {
 			Frontend.show(Application.getInstance().createDefaultPage());
 		}
