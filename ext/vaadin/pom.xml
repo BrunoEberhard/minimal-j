@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj_vaadin</artifactId>
 	<version>2.0.0.0-SNAPSHOT</version>
 	<name>Minimal-J Vaadin</name>
-	<description>Minimimal-J Vaadin Frontend using Vaadin 16+</description>
-	<packaging>jar</packaging>
+	<description>Minimimal-J Vaadin Frontend using Vaadin 21+</description>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-		<vaadin.version>17.0.10</vaadin.version>
+		<java.version>11</java.version>
+		<vaadin.version>21.0.4</vaadin.version>
 	</properties>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.0.RELEASE</version>
+		<version>2.5.4</version>
 	</parent>
 
 	<repositories>
@@ -35,16 +30,11 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<!-- The current version of Flow 3.0 is a pre-release version, so vaadin-prereleases 
-			repository is needed. -->
 		<repository>
 			<id>vaadin-prereleases</id>
 			<url>
                 https://maven.vaadin.com/vaadin-prereleases/
             </url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
 		</repository>
 		<!-- Repository used by many Vaadin add-ons -->
 		<repository>
@@ -57,7 +47,8 @@
 	</repositories>
 
 	<pluginRepositories>
-		<!-- Main Maven repository -->
+		<!-- The order of definitions matters. Explicitly defining central here 
+			to make sure it has the highest priority. -->
 		<pluginRepository>
 			<id>central</id>
 			<url>https://repo.maven.apache.org/maven2</url>
@@ -70,9 +61,6 @@
 			<url>
                 https://maven.vaadin.com/vaadin-prereleases/
             </url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -90,6 +78,18 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.minimalj</groupId>
+			<artifactId>minimalj</artifactId>
+			<version>[1.26.0.1-SNAPSHOT,)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.vaadin</groupId>
 			<!-- Replace artifactId with vaadin-core to use only free components -->
 			<artifactId>vaadin</artifactId>
@@ -99,52 +99,53 @@
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.vaadin.artur</groupId>
+			<artifactId>a-vaadin-helper</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-testbench</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+		<!-- Include JUnit 4 support for TestBench and others -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.hamcrest</groupId>
+					<artifactId>hamcrest-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>webdrivermanager</artifactId>
-			<version>3.8.1</version>
+			<version>5.0.3</version>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.minimalj</groupId>
-			<artifactId>minimalj</artifactId>
-			<version>[1.26.0.1-SNAPSHOT,)</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-		<!-- <dependency> <groupId>de.kaesdingeling</groupId> <artifactId>hybridmenu</artifactId> 
-			<version>3.0.19.vaadin14</version> </dependency> -->
 	</dependencies>
 
 	<build>
 		<defaultGoal>spring-boot:run</defaultGoal>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<release>11</release>
-				</configuration>
-			</plugin>
-			
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -177,26 +178,8 @@
 		<profile>
 			<!-- Production mode is activated using -Pproduction -->
 			<id>production</id>
-			<properties>
-				<vaadin.productionMode>true</vaadin.productionMode>
-			</properties>
-
-			<dependencies>
-				<dependency>
-					<groupId>com.vaadin</groupId>
-					<artifactId>flow-server-production-mode</artifactId>
-				</dependency>
-			</dependencies>
-
 			<build>
 				<plugins>
-					<plugin>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-maven-plugin</artifactId>
-						<configuration>
-							<jvmArguments>-Dvaadin.productionMode</jvmArguments>
-						</configuration>
-					</plugin>
 					<plugin>
 						<groupId>com.vaadin</groupId>
 						<artifactId>vaadin-maven-plugin</artifactId>
@@ -209,13 +192,16 @@
 								<phase>compile</phase>
 							</execution>
 						</executions>
+						<configuration>
+							<productionMode>true</productionMode>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
 
 		<profile>
-			<id>integration-tests</id>
+			<id>it</id>
 			<build>
 				<plugins>
 					<plugin>
