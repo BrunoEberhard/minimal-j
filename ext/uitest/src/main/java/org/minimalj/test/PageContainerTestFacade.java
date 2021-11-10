@@ -175,7 +175,6 @@ public interface PageContainerTestFacade {
 		public default int findRow(String text, int column) {
 			for (int row = 0; row < getRowCount(); row++) {
 				String value = getValue(row, column);
-				System.out.println(value);
 				if (StringUtils.equals(text, value)) {
 					return row;
 				}
