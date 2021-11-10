@@ -157,11 +157,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			@Override
 			public Runnable get(String text) {
 				WebElement divNavigation = driver.findElement(By.id("navigation"));
-				WebElement item = divNavigation.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
+				WebElement item = divNavigation.findElement(By.xpath(".//a[text()=" + HtmlTest.escapeXpath(text) + "]"));
 				return () -> {
 					if (!divNavigation.isDisplayed()) {
 						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
 						navigationToggle.click();
+						// No server request. But sometimes needs delay
+						waitScript();
 					}
 					item.click();
 					waitScript();
