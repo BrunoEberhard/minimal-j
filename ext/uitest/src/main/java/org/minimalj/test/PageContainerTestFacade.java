@@ -33,6 +33,11 @@ public interface PageContainerTestFacade {
 		Assert.assertEquals("Exact one page should be visible", 1, pages.size());
 		return pages.get(0);
 	}
+	
+	public default PageTestFacade page() {
+		List<PageTestFacade> pages = getPages();
+		return pages.get(pages.size()-1);
+	}
 
 	public interface ActionTestFacade extends Runnable {
 
@@ -182,6 +187,15 @@ public interface PageContainerTestFacade {
 			return -1;
 		}
 
+		public default int findColumn(String text) {
+			for (int column = 0; column < getColumnCount(); column++) {
+				String value = getHeader(column);
+				if (StringUtils.equals(text, value)) {
+					return column;
+				}
+			}
+			return -1;
+		}
 	}
 	
 	public interface SearchTableTestFacade extends TableTestFacade {
