@@ -1,4 +1,4 @@
-package org.minimalj.test.html;
+package org.minimalj.test.web;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.minimalj.application.Configuration;
-import org.minimalj.test.ApplicationTestFacade;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
@@ -17,29 +16,41 @@ import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.PageContainerTestFacade.SearchTableTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
+import org.minimalj.test.UiTestFacade;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class HtmlTestFacade implements ApplicationTestFacade {
+public class WebTestFacade implements UiTestFacade {
 
-	private final RemoteWebDriver driver;
+	private final RemoteWebDriver driver = createDriver();
 
-	static {
+	private static final String WEBDRIVER_EDGE_DRIVER = "webdriver.edge.driver";
+	
+	private static RemoteWebDriver createDriver() {
 		// https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium/?tabs=java
 		// https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
-		System.setProperty("webdriver.edge.driver", "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
+		System.setProperty(WEBDRIVER_EDGE_DRIVER, "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
+		RemoteWebDriver driver = new EdgeDriver();
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
+		return driver;
 	}
 
-	public HtmlTestFacade(RemoteWebDriver driver) {
-		this.driver = driver;
+	public WebTestFacade() {
+		reload();
+	}
 
+	public void reload() {
 		String portString = Configuration.get("MjFrontendPort", "8080");
 		driver.get("http://localhost:" + portString);
 		waitScript();
@@ -157,13 +168,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			@Override
 			public Runnable get(String text) {
 				WebElement divNavigation = driver.findElement(By.id("navigation"));
-				WebElement item = divNavigation.findElement(By.xpath(".//a[text()=" + HtmlTest.escapeXpath(text) + "]"));
+				WebElement item = divNavigation.findElement(By.xpath(".//a[text()=" + WebTest.escapeXpath(text) + "]"));
 				return () -> {
 					if (!divNavigation.isDisplayed()) {
 						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
 						navigationToggle.click();
-						// No server request. But sometimes needs delay
-						waitScript();
+						WebDriverWait webDriverWait = new WebDriverWait(driver, 10);
+						webDriverWait.until(ExpectedConditions.elementToBeClickable(item));
 					}
 					item.click();
 					waitScript();
@@ -272,14 +283,14 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 				WebElement actionMenu = divPage.findElement(By.className("actionMenu"));
 				WebElement item;
 				if (actionMenu.isDisplayed()) {
-					item = actionMenu.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
+					item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
 				} else {
 					WebElement actionMenuButton = divPage.findElement(By.className("actionMenuButton"));
 					if (!actionMenuButton.isDisplayed()) {
 						actionMenuButton = driver.findElementById("actionMenuButton");
 					}
 					actionMenuButton.click();
-					item = divPage.findElement(By.xpath(".//*[text()=" + HtmlTest.escapeXpath(text) + "]"));
+					item = divPage.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
 				}
 				item.click();
 				waitScript();
@@ -302,7 +313,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public ActionTestFacade getAction(String caption) {
-			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + HtmlTest.escapeXpath(caption) + "]"));
+			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
 			return new HtmlActionTestFacade(button);
 		}
 	}
@@ -335,7 +346,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public FormElementTestFacade getElement(String caption) {
-			WebElement label = form.findElement(By.xpath(".//label[text()=" + HtmlTest.escapeXpath(caption) + "]"));
+			WebElement label = form.findElement(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]"));
 			String id = label.getAttribute("for");
 			WebElement element = form.findElement(By.id(id));
 			return new HtmlFormElementTestFacade(element);
@@ -369,7 +380,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 
 		@Override
 		public void setText(String value) {
-			HtmlTestFacade.this.setText(formElement, value);
+			WebTestFacade.this.setText(formElement, value);
 			waitScript();
 		}
 		
@@ -393,6 +404,17 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 				element.click();
 			}
 			waitScript();
+		}
+		
+		@Override
+		public List<String> getComboBoxValues() {
+			Select select = new Select(formElement);
+			List<WebElement> options = select.getOptions();
+			List<String> texts = new ArrayList<>(options.size());
+			for (WebElement option: options) {
+				texts.add(option.getText());
+			}
+			return texts;
 		}
 		
 		@Override
@@ -553,13 +575,13 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 
 	private void clickButton(String resourceName) {
 		String caption = Resources.getString(resourceName);
-		WebElement element = driver.findElement(By.xpath(".//button[text()=" + HtmlTest.escapeXpath(caption) + "]"));
+		WebElement element = driver.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
 		driver.executeScript(element.getAttribute("onclick"));
 		waitScript();
 	}
 
 	private void setText(WebElement container, String caption, String text) {
-		WebElement label = container.findElement(By.xpath(".//label[text()=" + HtmlTest.escapeXpath(caption) + "]"));
+		WebElement label = container.findElement(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]"));
 		String id = label.getAttribute("for");
 		WebElement element = container.findElement(By.id(id));
 		setText(element, text);
@@ -570,7 +592,7 @@ public class HtmlTestFacade implements ApplicationTestFacade {
 			Select select = new Select(element);
 			select.selectByVisibleText(text);
 		} else {
-			if (!element.getTagName().equalsIgnoreCase("input")) {
+			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
 				element = element.findElement(By.xpath(".//input"));
 			}
 			element.clear();

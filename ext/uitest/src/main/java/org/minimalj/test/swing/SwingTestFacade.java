@@ -23,7 +23,7 @@ import org.minimalj.frontend.impl.swing.SwingToolBar;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
-import org.minimalj.test.ApplicationTestFacade;
+import org.minimalj.test.UiTestFacade;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
@@ -34,7 +34,7 @@ import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.util.resources.Resources;
 
-public class SwingTestFacade implements ApplicationTestFacade {
+public class SwingTestFacade implements UiTestFacade {
 
 	public static void waitForEDT() {
 		// SwingDialog do invokeLater with setVisible(true)

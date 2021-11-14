@@ -1,43 +1,46 @@
 package org.minimalj.test.html;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.application.Application.AuthenticatonMode;
-import org.minimalj.frontend.impl.web.WebServer;
-import org.minimalj.test.ApplicationTestFacade;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.TestApplication;
+import org.minimalj.test.TestUtil;
+import org.minimalj.test.web.WebTest;
 
-public class HtmlAuthenticationTest extends HtmlTest {
+public class HtmlAuthenticationTest extends WebTest {
 
+	@After
+	public void cleanup() {
+		TestUtil.shutdown();
+	}
+	
 	@Test
 	public void testAuthenticatonModeRequired() {
-		WebServer.start(new TestApplication(AuthenticatonMode.REQUIRED));
+		start(new TestApplication(AuthenticatonMode.REQUIRED));
 
-		ApplicationTestFacade application = new HtmlTestFacade(getDriver());
-
-		UserPasswordLoginTestFacade userPasswordLogin = application.getLoginTestFacade();
+		UserPasswordLoginTestFacade userPasswordLogin = ui().getLoginTestFacade();
 
 		userPasswordLogin.setUser("test");
 		userPasswordLogin.setPassword("test");
 
 		userPasswordLogin.login();
 
-		PageContainerTestFacade pageContainer = application.getCurrentPageContainerTestFacade();
+		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
 
 		PageTestFacade page = pageContainer.getPage();
 		Assert.assertTrue(page.contains("TestPage"));
 		Assert.assertTrue(page.contains("Subject: test"));
-
 		
 		pageContainer.logout();
 	}
-
+	
 //	@Test
 //	public void testAuthenticatonModeSuggested() {
-//		WebServer.start(new TestApplication(AuthenticatonMode.SUGGESTED));
+//		WebServer.start(new TestApplication(AuthenticatonMode.SUGGESTED
 //		driver.get("http://localhost:8080");
 //		waitBlock();
 //		loginShouldBeShown();

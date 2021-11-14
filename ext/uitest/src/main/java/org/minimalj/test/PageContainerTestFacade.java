@@ -122,7 +122,9 @@ public interface PageContainerTestFacade {
 		public String getValidation();
 
 		public SearchTableTestFacade lookup();
-
+		
+		public List<String> getComboBoxValues();
+		
 		public String getLine(int line);
 
 		public List<ActionTestFacade> getLineActions(int line);
@@ -187,6 +189,11 @@ public interface PageContainerTestFacade {
 			return -1;
 		}
 
+		public default int row(String text, Object key) {
+			int column = column(key);
+			return findRow(text, column);
+		}
+
 		public default int findColumn(String text) {
 			for (int column = 0; column < getColumnCount(); column++) {
 				String value = getHeader(column);
@@ -195,6 +202,11 @@ public interface PageContainerTestFacade {
 				}
 			}
 			return -1;
+		}
+		
+		public default int column(Object key) {
+			String text = Resources.getPropertyName(Keys.getProperty(key));
+			return findColumn(text);
 		}
 	}
 	

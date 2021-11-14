@@ -1,35 +1,34 @@
-package org.minimalj.test.html;
+package org.minimalj.test.web;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.minimalj.application.Application;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.test.TestUtil;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import org.minimalj.test.UiTestFacade;
 
-public abstract class HtmlTest {
+public abstract class WebTest {
 
-	private static final String WEBDRIVER_EDGE_DRIVER = "webdriver.edge.driver";
-	
-	private static RemoteWebDriver driver;
-	
-	protected static RemoteWebDriver getDriver() {
-		return driver;
-	}
-	
-	@BeforeClass
-	public static void beforeClass() {
-		// https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium/?tabs=java
-		// https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
-		System.setProperty(WEBDRIVER_EDGE_DRIVER, "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
-		driver = new EdgeDriver();
-	}
-	
-	@AfterClass
-	public static void afterClass() {
-		TestUtil.shutdown();
-		driver.quit();
+	private static WebTestFacade ui;
+	private static Application application;
+
+	public static UiTestFacade ui() {
+		if (ui == null) {
+			ui = new WebTestFacade();
+		}
+		return ui;
 	}
 
+	public static void start(Application application) {
+		if (WebTest.application != application) {
+			TestUtil.shutdown();
+			Application.setInstance(application);
+			WebTest.application = application;
+			WebServer.start(application);
+			if (ui != null) {
+				ui.reload();
+			}
+		}
+	}
+	
 	public static String escapeXpath(String input) {
 		if (input.contains("'") && input.contains("\"")) {
 			// this code is never used at the moment
