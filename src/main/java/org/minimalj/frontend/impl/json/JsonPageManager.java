@@ -80,7 +80,6 @@ public class JsonPageManager implements PageManager {
 	private void updateNavigation() {
 		componentById.clear();
 		navigation = createNavigation();
-		register(navigation);
 		output.add("navigation", navigation);
 		output.add("hasSearchPages", Application.getInstance().hasSearch());
 	}
@@ -106,8 +105,9 @@ public class JsonPageManager implements PageManager {
 						Subject.setCurrent(subject);
 						handle_(input);
 					} catch (ComponentUnknowException x) {
+						logger.log(Level.WARNING, x.getMessage(), x);
 						output = new JsonOutput();
-						show(visiblePageAndDetailsList.getPageIds());
+						show(visiblePageAndDetailsList.getPageIds(), true);
 					} catch (Exception x) {
 						output.add("error", x.getClass().getSimpleName() + ":\n" + x.getMessage());
 						logger.log(Level.SEVERE, x.getMessage(), x);
@@ -160,7 +160,9 @@ public class JsonPageManager implements PageManager {
 			if (initialize instanceof List) {
 				List<String> pageIds = (List<String>) initialize;
 				if (!pageIds.isEmpty() && pageStore.valid(pageIds)) {
-					onLogin = () -> show(pageIds);
+					onLogin = () -> show(pageIds, false);
+				} else {
+					onLogin = () -> show(Application.getInstance().createDefaultPage());
 				}
 			}
 
@@ -249,7 +251,9 @@ public class JsonPageManager implements PageManager {
 		}
 		
 		if (input.containsObject("logout")) {
-			Backend.getInstance().getAuthentication().getLogoutAction().run();
+			if (Subject.getCurrent() != null) {
+				Backend.getInstance().getAuthentication().getLogoutAction().run();
+			}
 			if (Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
 				Backend.getInstance().getAuthentication().showLogin();
 			}
@@ -261,7 +265,7 @@ public class JsonPageManager implements PageManager {
 		List<String> pageIds = (List<String>) input.getObject("showPages");
 		if (pageIds != null) {
 			if (pageStore.valid(pageIds)) {
-				show(pageIds);
+				show(pageIds, true);
 			} else {
 				Page page = new ExpiredPage();
 				String pageId = pageStore.put(page);
@@ -269,6 +273,7 @@ public class JsonPageManager implements PageManager {
 			}
 		}
 		
+		register(output);
 		return output;
 	}
 
@@ -310,6 +315,7 @@ public class JsonPageManager implements PageManager {
 		if (masterPageId == null) {
 			visiblePageAndDetailsList.clear();
 			componentById.clear();
+			// navigation is not part of the output. Needs special registration
 			register(navigation);
 		} else {
 			visiblePageAndDetailsList.removeAllAfter(masterPageId);
@@ -321,7 +327,7 @@ public class JsonPageManager implements PageManager {
 		return pageId;
 	}
 
-	private void show(List<String> pageIds) {
+	private void show(List<String> pageIds, boolean loginNotAuthorized) {
 		if (!pageStore.valid(pageIds)) {
 			Frontend.show(Application.getInstance().createDefaultPage());
 			return;
@@ -348,9 +354,11 @@ public class JsonPageManager implements PageManager {
 			output.add("horizontalDetailLayout", pageIds.size() > 0 && horizontalPageIds.contains(pageIds.get(pageIds.size() - 1)));
 			output.add("showPages", jsonList);
 			updateTitle(firstPage != null ? firstPage : null);
-		} else {
-			onLogin = () -> show(pageIds);
+		} else if (loginNotAuthorized) {
+			onLogin = () -> show(pageIds, false);
 			authentication.showLogin();
+		} else {
+			show(Application.getInstance().createDefaultPage());
 		}
 	}
 	
@@ -368,7 +376,11 @@ public class JsonPageManager implements PageManager {
 		if (subject == null && initializing && Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
 			Backend.getInstance().getAuthentication().showLogin();
 		} else if (onLogin != null) {
-			onLogin.run();
+			try {
+				onLogin.run();
+			} finally {
+				onLogin = null;
+			}
 		} else {
 			Frontend.show(Application.getInstance().createDefaultPage());
 		}
@@ -398,11 +410,9 @@ public class JsonPageManager implements PageManager {
 		}
 
 		JsonComponent content = (JsonComponent) PageAccess.getContent(page);
-		register(content);
 		json.put("content", content);
 
 		List<Object> actionMenu = createActionMenu(page);
-		register(actionMenu);
 		json.put("actionMenu", actionMenu);
 
 		return json;
@@ -509,21 +519,29 @@ public class JsonPageManager implements PageManager {
 	}
 
 	public void register(Object o) {
-		travers(o, component -> {
-			String id = component.getId();
-			if (id != null) {
-				componentById.put(component.getId(), component);
+		travers(o, c -> {
+			if (c instanceof JsonComponent) {
+				JsonComponent component = (JsonComponent) c;
+				String id = component.getId();
+				if (id != null) {
+					componentById.put(component.getId(), component);
+				}
+				component.setPropertyListener(propertyListener);
 			}
-			component.setPropertyListener(propertyListener);
 		});
 	}
 
 	public void unregister(Object o) {
-		travers(o, component -> componentById.remove(component.getId()));
+		travers(o, c -> {
+			if (c instanceof JsonComponent) {
+				JsonComponent component = (JsonComponent) c;
+				componentById.remove(component.getId());
+			}
+		}); 
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void travers(Object o, Consumer<JsonComponent> c) {
+	private void travers(Object o, Consumer<Object> c) {
 		if (o instanceof JsonComponent) {
 			c.accept((JsonComponent) o);
 		}
@@ -533,10 +551,12 @@ public class JsonPageManager implements PageManager {
 		if (o instanceof Collection) {
 			((Collection) o).forEach(v -> travers(v, c));
 		}
+		if (o instanceof JsonOutput) {
+			((JsonOutput) o).forEach(v -> travers(v, c));
+		}
 	}
 
 	public void openDialog(JsonDialog jsonDialog) {
-		register(jsonDialog);
 		output.add("dialog", jsonDialog);
 	}
 
@@ -564,13 +584,11 @@ public class JsonPageManager implements PageManager {
 			output.removeContent(jsonSwitch.getId());
 		}
 		if (content != null) {
-			register(content);
 			output.addContent(jsonSwitch.getId(), content);
 		}
 	}
 
 	public void addContent(String elementId, JsonComponent content) {
-		register(content);
 		output.addContent(elementId, content);
 	}
 

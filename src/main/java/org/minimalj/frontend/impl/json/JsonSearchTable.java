@@ -11,11 +11,11 @@ public class JsonSearchTable<T> extends JsonComponent implements IContent {
 	private final Search<T> search;
 	private final JsonTable<T> table;
 	
-	public JsonSearchTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+	public JsonSearchTable(JsonPageManager pageManager, Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("List");
 		this.search = search;
 		addComponent(JsonTextField.createSearchTextField(new JsonSearchInputListener()));
-		table = new JsonTable<>(keys, multiSelect, listener);
+		table = new JsonTable<>(pageManager, keys, multiSelect, listener);
 		addComponent(table);
 	}
 

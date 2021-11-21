@@ -83,4 +83,10 @@ public class ChainedProperty implements PropertyInterface {
 	public boolean isFinal() {
 		return property2.isFinal();
 	}
+	
+	@Override
+	public String toString() {
+		return property1.toString() + "." + property2.toString();
+	}
+
 }

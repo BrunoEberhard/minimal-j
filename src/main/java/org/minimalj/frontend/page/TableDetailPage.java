@@ -58,11 +58,15 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 
 	protected void setDetailPage(Page newDetailPage) {
 		if (newDetailPage != null) {
-			Frontend.showDetail(TableDetailPage.this, newDetailPage);
+			Frontend.showDetail(TableDetailPage.this, newDetailPage, isHorizontal());
 		} else if (detailPage != null) {
 			Frontend.hideDetail(detailPage);
 		}
 		detailPage = newDetailPage;
+	}
+	
+	protected boolean isHorizontal() {
+		return false;
 	}
 
 	protected boolean isDetailVisible() {

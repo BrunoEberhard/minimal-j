@@ -8,27 +8,33 @@ public class DateUtilsTest {
 
 	
 	@Test
-	public void parseCH_01_02_1923() {
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("01.02.1923", true));
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("01.02.1923", false));
+	public void parseCH_01_02_1944() {
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("01.02.1944", true));
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("01.02.1944", false));
 	}
 
 	@Test
-	public void parseCH_1_02_1923() {
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("1.02.1923", true));
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("1.02.1923", false));
+	public void parseCH_1_02_1944() {
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("1.02.1944", true));
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("1.02.1944", false));
 	}
 
 	@Test
-	public void parseCH_1_2_1923() {
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("1.2.1923", true));
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("1.2.1923", false));
+	public void parseCH_1_2_1944() {
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("1.2.1944", true));
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("1.2.1944", false));
 	}
 
 	@Test
-	public void parseCH_1_2_23() {
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("1.2.23", true));
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("1.2.23", false));
+	public void parseCH_1_2_22() {
+		Assert.assertEquals("2022-02-01", DateUtils.parseCH("1.2.22", true));
+		Assert.assertEquals("2022-02-01", DateUtils.parseCH("1.2.22", false));
+	}
+
+	@Test
+	public void parseCH_1_2_44() {
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("1.2.44", true));
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("1.2.44", false));
 	}
 	
 	@Test
@@ -68,15 +74,15 @@ public class DateUtilsTest {
 	}
 
 	@Test
-	public void parseCH_010223() {
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("010223", true));
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("010223", false));
+	public void parseCH_010244() {
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("010244", true));
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("010244", false));
 	}
 
 	@Test
-	public void parseCH_01021923() {
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("01021923", true));
-		Assert.assertEquals("1923-02-01", DateUtils.parseCH("01021923", false));
+	public void parseCH_01021944() {
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("01021944", true));
+		Assert.assertEquals("1944-02-01", DateUtils.parseCH("01021944", false));
 	}
 
 	@Test

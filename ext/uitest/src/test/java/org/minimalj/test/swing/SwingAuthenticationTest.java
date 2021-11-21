@@ -20,7 +20,6 @@ import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.test.ApplicationTestFacade;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
@@ -28,6 +27,7 @@ import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.TestApplication;
 import org.minimalj.test.TestApplication.TestPage;
 import org.minimalj.test.TestUtil;
+import org.minimalj.test.UiTestFacade;
 import org.minimalj.util.resources.Resources;
 
 public class SwingAuthenticationTest {
@@ -41,16 +41,16 @@ public class SwingAuthenticationTest {
 	public void testAuthenticatonModeRequired() throws InterruptedException, InvocationTargetException {
 		Swing.start(new TestApplication(AuthenticatonMode.REQUIRED));
 
-		ApplicationTestFacade application = new SwingTestFacade();
+		UiTestFacade ui = new SwingTestFacade();
 		
-		UserPasswordLoginTestFacade userPasswordLogin = application.getLoginTestFacade();
+		UserPasswordLoginTestFacade userPasswordLogin = ui.getLoginTestFacade();
 
 		userPasswordLogin.setUser("test");
 		userPasswordLogin.setPassword("test");
 
 		userPasswordLogin.login();
 
-		PageContainerTestFacade pageContainer = application.getCurrentPageContainerTestFacade();
+		PageContainerTestFacade pageContainer = ui.getCurrentPageContainerTestFacade();
 		
 		NavigationTestFacade navigation = pageContainer.getNavigation();
 		
@@ -105,8 +105,8 @@ public class SwingAuthenticationTest {
 	public void testAuthenticatonModeOptional() throws InterruptedException, InvocationTargetException {
 		Swing.start(new TestApplication(AuthenticatonMode.OPTIONAL));
 		
-		ApplicationTestFacade application = new SwingTestFacade();
-		PageContainerTestFacade pageContainer = application.getCurrentPageContainerTestFacade();
+		UiTestFacade ui = new SwingTestFacade();
+		PageContainerTestFacade pageContainer = ui.getCurrentPageContainerTestFacade();
 		
 		NavigationTestFacade navigation = pageContainer.getNavigation();
 		Assert.assertNotNull(navigation.get("ActionWithoutLogin"));

@@ -12,23 +12,19 @@ import org.minimalj.application.Application;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
-import org.minimalj.test.html.HtmlTest;
-import org.minimalj.test.html.HtmlTestFacade;
+import org.minimalj.test.web.WebTest;
 
-public class FormatFormElementTest extends HtmlTest {
+public class FormatFormElementTest extends WebTest {
 	
 	@Test
 	public void test() {
-		WebServer.start(new FormatFormElementTestApplication());
+		start(new FormatFormElementTestApplication());
 
-		HtmlTestFacade application = new HtmlTestFacade(getDriver());
-
-		PageContainerTestFacade window = application.getCurrentPageContainerTestFacade();
+		PageContainerTestFacade window = ui().getCurrentPageContainerTestFacade();
 		
 		window.getNavigation().get(new FormatFormElementTestEditor().getName()).run();
 		

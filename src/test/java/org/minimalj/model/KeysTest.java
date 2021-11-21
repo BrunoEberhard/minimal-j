@@ -180,9 +180,22 @@ public class KeysTest {
 		TestClass10 testClass10 = new TestClass10();
 		testClass10.a = BigDecimal.valueOf(3);
 		testClass10.b = BigDecimal.valueOf(4);
-		
-		
-		
+	}
+	
+	@Test
+	public void testGetterUsedFromTwoChainedProperties() {
+		// this chained properties with a getter method at end failed till 1.0.27.0
+		TestClass11a testA = new TestClass11a();
+		testA.t.t2.setS3("Test");
+
+		TestClass11b testB = new TestClass11b();
+		testB.t.t2.setS3("Test2");
+
+		PropertyInterface pA = Keys.getProperty(TestClass11a.$.t.t2.getS3());
+		PropertyInterface pB = Keys.getProperty(TestClass11b.$.t.t2.getS3());
+
+		Assert.assertEquals("Test", pA.getValue(testA));
+		Assert.assertEquals("Test2", pB.getValue(testB));
 	}
 	
 	//
@@ -312,6 +325,25 @@ public class KeysTest {
 			
 			return a != null && b != null ? a.add(b) : null;
 		}
+	}
+
+	public static class TestClass11 {
+
+		public final TestClass2 t2 = new TestClass2();
+	}
+	
+	public static class TestClass11a {
+
+		public static final TestClass11a $ = Keys.of(TestClass11a.class);
+
+		public TestClass11 t = new TestClass11();
+	}
+
+	public static class TestClass11b {
+
+		public static final TestClass11b $ = Keys.of(TestClass11b.class);
+
+		public TestClass11 t = new TestClass11();
 	}
 
 }

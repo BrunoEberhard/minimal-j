@@ -116,12 +116,12 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new JsonTable<>(keys, multiSelect, listener);
+		return new JsonTable<>(getClientSession(), keys, multiSelect, listener);
 	}
 
 	@Override
 	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new JsonSearchTable<>(search, keys, multiSelect, listener);
+		return new JsonSearchTable<>(getClientSession(), search, keys, multiSelect, listener);
 	}
 
 	@Override

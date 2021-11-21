@@ -34,7 +34,6 @@ import org.minimalj.util.resources.Resources;
 
 public abstract class UserPasswordAuthentication extends Authentication implements RememberMeAuthentication {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger(UserPasswordAuthentication.class.getName());
 
 	@Override
 	public Action getLoginAction() {
@@ -95,7 +94,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 						Frontend.getInstance().login(subject);
 						dialog.ifPresent(IDialog::closeDialog);
 					} else {
-						Frontend.showMessage("User / password invalid");
+						Frontend.showMessage(Resources.getString("UsernamePasswordInvalid"));
 					}
 				}
 			}
