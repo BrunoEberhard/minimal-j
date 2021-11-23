@@ -529,7 +529,8 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			Actions action = new Actions(driver);
-			action.doubleClick(tr).perform();
+			// TODO understand and fix this 'td'
+			action.doubleClick(tr.findElement(By.tagName("td"))).perform();
 			waitScript();
 		}
 
@@ -538,7 +539,8 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			Actions action = new Actions(driver);
-			action.click(tr).perform();
+			// TODO understand and fix this 'td'
+			action.click(tr.findElement(By.tagName("td"))).perform();
 			waitScript();
 		}
 		
