@@ -208,7 +208,6 @@ $ICON
 					}
 				}
 			}
-			updateDialogSizes();
 		}
 		if (dataObject.message) {
 			alert(dataObject.message);
@@ -531,7 +530,6 @@ $ICON
 			element.classList.add("form")
 			element.dataset.columns = content.columns ? content.columns : 1;
 			element.dataset.columnWidth = content.columnWidth;
-			element.style.maxWidth = (content.columns * content.columnWidth * 1.5 / 6 + 3) + "em";
 			var rows = content.rows;
 			for (var i = 0; i < rows.length; i++) {
 				element.appendChild(createFormRow(rows[i], content.columnWidth));
@@ -847,7 +845,6 @@ $ICON
 	
 	function setWidths(cellElement, cellContent, span, width) {
 		cellElement.style.width = (width * span / 6 + (span - 1)) + "em";
-		cellElement.style.flexShrink = span;
 		cellElement.style.flexGrow = span;
 	
 		if (cellContent.classList.contains("groupHorizontal")) {
@@ -975,7 +972,6 @@ $ICON
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
 		dialog.id = json.id;
-		dialog.setAttribute("type", json.type);
 	
 		var block = document.createElement("div");
 		block.classList.add("is-blocked");
@@ -983,14 +979,20 @@ $ICON
 	
 		var header = document.createElement("div");
 		header.classList.add("dialogHeader");
-		var headerDiv = document.createElement("div");
-		headerDiv.appendChild(document.createTextNode(json.title));
-		var buttons = document.getElementById("dialogButtons").cloneNode(true);
-		headerDiv.appendChild(buttons);
-		header.appendChild(headerDiv);
+		var headerText = document.createElement("span");
+		headerText.appendChild(document.createTextNode(json.title));
+		header.appendChild(headerText);
+		var buttons = document.getElementById("dialogButtonsTemplate").cloneNode(true);
+		while (buttons.children.length> 0) header.appendChild(buttons.children[0]);
 		dialog.appendChild(header);
 	
 		var content = createContent(json["content"]);
+		if (content.tagName.toUpperCase() == "TABLE") {
+			var wrapper = document.createElement("div");
+			wrapper.classList.add("dialogContentWrapper");
+			wrapper.appendChild(content);
+			content = wrapper;
+		}
 		content.classList.add("dialogContent");
 		dialog.appendChild(content);
 	
@@ -1010,6 +1012,9 @@ $ICON
 			}
 			dialog.appendChild(footer);
 		}
+		
+		var resize = document.getElementById("dialogResizeTemplate").cloneNode(true);
+		dialog.appendChild(resize);
 	
 		addEnterAction(json.saveAction, content);
 
@@ -1026,7 +1031,27 @@ $ICON
 		dialog.addEventListener("close", dialogClosedListener);
 
 		dialog.showModal();
-		updateDialogSizes();
+
+		if (json.type === "SearchDialog") {
+			dialog.style.width = Math.max(500, Math.min(1000, window.innerWidth - 200));
+		}
+
+		var computedStyle = window.getComputedStyle(dialog);
+		dialog.computedWidth = parseInt(computedStyle.width, 10);
+		if (dialog.computedWidth >= window.innerWidth) {
+			dialog.classList.add("fullscreen");
+			dialog.classList.add("fullscreenOnly");
+		} else {
+			header.addEventListener("mousedown", addMoveListener);
+			header.addEventListener("dblclick", dialogClickListener);
+
+			var intialHeight = parseInt(window.getComputedStyle(dialog).height, 10);
+			if (json.type === "SearchDialog") {
+			 	intialHeight = Math.min(600, window.innerHeight - 50);
+			}
+			dialog.style.height = Math.min(intialHeight, window.innerHeight - 40);
+			dialog.style.left = Math.max((window.innerWidth - parseInt(window.getComputedStyle(dialog).width, 10)) / 3 , 0);
+		}
 	}
 
 	function addEnterAction(enterAction, form) {
@@ -1072,17 +1097,73 @@ $ICON
 
 	function dialogClosedListener(event) {
 		document.getElementById("body").removeChild(event.target);
-		updateDialogSizes();
 	}
 	
 	function closeDialogs() {
-		var dialogElements = document.getElementsByTagName("dialog");
-		if (dialogElements) {
-			for (var i = 0; i < dialogElements.length; i++) {
-				var dialog = dialogElements[i];
+		var dialogs = document.getElementsByTagName("dialog");
+		if (dialogs) {
+			for (var i = 0; i < dialogs.length; i++) {
+				var dialog = dialogs[i];
 				document.getElementById("body").removeChild(dialog);
 			}
 		}
+	}
+	
+	var dialogElement;
+	
+	function startDialogDrag(event) {
+		dialogElement = event.target;
+		while (dialogElement.tagName.toLowerCase() != "dialog") dialogElement = dialogElement.parentElement;
+		if (event.buttons != 1 || dialogElement.classList.contains("fullscreen")) {
+			dialogElement = null;
+		}
+	}
+	
+	function addMoveListener(event) {
+		startDialogDrag(event);
+		if (dialogElement != null) {
+			window.addEventListener("mousemove", dialogMoveListener);
+		}
+	}
+
+	function dialogMoveListener(event) {
+		if (event.buttons != 1) {
+			window.removeEventListener("mousemove", dialogMoveListener);
+		} else {			
+			var style = window.getComputedStyle(dialogElement);
+			var left = parseInt(style.left, 10) + event.movementX;
+			var top = parseInt(style.top, 10) + event.movementY;
+			dialogElement.style.left = Math.max(0, Math.min(left, window.innerWidth - 80)) + 'px';
+			dialogElement.style.top = Math.max(0, Math.min(top, window.innerHeight - 40)) + 'px';
+		}
+	}
+
+	function addResizeListener(event) {
+		startDialogDrag(event);
+		if (dialogElement != null) {
+			window.addEventListener("mousemove", dialogResizeListener);
+		}
+	}
+	
+	function dialogResizeListener(event) {
+		if (event.buttons != 1) {
+			window.removeEventListener("mousemove", dialogResizeListener);
+		} else {			
+			var style = window.getComputedStyle(dialogElement);
+			var width = parseInt(style.width, 10) + event.movementX;
+			var height = parseInt(style.height, 10) + event.movementY;
+	
+			dialogElement.style.width = Math.max(350, width);
+			dialogElement.style.height = Math.max(150, height);
+			
+			event.preventDefault();
+		}
+	}
+
+	function dialogClickListener(event) {
+		var dialogElement = event.target;
+		while (dialogElement.tagName.toLowerCase() != "dialog") dialogElement = dialogElement.parentElement;
+		dialogElement.classList.toggle("fullscreen");
 	}
 	
 	function sendchange(source, saveAction) {
@@ -1403,88 +1484,26 @@ $ICON
 		onMessage(resultStr);
 	}
 	
-	function updateDialogSizes() {
-		var dialogElements = document.getElementsByTagName("dialog");
-		if (dialogElements && dialogElements.length > 0) {
-			var maxDialogWidth = 0;
-			for (var i = 0; i < dialogElements.length; i++) {
-				var dialogElement = dialogElements[i];
-				var maxWidthElement = dialogElement.querySelector(".form");
-				if (maxWidthElement) {
-					var columns = maxWidthElement.dataset.columns;
-					dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 1 * columns + 3.1) + "em";
-					maxDialogWidth = Math.max(maxDialogWidth, parseInt(window.getComputedStyle(dialogElement).maxWidth));
+	function resizeDialogs(event) {
+		var dialogs = document.getElementsByTagName("dialog");
+		if (dialogs && dialogs.length > 0) {
+			for (var i = 0; i < dialogs.length; i++) {
+				var dialog = dialogs[i];
+				var computedStyle = window.getComputedStyle(dialog);
+				if (dialog.computedWidth >= window.innerWidth) {
+					dialog.classList.add("fullscreenOnly");
 				} else {
-					dialogElement.style.maxWidth = "unset";
+					dialog.classList.remove("fullscreenOnly");
+				}	
+				var left = parseInt(computedStyle.left)
+				if (left > window.innerWidth - 80) {
+					dialog.style.left = window.innerWidth - 80;
+				}
+				var top = parseInt(computedStyle.top);
+				if (top > window.innerHeight - 40) {
+					dialog.style.top = window.innerHeight - 40;
 				}
 			}
-	
-			if (maxDialogWidth < window.innerWidth - 20) {
-				var marginLeft = 0;
-				var navigationContainer = document.getElementById("navigationContainer");
-				if (navigationContainer.display != "none" && navigationContainer.clientWidth + maxDialogWidth < window.innerWidth) {
-					marginLeft += navigationContainer.clientWidth;
-				}
-	
-				for (var i = 0; i < dialogElements.length; i++) {
-					var dialogElement = dialogElements[i];
-					dialogElement.classList.remove("fullscreen");
-	
-					dialogElement.style.top = (i + 4) + "em";
-					dialogElement.style.left = (i + 1) + "em";
-					dialogElement.style.width = "unset";
-	
-					dialogElement.style.marginLeft = marginLeft;
-					dialogElement.style.marginRight = "1em";
-					dialogElement.style.marginBottom = "1em";
-	
-					var headerHeight = document.getElementById("header").clientHeight;
-					var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-					var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
-					var top = parseInt(window.getComputedStyle(dialogElement).top);
-					var dialogPadding = parseInt(window.getComputedStyle(dialogElement).marginTop) + parseInt(window.getComputedStyle(dialogElement).marginBottom);
-					var contentElement = dialogElement.querySelector(".dialogContent");
-					var height = Math.max(100, height = window.innerHeight - 10 - headerHeight - top - dialogPadding - dialogHeaderHeight - dialogFooterHeight);
-					contentElement.style.maxHeight = height + "px";
-	
-					var type = dialogElement.getAttribute("type");
-					if (type === "SearchDialog") {
-						contentElement.style.height = height + "px";
-						dialogElement.style.marginRight = "3em";
-						contentElement.style.paddingRight = "0em";
-					}
-	
-					dialogElement.style.display = "block";
-				}
-			} else {
-				for (var i = 0; i < dialogElements.length - 1; i++) {
-					dialogElements[i].style.display = "none";
-				}
-				var dialogElement = dialogElements[dialogElements.length - 1];
-				dialogElement.classList.add("fullscreen");
-				dialogElement.style.display = "block";
-	
-				dialogElement.style.top = "0em";
-				dialogElement.style.left = "0em";
-	
-				dialogElement.style.marginLeft = "0em";
-				dialogElement.style.marginRight = "0em";
-				dialogElement.style.marginBottom = "0em";
-	
-				dialogElement.style.width = "100%";
-				dialogElement.style.maxWidth = null;
-	
-				var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-				var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
-	
-				var dialogPadding = parseInt(window.getComputedStyle(dialogElement).padding);
-				var contentElement = dialogElement.querySelector(".dialogContent");
-				var height = window.innerHeight - dialogHeaderHeight - dialogFooterHeight - 2 * dialogPadding;
-	
-				contentElement.style.maxHeight = height;
-			}
-	
-			dialogElement.style.height = "unset";
 		}
 	}
 	
@@ -1519,7 +1538,7 @@ $ICON
 		if (window.innerWidth >= 992) toggleNavigation("open");
 	
 		window.addEventListener("resize", resizeNavigation);
-		window.addEventListener("resize", updateDialogSizes);
+		window.addEventListener("resize", resizeDialogs);
 		window.addEventListener("resize", closeActionMenu);
 		window.addEventListener("click", closeActionMenu);
 		window.addEventListener("scroll", closeActionMenu, true); // true -> capture the event on dispatch, even if that event does not normally bubble
@@ -1638,12 +1657,22 @@ $ICON
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>
 		</div>
-		<div id="dialogButtons">
-			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialogButton(evt)">
+		<div id="dialogButtonsTemplate" class="dialogButtons">
+			<svg class="pageButton button maximizeButton" onclick="dialogClickListener(evt)">
+			  <rect x="22%" y="22%" width="56%" height="56%" stroke-width="12%" fill="none" />
+			</svg>
+			<svg class="pageButton button" onclick="closeDialogButton(evt)">
 			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
 			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
 			</svg>
 		</div>
+		<div id="dialogResizeTemplate" class="dialogResize">
+			<svg class="pageButton button" onmousedown="addResizeListener(evt)">
+			  <line x1="10%" y1="90%" x2="90%" y2="10%" style="stroke-width:10%" />
+			  <line x1="40%" y1="90%" x2="90%" y2="40%" style="stroke-width:10%" />
+			  <line x1="70%" y1="90%" x2="90%" y2="70%" style="stroke-width:10%" />
+			</svg>
+		</div>		
 		<span id="tooltip">
 			<svg width="0.75em" height="0.75em" style="padding-left: 0.3em">
 	  		  <circle cx="50%" cy="50%" r="49%" stroke-width="1%" fill="red" />

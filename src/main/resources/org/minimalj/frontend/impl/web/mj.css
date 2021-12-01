@@ -1,4 +1,7 @@
 html {
+	/* needed for android browser because else overflow hidden is not respected */
+	position: fixed;
+	width: 100%;
 	height: 100%;
 }
 
@@ -7,6 +10,7 @@ body {
 	font-size: 11px;
 	margin: 0px;
 	height: 100%;
+	overflow: hidden;
 }
 
 ::selection {
@@ -231,32 +235,45 @@ dialog {
 	top: 1em;
 	bottom: auto;
 	left: 1em;
-	margin-right: 1em;
-	margin-bottom: 1em;
+	right: auto;
 	color: unset;
-}
-
-dialog.fullscreen {
-	position: absolute;
-	bottom: 0em;
-	box-sizing: border-box;
-	border: none;
-	max-width: none;
-	max-height: none;
+	display: flex;
+	flex-direction: column;
 }
 
 .dialogHeader {
-	height: 2em;
-	line-height: 2em;
-	padding-left: 1em;
+	padding-bottom: 0.5em;
 	border-bottom: 1px rgb(160,160,160) solid;
 	background: rgb(240,240,240);
 	overflow: hidden;
+	cursor: move;
+	flex-shrink: 0;
+	display: flex;
+}
+
+.dialogHeader span {
+	flex-grow: 1;
+	flex-shrink: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.dialogResize {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	cursor: se-resize;
 }
 
 .dialogContent {
+	flex-grow: 1;
 	overflow-y: auto;
 	overflow-x: hidden;
+}
+
+.dialogContentWrapper {
+	overflow: hidden;
 }
 
 .dialogFooter {
@@ -268,15 +285,37 @@ dialog.fullscreen {
 	height: fit-content;
 }
 
-.fullscreen .dialogFooter {
-	position: absolute;
-	left: 0em;
-	right: 0em;
-	bottom: 0em;
+.dialogFooter button {
+	margin-right: 0.8em;
 }
 
-.dialogFooter button {
+.fullscreen .dialogFooter button {
 	margin-right: 0.2em;
+}
+
+dialog.fullscreen {
+	position: absolute;
+	top: 0em !important;
+	bottom: 0em;
+	left: 0em !important;
+	right: 0em;
+	width: auto !important;
+	height: auto !important;
+	border: none;
+	margin-right: 0em;
+	margin-bottom: 0em;
+}
+
+dialog.fullscreen .dialogHeader {
+	cursor: unset;
+}
+
+dialog.fullscreen .dialogResize {
+	display: none;
+}
+
+dialog.fullscreen.fullscreenOnly .maximizeButton {
+	display: none;
 }
 
 #applicationVersion {
@@ -318,24 +357,40 @@ table tr:nth-child(odd).selected {
 .form {
 	border-spacing: 0px;
 	width: 100%;
-	margin-top: 0.5ex;
 }
 
 .form > div {
 	display: flex;
-	flex-wrap: wrap;	
+	flex-wrap: nowrap;	
 }
 
-dialog .form > div {
-	margin-left: 1em;
+.dialogContent, .dialogHeader {
+	padding: 0.5rem 1rem;
+	box-sizing: border-box;
+}
+
+dialog table {
+    /* for search dialogs */
+	width: 100%;
+}
+
+.form > div > div, .dialogButtons {
+	padding-right: 1em;
 }
 
 .form > div > div {
 	position: relative;
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
-	margin-right: 1em;
-	// overflow: hidden;
+	flex-shrink: 0;
+}
+
+.fullscreen .form > div {
+	flex-wrap: wrap;	
+}
+
+.fullscreen .form > div > div {
+	flex-shrink: 1;
 }
 
 .form > div > div > *, .form input[type=text] {
