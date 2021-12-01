@@ -1045,7 +1045,8 @@ $ICON
 			header.addEventListener("mousedown", addMoveListener);
 			header.addEventListener("dblclick", dialogClickListener);
 
-			var intialHeight = parseInt(window.getComputedStyle(dialog).height, 10);
+			// plus 1 or firefox in uhd and material-design will scroll
+			var intialHeight = parseInt(window.getComputedStyle(dialog).height, 10) + 1;
 			if (json.type === "SearchDialog") {
 			 	intialHeight = Math.min(600, window.innerHeight - 50);
 			}

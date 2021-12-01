@@ -59,22 +59,13 @@ dialog {
 	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px
 		rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
 	border: none;
+}
+
+.dialogContent, .dialogHeader, .dialogFooter {
 	padding: 1rem 2rem;
 }
 
-.dialogContent, .dialogHeader {
-	padding: 0.5rem 0rem;
-	box-sizing: border-box;
-}
-
-.dialogContent {
-	box-sizing: border-box;
-	overflow-y: auto;
-	overflow-x: hidden;
-	padding-right: 1em;
-}
-
-.dialogHeader {
+.dialogHeader, .dialogFooter {
 	border: none;
 	background: transparent;
 }
@@ -83,11 +74,6 @@ dialog {
 	.dialogFooter {
 		height: fit-content;
 	}
-}
-
-.dialogFooter {
-	border: none;
-	background: transparent;
 }
 
 button {

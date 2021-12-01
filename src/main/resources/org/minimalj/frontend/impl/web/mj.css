@@ -242,7 +242,6 @@ dialog {
 }
 
 .dialogHeader {
-	padding-bottom: 0.5em;
 	border-bottom: 1px rgb(160,160,160) solid;
 	background: rgb(240,240,240);
 	overflow: hidden;
@@ -365,7 +364,7 @@ table tr:nth-child(odd).selected {
 }
 
 .dialogContent, .dialogHeader {
-	padding: 0.5rem 1rem;
+	padding: 0.4rem 1rem;
 	box-sizing: border-box;
 }
 
