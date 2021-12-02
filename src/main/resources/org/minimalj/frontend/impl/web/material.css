@@ -70,9 +70,10 @@ dialog {
 	background: transparent;
 }
 
-@media (max-width: 991px) {
-	.dialogFooter {
-		height: fit-content;
+@media (max-width: 420px) {
+	.dialogContent, .dialogHeader, .dialogFooter {
+		padding-left: 1rem;
+		padding-right: 1rem;
 	}
 }
 
