@@ -1115,7 +1115,9 @@ $ICON
 	function startDialogDrag(event) {
 		dialogElement = event.target;
 		while (dialogElement.tagName.toLowerCase() != "dialog") dialogElement = dialogElement.parentElement;
-		if (event.buttons != 1 || dialogElement.classList.contains("fullscreen")) {
+		if (event.buttons == 1 && !dialogElement.classList.contains("fullscreen")) {
+			event.preventDefault();
+		} else {
 			dialogElement = null;
 		}
 	}
