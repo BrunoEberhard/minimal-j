@@ -211,6 +211,7 @@ table.table thead {
 .table .form > div > div {
 	padding-top: 0;
 	padding-bottom: 0;
+	flex-grow: 0 !important;
 }
 
 .table .form {
