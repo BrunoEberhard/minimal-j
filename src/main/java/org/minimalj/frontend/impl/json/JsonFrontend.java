@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,6 @@ import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
@@ -218,15 +216,9 @@ public class JsonFrontend extends Frontend {
 	private static String stylesheets;
 	
 	static {
-		List<String> cssHrefs = new ArrayList<>();
-		if (StringUtils.equals(Configuration.get("MjTheme", ""), "material")) {
-			cssHrefs.add("https://fonts.googleapis.com/css?family=Roboto");
-			cssHrefs.add("material.css");
-		}
 		String[] customCss = Configuration.get("MjCss", "").split(",");
-		cssHrefs.addAll(Arrays.asList(customCss));
 		stylesheets = "";
-		cssHrefs.forEach(css -> {
+		Arrays.stream(customCss).forEach(css -> {
 			stylesheets += "<link rel=\"stylesheet\" href=\"" + css + "\" />\n";
 		});
 	}
