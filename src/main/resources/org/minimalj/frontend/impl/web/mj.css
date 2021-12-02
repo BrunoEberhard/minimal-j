@@ -258,13 +258,6 @@ dialog {
 	text-overflow: ellipsis;
 }
 
-.dialogResize {
-	position: absolute;
-	right: 0px;
-	bottom: 0px;
-	cursor: se-resize;
-}
-
 .dialogContent {
 	flex-grow: 1;
 	overflow-y: auto;
@@ -290,6 +283,13 @@ dialog {
 
 .fullscreen .dialogFooter button {
 	margin-right: 0.2em;
+}
+
+.dialogResize {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	cursor: se-resize;
 }
 
 dialog.fullscreen {
