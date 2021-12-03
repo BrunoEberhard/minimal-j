@@ -36,12 +36,12 @@ body {
 	height: 0.9em;
 }
 
-#navigation ul {
-	padding: 0.7ex 0em .7em 0em;
+#navigation {
+	padding-top: 0.5em;
 }
 
 #navigation li {
-	padding: 1em 0em 0em 1em;
+	margin: 1em 0em 1em 0em;
 }
 
 .action {
@@ -51,9 +51,6 @@ body {
 .actionMenu {
 	padding: 1ex 2ex 1ex 2ex;
 	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
-}
-
-.actionMenu ul {
 }
 
 .actionMenu li {
