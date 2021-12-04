@@ -88,11 +88,11 @@ public interface Rendering {
 			Enum enumElement = (Enum) o;
 			return EnumUtils.getText(enumElement);
 		} else if (o instanceof LocalDate) {
-			return DateUtils.getDateTimeFormatter().format((TemporalAccessor) o); 
+			return DateUtils.format((LocalDate) o); 
 		} else if (o instanceof LocalTime) {
 			return DateUtils.getTimeFormatter(property).format((LocalTime) o); 
 		} else if (o instanceof LocalDateTime) {
-			String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) o);
+			String date = DateUtils.format(((LocalDateTime) o).toLocalDate());
 			String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) o);
 			return date + " " + time; 
 		} else if (InvalidValues.isInvalid(o)) {

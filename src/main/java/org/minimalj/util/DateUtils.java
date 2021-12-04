@@ -34,8 +34,21 @@ public class DateUtils {
 	public static final DateTimeFormatter TIME_PARSE_WITH_SECONDS = DateTimeFormatter.ofPattern("H:mm:ss");
 	public static final DateTimeFormatter TIME_PARSE_WITH_MILIS = DateTimeFormatter.ofPattern("H:mm:ss.SSS");
 
-	public static DateTimeFormatter getDateTimeFormatter() {
-		Locale locale = LocaleContext.getCurrent();
+	private static Locale forcedLocale;
+	
+	static {
+		String languageTage = Configuration.get("MjDateLocale", null);
+		if (!StringUtils.isEmpty(languageTage)) {
+			forcedLocale = Locale.forLanguageTag(languageTage);
+		}
+	}
+	
+	private static Locale getLocale() {
+		return forcedLocale != null ? forcedLocale : LocaleContext.getCurrent();
+	}
+	
+	private static DateTimeFormatter getDateTimeFormatter() {
+		Locale locale = getLocale();
 		if (!dateFormatByLocale.containsKey(locale)) {
 			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
 			dateFormatByLocale.put(locale, formatter);
@@ -216,7 +229,7 @@ public class DateUtils {
 
 	public static boolean germanDateStyle() {
 		getDateTimeFormatter();
-		return germanDateStyle.get(LocaleContext.getCurrent());
+		return germanDateStyle.get(getLocale());
 	}
 	
 	/**
