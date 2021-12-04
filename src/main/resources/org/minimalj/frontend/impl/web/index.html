@@ -1037,21 +1037,19 @@ $ICON
 		}
 
 		var computedStyle = window.getComputedStyle(dialog);
-		dialog.computedWidth = parseInt(computedStyle.width, 10);
-		if (dialog.computedWidth >= window.innerWidth) {
+		if (window.innerWidth < 600) {
 			dialog.classList.add("fullscreen");
-			dialog.classList.add("fullscreenOnly");
 		} else {
 			header.addEventListener("mousedown", addMoveListener);
 			header.addEventListener("dblclick", dialogClickListener);
 
 			// plus 1 or firefox in uhd and material-design will scroll
-			var intialHeight = parseInt(window.getComputedStyle(dialog).height, 10) + 1;
+			var intialHeight = parseInt(computedStyle.height, 10) + 1;
 			if (json.type === "SearchDialog") {
 			 	intialHeight = Math.min(600, window.innerHeight - 50);
 			}
 			dialog.style.height = Math.min(intialHeight, window.innerHeight - 40);
-			dialog.style.left = Math.max((window.innerWidth - parseInt(window.getComputedStyle(dialog).width, 10)) / 3 , 0);
+			dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width, 10)) / 3 , 0);
 		}
 	}
 
@@ -1494,11 +1492,6 @@ $ICON
 			for (var i = 0; i < dialogs.length; i++) {
 				var dialog = dialogs[i];
 				var computedStyle = window.getComputedStyle(dialog);
-				if (dialog.computedWidth >= window.innerWidth) {
-					dialog.classList.add("fullscreenOnly");
-				} else {
-					dialog.classList.remove("fullscreenOnly");
-				}	
 				var left = parseInt(computedStyle.left)
 				if (left > window.innerWidth - 80) {
 					dialog.style.left = window.innerWidth - 80;

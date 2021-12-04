@@ -334,8 +334,10 @@ dialog.fullscreen .dialogResize {
 	display: none;
 }
 
-dialog.fullscreen.fullscreenOnly .maximizeButton {
-	display: none;
+@media (max-width: 450px) {
+	dialog.fullscreen .maximizeButton {
+		display: none;
+	}
 }
 
 #applicationVersion {
