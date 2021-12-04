@@ -1428,7 +1428,8 @@ $ICON
 		heartbeatTimer = setInterval(heartbeat, 15 * 1000);
 	
 		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("POST", "ajax_request.xml", true);
+		xmlhttp.open("POST", "ajax_request.json", true);
+        xmlhttp.overrideMimeType('application/json');
 	
 		if (block) blockUi();
 		pendingRequests++;
