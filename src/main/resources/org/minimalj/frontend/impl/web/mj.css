@@ -253,6 +253,14 @@ dialog {
 	flex-direction: column;
 }
 
+dialog:nth-child(3n+1) {
+	top: 2em;
+}
+
+dialog:nth-child(3n+2) {
+	top: 3em;
+}
+
 .dialogHeader {
 	border-bottom: 1px rgb(160,160,160) solid;
 	background: rgb(240,240,240);
