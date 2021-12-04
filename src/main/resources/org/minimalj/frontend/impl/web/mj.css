@@ -313,8 +313,9 @@ dialog.fullscreen {
 	width: auto !important;
 	height: auto !important;
 	border: none;
-	margin-right: 0em;
-	margin-bottom: 0em;
+	margin: 0em;
+	max-width: unset;
+	max-height: unset;
 }
 
 dialog.fullscreen .dialogHeader {
