@@ -26,7 +26,7 @@ import org.minimalj.util.resources.Resources;
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
-	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "10"));
+	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "1000"));
 
 	private final JsonPageManager pageManager;
 	private final Object[] keys;
