@@ -165,6 +165,8 @@ public class Keys {
 			return Array.newInstance(clazz.getComponentType(), 0);
 		} else if (clazz == List.class) {
 			return new ArrayList<>();			
+		} else if (clazz.isAssignableFrom(String.class)) {
+			return new String(fieldName);
 		} else {
 			try {
 				Object keyObject = clazz.newInstance();
