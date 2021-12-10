@@ -29,7 +29,6 @@ $ICON
 	
 	var pageContainerElement;
 	var titleElement;
-	var intersectionObserver = new IntersectionObserver(intersectionListener);
 	
 	var blockStyle = document.createElement('style');
 	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
@@ -142,8 +141,22 @@ $ICON
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
 							for (var i = 0; i < tbody.childNodes.length; i++) {
-								tbody.childNodes[i].className = value[i];							
-							}
+								tbody.childNodes[i].className = value[i];		
+							}					
+						} else if (property === "columnFilter") {
+							var filterElement = document.getElementById("columnFilter-" + id + "-" + value.column);
+							filterElement.value = value.string;
+						} else if (property === "paging") {
+							var pageElement = element;
+							while ((pageElement = pageElement.parentNode) && !pageElement.classList.contains("page"));
+							var display = value ? "inline-block" : "none";
+							pageElement.querySelector(".nextButton").style.display = display;
+							pageElement.querySelector(".prevButton").style.display = display;
+							pageElement.querySelector(".currentPage").style.display = display;
+						} else if (property === "currentPage") {
+							var pageElement = element;
+							while ((pageElement = pageElement.parentNode) && !pageElement.classList.contains("page"));
+							pageElement.querySelector(".currentPage").innerHTML = value;
 						} else if (property === "validationMessage") {
 							var validationElement = document.getElementById(id + "-validation");
 							if (value == undefined || value == "") {
@@ -218,17 +231,6 @@ $ICON
 		if (dataObject.loadSuggestions) {
 			var id = dataObject.loadSuggestions;
 			createSuggestions(id, dataObject.suggestions);
-		}
-		if (dataObject.tableExtendContent) {
-			var table = document.getElementById(dataObject.tableId);
-			var oldScroll = table.parentNode.scrollTop;
-			addTableRows(table.tBodies[0], dataObject.tableExtendContent);
-			if (!dataObject.extendable) {
-				var footer = table.getElementsByTagName("tfoot")[0];
-				intersectionObserver.unobserve(footer);
-				table.removeChild(footer);
-			}
-			table.parentNode.scrollTop = oldScroll;
 		}
 		if (dataObject.canLogin != undefined) {
 			document.getElementById("login").style.display = dataObject.canLogin ? "inline-block" : "none";
@@ -318,9 +320,10 @@ $ICON
 		pageElement.id = page.pageId;
 	
 		var hasActionMenu = page.actionMenu != null;
+		var isTable = page.content.type === "Table";
 	
 		// pageHeader will only be displayed on large displays
-		var headerElement = createPageHeader(page.title);
+		var headerElement = createPageHeader(page);
 		pageElement.appendChild(headerElement);
 		if (!hasActionMenu) {
 			headerElement.querySelector(".actionMenuButton").style.display = "none";
@@ -495,19 +498,46 @@ $ICON
 		send(data, true);
 	}
 	
-	function createPageHeader(title) {
+	function toggleFilter(event) {
+		var element = event.target;
+		while ((element = element.parentNode) && !element.classList.contains("page"));
+		var columnFiltersElement = element.querySelector(".columnFilters");
+		columnFiltersElement.classList.toggle("hide");
+	}
+	
+	function tablePage(event, direction) {
+		var element = event.target;
+		while ((element = element.parentNode) && !element.classList.contains("page"));
+		var table = element.querySelector("table");
+		var data = {
+			tablePage: table.id,
+			direction: direction
+		};
+		send(data, true);
+	}
+	
+	function createPageHeader(page) {
 		var element = document.createElement("div");
 		element.className = "pageHeader secondHeader";
 	
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
-		titleElement.textContent = title;
+		titleElement.textContent = page.title;
 		element.appendChild(titleElement);
 	
-		var b = document.getElementById("pageHeaderButtons");
-		var button = b.cloneNode(true);
-		button.id = "menu";
-		element.appendChild(button);
+		if (page.content.type === "Table") {
+			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
+		    	element.appendChild(item.cloneNode(true));
+			});
+			element.querySelector(".currentPage").innerHTML = page.content.currentPage;
+			var display = page.content.paging ? "inline-block" : "none";
+			element.querySelector(".nextButton").style.display = display;
+			element.querySelector(".prevButton").style.display = display;
+			element.querySelector(".currentPage").style.display = display;
+		}
+		document.getElementById("pageHeaderButtons").childNodes.forEach(function(item) {
+	    	element.appendChild(item.cloneNode(true));
+		});
 	
 		return element;
 	}
@@ -582,18 +612,8 @@ $ICON
 				tr.appendChild(th);
 			}
 			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
+			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilterLookups));
 			element.appendChild(createTableRows(content.tableContent));
-	
-			if (content.extendable) {
-				var footer = document.createElement("tfoot");
-				var dots = document.createTextNode("...");
-				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
-				footer.appendChild(dots);
-				if (intersectionObserver) {
-					intersectionObserver.observe(footer);
-				}
-				element.appendChild(footer);
-			}
 		} else if (type === "Text" || type === "Title") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());
@@ -863,6 +883,39 @@ $ICON
 			th.className = "col " + headerNames[i]; 
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
+			element.appendChild(th);
+		}
+		return element;
+	}
+
+	function createTableFilters(tableId, headers, headerNames, headerFilterLookups) {
+		var element = document.createElement("tr");
+		element.classList.add("columnFilters");
+		element.classList.add("hide");
+		for (var i = 0; i < headers.length; i++) {
+			var th = document.createElement("th");
+			th.className = "columnFilter " + headerNames[i]; 
+			
+			var input = document.createElement("input");
+			input.setAttribute("id", "columnFilter-" + tableId + "-" + i);
+			input.setAttribute("oninput", "ontextinput(this);");
+			input.setAttribute("onchange", "ontextchange(this);");
+			th.appendChild(input);
+			
+			if (headerFilterLookups[i]) {
+				var button = document.createElement("div");
+				button.className = "lookupButton";
+				button.setAttribute("onclick", "tableFilterEditor(\"" + tableId + "\", " + i + " );");
+				th.appendChild(button);
+			}
+			
+			/* at the moment no validation for header filter. Also this is not complete
+			var tooltipTemplate = document.getElementById("tooltip");
+			var tooltip = tooltipTemplate.cloneNode(true);
+			tooltip.id = input.id + "-validation";
+			th.appendChild(tooltip);
+			*/
+			
 			element.appendChild(th);
 		}
 		return element;
@@ -1340,22 +1393,17 @@ $ICON
 		send(data, true);
 	}
 	
-	function intersectionListener(entries) {
-		for (var i = 0; i < entries.length; i++) {
-			if (entries[i].isIntersecting) {
-				var table = entries[i].target.parentNode;
-				tableExtendContent(table.name);
-			}
-		}
-	}
-	
-	function tableExtendContent(tableId) {
+	function tableFilterEditor(tableId, column) {
+		var tableAction = {
+			"table": tableId,
+			"column": column
+		};
 		var data = {
-			"tableExtendContent": tableId
+			"tableFilterEditor": tableAction
 		};
 		send(data, true);
 	}
-	
+		
 	function openLookupDialog(lookup) {
 		send({
 			"openLookupDialog": lookup
@@ -1642,14 +1690,33 @@ $ICON
 	<div id="applicationVersion">$APPLICATION-VERSION</div>
 
 	<div id="templates" style="display: none">
-		<div id="pageHeaderButtons" class="secondHeaderButtons hidden-print">
-			<svg style="stroke-width:0px" class="actionMenuButton pageButton button" onclick="togglePageActionMenu(evt);">
+		<div id="tablePageHeaderButtons">
+			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
+				<line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
+				<line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<span class="currentPage tablePageing hidden-print">1/1</span>
+			<svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
+				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<svg style="stroke-width:0px" class="filterButton pageButton button hidden-print" onclick="toggleFilter(evt);">
+				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:15%" />
+				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:20%" />
+			</svg>
+		</div>
+		<div id="pageHeaderButtons">
+			<svg style="stroke-width:0px" class="actionMenuButton pageButton button hidden-print" onclick="togglePageActionMenu(evt);">
 				<rect x="73%" y="13%" width="20%" height="17%"/>
 				<rect x="73%" y="46%" width="20%" height="17%"/>
 				<rect x="73%" y="80%" width="20%" height="17%"/>
-			</svg><svg class="pageButton button toggleButton" onclick="togglePage(evt);">
+			</svg>
+			<svg class="pageButton button toggleButton hidden-print" onclick="togglePage(evt);">
 			  <rect x="20%" y="80%" width="100%" height="13%" />
-			</svg><svg class="pageButton button closeButton" onclick="closePage(evt);">
+			</svg>
+			<svg class="pageButton button closeButton hidden-print" onclick="closePage(evt);">
 				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>

@@ -189,9 +189,18 @@ public class JsonPageManager implements PageManager {
 			Object newValue = entry.getValue(); // most of the time a String,
 												// but not for password
 
-			JsonComponent component = getComponentById(componentId);
-			((JsonInputComponent<?>) component).changedValue(newValue);
-			output.add("source", componentId);
+			if (!componentId.startsWith("columnFilter-")) {
+				JsonComponent component = getComponentById(componentId);
+				((JsonInputComponent<?>) component).changedValue(newValue);
+				output.add("source", componentId);
+			} else {
+				componentId = componentId.substring("columnFilter-".length());
+				int pos = componentId.lastIndexOf("-");
+				int column = Integer.parseInt(componentId.substring(pos + 1, componentId.length()));
+				componentId = componentId.substring(0, pos);
+				JsonTable table = (JsonTable) getComponentById(componentId);
+				table.setFilter(column, (String) newValue);
+			}
 		}
 
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
@@ -214,6 +223,13 @@ public class JsonPageManager implements PageManager {
 			table.sort(column);
 		}
 
+		Map<String, Object> tableFilterEditor = input.get("tableFilterEditor");
+		if (tableFilterEditor != null && !tableFilterEditor.isEmpty()) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableFilterEditor.get("table"));
+			int column = ((Long) tableFilterEditor.get("column")).intValue();
+			table.filterEditor(column);
+		}
+		
 		Map<String, Object> tableSelection = input.get("tableSelection");
 		if (tableSelection != null && !tableSelection.isEmpty()) {
 			JsonTable<?> table = (JsonTable<?>) getComponentById(tableSelection.get("table"));
@@ -221,12 +237,11 @@ public class JsonPageManager implements PageManager {
 			table.selection(rows);
 		}
 
-		String tableExtendContent = (String) input.getObject("tableExtendContent");
-		if (tableExtendContent != null) {
-			JsonTable<?> table = (JsonTable<?>) getComponentById(tableExtendContent);
-			output.add("tableId", tableExtendContent);
-			output.add("tableExtendContent", table.extendContent());
-			output.add("extendable", table.isExtendable());
+		String tablePage = (String) input.getObject("tablePage");
+		if (tablePage != null) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tablePage);
+			String direction = (String) input.getObject("direction");
+			table.page(direction);
 		}
 
 		String search = (String) input.getObject("search");

@@ -77,12 +77,12 @@ body {
 
 .secondHeader {
 	border-bottom: 1px rgb(160,160,160) solid;
+	display: flex;
+	align-items: center;
 }
 
-.secondHeaderButtons {
-    float: right;
-    margin-top: 0.5em;
-    margin-right: 1em;
+.pageTitle {
+	flex-grow: 1;
 }
 
 .pageButton {
@@ -94,9 +94,10 @@ body {
 	position: relative;
 	height: 2em;
 	box-sizing: border-box;
-	line-height: 2.1em;
-	padding-left: 1em;
-	width: 100%;
+	display: flex;
+	align-items: center;
+	flex-direction: row-reverse;
+	padding-right: 1em;
 	background: rgb(240,240,240);
 }
 
@@ -180,8 +181,12 @@ body {
 	height: 2em;
 	box-sizing: border-box;
 	line-height: 2.1em;
-	padding-left: 1em;
 	background: rgb(240,240,240);
+	padding-right: 1em;
+}
+
+.pageHeader * {
+	margin-left: 1em;
 }
 
 .pageContentAndActions {
@@ -227,6 +232,14 @@ table.table thead {
 
 .table .form {
 	margin-top: 0;
+}
+
+.table .columnFilter {
+	position: relative;
+}
+
+.table .columnFilter input {
+	width: 100%;
 }
 
 .actionMenu {
@@ -581,7 +594,7 @@ label {
 }
 
 .hide {
-	visibility: hidden;
+	display: none;
 }
 
 .red { color: red; }

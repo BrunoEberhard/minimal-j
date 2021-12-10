@@ -12,19 +12,21 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.util.ColumnFilter;
+import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.ChangeListener;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
-import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
 
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
-	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "100"));
+	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "10"));
 
 	private final JsonPageManager pageManager;
 	private final Object[] keys;
@@ -32,10 +34,12 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final TableActionListener<T> listener;
 	private List<T> objects;
 	private final List<T> selectedObjects = new ArrayList<>();
-	private int visibleRows = PAGE_SIZE;
+	private int page;
 	private final List<Object> sortColumns = new ArrayList<>();
 	private final List<Boolean> sortDirections = new ArrayList<>();
-
+	private final ColumnFilter[] filters;
+	private final boolean[] headerFilterLookups;
+	
 	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
 		this.pageManager = pageManager;
@@ -45,13 +49,21 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 		List<String> headers = new ArrayList<>();
 		List<String> headerPathes = new ArrayList<>();
+		filters = new ColumnFilter[keys.length];
+		headerFilterLookups = new boolean[keys.length];
+
 		for (PropertyInterface property : properties) {
 			String header = Resources.getPropertyName(property);
 			headers.add(header);
 			headerPathes.add(property.getPath());
+			int column = headers.size() - 1;
+			filters[column] = ColumnFilter.createFilter(property, new ColumnFilterChangeListener(column));
+			headerFilterLookups[column] = filters[column].hasLookup();
 		}
 		put("headers", headers);
 		put("headerPathes", headerPathes);
+		put("headerFilterLookups", headerFilterLookups);
+
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
 	}
@@ -76,13 +88,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	public void setObjects(List<T> objects) {
 		pageManager.unregister(get("tableContent"));
 		this.objects = objects;
-		checkSortDirections();
-		if (!sortColumns.isEmpty()) {
-			((Sortable) objects).sort(sortColumns.toArray(), convert(sortDirections));
-		}
 
-		visibleRows = Math.min(objects.size(), Math.max(visibleRows, PAGE_SIZE));
-		List<T> visibleObjects = objects.subList(0, visibleRows);
+		List<T> visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -102,11 +109,18 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		putSilent("selectedRows", null); // allway fire this property change
 		put("selectedRows", selectedRows);
 		put("size", objects.size());
-		put("extendable", isExtendable());
+		updatePaging();
 		
 		selectedObjects.clear();
 		selectedObjects.addAll(newSelectedObjects);
 		listener.selectionChanged(selectedObjects);
+	}
+	
+	private void updatePaging() {
+		put("paging", objects.size() > PAGE_SIZE);
+		put("currentPage", (page + 1) + " / " + (Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE + 1));
+//		put("prev", page > 0);
+//		put("next", objects.size() > (page + 1) * PAGE_SIZE);
 	}
 	
 	public static <T> boolean equalsByIdOrContent(T a, T b) {
@@ -119,15 +133,6 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 	}
 	
-	private void checkSortDirections() {
-		boolean sortable = ((objects) instanceof Sortable) && //
-				sortColumns.stream().allMatch(key -> ((Sortable) objects).canSortBy(key));
-		if (!sortable) {
-			sortColumns.clear();
-			sortDirections.clear();
-		}
-	}
-
 	private boolean[] convert(List<Boolean> booleans) {
 		boolean[] result = new boolean[booleans.size()];
 		for (int i = 0; i < booleans.size(); i++) {
@@ -136,18 +141,35 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return result;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public List<List> extendContent() {
-		int newVisibleRows = Math.min(objects.size(), visibleRows + PAGE_SIZE);
-		List<T> newVisibleObjects = objects.subList(visibleRows, newVisibleRows);
-		visibleRows = newVisibleRows;
-		return createTableContent(newVisibleObjects);
-	}
+	public void page(String direction) {
+		switch (direction) {
+		case "prev":
+			if (page > 0) {
+				page = page - 1;
+			} else {
+				return;
+			}
+			break;
+		case "next":
+			if (page < Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE) {
+				page = page + 1;
+			} else {
+				return;
+			}
+			break;
+		default:
+			throw new IllegalArgumentException(direction);
+		}
+		
+		List<T> visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
+		List<List> tableContent = createTableContent(visibleObjects);
+		put("tableContent", tableContent);
 
-	public boolean isExtendable() {
-		return visibleRows < objects.size();
+		put("selectedRows", Collections.emptyList());
+		
+		updatePaging();
 	}
-
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private List<List> createTableContent(List<T> objects) {
 		List<List> tableContent = new ArrayList<>();
@@ -197,25 +219,45 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	public void sort(int column) {
-		if (objects instanceof Sortable) {
-			Sortable sortable = (Sortable) objects;
-			Object key = keys[column];
-			int size = sortColumns.size();
-			if (sortable.canSortBy(key)) {
-				int pos = sortColumns.indexOf(key);
-				if (size > 0 && pos == 0) {
-					sortDirections.set(0, !sortDirections.get(0));
-				} else {
-					if (pos >= 0) {
-						sortDirections.remove(pos);
-						sortColumns.remove(pos);
-					}
-					sortColumns.add(0, key);
-					sortDirections.add(0, true);
-				}
-
-				setObjects(objects);
+		Object key = keys[column];
+		int size = sortColumns.size();
+		int pos = sortColumns.indexOf(key);
+		if (size > 0 && pos == 0) {
+			sortDirections.set(0, !sortDirections.get(0));
+		} else {
+			if (pos >= 0) {
+				sortDirections.remove(pos);
+				sortColumns.remove(pos);
 			}
+			sortColumns.add(0, key);
+			sortDirections.add(0, true);
+		}
+
+		setObjects(objects);
+	}
+
+	public void filterEditor(int column) {
+		filters[column].runEditor(s -> setFilter(column, s));
+	}
+
+	public void setFilter(int column, String newValue) {
+		filters[column].setText(newValue);
+	}
+	
+	public class ColumnFilterChangeListener implements ChangeListener<ColumnFilter> {
+
+		private final int column;
+		
+		public ColumnFilterChangeListener(int column) {
+			this.column = column;
+		}
+		
+		@Override
+		public void changed(ColumnFilter columnFilter) {
+			page = 0;
+			setObjects(objects);
+			
+			put("columnFilter", Map.of("column", column, "string", columnFilter.getText()));
 		}
 	}
 }
