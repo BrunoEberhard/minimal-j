@@ -320,7 +320,7 @@ $ICON
 		pageElement.id = page.pageId;
 	
 		var hasActionMenu = page.actionMenu != null;
-		var isTable = page.content.type === "Table";
+		var isTable = page.content != null && page.content.type === "Table";
 	
 		// pageHeader will only be displayed on large displays
 		var headerElement = createPageHeader(page);
@@ -525,7 +525,7 @@ $ICON
 		titleElement.textContent = page.title;
 		element.appendChild(titleElement);
 	
-		if (page.content.type === "Table") {
+		if (page.content != null && page.content.type === "Table") {
 			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
 		    	element.appendChild(item.cloneNode(true));
 			});
