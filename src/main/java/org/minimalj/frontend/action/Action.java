@@ -2,6 +2,7 @@ package org.minimalj.frontend.action;
 
 import java.text.MessageFormat;
 
+import org.minimalj.model.Rendering;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -10,7 +11,7 @@ import org.minimalj.util.resources.Resources;
  * behavior is supported. See the javadoc of the setter for more information.
  *
  */
-public abstract class Action implements Runnable {
+public abstract class Action implements Runnable, Rendering {
 
 	private String name, description;
 	private Boolean descriptionAvailable;
@@ -63,6 +64,11 @@ public abstract class Action implements Runnable {
 			}
 		}
 		return description;
+	}
+	
+	@Override
+	public CharSequence render() {
+		return getName();
 	}
 	
 	public boolean isEnabled() {

@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.Sorting;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class ListUtil {
@@ -55,6 +57,7 @@ public class ListUtil {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static class KeyComparator<T> implements Comparator<T> {
 		private final PropertyInterface[] sortProperties;
 		private final boolean[] sortDirections;
@@ -64,7 +67,6 @@ public class ListUtil {
 			this.sortDirections = sortDirections;
 		}
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public int compare(T a, T b) {
 			int index = 0;
@@ -77,11 +79,32 @@ public class ListUtil {
 				} else if (value2 == null) {
 					return factor;
 				} else {
-					return ((Comparable) value1).compareTo(value2) * factor;
+					value1 = convert(value1);
+					value2 = convert(value2);
+					
+					try {
+						return ((Comparable) value1).compareTo(value2) * factor;
+					} catch (Exception x) {
+						// fallback to string comparation
+						String s1 = Rendering.render(value1).toString();
+						String s2 = Rendering.render(value2).toString();
+						return s1.compareTo(s2);
+					}
 				}
 			}
 			return 0;
 		}
-
+		
+		private Comparable convert(Object value) {
+			if (value instanceof Sorting) {
+				value = ((Sorting) value).getSortKey();
+			}
+			if (value instanceof Comparable) {
+				return (Comparable) value;
+			} else { 
+				return Rendering.render(value).toString();
+			}
+		}
+		
 	}
 }
