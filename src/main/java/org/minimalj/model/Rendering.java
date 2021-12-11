@@ -3,7 +3,6 @@ package org.minimalj.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 
 import org.minimalj.frontend.impl.util.HtmlString;
@@ -92,9 +91,7 @@ public interface Rendering {
 		} else if (o instanceof LocalTime) {
 			return DateUtils.getTimeFormatter(property).format((LocalTime) o); 
 		} else if (o instanceof LocalDateTime) {
-			String date = DateUtils.format(((LocalDateTime) o).toLocalDate());
-			String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) o);
-			return date + " " + time; 
+			return DateUtils.format((LocalDateTime) o, property);
 		} else if (InvalidValues.isInvalid(o)) {
 			return InvalidValues.getInvalidValue(o);
 		} else if (o != null) {

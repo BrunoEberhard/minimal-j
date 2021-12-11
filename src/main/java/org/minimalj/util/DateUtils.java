@@ -3,6 +3,8 @@ package org.minimalj.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -307,6 +309,26 @@ public class DateUtils {
 		else if (size.value() == Size.TIME_WITH_MILLIS) return TIME_PARSE_WITH_MILIS;
 		else {
 			return TIME_PARSE;
+		}
+	}
+	
+	public static String format(LocalDateTime localDateTime, PropertyInterface property) {
+		if (localDateTime != null) {
+			String date = DateUtils.format(localDateTime.toLocalDate());
+			String time = DateUtils.getTimeFormatter(property).format(localDateTime);
+			return date + " " + time; 
+		} else {
+			return null;
+		}
+	}
+	
+	public static LocalDateTime parseDateTime(String string, PropertyInterface property) {
+		if (!StringUtils.isEmpty(string)) {
+			DateTimeFormatter parser = DateUtils.getTimeParser(property);
+			String[] parts = string.split(" ");
+			return LocalDateTime.of(DateUtils.parse_(parts[0]), LocalTime.parse(parts[1], parser));
+		} else {
+			return null;
 		}
 	}
 
