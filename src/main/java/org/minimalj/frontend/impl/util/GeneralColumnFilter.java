@@ -5,7 +5,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -26,13 +27,12 @@ import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.validation.Validation;
-import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class GeneralColumnFilter implements ColumnFilter {
 
 	public static final GeneralColumnFilter $ = Keys.of(GeneralColumnFilter.class);
@@ -40,8 +40,6 @@ public class GeneralColumnFilter implements ColumnFilter {
 	private final PropertyInterface property;
 
 	private final ChangeListener<ColumnFilter> changeListener;
-
-	private ValidationMessage validationMessage = null;
 
 	public ColumnFilterOperator operator = ColumnFilterOperator.EQUALS;
 
@@ -94,31 +92,26 @@ public class GeneralColumnFilter implements ColumnFilter {
 
 		this.valueOrRange.clear();
 		this.operator = ColumnFilterOperator.EQUALS;
-		this.validationMessage = null;
 
 		if (!StringUtils.isEmpty(string)) {
-			try {
-				if (string.startsWith("-")) {
-					String toString = string.substring(1).trim();
-					valueOrRange.value1 = parse(toString);
-					operator = ColumnFilterOperator.MAX;
-				} else if (string.endsWith("-")) {
-					String fromString = string.substring(0, string.length() - 1).trim();
-					valueOrRange.value1 = parse(fromString);
-					operator = ColumnFilterOperator.MIN;
-				} else if (string.indexOf("-") > -1) {
-					int pos = string.indexOf("-");
-					String fromString = string.substring(0, pos).trim();
-					String toString = string.substring(pos + 1).trim();
-					valueOrRange.value1 = parse(fromString);
-					valueOrRange.value2 = parse(toString);
-					operator = ColumnFilterOperator.RANGE;
-				} else {
-					valueOrRange.value1 = parse(string);
-					operator = ColumnFilterOperator.EQUALS;
-				}
-			} catch (Exception x) {
-				validationMessage = Validation.createInvalidValidationMessage($.string);
+			if (string.startsWith("-")) {
+				String toString = string.substring(1).trim();
+				valueOrRange.value1 = parse(toString);
+				operator = ColumnFilterOperator.MAX;
+			} else if (string.endsWith("-")) {
+				String fromString = string.substring(0, string.length() - 1).trim();
+				valueOrRange.value1 = parse(fromString);
+				operator = ColumnFilterOperator.MIN;
+			} else if (string.indexOf("-") > -1) {
+				int pos = string.indexOf("-");
+				String fromString = string.substring(0, pos).trim();
+				String toString = string.substring(pos + 1).trim();
+				valueOrRange.value1 = parse(fromString);
+				valueOrRange.value2 = parse(toString);
+				operator = ColumnFilterOperator.RANGE;
+			} else {
+				valueOrRange.value1 = parse(string);
+				operator = ColumnFilterOperator.EQUALS;
 			}
 		}
 
@@ -128,20 +121,25 @@ public class GeneralColumnFilter implements ColumnFilter {
 	private Comparable parse(String string) {
 		if (!StringUtils.isEmpty(string)) {
 			Class<?> fieldClass = getProperty().getClazz();
-			if (fieldClass == Integer.class) {
-				return Integer.parseInt(string);
-			} else if (fieldClass == Long.class) {
-				return Long.parseLong(string);
-			} else if (fieldClass == BigDecimal.class) {
-				return new BigDecimal(string);
-			} else if (fieldClass == LocalDate.class) {
-				return DateUtils.parse(string);
-//			} else if (fieldClass == LocalTime.class) {
-//				return new LocalTimeFormElement(property, Form.EDITABLE);
-//			} else if (fieldClass == LocalDateTime.class) {
-//				return new LocalDateTimeFormElement(property, Form.EDITABLE);			
-			} else {
-				throw new IllegalArgumentException(fieldClass.getName());
+			try {
+				if (fieldClass == Integer.class) {
+					return Integer.parseInt(string);
+				} else if (fieldClass == Long.class) {
+					return Long.parseLong(string);
+				} else if (fieldClass == BigDecimal.class) {
+					return new BigDecimal(string);
+				} else if (fieldClass == LocalDate.class) {
+					return DateUtils.parse(string);
+				} else if (fieldClass == LocalTime.class) {
+					DateTimeFormatter parser = DateUtils.getTimeParser(property);
+					return LocalTime.parse(string, parser);
+				} else if (fieldClass == LocalDateTime.class) {
+					return DateUtils.parseDateTime(string, property);
+				} else {
+					throw new IllegalArgumentException(fieldClass.getName());
+				}
+			} catch (NumberFormatException | DateTimeParseException | ArrayIndexOutOfBoundsException x) {
+				return null;
 			}
 		} else {
 			return null;
@@ -155,17 +153,12 @@ public class GeneralColumnFilter implements ColumnFilter {
 
 	@Override
 	public boolean active() {
-		return !StringUtils.isEmpty(string) && validationMessage == null;
+		return !StringUtils.isEmpty(string);
 	}
 
 	@Override
 	public boolean hasLookup() {
 		return true;
-	}
-
-	@Override
-	public List<ValidationMessage> validate() {
-		return validationMessage == null ? null : List.of(validationMessage);
 	}
 
 	@Override
@@ -178,18 +171,41 @@ public class GeneralColumnFilter implements ColumnFilter {
 		if (v != null) {
 			switch (operator) {
 			case EQUALS:
-				return v.compareTo(valueOrRange.value1) == 0;
+				return compare(v, valueOrRange.value1) == 0;
 			case MAX:
-				return v.compareTo(valueOrRange.value1) <= 0;
+				return compare(v, valueOrRange.value1) <= 0;
 			case MIN:
-				return v.compareTo(valueOrRange.value1) >= 0;
+				return compare(v, valueOrRange.value1) >= 0;
 			case RANGE:
-				return v.compareTo(valueOrRange.value1) >= 0 && v.compareTo(valueOrRange.value2) <= 0;
+				if (valueOrRange.value2 == null) {
+					return true;
+				}
+				return compare(v, valueOrRange.value1) >= 0 && compare(v, valueOrRange.value2) <= 0;
 			default:
 				return true;
 			}
 		} else {
 			return false;
+		}
+	}
+
+	private int compare(Comparable c1, Comparable c2) {
+		if (c1 instanceof LocalDateTime) {
+			int result = ((LocalDateTime) c1).toLocalDate().compareTo(((LocalDateTime) c2).toLocalDate());
+			if (result != 0) {
+				return result;
+			} else {
+				c1 = ((LocalDateTime) c1).toLocalTime();
+				c2 = ((LocalDateTime) c2).toLocalTime();
+			}
+		}
+		if (c1 instanceof LocalTime) {
+			DateTimeFormatter formatter = DateUtils.getTimeFormatter(property);
+			String s1 = formatter.format((LocalTime) c1);
+			String s2 = formatter.format((LocalTime) c2);
+			return s1.compareTo(s2);
+		} else {
+			return c1.compareTo(c2);
 		}
 	}
 
@@ -211,7 +227,6 @@ public class GeneralColumnFilter implements ColumnFilter {
 		return false;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static class ColumnFilterFormElement extends AbstractFormElement<ValueOrRange> implements ChangeListener {
 
 		private final PropertyInterface property;

@@ -2,6 +2,9 @@ package org.minimalj.frontend.impl.util;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
@@ -11,14 +14,15 @@ import org.minimalj.frontend.impl.util.GeneralColumnFilter.ValueOrRange;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.DateUtils;
 
+@SuppressWarnings("rawtypes")
 public class GeneralFilterEditor extends SimpleEditor<GeneralColumnFilter> {
 
 	private final GeneralColumnFilter filter;
 	private final Consumer<String> finishedListener;
 
-	public GeneralFilterEditor(GeneralColumnFilter filter, Consumer<String> finishedListener2) {
+	public GeneralFilterEditor(GeneralColumnFilter filter, Consumer<String> finishedListener) {
 		this.filter = filter;
-		this.finishedListener = finishedListener2;
+		this.finishedListener = finishedListener;
 	}
 
 	@Override
@@ -79,10 +83,11 @@ public class GeneralFilterEditor extends SimpleEditor<GeneralColumnFilter> {
 				return ((BigDecimal) value).toPlainString();
 			} else if (value instanceof LocalDate) {
 				return DateUtils.format((LocalDate) value);
-//			} else if (value instanceof LocalTime) {
-//				return format((LocalDate) value);
-//			} else if (value instanceof LocalDateTime) {
-//				return format((LocalDate) value);
+			} else if (value instanceof LocalTime) {
+				DateTimeFormatter formatter = DateUtils.getTimeFormatter(filter.getProperty());
+				return formatter.format((LocalTime) value);
+			} else if (value instanceof LocalDateTime) {
+				return DateUtils.format((LocalDateTime) value, filter.getProperty());
 			} else {
 				throw new IllegalArgumentException(value.toString());
 			}

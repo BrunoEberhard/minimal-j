@@ -1,13 +1,11 @@
 package org.minimalj.frontend.impl.util;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.StringUtils;
 
@@ -55,12 +53,6 @@ public class StringColumnFilter implements ColumnFilter {
 	@Override
 	public String getText() {
 		return string;
-	}
-
-	@Override
-	public List<ValidationMessage> validate() {
-		// Strings are always valid
-		return null;
 	}
 
 	@Override

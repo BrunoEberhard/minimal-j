@@ -4,10 +4,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.model.validation.Validation;
 import org.minimalj.util.ChangeListener;
 
-public interface ColumnFilter extends Predicate<Object>, Validation {
+public interface ColumnFilter extends Predicate<Object> {
 
 	public enum ColumnFilterOperator {
 		EQUALS, MIN, MAX, RANGE;
