@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import java.util.Collection;
 
 import org.minimalj.frontend.impl.util.HtmlString;
-import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
@@ -31,14 +30,13 @@ public interface Rendering {
 	public default CharSequence renderDescription() {
 		return null;
 	}
-	
-	public interface Coloring {
-		
-		public enum ColorName {
-			RED, GREEN, BLUE, YELLOW;
-		}
-		
-		public ColorName getColor();
+
+	public enum ColorName {
+		RED, GREEN, BLUE, YELLOW;
+	}
+
+	public default ColorName getColor() {
+		return null;
 	}
 	
 
@@ -107,9 +105,9 @@ public interface Rendering {
 	}
 
 	public static ColorName getColor(Object object, Object fieldValue) {				
-		ColorName color = fieldValue instanceof Coloring ? ((Coloring) fieldValue).getColor() : null;
-		if (color == null && object instanceof Coloring) {
-			color = ((Coloring) object).getColor();
+		ColorName color = fieldValue instanceof Rendering ? ((Rendering) fieldValue).getColor() : null;
+		if (color == null && object instanceof Rendering) {
+			color = ((Rendering) object).getColor();
 		}
 		return color;
 	}

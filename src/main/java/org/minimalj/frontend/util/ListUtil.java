@@ -8,7 +8,6 @@ import java.util.List;
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Sorting;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class ListUtil {
@@ -96,9 +95,6 @@ public class ListUtil {
 		}
 		
 		private Comparable convert(Object value) {
-			if (value instanceof Sorting) {
-				value = ((Sorting) value).getSortKey();
-			}
 			if (value instanceof Comparable) {
 				return (Comparable) value;
 			} else { 

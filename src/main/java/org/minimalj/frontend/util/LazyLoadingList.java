@@ -8,11 +8,6 @@ import org.minimalj.frontend.impl.util.ColumnFilter;
 public abstract class LazyLoadingList<T> extends AbstractList<T> {
 
 	@Override
-	public int size() {
-		throw new RuntimeException("Should not be called");
-	}
-	
-	@Override
 	public T get(int index) {
 		throw new RuntimeException("Should not be called");
 	}

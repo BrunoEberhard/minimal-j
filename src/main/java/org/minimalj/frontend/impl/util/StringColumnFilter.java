@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.query.By;
+import org.minimalj.repository.query.Criteria;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.StringUtils;
 
@@ -14,8 +16,6 @@ public class StringColumnFilter implements ColumnFilter {
 	public static final StringColumnFilter $ = Keys.of(StringColumnFilter.class);
 
 	public String string;
-
-	public Boolean exakt;
 
 	private final PropertyInterface property;
 
@@ -64,28 +64,36 @@ public class StringColumnFilter implements ColumnFilter {
 	public boolean hasLookup() {
 		return false;
 	}
+	
+	private boolean exact() {
+		return string != null && string.length() > 2 && string.charAt(0) == '"' && string.charAt(string.length()-1) == '"';
+	}
 
 	@Override
 	public boolean test(Object object) {
 		if (!active()) {
 			return true;
 		}
-		String valueLowercase = this.string.toLowerCase();
 
 		Object value = getProperty().getValue(object);
 		if (value instanceof Rendering) {
 			value = ((Rendering) value).render();
 		}
 		if (value != null) {
-			if (!Boolean.TRUE.equals(exakt)) {
+			if (!exact()) {
+				String valueLowercase = this.string.toLowerCase();
 				return value.toString().toLowerCase().contains(valueLowercase);
 			} else {
-				return value.toString().toLowerCase().equals(valueLowercase);
+				return value.toString().equals(string.substring(1, string.length() - 1));
 			}
 		} else {
 			return false;
 		}
+	}
 
+	@Override
+	public Criteria getCriteria() {
+		return By.search(!exact()  ? "%" + string + "%" : string.substring(1, string.length() - 1), property);
 	}
 
 }

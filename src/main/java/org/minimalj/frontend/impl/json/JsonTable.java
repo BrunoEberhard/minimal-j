@@ -16,7 +16,7 @@ import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.Coloring.ColorName;
+import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.EqualsHelper;
@@ -32,7 +32,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final Object[] keys;
 	private final List<PropertyInterface> properties;
 	private final TableActionListener<T> listener;
-	private List<T> objects;
+	private List<T> objects, visibleObjects;
 	private final List<T> selectedObjects = new ArrayList<>();
 	private int page;
 	private final List<Object> sortColumns = new ArrayList<>();
@@ -89,7 +89,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		pageManager.unregister(get("tableContent"));
 		this.objects = objects;
 
-		List<T> visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -108,7 +108,6 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		put("tableContent", tableContent);
 		putSilent("selectedRows", null); // allway fire this property change
 		put("selectedRows", selectedRows);
-		put("size", objects.size());
 		updatePaging();
 		
 		selectedObjects.clear();
@@ -119,8 +118,6 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private void updatePaging() {
 		put("paging", objects.size() > PAGE_SIZE);
 		put("currentPage", (page + 1) + " / " + (Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE + 1));
-//		put("prev", page > 0);
-//		put("next", objects.size() > (page + 1) * PAGE_SIZE);
 	}
 	
 	public static <T> boolean equalsByIdOrContent(T a, T b) {
@@ -206,14 +203,14 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 //	}
 	
 	public void action(int row) {
-		T object = objects.get(row);
+		T object = visibleObjects.get(row);
 		listener.action(object);
 	}
 	
 	public void selection(List<Number> selectedRows) {
 		selectedObjects.clear();
 		for (Number r : selectedRows) {
-			selectedObjects.add(objects.get(r.intValue()));
+			selectedObjects.add(visibleObjects.get(r.intValue()));
 		}
 		listener.selectionChanged(selectedObjects);
 	}

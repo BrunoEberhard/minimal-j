@@ -38,8 +38,7 @@ import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.Rendering.Coloring;
-import org.minimalj.model.Rendering.Coloring.ColorName;
+import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.Sortable;
 import org.minimalj.util.resources.Resources;
@@ -294,8 +293,8 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			PropertyInterface property = properties.get(column);
 
 			Color color = null;
-			if (value instanceof Coloring) {
-				ColorName colorName = ((Coloring) value).getColor();
+			if (value instanceof Rendering) {
+				ColorName colorName = ((Rendering) value).getColor();
 				if (colorName != null) {
 					color = getColor(colorName);
 				}

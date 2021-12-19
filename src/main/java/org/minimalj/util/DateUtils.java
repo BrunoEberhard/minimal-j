@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Year;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -330,6 +331,89 @@ public class DateUtils {
 		} else {
 			return null;
 		}
+	}
+	
+	//
+	
+	public static LocalDateTime parseDateTime(String s, Boolean upperEnd) {
+		if (!StringUtils.isEmpty(s)) {
+			s = s.trim();
+			int pos = s.indexOf(" ");
+			if (pos > 0) {
+				String[] parts = s.split(" ");
+				LocalDate date = parseDate(parts[0], upperEnd);
+				LocalTime time = parseTime(parts[1], upperEnd);
+				if (date != null && !InvalidValues.isInvalid(date)) {
+					if (time != null && !InvalidValues.isInvalid(time)) {
+						return LocalDateTime.of(date, time);
+					} else {
+						return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
+					}
+				}
+			} else {
+				LocalDate date = parseDate(s, upperEnd);
+				if (date != null && !InvalidValues.isInvalid(date)) {
+					return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
+				}
+			}
+		}
+		return null;
+	}
+
+	public static LocalDate parseDate(String s, Boolean upperEnd) {
+		if (!StringUtils.isEmpty(s)) {
+			if (s.length() == 4) {
+				try {
+					Year year = Year.parse(s);
+					if (upperEnd) {
+						return LocalDate.of(year.getValue(), 12, 31);
+					} else {
+						return LocalDate.of(year.getValue(), 1, 1);
+					}
+				} catch (DateTimeParseException ignored) {
+					//
+				}
+			}
+			return DateUtils.parse(s);
+		}
+		return null;
+	}
+
+	public static LocalTime parseTime(String s, Boolean upperEnd) {
+		if (!StringUtils.isEmpty(s)) {
+			try {
+				LocalTime time = LocalTime.parse(s, DateUtils.TIME_PARSE_WITH_MILIS);
+				if (upperEnd) {
+					return LocalTime.of(time.getHour(), time.getMinute(), time.getSecond(), time.getNano() + 999999);
+				} else {
+					return time;
+				}
+			} catch (DateTimeParseException ignored) {
+				//
+			}
+			try {
+				LocalTime time = LocalTime.parse(s, DateUtils.TIME_PARSE_WITH_SECONDS);
+				if (upperEnd) {
+					return LocalTime.of(time.getHour(), time.getMinute(), time.getSecond(), 999999999);
+				} else {
+					return time;
+				}
+			} catch (DateTimeParseException ignored) {
+				//
+			}
+			try {
+				LocalTime time = LocalTime.parse(s, DateUtils.TIME_PARSE);
+				if (upperEnd) {
+					return LocalTime.of(time.getHour(), time.getMinute(), 59, 999999999);
+				} else {
+					return time;
+				}
+			} catch (DateTimeParseException ignored) {
+				//
+			}
+			return InvalidValues.createInvalidLocalTime(s);
+		}
+		return null;
 	}
 
 }
