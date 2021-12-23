@@ -12,7 +12,7 @@ import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 
-public class ValueOrRangeFilter implements Predicate<Object> {
+public class ValueOrRangePredicate implements Predicate<Object> {
 
 	private final Class<?> clazz;
 
@@ -20,7 +20,7 @@ public class ValueOrRangeFilter implements Predicate<Object> {
 	private final String string1, string2;
 	private final Comparable value1, value2;
 
-	public ValueOrRangeFilter(Class<?> clazz, String string) {
+	public ValueOrRangePredicate(Class<?> clazz, String string) {
 		this.clazz = clazz;
 		
 		if (!StringUtils.isEmpty(string)) {
@@ -66,16 +66,16 @@ public class ValueOrRangeFilter implements Predicate<Object> {
 		return value != null && !InvalidValues.isInvalid(value);
 	}
 	
-	public static ValueOrRangeFilter create(Class<?> clazz, ColumnFilterOperator operator, String s1, String s2) {
+	public static ValueOrRangePredicate create(Class<?> clazz, ColumnFilterOperator operator, String s1, String s2) {
 		switch (operator) {
 		case MIN:
-			return new ValueOrRangeFilter(clazz, s1 + "-");
+			return new ValueOrRangePredicate(clazz, s1 + "-");
 		case MAX:
-			return new ValueOrRangeFilter(clazz, "-" + s1);
+			return new ValueOrRangePredicate(clazz, "-" + s1);
 		case RANGE:
-			return new ValueOrRangeFilter(clazz, s1 + "-" + s2);
+			return new ValueOrRangePredicate(clazz, s1 + "-" + s2);
 		case EQUALS:
-			return new ValueOrRangeFilter(clazz, s1);
+			return new ValueOrRangePredicate(clazz, s1);
 		default:
 			break;
 		}

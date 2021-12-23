@@ -1,11 +1,6 @@
  package org.minimalj.frontend.impl.util;
 
 import java.lang.annotation.Annotation;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -29,19 +24,18 @@ import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.CloneHelper;
-import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 
 @SuppressWarnings("rawtypes")
 public class ValueOrRangeFilterEditor extends SimpleEditor<ValueOrRangeFilterModel> {
 
 	private final PropertyInterface property;
-	private final ValueOrRangeFilter filter;
+	private final ValueOrRangePredicate filter;
 	private final Consumer<String> finishedListener;
 
 	public ValueOrRangeFilterEditor(PropertyInterface property, String string, Consumer<String> finishedListener) {
 		this.property = property;
-		this.filter = new ValueOrRangeFilter(property.getClazz(), string);
+		this.filter = new ValueOrRangePredicate(property.getClazz(), string);
 		this.finishedListener = finishedListener;
 	}
 	
@@ -90,12 +84,12 @@ public class ValueOrRangeFilterEditor extends SimpleEditor<ValueOrRangeFilterMod
 
 	@Override
 	protected void validate(ValueOrRangeFilterModel model, List<ValidationMessage> validationMessages) {
-		Object value1 = ValueOrRangeFilter.parse(property.getClazz(), model.valueOrRange.string1, false);
+		Object value1 = ValueOrRangePredicate.parse(property.getClazz(), model.valueOrRange.string1, false);
 		if (InvalidValues.isInvalid(value1)) {
 			validationMessages.add(Validation.createInvalidValidationMessage(ValueOrRangeFilterModel.$.valueOrRange.string1));
 		}
 		if (model.operator == ColumnFilterOperator.RANGE) {
-			Object value2 = ValueOrRangeFilter.parse(property.getClazz(), model.valueOrRange.string2, false);
+			Object value2 = ValueOrRangePredicate.parse(property.getClazz(), model.valueOrRange.string2, false);
 			if (InvalidValues.isInvalid(value2)) {
 				validationMessages.add(Validation.createInvalidValidationMessage(ValueOrRangeFilterModel.$.valueOrRange.string2));
 			}
@@ -127,27 +121,6 @@ public class ValueOrRangeFilterEditor extends SimpleEditor<ValueOrRangeFilterMod
 		}
 		finishedListener.accept(s);
 		return filter;
-	}
-	
-	private String format(Comparable value) {
-		if (value != null) {
-			if (value instanceof Integer || value instanceof Long) {
-				return value.toString();
-			} else if (value instanceof BigDecimal) {
-				return ((BigDecimal) value).toPlainString();
-			} else if (value instanceof LocalDate) {
-				return DateUtils.format((LocalDate) value);
-			} else if (value instanceof LocalTime) {
-				DateTimeFormatter formatter = DateUtils.getTimeFormatter(property);
-				return formatter.format((LocalTime) value);
-			} else if (value instanceof LocalDateTime) {
-				return DateUtils.format((LocalDateTime) value, property);
-			} else {
-				throw new IllegalArgumentException(value.toString());
-			}
-		} else {
-			return "";
-		}
 	}
 
 	public static class ColumnFilterFormElement extends AbstractFormElement<ValueOrRange> implements ChangeListener {

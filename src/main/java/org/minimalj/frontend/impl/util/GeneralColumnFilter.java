@@ -23,7 +23,7 @@ public class GeneralColumnFilter implements ColumnFilter {
 
 	private final ChangeListener<ColumnFilter> changeListener;
 	
-	private ValueOrRangeFilter filter;
+	private ValueOrRangePredicate filter;
 
 	@Size(255)
 	public String string;
@@ -51,7 +51,7 @@ public class GeneralColumnFilter implements ColumnFilter {
 	@Override
 	public void setText(String text) {
 		this.string = text;
-		filter = new ValueOrRangeFilter(property.getClazz(), text);
+		filter = new ValueOrRangePredicate(property.getClazz(), text);
 		changeListener.changed(this);
 	}
 
@@ -88,8 +88,6 @@ public class GeneralColumnFilter implements ColumnFilter {
 			return true;
 		if (Long.class == clazz)
 			return true;
-		if (Boolean.class == clazz)
-			return true;
 		if (BigDecimal.class == clazz)
 			return true;
 		if (LocalDate.class == clazz)
@@ -103,7 +101,7 @@ public class GeneralColumnFilter implements ColumnFilter {
 
 	@Override
 	public Criteria getCriteria() {
-		ValueOrRangeFilter filter = new ValueOrRangeFilter(property.getClazz(), string);
+		ValueOrRangePredicate filter = new ValueOrRangePredicate(property.getClazz(), string);
 		
 		if (!active()) {
 			return By.ALL;
