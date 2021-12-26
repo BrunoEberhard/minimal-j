@@ -31,6 +31,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 
 	private Input<String> component;
 	private Input<String> textField;
+	private ColumnFilterEditor editor;
 
 	private final InputComponentListener listener;
 	
@@ -87,7 +88,8 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 				setFilterString(string);
 				listener.changed(textField);
 			};
-			component = Frontend.getInstance().createLookup(textField, new ColumnFilterEditor(Resources.getPropertyName(property), textField.getValue(), columnFilterPredicates, columnFilterPredicate, finishedListener));
+			editor = new ColumnFilterEditor(Resources.getPropertyName(property), textField.getValue(), columnFilterPredicates, finishedListener);
+			component = Frontend.getInstance().createLookup(textField, editor);
 		}
 		return component;
 	}
@@ -102,6 +104,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 				break;
 			}
 		}
+		editor.setColumnFilter(columnFilterPredicate);
 	}
 	
 	@Override
