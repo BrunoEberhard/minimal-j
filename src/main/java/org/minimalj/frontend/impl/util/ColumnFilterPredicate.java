@@ -14,6 +14,7 @@ import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public abstract class ColumnFilterPredicate implements Predicate<Object>, Rendering, InputComponentListener {
 	protected final Class<?> clazz;
@@ -22,6 +23,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 	
 	public ColumnFilterPredicate(Class<?> clazz) {
 		this.clazz = clazz;
+	}
+	
+	@Override
+	public CharSequence render() {
+		return Resources.getString(this.getClass());
 	}
 
 	public void setChangeListener(ChangeListener<String> listener) {
@@ -117,12 +123,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean test(Object t) {
-			return valid() ? ((Comparable) value).compareTo(t) == 0 : true;
-		}
-
-		@Override
-		public CharSequence render() {
-			return "Gleich";
+			return valid() && t != null ? ((Comparable) value).compareTo(t) == 0 : true;
 		}
 
 		@Override
@@ -135,6 +136,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 	
 		public TemporalEqualsFilterPredicate(Class<?> clazz) {
 			super(clazz);
+		}
+		
+		@Override
+		public CharSequence render() {
+			return Resources.getString(EqualsFilterPredicate.class);
 		}
 
 		@Override
@@ -150,7 +156,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean test(Object t) {
-			return valid() ? ((ComparableRange) value).test(t) : true;
+			return valid() && t != null ? ((ComparableRange) value).test(t) : true;
 		}
 
 		@Override
@@ -192,14 +198,9 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean test(Object t) {
-			return value != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) <= 0 : true;
+			return value != null && t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) <= 0 : true;
 		}
 
-		@Override
-		public CharSequence render() {
-			return "Mindestens";
-		}
-		
 		@Override
 		public Criteria getCriteria(PropertyInterface property) {
 			return By.field(property, FieldOperator.greaterOrEqual, value);
@@ -239,14 +240,9 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean test(Object t) {
-			return value != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) >= 0 : true;
+			return value != null && t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) >= 0 : true;
 		}
 
-		@Override
-		public CharSequence render() {
-			return "Maximal";
-		}
-		
 		@Override
 		public Criteria getCriteria(PropertyInterface property) {
 			return By.field(property, FieldOperator.lessOrEqual, value);
@@ -301,12 +297,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean test(Object t) {
-			return value != null && value.valid() ? value.test(t) : true;
-		}
-
-		@Override
-		public CharSequence render() {
-			return "Bereich";
+			return value != null && value.valid() && t != null ? value.test(t) : true;
 		}
 		
 		@Override

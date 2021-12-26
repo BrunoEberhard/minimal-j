@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.util;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -17,19 +18,27 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ChangeListener;
+import org.minimalj.util.resources.Resources;
 
 public class ColumnFilterEditor extends SimpleEditor<ColumnFilterModel> {
 
+	private final String propertyName;
 	private final String filterString;
 	private final List<ColumnFilterPredicate> columnFilters;
 	private final ColumnFilterPredicate columnFilter;
 	private final Consumer<String> finishedListener;
 
-	public ColumnFilterEditor(String filterString, List<ColumnFilterPredicate> columnFilters, ColumnFilterPredicate columnFilter, Consumer<String> finishedListener) {
+	public ColumnFilterEditor(String propertyName, String filterString, List<ColumnFilterPredicate> columnFilters, ColumnFilterPredicate columnFilter, Consumer<String> finishedListener) {
+		this.propertyName = propertyName;
 		this.filterString = filterString;
 		this.columnFilters = columnFilters;
 		this.columnFilter = columnFilter != null ? columnFilter : columnFilters.get(0);
 		this.finishedListener = finishedListener;
+	}
+	
+	@Override
+	public String getTitle() {
+		return MessageFormat.format(Resources.getString(ColumnFilterEditor.class), propertyName);
 	}
 
 	public static class ColumnFilterModel implements Validation {

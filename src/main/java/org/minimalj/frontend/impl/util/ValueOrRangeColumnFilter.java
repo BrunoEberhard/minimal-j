@@ -21,6 +21,7 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.Criteria;
+import org.minimalj.util.resources.Resources;
 
 import com.microsoft.sqlserver.jdbc.StringUtils;
 
@@ -86,7 +87,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 				setFilterString(string);
 				listener.changed(textField);
 			};
-			component = Frontend.getInstance().createLookup(textField, new ColumnFilterEditor(textField.getValue(), columnFilterPredicates, columnFilterPredicate, finishedListener));
+			component = Frontend.getInstance().createLookup(textField, new ColumnFilterEditor(Resources.getPropertyName(property), textField.getValue(), columnFilterPredicates, columnFilterPredicate, finishedListener));
 		}
 		return component;
 	}
