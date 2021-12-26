@@ -144,16 +144,9 @@ $ICON
 								tbody.childNodes[i].className = value[i];		
 							}					
 						} else if (property === "paging") {
-							var pageElement = element;
-							while ((pageElement = pageElement.parentNode) && !pageElement.classList.contains("page"));
-							var display = value ? "inline-block" : "none";
-							pageElement.querySelector(".nextButton").style.display = display;
-							pageElement.querySelector(".prevButton").style.display = display;
-							pageElement.querySelector(".currentPage").style.display = display;
-						} else if (property === "currentPage") {
-							var pageElement = element;
-							while ((pageElement = pageElement.parentNode) && !pageElement.classList.contains("page"));
-							pageElement.querySelector(".currentPage").innerHTML = value;
+							var tfoot = element.tFoot;
+							removeChildren(tfoot);
+							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
 							var validationElement = document.getElementById(id + "-validation");
 							if (value == undefined || value == "") {
@@ -532,11 +525,6 @@ $ICON
 			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
 		    	element.appendChild(item.cloneNode(true));
 			});
-			element.querySelector(".currentPage").innerHTML = page.content.currentPage;
-			var display = page.content.paging ? "inline-block" : "none";
-			element.querySelector(".nextButton").style.display = display;
-			element.querySelector(".prevButton").style.display = display;
-			element.querySelector(".currentPage").style.display = display;
 		}
 		document.getElementById("pageHeaderButtons").childNodes.forEach(function(item) {
 	    	element.appendChild(item.cloneNode(true));
@@ -616,7 +604,13 @@ $ICON
 			}
 			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes, content.headerFilters));
 			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters));
-			element.appendChild(createTableRows(content.tableContent));
+			var tbody = document.createElement("tbody");
+			element.appendChild(tbody);
+			addTableRows(tbody, content.tableContent);
+			var tfoot = document.createElement("tfoot");
+			tfoot.columnCount = content.headers.length;
+			element.appendChild(tfoot);
+			addTableFooter(tfoot, content.paging);
 		} else if (type === "Text" || type === "Title") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());
@@ -912,12 +906,6 @@ $ICON
 		return element;
 	}
 
-	function createTableRows(rows) {
-		var element = document.createElement("tbody");
-		addTableRows(element, rows);
-		return element;
-	}
-	
 	function addTableRows(tbodyElement, rows) {
 		for (var i = 0; i < rows.length; i++) {
 			var rowElement = createTableRow(rows[i]);
@@ -948,6 +936,21 @@ $ICON
 			td.appendChild(document.createTextNode(cell));
 		}
 		return td;
+	}
+	
+	function addTableFooter(tableFooterElement, content) {
+		if (content) {
+			var tr = document.createElement("tr");
+			tableFooterElement.appendChild(tr);
+			var td = document.createElement("td");
+			td.setAttribute("colspan", tableFooterElement.columnCount);
+			td.style = "text-align: center; padding: 1em;";
+			document.getElementById("tableFooterButtons").childNodes.forEach(function(item) {
+		    	td.appendChild(item.cloneNode(true));
+			});
+			td.querySelector(".currentPage").innerHTML = content;
+			tr.appendChild(td);
+		}
 	}
 	
 	function createAction(element, config) {
@@ -1682,15 +1685,6 @@ $ICON
 
 	<div id="templates" style="display: none">
 		<div id="tablePageHeaderButtons">
-			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
-				<line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
-				<line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
-			</svg>
-			<span class="currentPage tablePageing hidden-print">1/1</span>
-			<svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
-				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
-				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
-			</svg>
 			<svg style="stroke-width:0px" class="filterButton pageButton button hidden-print" onclick="toggleFilter(evt);">
 				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
 				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
@@ -1698,6 +1692,27 @@ $ICON
 				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:20%" />
 			</svg>
 		</div>
+		<div id="tableFooterButtons">
+			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'first');">
+				<line x1="20%" y1="15%" x2="20%" y2="85%" style="stroke-width:15%" />
+				<line x1="80%" y1="20%" x2="40%" y2="50%" style="stroke-width:15%" />
+				<line x1="80%" y1="80%" x2="40%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
+				<line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
+				<line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<span class="currentPage tablePageing hidden-print">-</span>
+			<svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
+				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'last');">
+				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+				<line x1="80%" y1="15%" x2="80%" y2="85%" style="stroke-width:15%" />
+			</svg>
+		</div>		
 		<div id="pageHeaderButtons">
 			<svg style="stroke-width:0px" class="actionMenuButton pageButton button hidden-print" onclick="togglePageActionMenu(evt);">
 				<rect x="73%" y="13%" width="20%" height="17%"/>

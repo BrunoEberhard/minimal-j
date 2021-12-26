@@ -118,8 +118,10 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 	
 	private void updatePaging() {
-		put("paging", objects.size() > PAGE_SIZE);
-		put("currentPage", (page + 1) + " / " + (Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE + 1));
+		if (objects.size() > PAGE_SIZE) {
+			int count = ListUtil.count(objects, filters);
+			put("paging", (page * PAGE_SIZE + 1) + " - " + Math.min((page + 1) * PAGE_SIZE, count) + " / " + count);
+		}
 	}
 	
 	public static <T> boolean equalsByIdOrContent(T a, T b) {
@@ -156,11 +158,26 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 				return;
 			}
 			break;
+		case "first":
+			if (page > 0) {
+				page = 0;
+			} else {
+				return;
+			}
+			break;
+		case "last":
+			int max = Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE;
+			if (page < max) {
+				page = max;
+			} else {
+				return;
+			}
+			break;
 		default:
 			throw new IllegalArgumentException(direction);
 		}
 		
-		List<T> visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 		put("tableContent", tableContent);
 
