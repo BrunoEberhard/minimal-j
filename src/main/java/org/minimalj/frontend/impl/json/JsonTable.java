@@ -9,7 +9,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.ITable;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.util.ColumnFilter;
@@ -18,7 +20,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.ChangeListener;
+import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.resources.Resources;
@@ -38,7 +40,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final List<Object> sortColumns = new ArrayList<>();
 	private final List<Boolean> sortDirections = new ArrayList<>();
 	private final ColumnFilter[] filters;
-	private final boolean[] headerFilterLookups;
+	private final IComponent[] headerFilters;
 	
 	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
@@ -50,7 +52,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		List<String> headers = new ArrayList<>();
 		List<String> headerPathes = new ArrayList<>();
 		filters = new ColumnFilter[keys.length];
-		headerFilterLookups = new boolean[keys.length];
+		headerFilters = new IComponent[keys.length];
 
 		for (PropertyInterface property : properties) {
 			String header = Resources.getPropertyName(property);
@@ -58,11 +60,11 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			headerPathes.add(property.getPath());
 			int column = headers.size() - 1;
 			filters[column] = ColumnFilter.createFilter(property, new ColumnFilterChangeListener(column));
-			headerFilterLookups[column] = filters[column].hasLookup();
+			headerFilters[column] = filters[column].getComponent();
 		}
 		put("headers", headers);
 		put("headerPathes", headerPathes);
-		put("headerFilterLookups", headerFilterLookups);
+		put("headerFilters", headerFilters);
 
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
@@ -232,29 +234,21 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 		setObjects(objects);
 	}
-
-	public void filterEditor(int column) {
-		filters[column].runEditor(s -> setFilter(column, s));
-	}
-
-	public void setFilter(int column, String newValue) {
-		filters[column].setText(newValue);
-	}
 	
-	public class ColumnFilterChangeListener implements ChangeListener<ColumnFilter> {
+	public class ColumnFilterChangeListener implements InputComponentListener {
 
 		private final int column;
-		
+
 		public ColumnFilterChangeListener(int column) {
 			this.column = column;
 		}
-		
+
 		@Override
-		public void changed(ColumnFilter columnFilter) {
+		public void changed(IComponent source) {
 			page = 0;
 			setObjects(objects);
-			
-			put("columnFilter", Map.of("column", column, "string", columnFilter.getText()));
+			ValidationMessage validationMessage = filters[column].validate();
+			((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
 		}
 	}
 }

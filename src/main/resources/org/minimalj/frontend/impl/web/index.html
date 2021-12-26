@@ -611,8 +611,8 @@ $ICON
 				th.appendChild(createContent(content.overview));
 				tr.appendChild(th);
 			}
-			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
-			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilterLookups));
+			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes, content.headerFilters));
+			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters));
 			element.appendChild(createTableRows(content.tableContent));
 		} else if (type === "Text" || type === "Title") {
 			element = document.createElement("div");
@@ -876,13 +876,18 @@ $ICON
 		}
 	}
 	
-	function createTableHeaders(tableId, headers, headerNames) {
+	function createTableHeaders(tableId, headers, headerNames, headerFilters) {
 		var element = document.createElement("tr");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
 			th.className = "col " + headerNames[i]; 
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
+			var tooltipTemplate = document.getElementById("tooltip");
+			var tooltip = tooltipTemplate.cloneNode(true);
+			tooltip.id = headerFilters[i].id + "-validation";
+			tooltip.className = "hide";
+			th.appendChild(tooltip);
 			element.appendChild(th);
 		}
 		return element;
@@ -896,25 +901,8 @@ $ICON
 			var th = document.createElement("th");
 			th.className = "columnFilter " + headerNames[i]; 
 			
-			var input = document.createElement("input");
-			input.setAttribute("id", "columnFilter-" + tableId + "-" + i);
-			input.setAttribute("oninput", "ontextinput(this);");
-			input.setAttribute("onchange", "ontextchange(this);");
+			var input = createContent(headerFilterLookups[i]);
 			th.appendChild(input);
-			
-			if (headerFilterLookups[i]) {
-				var button = document.createElement("div");
-				button.className = "lookupButton";
-				button.setAttribute("onclick", "tableFilterEditor(\"" + tableId + "\", " + i + " );");
-				th.appendChild(button);
-			}
-			
-			/* at the moment no validation for header filter. Also this is not complete
-			var tooltipTemplate = document.getElementById("tooltip");
-			var tooltip = tooltipTemplate.cloneNode(true);
-			tooltip.id = input.id + "-validation";
-			th.appendChild(tooltip);
-			*/
 			
 			element.appendChild(th);
 		}

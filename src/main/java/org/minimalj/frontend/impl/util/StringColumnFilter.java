@@ -1,33 +1,36 @@
 package org.minimalj.frontend.impl.util;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
-import org.minimalj.util.ChangeListener;
 import org.minimalj.util.StringUtils;
 
 public class StringColumnFilter implements ColumnFilter {
 
 	public static final StringColumnFilter $ = Keys.of(StringColumnFilter.class);
 
-	public String string;
-
 	private final PropertyInterface property;
 
-	private ChangeListener<ColumnFilter> changeListener;
+	private Input<String> component;
+	
+	private InputComponentListener listener;
 
 	public StringColumnFilter() {
 		this.property = null;
 	}
 
-	public StringColumnFilter(PropertyInterface property, ChangeListener<ColumnFilter> changeListener) {
+	public StringColumnFilter(PropertyInterface property, InputComponentListener listener) {
 		this.property = property;
-		this.changeListener = Objects.requireNonNull(changeListener);
+		this.listener = Objects.requireNonNull(listener);
 	}
 
 	@Override
@@ -36,36 +39,24 @@ public class StringColumnFilter implements ColumnFilter {
 	}
 
 	@Override
-	public void runEditor(Consumer<String> finishedListener) {
-		// not supported for strings
-	}
-
-	@Override
-	public void setText(String string) {
-		if (StringUtils.equals(string, this.string)) {
-			return;
+	public IComponent getComponent() {
+		if (component == null) {
+			component = Frontend.getInstance().createTextField(255, null, null, listener);
 		}
-
-		this.string = string;
-		changeListener.changed(this);
-	}
-
-	@Override
-	public String getText() {
-		return string;
+		return component;
 	}
 
 	@Override
 	public boolean active() {
-		return !StringUtils.isEmpty(string);
-	}
-
-	@Override
-	public boolean hasLookup() {
-		return false;
+		return !StringUtils.isEmpty(component.getValue());
 	}
 	
+	public ValidationMessage validate() {
+		return null;
+	}
+
 	private boolean exact() {
+		String string = component.getValue();
 		return string != null && string.length() > 2 && string.charAt(0) == '"' && string.charAt(string.length()-1) == '"';
 	}
 
@@ -80,8 +71,9 @@ public class StringColumnFilter implements ColumnFilter {
 			value = ((Rendering) value).render();
 		}
 		if (value != null) {
+			String string = component.getValue();
 			if (!exact()) {
-				String valueLowercase = this.string.toLowerCase();
+				String valueLowercase = string.toLowerCase();
 				return value.toString().toLowerCase().contains(valueLowercase);
 			} else {
 				return value.toString().equals(string.substring(1, string.length() - 1));
@@ -93,6 +85,7 @@ public class StringColumnFilter implements ColumnFilter {
 
 	@Override
 	public Criteria getCriteria() {
+		String string = component.getValue();
 		return By.search(!exact()  ? "%" + string + "%" : string.substring(1, string.length() - 1), property);
 	}
 

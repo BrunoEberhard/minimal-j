@@ -5,14 +5,20 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Locale;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.application.Application;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.model.Keys;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.test.TestUtil;
 import org.minimalj.util.LocaleContext;
 
 public class GeneralColumnFilterTest {
@@ -28,6 +34,13 @@ public class GeneralColumnFilterTest {
 	@Before
 	public void initRepository() {
 		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), GeneralColumnFilterTestEntity.class);
+		Application.setInstance(new Application() {});
+		Frontend.setInstance(new JsonFrontend());
+	}
+	
+	@After
+	public void after() {
+		TestUtil.shutdown();
 	}
 	
 	private void assertFilter(ColumnFilter filter, GeneralColumnFilterTestEntity entity, boolean result) {
@@ -43,7 +56,9 @@ public class GeneralColumnFilterTest {
 		GeneralColumnFilterTestEntity entity = new GeneralColumnFilterTestEntity();
 
 		filter = ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.date), source -> {});
-		filter.setText("1.2.2003");
+		Input<String> textField = (Input<String>) filter.getComponent();
+		
+		textField.setValue("1.2.2003");
 		
 		entity.date = LocalDate.of(2003, 2, 1);
 		assertFilter(filter, entity, true);
@@ -56,7 +71,7 @@ public class GeneralColumnFilterTest {
 		
 		//
 		
-		filter.setText("-1.2.2003");
+		textField.setValue("-1.2.2003");
 
 		entity.date = LocalDate.of(2003, 2, 1);
 		assertFilter(filter, entity, true);
@@ -69,7 +84,7 @@ public class GeneralColumnFilterTest {
 
 		//
 		
-		filter.setText("1.2.2003-");
+		textField.setValue("1.2.2003-");
 
 		entity.date = LocalDate.of(2003, 2, 1);
 		assertFilter(filter, entity, true);
@@ -82,7 +97,7 @@ public class GeneralColumnFilterTest {
 
 		//
 		
-		filter.setText("1.2.2003-3.2.2003");
+		textField.setValue("1.2.2003-3.2.2003");
 
 		entity.date = LocalDate.of(2003, 1, 31);
 		assertFilter(filter, entity, false);
@@ -102,7 +117,8 @@ public class GeneralColumnFilterTest {
 		GeneralColumnFilterTestEntity entity = new GeneralColumnFilterTestEntity();
 
 		filter = ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.dateTime), source -> {});
-		filter.setText("1.2.2003");
+		Input<String> textField = (Input<String>) filter.getComponent();
+		textField.setValue("1.2.2003");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
@@ -121,7 +137,7 @@ public class GeneralColumnFilterTest {
 
 		//
 
-		filter.setText("-1.2.2003");
+		textField.setValue("-1.2.2003");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
@@ -140,7 +156,7 @@ public class GeneralColumnFilterTest {
 
 		//
 
-		filter.setText("1.2.2003-");
+		textField.setValue("1.2.2003-");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
@@ -159,7 +175,7 @@ public class GeneralColumnFilterTest {
 
 		//
 
-		filter.setText("1.2.2003 04:56");
+		textField.setValue("1.2.2003 04:56");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
@@ -172,7 +188,7 @@ public class GeneralColumnFilterTest {
 
 		//
 		
-		filter.setText("1.2.2003 04:56-");
+		textField.setValue("1.2.2003 04:56-");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
@@ -185,7 +201,7 @@ public class GeneralColumnFilterTest {
 
 		//
 		
-		filter.setText("-1.2.2003 04:56");
+		textField.setValue("-1.2.2003 04:56");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
@@ -198,7 +214,7 @@ public class GeneralColumnFilterTest {
 
 		//
 		
-		filter.setText("1.2.2003 04:55-1.2.2003 04:56");
+		textField.setValue("1.2.2003 04:55-1.2.2003 04:56");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
@@ -214,7 +230,7 @@ public class GeneralColumnFilterTest {
 
 		//
 		
-		filter.setText("2");
+		textField.setValue("2");
 
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
 		assertFilter(filter, entity, true);
