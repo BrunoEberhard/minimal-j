@@ -143,9 +143,6 @@ $ICON
 							for (var i = 0; i < tbody.childNodes.length; i++) {
 								tbody.childNodes[i].className = value[i];		
 							}					
-						} else if (property === "columnFilter") {
-							var filterElement = document.getElementById("columnFilter-" + id + "-" + value.column);
-							filterElement.value = value.string;
 						} else if (property === "paging") {
 							var pageElement = element;
 							while ((pageElement = pageElement.parentNode) && !pageElement.classList.contains("page"));
@@ -503,6 +500,12 @@ $ICON
 		while ((element = element.parentNode) && !element.classList.contains("page"));
 		var columnFiltersElement = element.querySelector(".columnFilters");
 		columnFiltersElement.classList.toggle("hide");
+		var table = element.querySelector("table");
+		var data = {
+			tableFilter: table.id,
+			filter: !columnFiltersElement.classList.contains("hide")
+		};
+		send(data, true);
 	}
 	
 	function tablePage(event, direction) {

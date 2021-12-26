@@ -32,6 +32,8 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 	private Input<String> textField;
 
 	private final InputComponentListener listener;
+	
+	private boolean enabled;
 
 	private List<ColumnFilterPredicate> columnFilterPredicates = new ArrayList<>();
 
@@ -103,12 +105,17 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 	
 	@Override
 	public boolean active() {
-		return columnFilterPredicate != null;
+		return enabled && columnFilterPredicate != null;
+	}
+	
+	@Override
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 	
 	@Override
 	public ValidationMessage validate() {
-		if (!active() && textField != null && !StringUtils.isEmpty(textField.getValue())) {
+		if (enabled && !active() && textField != null && !StringUtils.isEmpty(textField.getValue())) {
 			return Validation.createInvalidValidationMessage(property);
 		} else {
 			return null;

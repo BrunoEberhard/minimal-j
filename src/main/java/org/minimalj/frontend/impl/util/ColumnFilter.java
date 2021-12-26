@@ -15,6 +15,8 @@ public interface ColumnFilter extends Predicate<Object> {
 	public PropertyInterface getProperty();
 
 	public IComponent getComponent();
+
+	public void setEnabled(boolean enabled);
 	
 	public boolean active();
 	

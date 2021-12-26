@@ -231,6 +231,13 @@ public class JsonPageManager implements PageManager {
 			table.page(direction);
 		}
 
+		String tableFilter = (String) input.getObject("tableFilter");
+		if (tableFilter != null) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableFilter);
+			boolean filter = Boolean.TRUE.equals(input.getObject("filter"));
+			table.filter(filter);
+		}
+		
 		String search = (String) input.getObject("search");
 		if (search != null && Application.getInstance().hasSearch()) {
 			Application.getInstance().search(search);

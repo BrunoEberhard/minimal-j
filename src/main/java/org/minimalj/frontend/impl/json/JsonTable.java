@@ -251,4 +251,18 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
 		}
 	}
+
+	public void filter(boolean enabled) {
+		int column = 0;
+		for (ColumnFilter filter : filters) {
+			filter.setEnabled(enabled);
+
+			ValidationMessage validationMessage = filters[column].validate();
+			((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+			column++;
+		}
+
+		page = 0;
+		setObjects(objects);
+	}
 }
