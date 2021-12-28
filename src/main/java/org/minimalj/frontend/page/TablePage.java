@@ -81,7 +81,7 @@ public abstract class TablePage<T> extends Page implements TableActionListener<T
 		if (table == null || multiSelect != allowMultiselect() || !Arrays.equals(columns, getColumns())) {
 			this.columns = getColumns();
 			this.multiSelect = allowMultiselect();
-			table = Frontend.getInstance().createTable(getColumns(), multiSelect, this);
+			table = Frontend.getInstance().createTable(columns, multiSelect, this);
 			this.table = new SoftReference<>(table);
 		}
 		table.setObjects(load());
