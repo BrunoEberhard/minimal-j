@@ -1,7 +1,5 @@
 package org.minimalj.frontend.impl.util;
 
-import java.util.Objects;
-
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -22,17 +20,14 @@ public class StringColumnFilter implements ColumnFilter {
 
 	private Input<String> component;
 	
-	private InputComponentListener listener;
-	
 	private boolean enabled;
 
 	public StringColumnFilter() {
 		this.property = null;
 	}
 
-	public StringColumnFilter(PropertyInterface property, InputComponentListener listener) {
+	public StringColumnFilter(PropertyInterface property) {
 		this.property = property;
-		this.listener = Objects.requireNonNull(listener);
 	}
 
 	@Override
@@ -41,7 +36,7 @@ public class StringColumnFilter implements ColumnFilter {
 	}
 
 	@Override
-	public IComponent getComponent() {
+	public IComponent getComponent(InputComponentListener listener) {
 		if (component == null) {
 			component = Frontend.getInstance().createTextField(255, null, null, listener);
 		}

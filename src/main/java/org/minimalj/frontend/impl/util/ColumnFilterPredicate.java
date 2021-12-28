@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.util;
 
+import java.util.Collection;
 import java.util.function.Predicate;
 
 import org.minimalj.frontend.Frontend;
@@ -64,6 +65,17 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		
 	}
 	
+	@Override
+	public final boolean test(Object t) {
+		if (t instanceof Collection) {
+			return ((Collection) t).stream().anyMatch(this);
+		} else {
+			return valid() && doTest(t);
+		}
+	}
+	
+	protected abstract boolean doTest(Object t);
+
 	public abstract Criteria getCriteria(PropertyInterface property);
 	
 	public static abstract class StringColumnFilterPredicate extends ColumnFilterPredicate {
@@ -122,8 +134,8 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public boolean test(Object t) {
-			return valid() && t != null ? ((Comparable) value).compareTo(t) == 0 : true;
+		public boolean doTest(Object t) {
+			return t != null ? ((Comparable) value).compareTo(t) == 0 : true;
 		}
 
 		@Override
@@ -155,8 +167,8 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public boolean test(Object t) {
-			return valid() && t != null ? ((ComparableRange) value).test(t) : true;
+		public boolean doTest(Object t) {
+			return t != null ? ((ComparableRange) value).test(t) : true;
 		}
 
 		@Override
@@ -197,8 +209,8 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public boolean test(Object t) {
-			return value != null && t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) <= 0 : true;
+		public boolean doTest(Object t) {
+			return t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) <= 0 : true;
 		}
 
 		@Override
@@ -239,8 +251,8 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public boolean test(Object t) {
-			return value != null && t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) >= 0 : true;
+		public boolean doTest(Object t) {
+			return t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) >= 0 : true;
 		}
 
 		@Override
@@ -296,7 +308,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public boolean test(Object t) {
+		public boolean doTest(Object t) {
 			return value != null && value.valid() && t != null ? value.test(t) : true;
 		}
 		

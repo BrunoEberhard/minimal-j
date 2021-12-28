@@ -55,8 +55,8 @@ public class GeneralColumnFilterTest {
 	public void testParseDate() {
 		GeneralColumnFilterTestEntity entity = new GeneralColumnFilterTestEntity();
 
-		filter = ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.date), source -> {});
-		Input<String> textField = (Input<String>) filter.getComponent();
+		filter = ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.date));
+		Input<String> textField = (Input<String>) filter.getComponent(source -> {});
 		
 		textField.setValue("1.2.2003");
 		
@@ -116,8 +116,8 @@ public class GeneralColumnFilterTest {
 	public void testParseDateTime() {
 		GeneralColumnFilterTestEntity entity = new GeneralColumnFilterTestEntity();
 
-		filter = ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.dateTime), source -> {});
-		Input<String> textField = (Input<String>) filter.getComponent();
+		filter = ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.dateTime));
+		Input<String> textField = (Input<String>) filter.getComponent(source -> {});
 		textField.setValue("1.2.2003");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);

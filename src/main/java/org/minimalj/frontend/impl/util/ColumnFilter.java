@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.model.TableFilter;
+import org.minimalj.model.Column;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.Criteria;
@@ -14,7 +14,7 @@ public interface ColumnFilter extends Predicate<Object> {
 
 	public PropertyInterface getProperty();
 
-	public IComponent getComponent();
+	public IComponent getComponent(InputComponentListener listener);
 
 	public void setEnabled(boolean enabled);
 	
@@ -24,17 +24,19 @@ public interface ColumnFilter extends Predicate<Object> {
 
 	public Criteria getCriteria();
 	
-	public static ColumnFilter createFilter(PropertyInterface property, InputComponentListener listener) {
-		Class<?> clazz = property.getClazz();
-		TableFilter tableFilter = property.getAnnotation(TableFilter.class);
-		if (tableFilter != null) {
-			// TODO
+	public static ColumnFilter createFilter(PropertyInterface property) {
+		if (property instanceof Column) {
+			ColumnFilter filter = ((Column<?, ?>) property).getFilter();
+			if (filter != null) {
+				return filter;
+			}
 		}
+		Class<?> clazz = property.getClazz();
 		if (Temporal.class.isAssignableFrom(clazz) || Number.class.isAssignableFrom(clazz)) {
-			return new ValueOrRangeColumnFilter(property, listener);
+			return new ValueOrRangeColumnFilter(property);
 		} else {
-			return new StringColumnFilter(property, listener);
+			return new StringColumnFilter(property);
 		}
 	}
-
+	
 }

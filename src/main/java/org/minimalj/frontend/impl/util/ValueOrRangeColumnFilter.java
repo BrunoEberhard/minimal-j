@@ -4,8 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.minimalj.frontend.Frontend;
@@ -27,29 +27,29 @@ import com.microsoft.sqlserver.jdbc.StringUtils;
 
 public class ValueOrRangeColumnFilter implements ColumnFilter {
 
-	private final PropertyInterface property;
+	protected final PropertyInterface property;
 
 	private Input<String> component;
 	private Input<String> textField;
 	private ColumnFilterEditor editor;
 
-	private final InputComponentListener listener;
-	
 	private boolean enabled;
 
 	private List<ColumnFilterPredicate> columnFilterPredicates = new ArrayList<>();
 
 	private ColumnFilterPredicate columnFilterPredicate;
 
-	public ValueOrRangeColumnFilter(PropertyInterface property, InputComponentListener listener) {
+	public ValueOrRangeColumnFilter(PropertyInterface property) {
 		this.property = property;
-		this.listener = Objects.requireNonNull(listener);
 
 		addPredicates(property);
 	}
 
-	private void addPredicates(PropertyInterface property) {
+	protected void addPredicates(PropertyInterface property) {
 		Class<?> clazz = property.getClazz();
+		if (Collection.class.isAssignableFrom(clazz)) {
+			clazz = property.getGenericClass();
+		}
 		if (LocalDate.class == clazz || LocalTime.class == clazz || LocalDateTime.class == clazz) {
 			columnFilterPredicates.add(new TemporalEqualsFilterPredicate(clazz));
 		} else {
@@ -60,6 +60,10 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 		columnFilterPredicates.add(new RangeFilterPredicate(clazz));
 	}
 
+	protected ColumnFilterPredicate getColumnFilterPredicate() {
+		return columnFilterPredicate;
+	}
+	
 	@Override
 	public boolean test(Object t) {
 		Object value = property.getValue(t);
@@ -76,7 +80,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 	}
 
 	@Override
-	public IComponent getComponent() {
+	public IComponent getComponent(InputComponentListener listener) {
 		if (component == null) {
 			InputComponentListener myListener = source -> {
 				setFilterString(textField.getValue());

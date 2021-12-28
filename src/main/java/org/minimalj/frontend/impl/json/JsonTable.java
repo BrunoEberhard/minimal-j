@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.InputComponentListener;
@@ -16,6 +15,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.ListUtil;
+import org.minimalj.model.Column;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
@@ -28,7 +28,7 @@ import org.minimalj.util.resources.Resources;
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
-	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "1000"));
+	private static final int PAGE_SIZE = 30; //Integer.parseInt(Configuration.get("MjJsonTablePageSize", "1000"));
 
 	private final JsonPageManager pageManager;
 	private final Object[] keys;
@@ -59,8 +59,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			headers.add(header);
 			headerPathes.add(property.getPath());
 			int column = headers.size() - 1;
-			filters[column] = ColumnFilter.createFilter(property, new ColumnFilterChangeListener(column));
-			headerFilters[column] = filters[column].getComponent();
+			filters[column] = ColumnFilter.createFilter(property);
+			headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
 		}
 		put("headers", headers);
 		put("headerPathes", headerPathes);
@@ -193,7 +193,16 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			List rowContent = new ArrayList();
 			for (PropertyInterface property : properties) {
 				Object value = property.getValue(object);
-				if (value instanceof Action) {
+				if (property instanceof Column) {
+					Column column = (Column) property;
+					String stringValue = Rendering.toString(column.render(object, value));
+					ColorName color = column.getColor(object, value);
+					if (color == null) {
+						rowContent.add(stringValue);
+					} else {
+						rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+					}
+				} else if (value instanceof Action) {
 					Action action = (Action) value;
 					if (action.isEnabled()) {
 						rowContent.add(Map.of("action", new JsonAction(action)));
