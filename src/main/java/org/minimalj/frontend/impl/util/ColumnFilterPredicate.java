@@ -70,7 +70,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		if (t instanceof Collection) {
 			return ((Collection) t).stream().anyMatch(this);
 		} else {
-			return valid() && doTest(t);
+			return !valid() || doTest(t);
 		}
 	}
 	
@@ -135,7 +135,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null ? ((Comparable) value).compareTo(t) == 0 : true;
+			return t != null ? ((Comparable) value).compareTo(t) == 0 : false;
 		}
 
 		@Override
@@ -168,7 +168,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null ? ((ComparableRange) value).test(t) : true;
+			return t != null ? ((ComparableRange) value).test(t) : false;
 		}
 
 		@Override
@@ -210,7 +210,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) <= 0 : true;
+			return t != null ? value.compareTo(t) <= 0 : false;
 		}
 
 		@Override
@@ -252,7 +252,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null && !InvalidValues.isInvalid(value) ? value.compareTo(t) >= 0 : true;
+			return t != null ? value.compareTo(t) >= 0 : true;
 		}
 
 		@Override
@@ -309,7 +309,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean doTest(Object t) {
-			return value != null && value.valid() && t != null ? value.test(t) : true;
+			return value != null ? value.test(t) : false;
 		}
 		
 		@Override
