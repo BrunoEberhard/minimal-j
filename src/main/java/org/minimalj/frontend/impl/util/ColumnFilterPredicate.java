@@ -188,8 +188,8 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected String extractEditString(String string) {
 			if (!StringUtils.isEmpty(string)) {
 				string = string.trim();
-				if (string.endsWith("-")) {
-					String editString = string.substring(0, string.length() - 1).trim();
+				if (string.startsWith(">")) {
+					String editString = string.substring(1).trim();
 					value = ComparableRange.parse(clazz, editString, false);
 					return editString;
 				}
@@ -200,7 +200,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected String formatFilterString() {
-			return input.getValue() + " -";
+			return "> " + input.getValue();
 		}
 
 		@Override
@@ -230,7 +230,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected String extractEditString(String string) {
 			if (!StringUtils.isEmpty(string)) {
 				string = string.trim();
-				if (string.startsWith("-")) {
+				if (string.startsWith("<")) {
 					String editString = string.substring(1).trim();
 					value = ComparableRange.parse(clazz, editString, true);
 					return editString;
@@ -242,7 +242,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected String formatFilterString() {
-			return "-" + input.getValue();
+			return "< " + input.getValue();
 		}
 
 		@Override

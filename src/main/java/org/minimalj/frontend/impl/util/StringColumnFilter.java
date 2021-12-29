@@ -1,10 +1,13 @@
 package org.minimalj.frontend.impl.util;
 
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
@@ -14,25 +17,21 @@ import org.minimalj.util.StringUtils;
 
 public class StringColumnFilter implements ColumnFilter {
 
-	public static final StringColumnFilter $ = Keys.of(StringColumnFilter.class);
-
 	private final PropertyInterface property;
-
+	private final BiFunction<Object, Predicate<String>, Boolean> tester;
+	
 	private Input<String> component;
 	
 	private boolean enabled;
 
-	public StringColumnFilter() {
-		this.property = null;
-	}
-
 	public StringColumnFilter(PropertyInterface property) {
-		this.property = property;
+		this.property = Objects.requireNonNull(property);
+		this.tester = null;
 	}
-
-	@Override
-	public PropertyInterface getProperty() {
-		return property;
+	
+	public StringColumnFilter(BiFunction<Object, Predicate<String>, Boolean> tester) {
+		this.property = null;
+		this.tester = Objects.requireNonNull(tester);
 	}
 
 	@Override
@@ -68,20 +67,26 @@ public class StringColumnFilter implements ColumnFilter {
 			return true;
 		}
 
-		Object value = getProperty().getValue(object);
-		if (value instanceof Rendering) {
-			value = ((Rendering) value).render();
-		}
-		if (value != null) {
-			String string = component.getValue();
+		String string = component.getValue();
+		Predicate<String> predicate = value -> {
 			if (!exact()) {
 				String valueLowercase = string.toLowerCase();
-				return value.toString().toLowerCase().contains(valueLowercase);
+				return value.toLowerCase().contains(valueLowercase);
 			} else {
-				return value.toString().equals(string.substring(1, string.length() - 1));
+				return value.equals(string.substring(1, string.length() - 1));
 			}
+		};
+		
+		if (property != null) {
+			Object value = property.getValue(object);
+			if (value instanceof Rendering) {
+				value = ((Rendering) value).render();
+			}
+			return value != null ? predicate.test(value.toString()) : false;
+		} else if (tester != null) {
+			return tester.apply(object, predicate);
 		} else {
-			return false;
+			throw new IllegalStateException();
 		}
 	}
 

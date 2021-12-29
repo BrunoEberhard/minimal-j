@@ -504,7 +504,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public String getHeader(int column) {
 			WebElement thead = table.findElement(By.tagName("thead"));
-			return thead.findElements(By.cssSelector("th.col")).get(column).getText();
+			return thead.findElements(By.cssSelector("tr.headers th")).get(column).getText();
 		}
 
 		@Override

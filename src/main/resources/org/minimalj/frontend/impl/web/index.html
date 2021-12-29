@@ -598,6 +598,7 @@ $ICON
 			}
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
+			thead.appendChild(createTableColumns(content.headers, content.headerPathes));
 			if (content.overview) {
 				var tr = document.createElement("tr");
 				thead.appendChild(tr);
@@ -876,12 +877,22 @@ $ICON
 			}
 		}
 	}
-	
-	function createTableHeaders(tableId, headers, headerNames, headerFilters) {
+
+	function createTableColumns(headers, headerNames) {
 		var element = document.createElement("tr");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
 			th.className = "col " + headerNames[i]; 
+			element.appendChild(th);
+		}
+		return element;
+	}
+	
+	function createTableHeaders(tableId, headers, headerNames, headerFilters) {
+		var element = document.createElement("tr");
+		element.className = "headers"; 
+		for (var i = 0; i < headers.length; i++) {
+			var th = document.createElement("th");
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
 			var tooltipTemplate = document.getElementById("tooltip");
@@ -931,13 +942,15 @@ $ICON
 	
 	function createTableCell(cell) {
 		var td = document.createElement("td");
-		if (cell.action) {
-			createAction(td, cell.action);
-		} else if (cell.color) {
-			td.appendChild(document.createTextNode(cell.value));
-			td.classList.add(cell.color);
-		} else if (cell) {
-			td.appendChild(document.createTextNode(cell));
+		if (cell) {
+			if (cell.action) {
+				createAction(td, cell.action);
+			} else if (cell.color) {
+				td.appendChild(document.createTextNode(cell.value));
+				td.classList.add(cell.color);
+			} else {
+				td.appendChild(document.createTextNode(cell));
+			}
 		}
 		return td;
 	}

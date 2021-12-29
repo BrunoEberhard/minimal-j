@@ -1,12 +1,15 @@
 package org.minimalj.frontend.impl.util;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -27,8 +30,10 @@ import com.microsoft.sqlserver.jdbc.StringUtils;
 
 public class ValueOrRangeColumnFilter implements ColumnFilter {
 
-	protected final PropertyInterface property;
-
+	private final PropertyInterface property;
+	private final BiFunction<Object, Predicate<Object>, Boolean> tester;
+	private final String name;
+	
 	private Input<String> component;
 	private Input<String> textField;
 	private ColumnFilterEditor editor;
@@ -40,16 +45,20 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 	private ColumnFilterPredicate columnFilterPredicate;
 
 	public ValueOrRangeColumnFilter(PropertyInterface property) {
-		this.property = property;
-
-		addPredicates(property);
+		this.property = Objects.requireNonNull(property);
+		this.tester = null;
+		this.name = Resources.getPropertyName(property);
+		addPredicates(property.getClazz());
 	}
 
-	protected void addPredicates(PropertyInterface property) {
-		Class<?> clazz = property.getClazz();
-		if (Collection.class.isAssignableFrom(clazz)) {
-			clazz = property.getGenericClass();
-		}
+	public ValueOrRangeColumnFilter(Class<?> clazz, BiFunction<Object, Predicate<Object>, Boolean> tester, String name) {
+		this.property = null;
+		this.tester = Objects.requireNonNull(tester);
+		this.name = Objects.requireNonNull(name);
+		addPredicates(clazz);
+	}
+
+	protected void addPredicates(Class<?> clazz) {
 		if (LocalDate.class == clazz || LocalTime.class == clazz || LocalDateTime.class == clazz) {
 			columnFilterPredicates.add(new TemporalEqualsFilterPredicate(clazz));
 		} else {
@@ -66,17 +75,17 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 	
 	@Override
 	public boolean test(Object t) {
-		Object value = property.getValue(t);
-		if (columnFilterPredicate != null) {
-			return columnFilterPredicate.test(value);
-		} else {
+		if (!active()) {
 			return true;
 		}
-	}
-
-	@Override
-	public PropertyInterface getProperty() {
-		return property;
+		if (property != null) {
+			Object value = property.getValue(t);
+			return columnFilterPredicate.test(value);
+		} else if (tester != null) {
+			return tester.apply(t, columnFilterPredicate);
+		} else {
+			throw new IllegalStateException();
+		}
 	}
 
 	@Override
@@ -92,7 +101,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 				setFilterString(string);
 				listener.changed(textField);
 			};
-			editor = new ColumnFilterEditor(Resources.getPropertyName(property), textField.getValue(), columnFilterPredicates, finishedListener);
+			editor = new ColumnFilterEditor(name, textField.getValue(), columnFilterPredicates, finishedListener);
 			component = Frontend.getInstance().createLookup(textField, editor);
 		}
 		return component;
@@ -112,19 +121,23 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 	}
 	
 	@Override
-	public boolean active() {
+	public final boolean active() {
 		return enabled && columnFilterPredicate != null;
 	}
 	
 	@Override
-	public void setEnabled(boolean enabled) {
+	public final void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 	
 	@Override
 	public ValidationMessage validate() {
 		if (enabled && !active() && textField != null && !StringUtils.isEmpty(textField.getValue())) {
-			return Validation.createInvalidValidationMessage(property);
+			if (property != null) {
+				return Validation.createInvalidValidationMessage(property);
+			} else {
+				return new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), name));
+			}
 		} else {
 			return null;
 		}

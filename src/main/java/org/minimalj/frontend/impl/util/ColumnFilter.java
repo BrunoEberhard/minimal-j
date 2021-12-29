@@ -12,8 +12,6 @@ import org.minimalj.repository.query.Criteria;
 
 public interface ColumnFilter extends Predicate<Object> {
 
-	public PropertyInterface getProperty();
-
 	public IComponent getComponent(InputComponentListener listener);
 
 	public void setEnabled(boolean enabled);

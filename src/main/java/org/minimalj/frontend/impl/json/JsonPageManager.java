@@ -563,7 +563,7 @@ public class JsonPageManager implements PageManager {
 		if (o instanceof JsonOutput) {
 			((JsonOutput) o).forEach(v -> travers(v, c));
 		}
-		if (o != null && o.getClass().isArray()) {
+		if (o != null && o.getClass().isArray() && !o.getClass().getComponentType().isPrimitive()) {
 			Arrays.stream((Object[]) o).forEach(v -> travers(v, c));
 		}
 	}

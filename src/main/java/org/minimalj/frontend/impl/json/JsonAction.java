@@ -6,7 +6,7 @@ import org.minimalj.frontend.page.Routing;
 import org.minimalj.util.StringUtils;
 
 public class JsonAction extends JsonComponent {
-	private final Action action;
+	private final Runnable action;
 	
 	public JsonAction(Action action) {
 		super("Action");
@@ -21,6 +21,13 @@ public class JsonAction extends JsonComponent {
 		if (route != null) {
 			put("link", route);
 		}
+	}
+	
+	public JsonAction(Runnable runnable, String name) {
+		super("Action");
+		this.action = runnable;
+		put("name", name);
+		put("enabled", true);
 	}
 
 	public void run() {
@@ -41,7 +48,7 @@ public class JsonAction extends JsonComponent {
 
 		@Override
 		public void change() {
-			put("enabled", action.isEnabled());
+			put("enabled", ((Action) action).isEnabled());
 		}
 	}
 	

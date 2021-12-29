@@ -234,12 +234,13 @@ table.table thead {
 	margin-top: 0;
 }
 
-.table .columnFilter {
-	position: relative;
-}
-
 .table .columnFilter input {
 	width: 100%;
+}
+
+.table tfoot tr td * {
+	padding: 0.5em;
+	vertical-align: middle;
 }
 
 .actionMenu {
@@ -377,15 +378,15 @@ table.selected {
 	background: blue;
 }
 
-table tr:nth-child(even) {
+table tbody tr:nth-child(even) {
 	background: #f8f8f8;
 }
 
-table tr:nth-child(even).selected {
+table tbody tr:nth-child(even).selected {
 	background: #99f;
 }
 
-table tr:nth-child(odd).selected {
+table tbody  tr:nth-child(odd).selected {
 	background: #99f;
 }
 
@@ -428,7 +429,7 @@ dialog table {
 	flex-shrink: 1;
 }
 
-.form > div > div > *, .form input[type=text] {
+.form > div > div > *, .form input[type=text], .form select {
 	width: 100%;
 }
 
@@ -605,7 +606,7 @@ label {
 @media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
-	#actionMenuButton { display: none; }
+	#actionMenuButton, #tableFilterButton { display: none; }
 }
 
 @media screen and (max-width: 991px) {
