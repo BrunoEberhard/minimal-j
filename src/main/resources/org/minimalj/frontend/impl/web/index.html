@@ -411,12 +411,7 @@ $ICON
 			}
 		}
 	
-		var pageElement = event.target;
-		while ((pageElement.classList == null || !pageElement.classList.contains("page")) && (pageElement = pageElement.parentNode));
-		if (!pageElement) {
-			pageElement = document.getElementsByClassName("page")[0];
-		}
-	
+		var pageElement = getPageElement(event);
 		if (pageElement && pageElement.actionMenu) {
 			var pageActionContainer = pageElement.actionMenu;
 			pageActionContainer.style.display = "block";
@@ -439,6 +434,16 @@ $ICON
 			event.preventDefault();
 			event.stopPropagation();
 		}
+	}
+	
+	function getPageElement(event) {
+		var pageElement = event.target;
+		while ((pageElement.classList == null || !pageElement.classList.contains("page")) && (pageElement = pageElement.parentNode));
+		if (!pageElement) {
+		    var pageElements = document.getElementsByClassName("page");
+			pageElement = document.getElementsByClassName("page")[pageElements.length - 1];
+		}
+		return pageElement;
 	}
 	
 	function closeActionMenu(event) {
@@ -489,12 +494,7 @@ $ICON
 	}
 	
 	function toggleFilter(event) {
-		var element = event.target;
-		while ((element.classList == null || !element.classList.contains("page")) && (element = element.parentNode));
-		if (!element) {
-			element = document.getElementsByClassName("page")[0];
-		}
-		
+		var element = getPageElement(event);
 		var columnFiltersElement = element.querySelector(".columnFilters");
 		columnFiltersElement.classList.toggle("hide");
 		var table = element.querySelector("table");
