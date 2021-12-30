@@ -594,6 +594,11 @@ label {
     background-position: center;
 }
 
+.columnFilter .lookupButton {
+	width: 1.5em;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:15%25'%3E%3Cline x1='7%25' y1='40%25' x2='50%25' y2='80%25'/%3E%3Cline x1='93%25' y1='40%25' x2='50%25' y2='80%25'/%3E%3C/svg%3E");
+}
+
 .hide {
 	display: none;
 }
