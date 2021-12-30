@@ -12,9 +12,9 @@ import org.minimalj.model.properties.PropertyInterface;
 
 public class ListUtil {
 
-	public static <T> List<T> get(List<T> list, ColumnFilter[] filters, Object[] sortKeys, boolean[] sortDirections, int page, int pageSize) {
+	public static <T> List<T> get(List<T> list, ColumnFilter[] filters, Object[] sortKeys, boolean[] sortDirections, int offset, int pageSize) {
 		if (list instanceof LazyLoadingList) {
-			return ((LazyLoadingList<T>) list).get(filters, sortKeys, sortDirections, page, pageSize);
+			return ((LazyLoadingList<T>) list).get(filters, sortKeys, sortDirections, offset, pageSize);
 		} else {
 			List<T> filteredList;
 			boolean hasActiveFilters = Arrays.stream(filters).anyMatch(ColumnFilter::active);
@@ -31,8 +31,8 @@ public class ListUtil {
 
 			filteredList.sort(new KeyComparator<>(sortKeys, sortDirections));
 
-			int fromIndex = Math.min(page * pageSize, filteredList.size());
-			int toIndex = Math.min((page + 1) * pageSize, filteredList.size());
+			int fromIndex = Math.min(offset, filteredList.size());
+			int toIndex = Math.min(offset + pageSize, filteredList.size());
 			return filteredList.subList(fromIndex, toIndex);
 		}
 	}

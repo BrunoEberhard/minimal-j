@@ -91,7 +91,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		pageManager.unregister(get("tableContent"));
 		this.objects = objects;
 
-		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -177,7 +177,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			throw new IllegalArgumentException(direction);
 		}
 		
-		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 		put("tableContent", tableContent);
 
