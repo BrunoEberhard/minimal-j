@@ -38,6 +38,7 @@ import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.ListUtil;
+import org.minimalj.model.Column;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
@@ -76,8 +77,10 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		
 		setBorder(BorderFactory.createEmptyBorder());
 		
-//		setDefaultRenderer(BooleanFormat.class, new BooleanTableCellRenderer());
-		table.setDefaultRenderer(Object.class, new RenderingTableCellRenderer());
+		RenderingTableCellRenderer renderer = new RenderingTableCellRenderer();
+		table.setDefaultRenderer(Boolean.class, renderer);
+		table.setDefaultRenderer(Object.class, renderer);
+		table.setDefaultRenderer(Number.class, renderer);
 		
 		table.setAutoCreateRowSorter(true);
 		
@@ -88,6 +91,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		table.addMouseListener(new SwingTableMouseListener());
 		table.getSelectionModel().addListSelectionListener(new SwingTableSelectionListener());
         table.getRowSorter().addRowSorterListener(new SwingTableRowSortingListener());
+        table.addMouseListener(new TableMouseListener());
         
         table.getTableHeader().setLayout(new BorderLayout());
         
@@ -270,41 +274,75 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private class RenderingTableCellRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
-		
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			
-			PropertyInterface property = properties.get(column);
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int columnIndex) {
+			Object object = ((ItemTableModel) table.getModel()).getObject(table.convertRowIndexToModel(row));
 
 			Color color = null;
-			if (value instanceof Rendering) {
-				ColorName colorName = ((Rendering) value).getColor();
-				if (colorName != null) {
-					color = getColor(colorName);
+			String stringValue;
+
+			PropertyInterface property = properties.get(columnIndex);
+
+			if (property instanceof Column) {
+				Column column = (Column) property;
+				stringValue = Rendering.toString(column.render(object, value));
+				Runnable runnable = column.getRunnable(object, value);
+				if (runnable != null) {
+					color = Color.BLUE;
+				} else {
+					color = getColor(column.getColor(object, value));
 				}
+			} else {
+				stringValue = Rendering.toString(value, property);
+				color = getColor(Rendering.getColor(object, value));
 			}
+
 			if (!Objects.equals(getForeground(), color)) {
 				setForeground(color);
 			}
 
-			value = Rendering.toString(value, property);
-
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			return super.getTableCellRendererComponent(table, stringValue, isSelected, hasFocus, row, columnIndex);
 		}
 	}
 	
 	private static Color getColor(ColorName colorName) {
-		switch (colorName) {
-		case RED: return Color.RED;
-		case YELLOW: return Color.YELLOW;
-		case GREEN: return Color.GREEN;
-		case BLUE: return Color.BLUE;
+		if (colorName != null) {
+			switch (colorName) {
+				case RED: return Color.RED;
+				case YELLOW: return Color.YELLOW;
+				case GREEN: return Color.GREEN;
+				case BLUE: return Color.BLUE;
+			}
 		}
 		return null;
 	}
 
+	private class TableMouseListener extends MouseAdapter {
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@Override
+		public void mouseClicked(java.awt.event.MouseEvent evt) {
+			int rowView = table.rowAtPoint(evt.getPoint());
+			int colView = table.columnAtPoint(evt.getPoint());
+			if (rowView >= 0 && colView >= 0) {
+				int row = table.convertRowIndexToModel(rowView);
+				int col = table.convertColumnIndexToModel(colView);
+				PropertyInterface property = properties.get(col);
+				if (property instanceof Column) {
+					Column column = (Column) property;
+					Object object = ((ItemTableModel) table.getModel()).getObject(row);
+					Object value = property.getValue(object);
+					Runnable runnable = column.getRunnable(object, value);
+					if (runnable != null) {
+						SwingFrontend.run(table, runnable);
+					}
+				}
+			}
+		}
+	}
+	
 	@Override
 	public Dimension getMinimumSize() {
 		Dimension header = table.getTableHeader().getMinimumSize();
