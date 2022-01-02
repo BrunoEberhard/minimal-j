@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
@@ -23,26 +24,20 @@ import org.minimalj.util.resources.Resources;
 public class ColumnFilterEditor extends SimpleEditor<ColumnFilterModel> {
 
 	private final String propertyName;
-	private final String filterString;
+	private final Input<String> filterStringInput;
 	private final List<ColumnFilterPredicate> columnFilters;
-	private ColumnFilterPredicate columnFilter;
 	private final Consumer<String> finishedListener;
 
-	public ColumnFilterEditor(String propertyName, String filterString, List<ColumnFilterPredicate> columnFilters, Consumer<String> finishedListener) {
+	public ColumnFilterEditor(String propertyName, Input<String> filterStringInput, List<ColumnFilterPredicate> columnFilters, Consumer<String> finishedListener) {
 		this.propertyName = propertyName;
-		this.filterString = filterString;
+		this.filterStringInput = filterStringInput;
 		this.columnFilters = columnFilters;
-		this.columnFilter = columnFilters.get(0);
 		this.finishedListener = finishedListener;
 	}
 	
 	@Override
 	public String getTitle() {
 		return MessageFormat.format(Resources.getString(ColumnFilterEditor.class), propertyName);
-	}
-	
-	public void setColumnFilter(ColumnFilterPredicate columnFilter) {
-		this.columnFilter = columnFilter;
 	}
 
 	public static class ColumnFilterModel implements Validation {
@@ -67,8 +62,18 @@ public class ColumnFilterEditor extends SimpleEditor<ColumnFilterModel> {
 	@Override
 	protected ColumnFilterModel createObject() {
 		ColumnFilterModel model = new ColumnFilterModel();
-		model.filter = new Selection<>(columnFilter, columnFilters);
-		model.filterString = this.filterString;
+		model.filterString = this.filterStringInput.getValue();
+		
+		ColumnFilterPredicate columnFilterPredicate = columnFilters.get(0);
+		for (int i = columnFilters.size() - 1; i >= 0; i--) {
+			columnFilterPredicate = columnFilters.get(i);
+			if (columnFilterPredicate.isFilterStringValid(model.filterString)) {
+				break;
+			}
+		}
+		columnFilterPredicate.setFilterString(model.filterString);
+
+		model.filter = new Selection<>(columnFilterPredicate, columnFilters);
 		return model;
 	}
 
@@ -132,11 +137,11 @@ public class ColumnFilterEditor extends SimpleEditor<ColumnFilterModel> {
 			ColumnFilterPredicate oldFilter = this.columnFilter;
 			this.columnFilter = columnFilter;
 			if (this.columnFilter != null) {
+				this.columnFilter.setChangeListener(this);
+				formElement = this.columnFilter.getComponent();
 				if (oldFilter != null) {
 					this.columnFilter.copyFrom(oldFilter);
 				}
-				this.columnFilter.setChangeListener(this);
-				formElement = this.columnFilter.getComponent();
 				switchComponent.show(formElement);
 				return text;
 			} else {

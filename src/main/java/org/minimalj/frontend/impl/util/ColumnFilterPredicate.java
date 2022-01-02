@@ -14,13 +14,11 @@ import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.util.ChangeListener;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public abstract class ColumnFilterPredicate implements Predicate<Object>, Rendering, InputComponentListener {
 	protected final Class<?> clazz;
-	private ChangeListener<String> listener;
-	private String filterString;
+	protected ChangeListener<String> listener;
 	
 	public ColumnFilterPredicate(Class<?> clazz) {
 		this.clazz = clazz;
@@ -34,19 +32,12 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 	public void setChangeListener(ChangeListener<String> listener) {
 		this.listener = listener;
 	}
-	
-	protected final void setFilterString(String filterString) {
-		if (!StringUtils.equals(this.filterString, filterString)) {
-			this.filterString = filterString;
-			parseFilterString(filterString);
-		}
-	}
-	
-	protected abstract void parseFilterString(String filterString);
 
-	public final String getFilterString() {
-		return filterString;
-	}
+	protected abstract String getFilterString();
+	
+	protected abstract void setFilterString(String filterString);
+
+	public abstract boolean isFilterStringValid(String filterString);
 	
 	public abstract boolean valid();
 
@@ -54,12 +45,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 	@Override
 	public final void changed(IComponent source) {
-		String filterString = formatFilterString();
-		setFilterString(filterString);
-		listener.changed(filterString);
+		updateInternalValue();
+		listener.changed(getFilterString());
 	}
 	
-	protected abstract String formatFilterString();
+	protected abstract void updateInternalValue();
 
 	protected void copyFrom(ColumnFilterPredicate other) {
 		
@@ -80,32 +70,38 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 	
 	public static abstract class StringColumnFilterPredicate extends ColumnFilterPredicate {
 		protected Input<String> input;
-		private String editString;
 		
 		public StringColumnFilterPredicate(Class<?> clazz) {
 			super(clazz);
 		}
 		
 		@Override
-		protected final void parseFilterString(String filterString) {
-			editString = extractEditString(filterString);
+		protected final void setFilterString(String filterString) {
+			String extractEditString = extractEditString(filterString);
+			getInput().setValue(extractEditString);
+			updateInternalValue();
 		}
 		
 		protected abstract String extractEditString(String filterString);
 
 		@Override
 		public IComponent getComponent() {
+			return getInput();
+		}
+
+		private Input<String> getInput() {
 			if (input == null) {
 				input = Frontend.getInstance().createTextField(255, null, null, this);
 			}
-			input.setValue(editString);
 			return input;
 		}
 		
 		@Override
 		protected void copyFrom(ColumnFilterPredicate other) {
 			if (other instanceof StringColumnFilterPredicate) {
-				editString = ((StringColumnFilterPredicate) other).editString;
+				input.setValue(((StringColumnFilterPredicate) other).input.getValue());
+				updateInternalValue();
+				listener.changed(getFilterString());
 			}
 		}
 	}
@@ -119,12 +115,21 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected String extractEditString(String filterString) {
-			value = ComparableRange.parse(clazz, filterString, null);
 			return filterString;
 		}
 
 		@Override
-		protected String formatFilterString() {
+		public boolean isFilterStringValid(String filterString) {
+			return true;
+		}
+		
+		@Override
+		protected void updateInternalValue() {
+			value = ComparableRange.parse(clazz, input.getValue(), null);
+		}
+		
+		@Override
+		protected String getFilterString() {
 			return input.getValue();
 		}
 
@@ -156,11 +161,10 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		protected String extractEditString(String filterString) {
-			value = new ComparableRange(clazz, filterString);
-			return filterString;
+		protected void updateInternalValue() {
+			value = new ComparableRange(clazz, input.getValue());
 		}
-
+		
 		@Override
 		public boolean valid() {
 			return value != null && ((ComparableRange) value).valid();
@@ -185,21 +189,26 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
+		public boolean isFilterStringValid(String string) {
+			return string != null && string.startsWith(">");
+		}
+		
+		@Override
 		protected String extractEditString(String string) {
-			if (!StringUtils.isEmpty(string)) {
-				string = string.trim();
-				if (string.startsWith(">")) {
-					String editString = string.substring(1).trim();
-					value = ComparableRange.parse(clazz, editString, false);
-					return editString;
-				}
+			if (isFilterStringValid(string)) {
+				return string.substring(1).trim();
+			} else {
+				return null;
 			}
-			value = null;
-			return null;
 		}
 
 		@Override
-		protected String formatFilterString() {
+		protected void updateInternalValue() {
+			value = ComparableRange.parse(clazz, input.getValue(), false);
+		}
+		
+		@Override
+		protected String getFilterString() {
 			return "> " + input.getValue();
 		}
 
@@ -217,6 +226,17 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		public Criteria getCriteria(PropertyInterface property) {
 			return By.field(property, FieldOperator.greaterOrEqual, value);
 		}
+		
+		@Override
+		protected void copyFrom(ColumnFilterPredicate other) {
+			if (other instanceof RangeFilterPredicate) {
+				input.setValue(((RangeFilterPredicate) other).input1.getValue());
+				updateInternalValue();
+				listener.changed(getFilterString());
+			} else {
+				super.copyFrom(other);
+			}
+		}
 	}
 	
 	public static class MaxFilterPredicate extends StringColumnFilterPredicate {
@@ -227,21 +247,26 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
+		public boolean isFilterStringValid(String string) {
+			return string != null && string.startsWith("<");
+		}
+		
+		@Override
 		protected String extractEditString(String string) {
-			if (!StringUtils.isEmpty(string)) {
-				string = string.trim();
-				if (string.startsWith("<")) {
-					String editString = string.substring(1).trim();
-					value = ComparableRange.parse(clazz, editString, true);
-					return editString;
-				}
+			if (isFilterStringValid(string)) {
+				return string.substring(1).trim();
+			} else {
+				return null;
 			}
-			value = null;
-			return null;
 		}
 
 		@Override
-		protected String formatFilterString() {
+		protected void updateInternalValue() {
+			value = ComparableRange.parse(clazz, input.getValue(), true);
+		}
+
+		@Override
+		protected String getFilterString() {
 			return "< " + input.getValue();
 		}
 
@@ -259,11 +284,21 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		public Criteria getCriteria(PropertyInterface property) {
 			return By.field(property, FieldOperator.lessOrEqual, value);
 		}
+		
+		@Override
+		protected void copyFrom(ColumnFilterPredicate other) {
+			if (other instanceof RangeFilterPredicate) {
+				input.setValue(((RangeFilterPredicate) other).input2.getValue());
+				updateInternalValue();
+				listener.changed(getFilterString());
+			} else {
+				super.copyFrom(other);
+			}
+		}
 	}
 	
 	public static class RangeFilterPredicate extends ColumnFilterPredicate {
 		private ComparableRange value;
-		private String string1, string2;
 		private IComponent component;
 		private Input<String> input1, input2;
 		
@@ -272,17 +307,27 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		protected void parseFilterString(String filterString) {
-			if (filterString != null && filterString.indexOf("-") > -1) {
+		public boolean isFilterStringValid(String string) {
+			return string != null && string.indexOf("-") > 0;
+		}
+
+		@Override
+		protected void setFilterString(String filterString) {
+			getComponent(); // initialize components
+			if (isFilterStringValid(filterString)) {
 				int pos = filterString.indexOf("-");
-				string1 = filterString.substring(0, pos).trim();
-				string2 = filterString.substring(pos + 1).trim();
-				value = new ComparableRange(clazz, string1, string2);
+				input1.setValue(filterString.substring(0, pos).trim());
+				input2.setValue(filterString.substring(pos + 1).trim());
 			} else {
-				value = null;
-				string1 = null;
-				string2 = null;
+				input1.setValue(null);
+				input2.setValue(null);
 			}
+			updateInternalValue();
+		}
+		
+		@Override
+		protected void updateInternalValue() {
+			value = new ComparableRange(clazz, input1.getValue(), input2.getValue());
 		}
 		
 		@Override
@@ -292,13 +337,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 				input2 = Frontend.getInstance().createTextField(255, null, null, this);
 				component = Frontend.getInstance().createHorizontalGroup(input1, Frontend.getInstance().createText("  -  "), input2);
 			}
-			input1.setValue(string1);
-			input2.setValue(string2);
 			return component;
 		}
 
 		@Override
-		protected String formatFilterString() {
+		protected String getFilterString() {
 			return input1.getValue() + " - " + input2.getValue();
 		}
 
@@ -315,6 +358,21 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		@Override
 		public Criteria getCriteria(PropertyInterface property) {
 			return value.getCriteria(property);
+		}
+		
+		@Override
+		protected void copyFrom(ColumnFilterPredicate other) {
+			if (other instanceof MinFilterPredicate) {
+				input1.setValue(((MinFilterPredicate) other).input.getValue());
+				updateInternalValue();
+				listener.changed(getFilterString());
+			} else if (other instanceof MaxFilterPredicate) {
+				input2.setValue(((MaxFilterPredicate) other).input.getValue());
+				updateInternalValue();
+				listener.changed(getFilterString());
+			} else {
+				super.copyFrom(other);
+			}
 		}
 	}
 }

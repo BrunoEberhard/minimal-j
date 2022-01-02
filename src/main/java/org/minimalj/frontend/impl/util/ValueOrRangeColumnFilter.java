@@ -24,9 +24,8 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.Criteria;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
-
-import com.microsoft.sqlserver.jdbc.StringUtils;
 
 public class ValueOrRangeColumnFilter implements ColumnFilter {
 
@@ -42,7 +41,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 
 	private List<ColumnFilterPredicate> columnFilterPredicates = new ArrayList<>();
 
-	private ColumnFilterPredicate columnFilterPredicate;
+	private ColumnFilterPredicate activeFilter;
 
 	public ValueOrRangeColumnFilter(PropertyInterface property) {
 		this.property = Objects.requireNonNull(property);
@@ -69,10 +68,6 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 		columnFilterPredicates.add(new RangeFilterPredicate(clazz));
 	}
 
-	protected ColumnFilterPredicate getColumnFilterPredicate() {
-		return columnFilterPredicate;
-	}
-	
 	@Override
 	public boolean test(Object t) {
 		if (!active()) {
@@ -80,9 +75,9 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 		}
 		if (property != null) {
 			Object value = property.getValue(t);
-			return columnFilterPredicate.test(value);
+			return activeFilter.test(value);
 		} else if (tester != null) {
-			return tester.apply(t, columnFilterPredicate);
+			return tester.apply(t, activeFilter);
 		} else {
 			throw new IllegalStateException();
 		}
@@ -101,28 +96,27 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 				setFilterString(string);
 				listener.changed(textField);
 			};
-			editor = new ColumnFilterEditor(name, textField.getValue(), columnFilterPredicates, finishedListener);
+			editor = new ColumnFilterEditor(name, textField, columnFilterPredicates, finishedListener);
 			component = Frontend.getInstance().createLookup(textField, editor);
 		}
 		return component;
 	}
 	
 	private void setFilterString(String filterString) {
-		columnFilterPredicate = null;
+		activeFilter = null;
 		for (int i = columnFilterPredicates.size() - 1; i >= 0; i--) {
 			ColumnFilterPredicate columnFilterPredicate = columnFilterPredicates.get(i);
-			columnFilterPredicate.setFilterString(filterString);
-			if (columnFilterPredicate.valid()) {
-				this.columnFilterPredicate = columnFilterPredicate;
+			if (columnFilterPredicate.isFilterStringValid(filterString)) {
+				this.activeFilter = columnFilterPredicate;
+				this.activeFilter.setFilterString(filterString);
 				break;
 			}
 		}
-		editor.setColumnFilter(columnFilterPredicate);
 	}
 	
 	@Override
 	public final boolean active() {
-		return enabled && columnFilterPredicate != null;
+		return enabled && activeFilter != null;
 	}
 	
 	@Override
@@ -132,7 +126,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 	
 	@Override
 	public ValidationMessage validate() {
-		if (enabled && !active() && textField != null && !StringUtils.isEmpty(textField.getValue())) {
+		if (enabled && activeFilter != null && !activeFilter.valid() && textField != null && !StringUtils.isEmpty(textField.getValue())) {
 			if (property != null) {
 				return Validation.createInvalidValidationMessage(property);
 			} else {
@@ -145,8 +139,8 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 
 	@Override
 	public Criteria getCriteria() {
-		if (columnFilterPredicate != null) {
-			return columnFilterPredicate.getCriteria(property);
+		if (activeFilter != null) {
+			return activeFilter.getCriteria(property);
 		} else {
 			return null;
 		}
