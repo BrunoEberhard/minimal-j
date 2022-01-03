@@ -242,7 +242,7 @@ public class WebTestFacade implements UiTestFacade {
 		public TableTestFacade getTable() {
 			try {
 				WebElement table = divPage.findElement(By.className("table"));
-				return new HtmlTableTestFacade(table);
+				return new HtmlTableTestFacade(divPage, table);
 			} catch (NoSuchElementException e) {
 				throw new IllegalStateException("Page is not a table page", e);
 			}
@@ -327,7 +327,8 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public void run() {
-			button.click();
+			((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);	
+			// button.click();
 			waitScript();
 		}
 
@@ -369,13 +370,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public String getText() {
-			if (formElement.getTagName().equalsIgnoreCase("select")) {
-				Select select = new Select(formElement);
-				select.getAllSelectedOptions();
-				return select.getAllSelectedOptions().isEmpty() ? null : select.getFirstSelectedOption().getText();
-			} else {
-				return formElement.getAttribute("value");
-			}
+			return WebTestFacade.this.getText(formElement);
 		}
 
 		@Override
@@ -483,9 +478,11 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	private class HtmlTableTestFacade implements TableTestFacade {
+		protected final WebElement page;
 		protected final WebElement table;
-
-		public HtmlTableTestFacade(WebElement table) {
+		
+		public HtmlTableTestFacade(WebElement page, WebElement table) {
+			this.page = page;
 			this.table = table;
 		}
 
@@ -545,16 +542,64 @@ public class WebTestFacade implements UiTestFacade {
 		}
 		
 		@Override
-		public FormTestFacade getFilter() {
+		public FormTestFacade getOverview() {
 			WebElement form = table.findElement(By.cssSelector(".form"));
 			return new HtmlFormTestFacade(form);
+		}
+		
+		public boolean isFilterActive() {
+			WebElement filter = table.findElement(By.cssSelector(".columnFilters"));
+			return filter.isDisplayed();
+		}
+		
+		@Override
+		public void setFilterActive(boolean active) {
+			if (active != isFilterActive()) {
+				WebElement filterButton = page.findElement(By.cssSelector(".filterButton"));
+				if (!filterButton.isDisplayed()) {
+					filterButton = driver.findElement(By.id("tableFilterButton"));
+				}
+				Actions action = new Actions(driver);
+				action.click(filterButton).perform();
+				waitScript();
+			}
+		}
+		
+		@Override
+		public void setFilter(int column, String filterString) {
+			WebElement columnFilter = getColumnFilter(column);
+			WebTestFacade.this.setText(columnFilter, filterString);
+			waitScript();
+		}
+		
+		@Override
+		public String getFilter(int column) {
+			WebElement columnFilter = getColumnFilter(column);
+			return getText(columnFilter);
+		}
+
+		private WebElement getColumnFilter(int column) {
+			WebElement columnFilters = table.findElement(By.cssSelector(".columnFilters"));
+			WebElement columnFilter = columnFilters.findElements(By.tagName("th")).get(column);
+			return columnFilter;
+		}
+		
+		@Override
+		public DialogTestFacade filterLookup(int column) {
+			WebElement columnFilter = getColumnFilter(column);
+			WebElement lookupButton = columnFilter.findElement(By.className("lookupbutton"));
+			driver.executeScript(lookupButton.getAttribute("onclick"));
+			waitScript();
+			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
+			return new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1));
+
 		}
 	}
 
 	private class HtmlSearchTableTestFacade extends HtmlTableTestFacade implements SearchTableTestFacade {
 
 		public HtmlSearchTableTestFacade(WebElement dialog) {
-			super(dialog);
+			super(null, dialog);
 			Assert.assertEquals("SearchDialog", dialog.getAttribute("type"));
 		}
 
@@ -589,18 +634,40 @@ public class WebTestFacade implements UiTestFacade {
 		setText(element, text);
 	}
 
+	private WebElement findValueElement(WebElement element) {
+		while (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea") && !element.getTagName().equalsIgnoreCase("select")) {
+			element = element.findElement(By.cssSelector("input,textarea,select"));
+		}
+		return element;
+	}
+	
 	private void setText(WebElement element, String text) {
+		element = findValueElement(element);
 		if (element.getTagName().equalsIgnoreCase("select")) {
 			Select select = new Select(element);
 			select.selectByVisibleText(text);
 		} else {
-			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
-				element = element.findElement(By.xpath(".//input"));
-			}
+//			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
+//				element = element.findElement(By.xpath(".//input"));
+//			}
 			element.clear();
 			element.sendKeys(text);
 			// TODO replace with 'blur'
 			element.sendKeys("\t");
+		}
+	}
+	
+	private String getText(WebElement element) {
+		element = findValueElement(element);
+		if (element.getTagName().equalsIgnoreCase("select")) {
+			Select select = new Select(element);
+			select.getAllSelectedOptions();
+			return select.getAllSelectedOptions().isEmpty() ? null : select.getFirstSelectedOption().getText();
+		} else {
+//			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
+//				element = element.findElement(By.xpath(".//input"));
+//			}
+			return element.getAttribute("value");
 		}
 	}
 	

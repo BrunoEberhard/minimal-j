@@ -364,9 +364,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected void copyFrom(ColumnFilterPredicate other) {
 			if (other instanceof MinFilterPredicate) {
 				input1.setValue(((MinFilterPredicate) other).input.getValue());
+				input2.setValue(""); // TODO why is 'null' in this input?
 				updateInternalValue();
 				listener.changed(getFilterString());
 			} else if (other instanceof MaxFilterPredicate) {
+				input1.setValue("");
 				input2.setValue(((MaxFilterPredicate) other).input.getValue());
 				updateInternalValue();
 				listener.changed(getFilterString());
