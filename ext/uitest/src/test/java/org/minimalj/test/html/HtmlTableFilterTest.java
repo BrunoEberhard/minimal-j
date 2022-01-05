@@ -21,6 +21,7 @@ import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.TestUtil;
 import org.minimalj.test.web.WebTest;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class HtmlTableFilterTest extends WebTest {
@@ -140,7 +141,71 @@ public class HtmlTableFilterTest extends WebTest {
 
 		Assert.assertEquals("6.10.2020 - 8.10.2020", table.getFilter(0));
 		Assert.assertEquals(1, table.getRowCount());
+		
+		//
+		
+		dialog = table.filterLookup(0);
+		filterSelectionElement = dialog.getForm().element(ColumnFilterModel.$.filter);
+
+		filterStringElement1 = dialog.getForm().element(ColumnFilterModel.$.filterString).groupItem(0);
+		filterStringElement2 = dialog.getForm().element(ColumnFilterModel.$.filterString).groupItem(2);
+
+		filterStringElement1.setText("1.13.2020");
+		Assert.assertFalse(dialog.getAction(Resources.getString("SaveAction")).isEnabled());
+ 		Assert.assertFalse(StringUtils.isEmpty(dialog.getForm().element(ColumnFilterModel.$.filterString).getValidation()));
+ 		
+ 		dialog.getAction(Resources.getString("CancelAction")).run();
 	}
+	
+	@Test
+	public void testFilterDialogOperators() {
+		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
+
+		PageTestFacade page = pageContainer.getPage();
+
+		TableTestFacade table = page.getTable();
+		table.setFilterActive(true);
+
+		DialogTestFacade dialog = table.filterLookup(0);
+		FormElementTestFacade filterStringElement = dialog.getForm().element(ColumnFilterModel.$.filterString);
+		Assert.assertEquals("", filterStringElement.getText());
+
+		FormElementTestFacade filterSelectionElement = dialog.getForm().element(ColumnFilterModel.$.filter);
+
+		filterSelectionElement.setText(Resources.getString("MaxFilterPredicate"));
+		filterStringElement = dialog.getForm().element(ColumnFilterModel.$.filterString);
+		Assert.assertEquals("", filterStringElement.getText());
+
+		filterSelectionElement.setText(Resources.getString("MinFilterPredicate"));
+		filterStringElement = dialog.getForm().element(ColumnFilterModel.$.filterString);
+		Assert.assertEquals("", filterStringElement.getText());
+
+		filterSelectionElement.setText(Resources.getString("RangeFilterPredicate"));
+		FormElementTestFacade filterStringElement1 = dialog.getForm().element(ColumnFilterModel.$.filterString).groupItem(0);
+		FormElementTestFacade filterStringElement2 = dialog.getForm().element(ColumnFilterModel.$.filterString).groupItem(2);
+		Assert.assertEquals("", filterStringElement1.getText());
+		Assert.assertEquals("", filterStringElement2.getText());
+		
+		filterStringElement1.setText("6.10.2020");
+		filterSelectionElement.setText(Resources.getString("MinFilterPredicate"));
+		filterStringElement = dialog.getForm().element(ColumnFilterModel.$.filterString);
+		Assert.assertEquals("6.10.2020", filterStringElement.getText());
+
+		filterSelectionElement.setText(Resources.getString("MaxFilterPredicate"));
+		filterStringElement = dialog.getForm().element(ColumnFilterModel.$.filterString);
+		Assert.assertEquals("6.10.2020", filterStringElement.getText());
+
+		filterSelectionElement.setText(Resources.getString("EqualsFilterPredicate"));
+		filterStringElement = dialog.getForm().element(ColumnFilterModel.$.filterString);
+		Assert.assertEquals("6.10.2020", filterStringElement.getText());
+
+		filterSelectionElement.setText(Resources.getString("RangeFilterPredicate"));
+		filterStringElement1 = dialog.getForm().element(ColumnFilterModel.$.filterString).groupItem(0);
+		filterStringElement2 = dialog.getForm().element(ColumnFilterModel.$.filterString).groupItem(2);
+		Assert.assertEquals("6.10.2020", filterStringElement1.getText());
+		Assert.assertEquals("", filterStringElement2.getText());
+	}
+
 
 	public static class TableFilterTestApplication extends Application {
 
