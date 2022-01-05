@@ -137,7 +137,7 @@ $ICON
 						if (property === "tableContent") {
 							var tbody = element.tBodies[0];
 							removeChildren(tbody);
-							addTableRows(tbody, value);
+							addTableRows(id, tbody, value);
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
 							for (var i = 0; i < tbody.childNodes.length; i++) {
@@ -611,7 +611,7 @@ $ICON
 			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters));
 			var tbody = document.createElement("tbody");
 			element.appendChild(tbody);
-			addTableRows(tbody, content.tableContent);
+			addTableRows(content.id, tbody, content.tableContent);
 			var tfoot = document.createElement("tfoot");
 			tfoot.columnCount = content.headers.length;
 			element.appendChild(tfoot);
@@ -921,17 +921,17 @@ $ICON
 		return element;
 	}
 
-	function addTableRows(tbodyElement, rows) {
+	function addTableRows(tableId, tbodyElement, rows) {
 		for (var i = 0; i < rows.length; i++) {
-			var rowElement = createTableRow(rows[i]);
+			var rowElement = createTableRow(tableId, i, rows[i]);
 			tbodyElement.appendChild(rowElement);
 		}
 	}
 	
-	function createTableRow(row) {
+	function createTableRow(tableId, rowIndex, row) {
 		var element = document.createElement("tr");
 		for (var i = 0; i < row.length; i++) {
-			element.appendChild(createTableCell(row[i]));
+			element.appendChild(createTableCell(tableId, rowIndex, i, row[i]));
 		}
 		element.setAttribute("onclick", "tableSelection(event);");
 		element.setAttribute("ondblclick", "tableAction(event);");
@@ -940,11 +940,13 @@ $ICON
 		return element;
 	}
 	
-	function createTableCell(cell) {
+	function createTableCell(tableId, rowIndex, columnIndex, cell) {
 		var td = document.createElement("td");
 		if (cell) {
 			if (cell.action) {
-				createAction(td, cell.action);
+				td.appendChild(document.createTextNode(cell.action));
+				td.className = "action";
+				td.setAttribute("onclick", "cellAction(\"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
 			} else if (cell.color) {
 				td.appendChild(document.createTextNode(cell.value));
 				td.classList.add(cell.color);
@@ -1306,6 +1308,17 @@ $ICON
 		closeActionMenu();
 		var data = {
 			"activatedAction": actionId
+		};
+		send(data, true);
+	}
+	
+	function cellAction(tableId, row, column) {
+		closeActionMenu();
+		
+		var data = {
+			"cellAction": {
+				"table": tableId, "row": row, "column": column
+			}
 		};
 		send(data, true);
 	}

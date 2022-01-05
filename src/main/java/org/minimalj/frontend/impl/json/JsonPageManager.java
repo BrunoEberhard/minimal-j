@@ -238,6 +238,14 @@ public class JsonPageManager implements PageManager {
 			table.filter(filter);
 		}
 		
+		Map<String, Object> cellAction = input.get("cellAction");
+		if (cellAction != null && !cellAction.isEmpty()) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(cellAction.get("table"));
+			int row = ((Long) cellAction.get("row")).intValue();
+			int column = ((Long) cellAction.get("column")).intValue();
+			table.cellAction(row, column);
+		}
+		
 		String search = (String) input.getObject("search");
 		if (search != null && Application.getInstance().hasSearch()) {
 			Application.getInstance().search(search);
@@ -373,6 +381,9 @@ public class JsonPageManager implements PageManager {
 	
 	@Override
 	public void login(Subject subject) {
+		System.out.println("Login --------------------------------");
+		
+		
 		this.subject = subject;
 		Subject.setCurrent(subject);
 		
