@@ -20,8 +20,11 @@ import org.minimalj.test.UiTestFacade;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.interactions.Actions;
@@ -41,6 +44,13 @@ public class WebTestFacade implements UiTestFacade {
 		// https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
 		System.setProperty(WEBDRIVER_EDGE_DRIVER, "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
 		RemoteWebDriver driver = new EdgeDriver();
+		Window window = driver.manage().window();
+
+		window.setPosition(new Point(0, 0));
+		window.setSize(new Dimension(1600, 900));
+		
+		Assert.assertEquals(1600, window.getSize().width);
+		Assert.assertEquals(900, window.getSize().height);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
 		return driver;
@@ -51,6 +61,7 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	public void reload() {
+		driver.get("about:blank");
 		String portString = Configuration.get("MjFrontendPort", "8080");
 		driver.get("http://localhost:" + portString);
 		waitScript();
