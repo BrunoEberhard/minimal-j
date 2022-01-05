@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -45,6 +46,7 @@ public abstract class Frontend {
 			throw new IllegalArgumentException("Frontend cannot be null");
 		}
 		Frontend.instance = frontend;
+		Application.getInstance().initFrontend();
 		if (Configuration.isDevModeActive()) {
 			Resources.printMissing();
 		}

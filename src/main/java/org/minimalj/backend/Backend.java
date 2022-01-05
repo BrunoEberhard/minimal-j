@@ -114,13 +114,13 @@ public class Backend {
 			throw new IllegalStateException("Repository may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
 		if (repository == null) {
-			repository = Repository.create(Application.getInstance());
+			repository = Application.getInstance().createRepository();
 		}
 		return repository;
 	}
 	
 	protected Authentication createAuthentication() {
-		return Authentication.create();
+		return Application.getInstance().createAuthentication();
 	}
 	
 	public Authentication getAuthentication() {

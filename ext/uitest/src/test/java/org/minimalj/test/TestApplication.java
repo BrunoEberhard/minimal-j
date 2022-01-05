@@ -9,6 +9,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
@@ -20,15 +21,15 @@ public class TestApplication extends Application {
 	}
 
 	@Override
-	public void initBackend() {
-		Configuration.set("MjAuthentication", TestAuthentication.class.getName());
-	}
-
-	@Override
 	public AuthenticatonMode getAuthenticatonMode() {
 		return authenticatonMode;
 	}
 
+	@Override
+	public Authentication createAuthentication() {
+		return new TestAuthentication();
+	}
+	
 	@Override
 	public Page createDefaultPage() {
 		return new TestPage("TestPage");

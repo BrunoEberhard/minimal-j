@@ -1,13 +1,9 @@
 package org.minimalj.repository;
 
 import java.util.List;
-import java.util.logging.Logger;
 
-import org.minimalj.application.Configuration;
-import org.minimalj.model.Model;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
-import org.minimalj.repository.sql.SqlRepository;
 
 /**
  * The common interface of all types of repositories. Note that specific implementations
@@ -18,17 +14,6 @@ import org.minimalj.repository.sql.SqlRepository;
  *
  */
 public interface Repository {
-	public static final Logger logger = Logger.getLogger(Repository.class.getName());
-
-	public static Repository create(Model model) {
-		if (Configuration.available("MjRepository")) {
-			return Configuration.getClazz("MjRepository", Repository.class, model);
-		}
-
-		return new SqlRepository(model);
-	}
-
-	// 
 	
 	public <T> T read(Class<T> clazz, Object id);
 

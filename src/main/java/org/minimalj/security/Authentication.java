@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -17,19 +16,6 @@ public abstract class Authentication implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final transient Map<Serializable, Subject> subjectByToken = new HashMap<>();
-
-	public static Authentication create() {
-		String userFile = Configuration.get("MjUserFile");
-		if (userFile != null) {
-			return new TextFileAuthentication(userFile);
-		}
-		
-		if (Configuration.available("MjAuthentication")) {
-			return Configuration.getClazz("MjAuthentication", Authentication.class);
-		}
-
-		return null;
-	}
 
 	public void showLogin() {
 		getLoginAction().run();
