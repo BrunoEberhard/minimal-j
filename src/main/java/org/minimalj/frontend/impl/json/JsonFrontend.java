@@ -213,14 +213,13 @@ public class JsonFrontend extends Frontend {
 		return readStream(WebApplication.class.getResourceAsStream("index.html"));
 	}
 	
-	private static String stylesheets;
-	
-	static {
+	private static String getStylesheets() {
 		String[] customCss = Configuration.get("MjCss", "").split(",");
-		stylesheets = "";
+		StringBuilder s = new StringBuilder(100);
 		Arrays.stream(customCss).forEach(css -> {
-			stylesheets += "<link rel=\"stylesheet\" href=\"" + css + "\" />\n";
+			s.append("<link rel=\"stylesheet\" href=\"" + css + "\" />\n");
 		});
+		return s.toString();
 	}
 	
 	private static String MINIMALJ_VERSION, APPLICATION_VERSION;
@@ -248,7 +247,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$PATH", path);
 		result = result.replace("$BASE", base(path));
-		result = result.replace("$THEME", stylesheets);
+		result = result.replace("$THEME", getStylesheets());
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
 		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));
