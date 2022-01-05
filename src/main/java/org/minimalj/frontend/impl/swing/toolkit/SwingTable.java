@@ -288,8 +288,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			if (property instanceof Column) {
 				Column column = (Column) property;
 				stringValue = Rendering.toString(column.render(object, value));
-				Runnable runnable = column.getRunnable(object, value);
-				if (runnable != null) {
+				if (column.isLink(object, value)) {
 					color = Color.BLUE;
 				} else {
 					color = getColor(column.getColor(object, value));
@@ -333,11 +332,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				if (property instanceof Column) {
 					Column column = (Column) property;
 					Object object = ((ItemTableModel) table.getModel()).getObject(row);
-					Object value = property.getValue(object);
-					Runnable runnable = column.getRunnable(object, value);
-					if (runnable != null) {
-						SwingFrontend.run(table, runnable);
-					}
+					SwingFrontend.run(table, () -> column.run(object));
 				}
 			}
 		}

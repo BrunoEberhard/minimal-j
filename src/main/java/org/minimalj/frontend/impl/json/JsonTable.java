@@ -196,9 +196,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 				if (property instanceof Column) {
 					Column column = (Column) property;
 					String stringValue = Rendering.toString(column.render(object, value));
-					Runnable runnable = column.getRunnable(object, value);
-					if (runnable != null) {
-						rowContent.add(Map.of("action", new JsonAction(runnable, stringValue)));
+					if (column.isLink(object, value)) {
+						rowContent.add(Map.of("action", stringValue));
 					} else {
 						ColorName color = column.getColor(object, value);
 						if (color == null) {
@@ -220,6 +219,15 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			tableContent.add(rowContent);
 		}
 		return tableContent;
+	}
+	
+	public void cellAction(int row, int columnIndex) {
+		PropertyInterface property = properties.get(columnIndex);
+		if (property instanceof Column) {
+			Column column = (Column) property;
+			Object object = visibleObjects.get(row);
+			column.run(object);
+		}
 	}
 	
 	public void action(int row) {
@@ -283,4 +291,5 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		page = 0;
 		setObjects(objects);
 	}
+
 }

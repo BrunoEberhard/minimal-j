@@ -22,8 +22,12 @@ public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 		return null;
 	}
 
-	public Runnable getRunnable(ROW rowObject, COLUMN value) {
-		return null;
+	public boolean isLink(ROW rowObject, COLUMN value) {
+		return false;
+	}
+	
+	public void run(ROW rowObject) {
+		//
 	}
 	
 	public ColumnFilter getFilter() {
