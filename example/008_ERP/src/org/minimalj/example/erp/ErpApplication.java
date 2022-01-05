@@ -15,7 +15,6 @@ import org.minimalj.example.erp.model.Customer;
 import org.minimalj.example.erp.model.Offer;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.SearchPage;
 
 public class ErpApplication extends Application {
@@ -41,10 +40,10 @@ public class ErpApplication extends Application {
 	}	
 	
 	@Override
-	public Page createSearchPage(String query) {
+	public void search(String query) {
 		ArticleSearchPage articleSearchPage = new ArticleSearchPage(query);
 		CustomerSearchPage customerSearchPage = new CustomerSearchPage(query);
-		return SearchPage.handle(articleSearchPage, customerSearchPage);
+		SearchPage.handle(articleSearchPage, customerSearchPage);
 	}
 
 	@Override
