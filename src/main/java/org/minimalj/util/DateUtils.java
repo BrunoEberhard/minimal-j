@@ -3,6 +3,9 @@ package org.minimalj.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Year;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -34,8 +37,21 @@ public class DateUtils {
 	public static final DateTimeFormatter TIME_PARSE_WITH_SECONDS = DateTimeFormatter.ofPattern("H:mm:ss");
 	public static final DateTimeFormatter TIME_PARSE_WITH_MILIS = DateTimeFormatter.ofPattern("H:mm:ss.SSS");
 
-	public static DateTimeFormatter getDateTimeFormatter() {
-		Locale locale = LocaleContext.getCurrent();
+	private static Locale forcedLocale;
+	
+	static {
+		String languageTage = Configuration.get("MjDateLocale", null);
+		if (!StringUtils.isEmpty(languageTage)) {
+			forcedLocale = Locale.forLanguageTag(languageTage);
+		}
+	}
+	
+	private static Locale getLocale() {
+		return forcedLocale != null ? forcedLocale : LocaleContext.getCurrent();
+	}
+	
+	private static DateTimeFormatter getDateTimeFormatter() {
+		Locale locale = getLocale();
 		if (!dateFormatByLocale.containsKey(locale)) {
 			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
 			dateFormatByLocale.put(locale, formatter);
@@ -216,7 +232,7 @@ public class DateUtils {
 
 	public static boolean germanDateStyle() {
 		getDateTimeFormatter();
-		return germanDateStyle.get(LocaleContext.getCurrent());
+		return germanDateStyle.get(getLocale());
 	}
 	
 	/**
@@ -295,6 +311,109 @@ public class DateUtils {
 		else {
 			return TIME_PARSE;
 		}
+	}
+	
+	public static String format(LocalDateTime localDateTime, PropertyInterface property) {
+		if (localDateTime != null) {
+			String date = DateUtils.format(localDateTime.toLocalDate());
+			String time = DateUtils.getTimeFormatter(property).format(localDateTime);
+			return date + " " + time; 
+		} else {
+			return null;
+		}
+	}
+	
+	public static LocalDateTime parseDateTime(String string, PropertyInterface property) {
+		if (!StringUtils.isEmpty(string)) {
+			DateTimeFormatter parser = DateUtils.getTimeParser(property);
+			String[] parts = string.split(" ");
+			return LocalDateTime.of(DateUtils.parse_(parts[0]), LocalTime.parse(parts[1], parser));
+		} else {
+			return null;
+		}
+	}
+	
+	//
+	
+	public static LocalDateTime parseDateTime(String s, Boolean upperEnd) {
+		if (!StringUtils.isEmpty(s)) {
+			s = s.trim();
+			int pos = s.indexOf(" ");
+			if (pos > 0) {
+				String[] parts = s.split(" ");
+				LocalDate date = parseDate(parts[0], upperEnd);
+				LocalTime time = parseTime(parts[1], upperEnd);
+				if (date != null && !InvalidValues.isInvalid(date)) {
+					if (time != null && !InvalidValues.isInvalid(time)) {
+						return LocalDateTime.of(date, time);
+					} else {
+						return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
+					}
+				}
+			} else {
+				LocalDate date = parseDate(s, upperEnd);
+				if (date != null && !InvalidValues.isInvalid(date)) {
+					return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
+				}
+			}
+		}
+		return null;
+	}
+
+	public static LocalDate parseDate(String s, Boolean upperEnd) {
+		if (!StringUtils.isEmpty(s)) {
+			if (s.length() == 4) {
+				try {
+					Year year = Year.parse(s);
+					if (upperEnd) {
+						return LocalDate.of(year.getValue(), 12, 31);
+					} else {
+						return LocalDate.of(year.getValue(), 1, 1);
+					}
+				} catch (DateTimeParseException ignored) {
+					//
+				}
+			}
+			return DateUtils.parse(s);
+		}
+		return null;
+	}
+
+	public static LocalTime parseTime(String s, Boolean upperEnd) {
+		if (!StringUtils.isEmpty(s)) {
+			try {
+				LocalTime time = LocalTime.parse(s, DateUtils.TIME_PARSE_WITH_MILIS);
+				if (upperEnd) {
+					return LocalTime.of(time.getHour(), time.getMinute(), time.getSecond(), time.getNano() + 999999);
+				} else {
+					return time;
+				}
+			} catch (DateTimeParseException ignored) {
+				//
+			}
+			try {
+				LocalTime time = LocalTime.parse(s, DateUtils.TIME_PARSE_WITH_SECONDS);
+				if (upperEnd) {
+					return LocalTime.of(time.getHour(), time.getMinute(), time.getSecond(), 999999999);
+				} else {
+					return time;
+				}
+			} catch (DateTimeParseException ignored) {
+				//
+			}
+			try {
+				LocalTime time = LocalTime.parse(s, DateUtils.TIME_PARSE);
+				if (upperEnd) {
+					return LocalTime.of(time.getHour(), time.getMinute(), 59, 999999999);
+				} else {
+					return time;
+				}
+			} catch (DateTimeParseException ignored) {
+				//
+			}
+			return InvalidValues.createInvalidLocalTime(s);
+		}
+		return null;
 	}
 
 }

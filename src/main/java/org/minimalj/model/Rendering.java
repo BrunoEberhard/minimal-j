@@ -3,11 +3,9 @@ package org.minimalj.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 
 import org.minimalj.frontend.impl.util.HtmlString;
-import org.minimalj.model.Rendering.Coloring.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
@@ -32,14 +30,13 @@ public interface Rendering {
 	public default CharSequence renderDescription() {
 		return null;
 	}
-	
-	public interface Coloring {
-		
-		public enum ColorName {
-			RED, GREEN, BLUE, YELLOW;
-		}
-		
-		public ColorName getColor();
+
+	public enum ColorName {
+		RED, GREEN, BLUE, YELLOW;
+	}
+
+	public default ColorName getColor() {
+		return null;
 	}
 	
 
@@ -88,13 +85,11 @@ public interface Rendering {
 			Enum enumElement = (Enum) o;
 			return EnumUtils.getText(enumElement);
 		} else if (o instanceof LocalDate) {
-			return DateUtils.getDateTimeFormatter().format((TemporalAccessor) o); 
+			return DateUtils.format((LocalDate) o); 
 		} else if (o instanceof LocalTime) {
 			return DateUtils.getTimeFormatter(property).format((LocalTime) o); 
 		} else if (o instanceof LocalDateTime) {
-			String date = DateUtils.getDateTimeFormatter().format((TemporalAccessor) o);
-			String time = DateUtils.getTimeFormatter(property).format((TemporalAccessor) o);
-			return date + " " + time; 
+			return DateUtils.format((LocalDateTime) o, property);
 		} else if (InvalidValues.isInvalid(o)) {
 			return InvalidValues.getInvalidValue(o);
 		} else if (o != null) {
@@ -110,9 +105,9 @@ public interface Rendering {
 	}
 
 	public static ColorName getColor(Object object, Object fieldValue) {				
-		ColorName color = fieldValue instanceof Coloring ? ((Coloring) fieldValue).getColor() : null;
-		if (color == null && object instanceof Coloring) {
-			color = ((Coloring) object).getColor();
+		ColorName color = fieldValue instanceof Rendering ? ((Rendering) fieldValue).getColor() : null;
+		if (color == null && object instanceof Rendering) {
+			color = ((Rendering) object).getColor();
 		}
 		return color;
 	}

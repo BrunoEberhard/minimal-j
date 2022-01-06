@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.minimalj.model.Selection;
 import org.minimalj.repository.list.RelationList;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -99,7 +100,7 @@ public class CloneHelper {
 				// Set can only contain enums. No need for cloning the elements.
 				toSet.clear();
 				toSet.addAll(fromSet);
-			} else if (isPrimitive(field)) {
+			} else if (isPrimitive(field) || field.getType() == Selection.class) {
 				if (!FieldUtils.isFinal(field)) {
 					field.set(to, fromValue);
 				}

@@ -259,6 +259,7 @@ public class Resources {
 		mimeTypeByPostfix.put("js", "application/javascript;charset=UTF-8");
 		mimeTypeByPostfix.put("jpg", "image/jpg");
 		mimeTypeByPostfix.put("png", "image/png");
+		mimeTypeByPostfix.put("woff2", "font/woff2");
 	}
 
 	public static void addMimeType(String postfix, String contentType) {

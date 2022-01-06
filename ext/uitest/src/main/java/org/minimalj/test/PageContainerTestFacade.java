@@ -163,9 +163,17 @@ public interface PageContainerTestFacade {
 			// TODO
 		}
 		
-		public default FormTestFacade getFilter() {
+		public default FormTestFacade getOverview() {
 			return null; // TODO
 		}
+		
+		public void setFilterActive(boolean active);
+		
+		public void setFilter(int column, String filterString);
+		
+		public String getFilter(int column);
+		
+		public DialogTestFacade filterLookup(int column);
 		
 		public default int findRow(String text) {
 			for (int row = 0; row < getRowCount(); row++) {

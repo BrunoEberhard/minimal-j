@@ -1,8 +1,6 @@
 package org.minimalj.frontend.form.element;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import org.minimalj.frontend.Frontend.InputType;
@@ -15,13 +13,10 @@ import org.minimalj.util.mock.MockDate;
 public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 
 	private static final boolean german = DateUtils.germanDateStyle();
-	private final DateTimeFormatter formatter, parser;
 	private final int size;
 	
 	public LocalDateTimeFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
-		formatter = DateUtils.getTimeFormatter(property);
-		parser = DateUtils.getTimeParser(property);
 		Size sizeAnnotation = property.getAnnotation(Size.class);
 		size = 11 + (sizeAnnotation != null ? sizeAnnotation.value() : Size.TIME_HH_MM);
 	}
@@ -48,8 +43,7 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 				if (typed) {
 					return LocalDateTime.parse(string);
 				} else {
-					String[] parts = string.split(" ");
-					return LocalDateTime.of(DateUtils.parse_(parts[0]), LocalTime.parse(parts[1], parser));
+					return DateUtils.parseDateTime(string, getProperty());
 				}
 			} catch (DateTimeParseException x) {
 				return InvalidValues.createInvalidLocalDateTime(string);
@@ -67,7 +61,7 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 			if (typed) {
 				return value.toString();
 			} else {
-				return DateUtils.format(value.toLocalDate()) + " " + formatter.format(value.toLocalTime());
+				return DateUtils.format(value, getProperty());
 			}
 		} else {
 			return null;

@@ -187,7 +187,8 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 
 	private static String sign(User user, String timestamp) {
 		String key = getRememberMeKey();
-		String data = user.name + ":" + timestamp + ":" + Base64.getEncoder().encodeToString(user.password.hash) + ":" + key;
+		String passwordHash = user.password.hash != null ? Base64.getEncoder().encodeToString(user.password.hash) : "";
+		String data = user.name + ":" + timestamp + ":" + passwordHash + ":" + key;
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			return Base64.getEncoder().encodeToString(digest.digest(data.getBytes()));

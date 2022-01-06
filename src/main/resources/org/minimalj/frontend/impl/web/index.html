@@ -29,7 +29,6 @@ $ICON
 	
 	var pageContainerElement;
 	var titleElement;
-	var intersectionObserver = new IntersectionObserver(intersectionListener);
 	
 	var blockStyle = document.createElement('style');
 	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
@@ -138,12 +137,16 @@ $ICON
 						if (property === "tableContent") {
 							var tbody = element.tBodies[0];
 							removeChildren(tbody);
-							addTableRows(tbody, value);
+							addTableRows(id, tbody, value);
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
 							for (var i = 0; i < tbody.childNodes.length; i++) {
-								tbody.childNodes[i].className = value[i];							
-							}
+								tbody.childNodes[i].className = value[i];		
+							}					
+						} else if (property === "paging") {
+							var tfoot = element.tFoot;
+							removeChildren(tfoot);
+							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
 							var validationElement = document.getElementById(id + "-validation");
 							if (value == undefined || value == "") {
@@ -208,7 +211,6 @@ $ICON
 					}
 				}
 			}
-			updateDialogSizes();
 		}
 		if (dataObject.message) {
 			alert(dataObject.message);
@@ -219,17 +221,6 @@ $ICON
 		if (dataObject.loadSuggestions) {
 			var id = dataObject.loadSuggestions;
 			createSuggestions(id, dataObject.suggestions);
-		}
-		if (dataObject.tableExtendContent) {
-			var table = document.getElementById(dataObject.tableId);
-			var oldScroll = table.parentNode.scrollTop;
-			addTableRows(table.tBodies[0], dataObject.tableExtendContent);
-			if (!dataObject.extendable) {
-				var footer = table.getElementsByTagName("tfoot")[0];
-				intersectionObserver.unobserve(footer);
-				table.removeChild(footer);
-			}
-			table.parentNode.scrollTop = oldScroll;
 		}
 		if (dataObject.canLogin != undefined) {
 			document.getElementById("login").style.display = dataObject.canLogin ? "inline-block" : "none";
@@ -319,9 +310,10 @@ $ICON
 		pageElement.id = page.pageId;
 	
 		var hasActionMenu = page.actionMenu != null;
+		var isTable = page.content != null && page.content.type === "Table";
 	
 		// pageHeader will only be displayed on large displays
-		var headerElement = createPageHeader(page.title);
+		var headerElement = createPageHeader(page);
 		pageElement.appendChild(headerElement);
 		if (!hasActionMenu) {
 			headerElement.querySelector(".actionMenuButton").style.display = "none";
@@ -419,12 +411,7 @@ $ICON
 			}
 		}
 	
-		var pageElement = event.target;
-		while ((pageElement.classList == null || !pageElement.classList.contains("page")) && (pageElement = pageElement.parentNode));
-		if (!pageElement) {
-			pageElement = document.getElementsByClassName("page")[0];
-		}
-	
+		var pageElement = getPageElement(event);
 		if (pageElement && pageElement.actionMenu) {
 			var pageActionContainer = pageElement.actionMenu;
 			pageActionContainer.style.display = "block";
@@ -447,6 +434,16 @@ $ICON
 			event.preventDefault();
 			event.stopPropagation();
 		}
+	}
+	
+	function getPageElement(event) {
+		var pageElement = event.target;
+		while ((pageElement.classList == null || !pageElement.classList.contains("page")) && (pageElement = pageElement.parentNode));
+		if (!pageElement) {
+		    var pageElements = document.getElementsByClassName("page");
+			pageElement = document.getElementsByClassName("page")[pageElements.length - 1];
+		}
+		return pageElement;
 	}
 	
 	function closeActionMenu(event) {
@@ -496,19 +493,46 @@ $ICON
 		send(data, true);
 	}
 	
-	function createPageHeader(title) {
+	function toggleFilter(event) {
+		var element = getPageElement(event);
+		var columnFiltersElement = element.querySelector(".columnFilters");
+		columnFiltersElement.classList.toggle("hide");
+		var table = element.querySelector("table");
+		var data = {
+			tableFilter: table.id,
+			filter: !columnFiltersElement.classList.contains("hide")
+		};
+		send(data, true);
+	}
+	
+	function tablePage(event, direction) {
+		var element = event.target;
+		while ((element = element.parentNode) && !element.classList.contains("page"));
+		var table = element.querySelector("table");
+		var data = {
+			tablePage: table.id,
+			direction: direction
+		};
+		send(data, true);
+	}
+	
+	function createPageHeader(page) {
 		var element = document.createElement("div");
 		element.className = "pageHeader secondHeader";
 	
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
-		titleElement.textContent = title;
+		titleElement.textContent = page.title;
 		element.appendChild(titleElement);
 	
-		var b = document.getElementById("pageHeaderButtons");
-		var button = b.cloneNode(true);
-		button.id = "menu";
-		element.appendChild(button);
+		if (page.content != null && page.content.type === "Table") {
+			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
+		    	element.appendChild(item.cloneNode(true));
+			});
+		}
+		document.getElementById("pageHeaderButtons").childNodes.forEach(function(item) {
+	    	element.appendChild(item.cloneNode(true));
+		});
 	
 		return element;
 	}
@@ -531,7 +555,6 @@ $ICON
 			element.classList.add("form")
 			element.dataset.columns = content.columns ? content.columns : 1;
 			element.dataset.columnWidth = content.columnWidth;
-			element.style.maxWidth = (content.columns * content.columnWidth * 1.5 / 6 + 3) + "em";
 			var rows = content.rows;
 			for (var i = 0; i < rows.length; i++) {
 				element.appendChild(createFormRow(rows[i], content.columnWidth));
@@ -575,6 +598,7 @@ $ICON
 			}
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
+			thead.appendChild(createTableColumns(content.headers, content.headerPathes));
 			if (content.overview) {
 				var tr = document.createElement("tr");
 				thead.appendChild(tr);
@@ -583,19 +607,15 @@ $ICON
 				th.appendChild(createContent(content.overview));
 				tr.appendChild(th);
 			}
-			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes));
-			element.appendChild(createTableRows(content.tableContent));
-	
-			if (content.extendable) {
-				var footer = document.createElement("tfoot");
-				var dots = document.createTextNode("...");
-				footer.setAttribute("onclick", "tableExtendContent(\"" + content.id + "\");");
-				footer.appendChild(dots);
-				if (intersectionObserver) {
-					intersectionObserver.observe(footer);
-				}
-				element.appendChild(footer);
-			}
+			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes, content.headerFilters));
+			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters));
+			var tbody = document.createElement("tbody");
+			element.appendChild(tbody);
+			addTableRows(content.id, tbody, content.tableContent);
+			var tfoot = document.createElement("tfoot");
+			tfoot.columnCount = content.headers.length;
+			element.appendChild(tfoot);
+			addTableFooter(tfoot, content.paging);
 		} else if (type === "Text" || type === "Title") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());
@@ -847,7 +867,6 @@ $ICON
 	
 	function setWidths(cellElement, cellContent, span, width) {
 		cellElement.style.width = (width * span / 6 + (span - 1)) + "em";
-		cellElement.style.flexShrink = span;
 		cellElement.style.flexGrow = span;
 	
 		if (cellContent.classList.contains("groupHorizontal")) {
@@ -858,36 +877,61 @@ $ICON
 			}
 		}
 	}
-	
-	function createTableHeaders(tableId, headers, headerNames) {
+
+	function createTableColumns(headers, headerNames) {
 		var element = document.createElement("tr");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
 			th.className = "col " + headerNames[i]; 
+			element.appendChild(th);
+		}
+		return element;
+	}
+	
+	function createTableHeaders(tableId, headers, headerNames, headerFilters) {
+		var element = document.createElement("tr");
+		element.className = "headers"; 
+		for (var i = 0; i < headers.length; i++) {
+			var th = document.createElement("th");
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
+			var tooltipTemplate = document.getElementById("tooltip");
+			var tooltip = tooltipTemplate.cloneNode(true);
+			tooltip.id = headerFilters[i].id + "-validation";
+			tooltip.className = "hide";
+			th.appendChild(tooltip);
 			element.appendChild(th);
 		}
 		return element;
 	}
 
-	function createTableRows(rows) {
-		var element = document.createElement("tbody");
-		addTableRows(element, rows);
+	function createTableFilters(tableId, headers, headerNames, headerFilterLookups) {
+		var element = document.createElement("tr");
+		element.classList.add("columnFilters");
+		element.classList.add("hide");
+		for (var i = 0; i < headers.length; i++) {
+			var th = document.createElement("th");
+			th.className = "columnFilter " + headerNames[i]; 
+			
+			var input = createContent(headerFilterLookups[i]);
+			th.appendChild(input);
+			
+			element.appendChild(th);
+		}
 		return element;
 	}
-	
-	function addTableRows(tbodyElement, rows) {
+
+	function addTableRows(tableId, tbodyElement, rows) {
 		for (var i = 0; i < rows.length; i++) {
-			var rowElement = createTableRow(rows[i]);
+			var rowElement = createTableRow(tableId, i, rows[i]);
 			tbodyElement.appendChild(rowElement);
 		}
 	}
 	
-	function createTableRow(row) {
+	function createTableRow(tableId, rowIndex, row) {
 		var element = document.createElement("tr");
 		for (var i = 0; i < row.length; i++) {
-			element.appendChild(createTableCell(row[i]));
+			element.appendChild(createTableCell(tableId, rowIndex, i, row[i]));
 		}
 		element.setAttribute("onclick", "tableSelection(event);");
 		element.setAttribute("ondblclick", "tableAction(event);");
@@ -896,17 +940,36 @@ $ICON
 		return element;
 	}
 	
-	function createTableCell(cell) {
+	function createTableCell(tableId, rowIndex, columnIndex, cell) {
 		var td = document.createElement("td");
-		if (cell.action) {
-			createAction(td, cell.action);
-		} else if (cell.color) {
-			td.appendChild(document.createTextNode(cell.value));
-			td.classList.add(cell.color);
-		} else if (cell) {
-			td.appendChild(document.createTextNode(cell));
+		if (cell) {
+			if (cell.action) {
+				td.appendChild(document.createTextNode(cell.action));
+				td.className = "action";
+				td.setAttribute("onclick", "cellAction(\"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
+			} else if (cell.color) {
+				td.appendChild(document.createTextNode(cell.value));
+				td.classList.add(cell.color);
+			} else {
+				td.appendChild(document.createTextNode(cell));
+			}
 		}
 		return td;
+	}
+	
+	function addTableFooter(tableFooterElement, content) {
+		if (content) {
+			var tr = document.createElement("tr");
+			tableFooterElement.appendChild(tr);
+			var td = document.createElement("td");
+			td.setAttribute("colspan", tableFooterElement.columnCount);
+			td.style = "text-align: center; padding: 1em;";
+			document.getElementById("tableFooterButtons").childNodes.forEach(function(item) {
+		    	td.appendChild(item.cloneNode(true));
+			});
+			td.querySelector(".currentPage").innerHTML = content;
+			tr.appendChild(td);
+		}
 	}
 	
 	function createAction(element, config) {
@@ -975,7 +1038,6 @@ $ICON
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
 		dialog.id = json.id;
-		dialog.setAttribute("type", json.type);
 	
 		var block = document.createElement("div");
 		block.classList.add("is-blocked");
@@ -983,14 +1045,20 @@ $ICON
 	
 		var header = document.createElement("div");
 		header.classList.add("dialogHeader");
-		var headerDiv = document.createElement("div");
-		headerDiv.appendChild(document.createTextNode(json.title));
-		var buttons = document.getElementById("dialogButtons").cloneNode(true);
-		headerDiv.appendChild(buttons);
-		header.appendChild(headerDiv);
+		var headerText = document.createElement("span");
+		headerText.appendChild(document.createTextNode(json.title));
+		header.appendChild(headerText);
+		var buttons = document.getElementById("dialogButtonsTemplate").cloneNode(true);
+		while (buttons.children.length> 0) header.appendChild(buttons.children[0]);
 		dialog.appendChild(header);
 	
 		var content = createContent(json["content"]);
+		if (content.tagName.toUpperCase() == "TABLE") {
+			var wrapper = document.createElement("div");
+			wrapper.classList.add("dialogContentWrapper");
+			wrapper.appendChild(content);
+			content = wrapper;
+		}
 		content.classList.add("dialogContent");
 		dialog.appendChild(content);
 	
@@ -1010,6 +1078,9 @@ $ICON
 			}
 			dialog.appendChild(footer);
 		}
+		
+		var resize = document.getElementById("dialogResizeTemplate").cloneNode(true);
+		dialog.appendChild(resize);
 	
 		addEnterAction(json.saveAction, content);
 
@@ -1026,7 +1097,26 @@ $ICON
 		dialog.addEventListener("close", dialogClosedListener);
 
 		dialog.showModal();
-		updateDialogSizes();
+
+		if (json.type === "SearchDialog") {
+			dialog.style.width = Math.max(500, Math.min(1000, window.innerWidth - 200));
+		}
+
+		var computedStyle = window.getComputedStyle(dialog);
+		if (window.innerWidth < 600) {
+			dialog.classList.add("fullscreen");
+		} else {
+			header.addEventListener("mousedown", addMoveListener);
+			header.addEventListener("dblclick", dialogClickListener);
+
+			// plus 1 or firefox in uhd and material-design will scroll
+			var intialHeight = parseInt(computedStyle.height, 10) + 1;
+			if (json.type === "SearchDialog") {
+			 	intialHeight = Math.min(600, window.innerHeight - 50);
+			}
+			dialog.style.height = Math.min(intialHeight, window.innerHeight - 40);
+			dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width, 10)) / 3 , 0);
+		}
 	}
 
 	function addEnterAction(enterAction, form) {
@@ -1072,17 +1162,75 @@ $ICON
 
 	function dialogClosedListener(event) {
 		document.getElementById("body").removeChild(event.target);
-		updateDialogSizes();
 	}
 	
 	function closeDialogs() {
-		var dialogElements = document.getElementsByTagName("dialog");
-		if (dialogElements) {
-			for (var i = 0; i < dialogElements.length; i++) {
-				var dialog = dialogElements[i];
+		var dialogs = document.getElementsByTagName("dialog");
+		if (dialogs) {
+			for (var i = 0; i < dialogs.length; i++) {
+				var dialog = dialogs[i];
 				document.getElementById("body").removeChild(dialog);
 			}
 		}
+	}
+	
+	var dialogElement;
+	
+	function startDialogDrag(event) {
+		dialogElement = event.target;
+		while (dialogElement.tagName.toLowerCase() != "dialog") dialogElement = dialogElement.parentElement;
+		if (event.buttons == 1 && !dialogElement.classList.contains("fullscreen")) {
+			event.preventDefault();
+		} else {
+			dialogElement = null;
+		}
+	}
+	
+	function addMoveListener(event) {
+		startDialogDrag(event);
+		if (dialogElement != null) {
+			window.addEventListener("mousemove", dialogMoveListener);
+		}
+	}
+
+	function dialogMoveListener(event) {
+		if (event.buttons != 1) {
+			window.removeEventListener("mousemove", dialogMoveListener);
+		} else {			
+			var style = window.getComputedStyle(dialogElement);
+			var left = parseInt(style.left, 10) + event.movementX;
+			var top = parseInt(style.top, 10) + event.movementY;
+			dialogElement.style.left = Math.max(0, Math.min(left, window.innerWidth - 80)) + 'px';
+			dialogElement.style.top = Math.max(0, Math.min(top, window.innerHeight - 40)) + 'px';
+		}
+	}
+
+	function addResizeListener(event) {
+		startDialogDrag(event);
+		if (dialogElement != null) {
+			window.addEventListener("mousemove", dialogResizeListener);
+		}
+	}
+	
+	function dialogResizeListener(event) {
+		if (event.buttons != 1) {
+			window.removeEventListener("mousemove", dialogResizeListener);
+		} else {			
+			var style = window.getComputedStyle(dialogElement);
+			var width = parseInt(style.width, 10) + event.movementX;
+			var height = parseInt(style.height, 10) + event.movementY;
+	
+			dialogElement.style.width = Math.max(350, width);
+			dialogElement.style.height = Math.max(150, height);
+			
+			event.preventDefault();
+		}
+	}
+
+	function dialogClickListener(event) {
+		var dialogElement = event.target;
+		while (dialogElement.tagName.toLowerCase() != "dialog") dialogElement = dialogElement.parentElement;
+		dialogElement.classList.toggle("fullscreen");
 	}
 	
 	function sendchange(source, saveAction) {
@@ -1160,6 +1308,17 @@ $ICON
 		closeActionMenu();
 		var data = {
 			"activatedAction": actionId
+		};
+		send(data, true);
+	}
+	
+	function cellAction(tableId, row, column) {
+		closeActionMenu();
+		
+		var data = {
+			"cellAction": {
+				"table": tableId, "row": row, "column": column
+			}
 		};
 		send(data, true);
 	}
@@ -1258,22 +1417,17 @@ $ICON
 		send(data, true);
 	}
 	
-	function intersectionListener(entries) {
-		for (var i = 0; i < entries.length; i++) {
-			if (entries[i].isIntersecting) {
-				var table = entries[i].target.parentNode;
-				tableExtendContent(table.name);
-			}
-		}
-	}
-	
-	function tableExtendContent(tableId) {
+	function tableFilterEditor(tableId, column) {
+		var tableAction = {
+			"table": tableId,
+			"column": column
+		};
 		var data = {
-			"tableExtendContent": tableId
+			"tableFilterEditor": tableAction
 		};
 		send(data, true);
 	}
-	
+		
 	function openLookupDialog(lookup) {
 		send({
 			"openLookupDialog": lookup
@@ -1344,7 +1498,8 @@ $ICON
 		heartbeatTimer = setInterval(heartbeat, 15 * 1000);
 	
 		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("POST", "ajax_request.xml", true);
+		xmlhttp.open("POST", "ajax_request.json", true);
+        xmlhttp.overrideMimeType('application/json');
 	
 		if (block) blockUi();
 		pendingRequests++;
@@ -1403,88 +1558,21 @@ $ICON
 		onMessage(resultStr);
 	}
 	
-	function updateDialogSizes() {
-		var dialogElements = document.getElementsByTagName("dialog");
-		if (dialogElements && dialogElements.length > 0) {
-			var maxDialogWidth = 0;
-			for (var i = 0; i < dialogElements.length; i++) {
-				var dialogElement = dialogElements[i];
-				var maxWidthElement = dialogElement.querySelector(".form");
-				if (maxWidthElement) {
-					var columns = maxWidthElement.dataset.columns;
-					dialogElement.style.maxWidth = (columns * maxWidthElement.dataset.columnWidth / 6 + 1 * columns + 3.1) + "em";
-					maxDialogWidth = Math.max(maxDialogWidth, parseInt(window.getComputedStyle(dialogElement).maxWidth));
-				} else {
-					dialogElement.style.maxWidth = "unset";
+	function resizeDialogs(event) {
+		var dialogs = document.getElementsByTagName("dialog");
+		if (dialogs && dialogs.length > 0) {
+			for (var i = 0; i < dialogs.length; i++) {
+				var dialog = dialogs[i];
+				var computedStyle = window.getComputedStyle(dialog);
+				var left = parseInt(computedStyle.left)
+				if (left > window.innerWidth - 80) {
+					dialog.style.left = window.innerWidth - 80;
+				}
+				var top = parseInt(computedStyle.top);
+				if (top > window.innerHeight - 40) {
+					dialog.style.top = window.innerHeight - 40;
 				}
 			}
-	
-			if (maxDialogWidth < window.innerWidth - 20) {
-				var marginLeft = 0;
-				var navigationContainer = document.getElementById("navigationContainer");
-				if (navigationContainer.display != "none" && navigationContainer.clientWidth + maxDialogWidth < window.innerWidth) {
-					marginLeft += navigationContainer.clientWidth;
-				}
-	
-				for (var i = 0; i < dialogElements.length; i++) {
-					var dialogElement = dialogElements[i];
-					dialogElement.classList.remove("fullscreen");
-	
-					dialogElement.style.top = (i + 4) + "em";
-					dialogElement.style.left = (i + 1) + "em";
-					dialogElement.style.width = "unset";
-	
-					dialogElement.style.marginLeft = marginLeft;
-					dialogElement.style.marginRight = "1em";
-					dialogElement.style.marginBottom = "1em";
-	
-					var headerHeight = document.getElementById("header").clientHeight;
-					var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-					var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
-					var top = parseInt(window.getComputedStyle(dialogElement).top);
-					var dialogPadding = parseInt(window.getComputedStyle(dialogElement).marginTop) + parseInt(window.getComputedStyle(dialogElement).marginBottom);
-					var contentElement = dialogElement.querySelector(".dialogContent");
-					var height = Math.max(100, height = window.innerHeight - 10 - headerHeight - top - dialogPadding - dialogHeaderHeight - dialogFooterHeight);
-					contentElement.style.maxHeight = height + "px";
-	
-					var type = dialogElement.getAttribute("type");
-					if (type === "SearchDialog") {
-						contentElement.style.height = height + "px";
-						dialogElement.style.marginRight = "3em";
-						contentElement.style.paddingRight = "0em";
-					}
-	
-					dialogElement.style.display = "block";
-				}
-			} else {
-				for (var i = 0; i < dialogElements.length - 1; i++) {
-					dialogElements[i].style.display = "none";
-				}
-				var dialogElement = dialogElements[dialogElements.length - 1];
-				dialogElement.classList.add("fullscreen");
-				dialogElement.style.display = "block";
-	
-				dialogElement.style.top = "0em";
-				dialogElement.style.left = "0em";
-	
-				dialogElement.style.marginLeft = "0em";
-				dialogElement.style.marginRight = "0em";
-				dialogElement.style.marginBottom = "0em";
-	
-				dialogElement.style.width = "100%";
-				dialogElement.style.maxWidth = null;
-	
-				var dialogHeaderHeight = dialogElement.querySelector(".dialogHeader").clientHeight;
-				var dialogFooterHeight = dialogElement.querySelector(".dialogFooter") ? dialogElement.querySelector(".dialogFooter").clientHeight : 0;
-	
-				var dialogPadding = parseInt(window.getComputedStyle(dialogElement).padding);
-				var contentElement = dialogElement.querySelector(".dialogContent");
-				var height = window.innerHeight - dialogHeaderHeight - dialogFooterHeight - 2 * dialogPadding;
-	
-				contentElement.style.maxHeight = height;
-			}
-	
-			dialogElement.style.height = "unset";
 		}
 	}
 	
@@ -1519,7 +1607,7 @@ $ICON
 		if (window.innerWidth >= 992) toggleNavigation("open");
 	
 		window.addEventListener("resize", resizeNavigation);
-		window.addEventListener("resize", updateDialogSizes);
+		window.addEventListener("resize", resizeDialogs);
 		window.addEventListener("resize", closeActionMenu);
 		window.addEventListener("click", closeActionMenu);
 		window.addEventListener("scroll", closeActionMenu, true); // true -> capture the event on dispatch, even if that event does not normally bubble
@@ -1599,11 +1687,17 @@ $ICON
 					<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
 				</g>
 			</svg>
+			<svg id="tableFilterButton" style="stroke-width:0px" class="filterButton headerButton button hidden-print" onclick="toggleFilter(evt);">
+				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
+				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
+				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:10%" />
+				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:15%" />
+			</svg>
 			<svg id="actionMenuButton" class="button headerButton" onclick="togglePageActionMenu(evt);">
 				<g style="stroke-width:0px"> 		
-					<rect x="12px" y="5%" width="3px" height="3px"/>
-					<rect x="12px" y="40%" width="3px" height="3px"/>
-					<rect x="12px" y="75%" width="3px" height="3px"/>
+					<rect x="35%" y="13%" width="30%" height="17%"/>
+					<rect x="35%" y="46%" width="30%" height="17%"/>
+					<rect x="35%" y="80%" width="30%" height="17%"/>
 				</g>
 			</svg>
 		</div>			
@@ -1626,24 +1720,65 @@ $ICON
 	<div id="applicationVersion">$APPLICATION-VERSION</div>
 
 	<div id="templates" style="display: none">
-		<div id="pageHeaderButtons" class="secondHeaderButtons hidden-print">
-			<svg style="stroke-width:0px" class="actionMenuButton pageButton button" onclick="togglePageActionMenu(evt);">
-				<rect x="73%" y="13%" width="20%" height="17%"/>
-				<rect x="73%" y="46%" width="20%" height="17%"/>
-				<rect x="73%" y="80%" width="20%" height="17%"/>
-			</svg><svg class="pageButton button toggleButton" onclick="togglePage(evt);">
-			  <rect x="20%" y="80%" width="100%" height="13%" />
-			</svg><svg class="pageButton button closeButton" onclick="closePage(evt);">
+		<div id="tablePageHeaderButtons">
+			<svg style="stroke-width:0px" class="filterButton pageButton button hidden-print" onclick="toggleFilter(evt);">
+				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:15%" />
+				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:20%" />
+			</svg>
+		</div>
+		<div id="tableFooterButtons">
+			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'first');">
+				<line x1="20%" y1="15%" x2="20%" y2="85%" style="stroke-width:15%" />
+				<line x1="80%" y1="20%" x2="40%" y2="50%" style="stroke-width:15%" />
+				<line x1="80%" y1="80%" x2="40%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
+				<line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
+				<line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<span class="currentPage tablePageing hidden-print">-</span>
+			<svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
+				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+			</svg>
+			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'last');">
+				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+				<line x1="80%" y1="15%" x2="80%" y2="85%" style="stroke-width:15%" />
+			</svg>
+		</div>		
+		<div id="pageHeaderButtons">
+			<svg style="stroke-width:0px" class="actionMenuButton pageButton button hidden-print" onclick="togglePageActionMenu(evt);">
+				<rect x="30%" y="13%" width="40%" height="17%"/>
+				<rect x="30%" y="46%" width="40%" height="17%"/>
+				<rect x="30%" y="80%" width="40%" height="17%"/>
+			</svg>
+			<svg class="pageButton button toggleButton hidden-print" onclick="togglePage(evt);">
+			  <rect x="20%" y="80%" width="80%" height="13%" />
+			</svg>
+			<svg class="pageButton button closeButton hidden-print" onclick="closePage(evt);">
 				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
 				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
 			</svg>
 		</div>
-		<div id="dialogButtons">
-			<svg class="pageButton button" style="position: absolute; right: 1em; top: 0.5em;" onclick="closeDialogButton(evt)">
+		<div id="dialogButtonsTemplate" class="dialogButtons">
+			<svg class="pageButton button maximizeButton" onclick="dialogClickListener(evt)">
+			  <rect x="22%" y="22%" width="56%" height="56%" stroke-width="12%" fill="none" />
+			</svg>
+			<svg class="pageButton button" onclick="closeDialogButton(evt)">
 			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
 			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
 			</svg>
 		</div>
+		<div id="dialogResizeTemplate" class="dialogResize">
+			<svg class="pageButton button" onmousedown="addResizeListener(evt)">
+			  <line x1="10%" y1="90%" x2="90%" y2="10%" style="stroke-width:10%" />
+			  <line x1="40%" y1="90%" x2="90%" y2="40%" style="stroke-width:10%" />
+			  <line x1="70%" y1="90%" x2="90%" y2="70%" style="stroke-width:10%" />
+			</svg>
+		</div>		
 		<span id="tooltip">
 			<svg width="0.75em" height="0.75em" style="padding-left: 0.3em">
 	  		  <circle cx="50%" cy="50%" r="49%" stroke-width="1%" fill="red" />

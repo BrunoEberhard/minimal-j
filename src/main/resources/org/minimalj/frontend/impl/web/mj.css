@@ -1,4 +1,7 @@
 html {
+	/* needed for android browser because else overflow hidden is not respected */
+	position: fixed;
+	width: 100%;
 	height: 100%;
 }
 
@@ -7,6 +10,7 @@ body {
 	font-size: 11px;
 	margin: 0px;
 	height: 100%;
+	overflow: hidden;
 }
 
 ::selection {
@@ -73,26 +77,28 @@ body {
 
 .secondHeader {
 	border-bottom: 1px rgb(160,160,160) solid;
+	display: flex;
+	align-items: center;
 }
 
-.secondHeaderButtons {
-    float: right;
-    margin-top: 0.5em;
-    margin-right: 1em;
+.pageTitle {
+	flex-grow: 1;
 }
 
 .pageButton {
 	width: 1.1em;
 	height: 1.1em;
+	padding: 0.5em;
 }
 
 #navigationHeader {
 	position: relative;
 	height: 2em;
 	box-sizing: border-box;
-	line-height: 2.1em;
-	padding-left: 1em;
-	width: 100%;
+	display: flex;
+	align-items: center;
+	flex-direction: row-reverse;
+	padding-right: 1em;
 	background: rgb(240,240,240);
 }
 
@@ -102,16 +108,27 @@ body {
 	max-height: calc(100% - 2em);
 	bottom: 0;
 	overflow: auto;
+	padding-left: 0.7em;
 }
 
 #navigation ul {
-	padding: 1ex 0ex 1ex 1ex;
+	padding-left: 0.7em;
+}
+
+#navigation li {
+	margin: 0.7em 0em 0.7em 0em;
 }
 
 #navigation li, .actionMenu li {
 	list-style: none;
-	padding-top: 0.3em;
-	padding-bottom: 0.3em;
+}
+
+#navigation li a, .actionMenu li a {
+	display: block;
+	border-top: 0.25em transparent solid;
+	border-bottom: 0.25em transparent solid;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .action {
@@ -165,8 +182,9 @@ body {
 	height: 2em;
 	box-sizing: border-box;
 	line-height: 2.1em;
-	padding-left: 1em;
 	background: rgb(240,240,240);
+	padding-right: 1em;
+	padding-left: 1em;
 }
 
 .pageContentAndActions {
@@ -207,10 +225,20 @@ table.table thead {
 .table .form > div > div {
 	padding-top: 0;
 	padding-bottom: 0;
+	flex-grow: 0 !important;
 }
 
 .table .form {
 	margin-top: 0;
+}
+
+.table .columnFilter input {
+	width: 100%;
+}
+
+.table tfoot tr td * {
+	padding: 0.5em;
+	vertical-align: middle;
 }
 
 .actionMenu {
@@ -231,32 +259,45 @@ dialog {
 	top: 1em;
 	bottom: auto;
 	left: 1em;
-	margin-right: 1em;
-	margin-bottom: 1em;
+	right: auto;
 	color: unset;
+	display: flex;
+	flex-direction: column;
 }
 
-dialog.fullscreen {
-	position: absolute;
-	bottom: 0em;
-	box-sizing: border-box;
-	border: none;
-	max-width: none;
-	max-height: none;
+dialog:nth-child(3n+1) {
+	top: 2em;
+}
+
+dialog:nth-child(3n+2) {
+	top: 3em;
 }
 
 .dialogHeader {
-	height: 2em;
-	line-height: 2em;
-	padding-left: 1em;
 	border-bottom: 1px rgb(160,160,160) solid;
 	background: rgb(240,240,240);
 	overflow: hidden;
+	cursor: move;
+	flex-shrink: 0;
+	display: flex;
+}
+
+.dialogHeader span {
+	flex-grow: 1;
+	flex-shrink: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .dialogContent {
+	flex-grow: 1;
 	overflow-y: auto;
 	overflow-x: hidden;
+}
+
+.dialogContentWrapper {
+	overflow: hidden;
 }
 
 .dialogFooter {
@@ -268,15 +309,47 @@ dialog.fullscreen {
 	height: fit-content;
 }
 
-.fullscreen .dialogFooter {
-	position: absolute;
-	left: 0em;
-	right: 0em;
-	bottom: 0em;
+.dialogFooter button {
+	margin-right: 0.8em;
 }
 
-.dialogFooter button {
+.fullscreen .dialogFooter button {
 	margin-right: 0.2em;
+}
+
+.dialogResize {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	cursor: se-resize;
+}
+
+dialog.fullscreen {
+	position: absolute;
+	top: 0em !important;
+	bottom: 0em;
+	left: 0em !important;
+	right: 0em;
+	width: auto !important;
+	height: auto !important;
+	border: none;
+	margin: 0em;
+	max-width: unset;
+	max-height: unset;
+}
+
+dialog.fullscreen .dialogHeader {
+	cursor: unset;
+}
+
+dialog.fullscreen .dialogResize {
+	display: none;
+}
+
+@media (max-width: 450px) {
+	dialog.fullscreen .maximizeButton {
+		display: none;
+	}
 }
 
 #applicationVersion {
@@ -303,42 +376,58 @@ table.selected {
 	background: blue;
 }
 
-table tr:nth-child(even) {
+table tbody tr:nth-child(even) {
 	background: #f8f8f8;
 }
 
-table tr:nth-child(even).selected {
+table tbody tr:nth-child(even).selected {
 	background: #99f;
 }
 
-table tr:nth-child(odd).selected {
+table tbody  tr:nth-child(odd).selected {
 	background: #99f;
 }
 
 .form {
 	border-spacing: 0px;
 	width: 100%;
-	margin-top: 0.5ex;
 }
 
 .form > div {
 	display: flex;
-	flex-wrap: wrap;	
+	flex-wrap: nowrap;	
 }
 
-dialog .form > div {
-	margin-left: 1em;
+.dialogContent, .dialogHeader {
+	padding: 0.4rem 1rem;
+	box-sizing: border-box;
+}
+
+dialog table {
+    /* for search dialogs */
+	width: 100%;
+}
+
+.form > div > div, .dialogButtons {
+	padding-right: 1em;
 }
 
 .form > div > div {
 	position: relative;
 	padding-top: 0.4em;
 	padding-bottom: 0.4em;
-	margin-right: 1em;
-	// overflow: hidden;
+	flex-shrink: 0;
 }
 
-.form > div > div > *, .form input[type=text] {
+.fullscreen .form > div {
+	flex-wrap: wrap;	
+}
+
+.fullscreen .form > div > div {
+	flex-shrink: 1;
+}
+
+.form > div > div > *, .form input[type=text], .form select {
 	width: 100%;
 }
 
@@ -503,8 +592,13 @@ label {
     background-position: center;
 }
 
+.columnFilter .lookupButton {
+	width: 1.5em;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:15%25'%3E%3Cline x1='7%25' y1='40%25' x2='50%25' y2='80%25'/%3E%3Cline x1='93%25' y1='40%25' x2='50%25' y2='80%25'/%3E%3C/svg%3E");
+}
+
 .hide {
-	visibility: hidden;
+	display: none;
 }
 
 .red { color: red; }
@@ -515,7 +609,7 @@ label {
 @media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
-	#actionMenuButton { display: none; }
+	#actionMenuButton, #tableFilterButton { display: none; }
 }
 
 @media screen and (max-width: 991px) {

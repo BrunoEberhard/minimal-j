@@ -27,8 +27,6 @@ import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.Repository;
-import org.minimalj.repository.list.QueryResultList;
-import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
@@ -152,11 +150,8 @@ public class InMemoryRepository implements Repository {
 				} else {
 					return l.subList(limit.getOffset(), Math.min(limit.getOffset() + limit.getRows(), l.size()));
 				}
-			} else if (query instanceof AllCriteria) {
-				AllCriteria allCriteria = (AllCriteria) query;
-				return findAndOrder(clazz, allCriteria);
 			} else {
-				return new QueryResultList(this, clazz, query);
+				return findAndOrder(clazz, query);
 			}
 		});
 	}

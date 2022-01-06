@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,6 @@ import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.IDialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
@@ -215,20 +213,13 @@ public class JsonFrontend extends Frontend {
 		return readStream(WebApplication.class.getResourceAsStream("index.html"));
 	}
 	
-	private static String stylesheets;
-	
-	static {
-		List<String> cssHrefs = new ArrayList<>();
-		if (StringUtils.equals(Configuration.get("MjTheme", ""), "material")) {
-			cssHrefs.add("https://fonts.googleapis.com/css?family=Roboto");
-			cssHrefs.add("material.css");
-		}
+	private static String getStylesheets() {
 		String[] customCss = Configuration.get("MjCss", "").split(",");
-		cssHrefs.addAll(Arrays.asList(customCss));
-		stylesheets = "";
-		cssHrefs.forEach(css -> {
-			stylesheets += "<link rel=\"stylesheet\" href=\"" + css + "\" />\n";
+		StringBuilder s = new StringBuilder(100);
+		Arrays.stream(customCss).forEach(css -> {
+			s.append("<link rel=\"stylesheet\" href=\"" + css + "\" />\n");
 		});
+		return s.toString();
 	}
 	
 	private static String MINIMALJ_VERSION, APPLICATION_VERSION;
@@ -256,7 +247,7 @@ public class JsonFrontend extends Frontend {
 		result = result.replace("$ICON", getIconLink());
 		result = result.replace("$PATH", path);
 		result = result.replace("$BASE", base(path));
-		result = result.replace("$THEME", stylesheets);
+		result = result.replace("$THEME", getStylesheets());
 		result = result.replace("$IMPORT", "");
 		result = result.replace("$INIT", "");
 		result = result.replace("$NOSCRIPT", Resources.getString("html.noscript"));

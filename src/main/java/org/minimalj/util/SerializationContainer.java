@@ -7,8 +7,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.repository.list.QueryResultList;
-
 public class SerializationContainer implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -17,7 +15,7 @@ public class SerializationContainer implements Serializable {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Serializable wrap(Object object) {
-		if (object instanceof List && !(object instanceof QueryResultList)) {
+		if (object instanceof List) {
 			List list = (List) object;
 			ArrayList arrayList = new ArrayList<>(list.size());
 			for (int i = 0; i<list.size(); i++) {
@@ -35,7 +33,7 @@ public class SerializationContainer implements Serializable {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object unwrap(Object container) {
-		if (container instanceof List && !(container instanceof QueryResultList)) {
+		if (container instanceof List) {
 			List list = (List) container;
 			for (int i = 0; i<list.size(); i++) {
 				list.set(i, unwrap(list.get(i)));

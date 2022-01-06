@@ -139,12 +139,15 @@ public class JsonPageManager implements PageManager {
 	private static class ComponentUnknowException extends Exception {
 		private static final long serialVersionUID = 1L;
 
+		public ComponentUnknowException(Object id) {
+			super("Component not registred: " + id);
+		}
 	}
 
 	private JsonComponent getComponentById(Object id) throws ComponentUnknowException {
 		JsonComponent result = componentById.get(id);
 		if (result == null) {
-			throw new ComponentUnknowException();
+			throw new ComponentUnknowException(id);
 		}
 		return result;
 	}
@@ -221,14 +224,28 @@ public class JsonPageManager implements PageManager {
 			table.selection(rows);
 		}
 
-		String tableExtendContent = (String) input.getObject("tableExtendContent");
-		if (tableExtendContent != null) {
-			JsonTable<?> table = (JsonTable<?>) getComponentById(tableExtendContent);
-			output.add("tableId", tableExtendContent);
-			output.add("tableExtendContent", table.extendContent());
-			output.add("extendable", table.isExtendable());
+		String tablePage = (String) input.getObject("tablePage");
+		if (tablePage != null) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tablePage);
+			String direction = (String) input.getObject("direction");
+			table.page(direction);
 		}
 
+		String tableFilter = (String) input.getObject("tableFilter");
+		if (tableFilter != null) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableFilter);
+			boolean filter = Boolean.TRUE.equals(input.getObject("filter"));
+			table.filter(filter);
+		}
+		
+		Map<String, Object> cellAction = input.get("cellAction");
+		if (cellAction != null && !cellAction.isEmpty()) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(cellAction.get("table"));
+			int row = ((Long) cellAction.get("row")).intValue();
+			int column = ((Long) cellAction.get("column")).intValue();
+			table.cellAction(row, column);
+		}
+		
 		String search = (String) input.getObject("search");
 		if (search != null && Application.getInstance().hasSearch()) {
 			Application.getInstance().search(search);
@@ -553,6 +570,9 @@ public class JsonPageManager implements PageManager {
 		}
 		if (o instanceof JsonOutput) {
 			((JsonOutput) o).forEach(v -> travers(v, c));
+		}
+		if (o != null && o.getClass().isArray() && !o.getClass().getComponentType().isPrimitive()) {
+			Arrays.stream((Object[]) o).forEach(v -> travers(v, c));
 		}
 	}
 

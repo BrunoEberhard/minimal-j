@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'Roboto';
+  src: url('roboto.woff2') format('woff2');
+}
+
 body {
 	font-family: 'Roboto', sans-serif;
 	font-size: 15px;
@@ -8,7 +13,7 @@ body {
 
 #header {
 	z-index: 1;
-  box-shadow: rgba(0, 0, 0, 0.26) 0px 2px 5px;
+	box-shadow: rgba(0, 0, 0, 0.26) 0px 2px 5px;
 }
 
 #navigationContainer {
@@ -22,21 +27,17 @@ body {
 	border: none;
 }
 
-.secondHeaderButtons {
-	margin-top: 0.65em;
-}
-
 .pageButton {
 	width: 0.9em;
 	height: 0.9em;
 }
 
-#navigation ul {
-	padding: 0.7ex 0em .7em 0em;
+#navigation {
+	padding-top: 0.5em;
 }
 
 #navigation li {
-	padding: 1em 0em 0em 1em;
+	margin: 1em 0em 1em 0em;
 }
 
 .action {
@@ -48,9 +49,6 @@ body {
 	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
 }
 
-.actionMenu ul {
-}
-
 .actionMenu li {
 	padding: 0.5em;
 }
@@ -59,37 +57,22 @@ dialog {
 	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px
 		rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
 	border: none;
-	padding: 1.2em;
-	right: 0em;
 }
 
-dialog.fullscreen {
-	padding: 0.5em;
+.dialogContent, .dialogHeader, .dialogFooter {
+	padding: 1rem 2rem;
 }
 
-.dialogContent {
-	box-sizing: border-box;
-}
-
-.dialogHeader {
+.dialogHeader, .dialogFooter {
 	border: none;
 	background: transparent;
 }
 
-@media (max-width: 991px) {
-	.dialogFooter {
-		height: fit-content;
+@media (max-width: 420px) {
+	.dialogContent, .dialogHeader, .dialogFooter {
+		padding-left: 1rem;
+		padding-right: 1rem;
 	}
-}
-
-.dialogContent {
-	overflow-y: auto;
-	overflow-x: hidden;
-}
-
-.dialogFooter {
-	border: none;
-	background: transparent;
 }
 
 button {
@@ -109,6 +92,10 @@ button[disabled] {
 
 .dialogFooter button {
 	margin: 0.5em 1em;
+}
+
+.dialogFooter button:last-child {
+	margin-right: 0em;
 }
 
 button:hover {

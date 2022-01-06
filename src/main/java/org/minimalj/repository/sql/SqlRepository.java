@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -46,14 +45,9 @@ import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.DataSourceFactory;
-import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
-import org.minimalj.repository.list.QueryResultList;
-import org.minimalj.repository.list.SortableList;
-import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
-import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Query;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
@@ -281,35 +275,11 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
-		if (query instanceof Limit || query instanceof AllCriteria) {
-			@SuppressWarnings("unchecked")
-			Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
-			List<T> list = table.find(query, resultClass);
-			return (query instanceof AllCriteria) ? new SortableList<>(list) : list;
-		} else {
-			return new SqlQueryResultList<>(this, resultClass, query);
-		}
+		@SuppressWarnings("unchecked")
+		Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
+		return table.find(query, resultClass);
 	}
-	
-	private static class SqlQueryResultList<T> extends QueryResultList<T> {
-		private static final long serialVersionUID = 1L;
-
-		public SqlQueryResultList(Repository repository, Class<T> clazz, Query query) {
-			super(repository, clazz, query);
-		}
 		
-		@Override
-		public boolean canSortBy(Object sortKey) {
-			PropertyInterface property = Keys.getProperty(sortKey);
-			if (property.getClass() != FieldProperty.class) {
-				return false;
-			}
-			
-			return property.getClazz() == String.class || Number.class.isAssignableFrom(property.getClazz())
-					|| Temporal.class.isAssignableFrom(property.getClazz());
-		}
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> long count(Class<T> clazz, Criteria criteria) {

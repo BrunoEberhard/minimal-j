@@ -25,6 +25,8 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.frontend.page.SearchPage;
+import org.minimalj.repository.Repository;
+import org.minimalj.repository.memory.InMemoryRepository;
 import org.minimalj.util.resources.Resources;
 
 public class MinimalClinicApplication extends Application {
@@ -73,8 +75,12 @@ public class MinimalClinicApplication extends Application {
 		return new Class[]{Owner.class, Pet.class, Vet.class};
 	}
 	
+	@Override
+	public Repository createRepository() {
+		return new InMemoryRepository(this);
+	}
+	
 	public static void main(String[] args) {
-		Configuration.set("MjRepository", "org.minimalj.repository.memory.InMemoryRepository");
 		Configuration.set("MjDevMode", "true");
 		MinimalClinicApplication application = new MinimalClinicApplication();
 		WebServer.start(application);

@@ -38,7 +38,11 @@ import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.model.Model;
+import org.minimalj.repository.Repository;
+import org.minimalj.repository.sql.SqlRepository;
+import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
+import org.minimalj.security.TextFileAuthentication;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.MultiResourceBundle;
 import org.minimalj.util.resources.Resources;
@@ -153,7 +157,20 @@ public abstract class Application implements Model {
 	public Class<?>[] getEntityClasses() {
 		return new Class<?>[0];
 	}
+	
+	public Repository createRepository() {
+		return new SqlRepository(this);
+	}
 
+	public Authentication createAuthentication() {
+		String userFile = Configuration.get("MjUserFile");
+		if (userFile != null) {
+			return new TextFileAuthentication(userFile);
+		} else {
+			return null;
+		}
+	}
+	
 	public String getName() {
 		if (Resources.isAvailable(Resources.APPLICATION_NAME)) {
 			return Resources.getString(Resources.APPLICATION_NAME);
@@ -238,6 +255,14 @@ public abstract class Application implements Model {
 	 * 
 	 */
 	public void initBackend() {
+		// application specific	
+	}
+	
+	/** 
+	 * called when a Frontend is initialized (once per VM)
+	 * 
+	 */
+	public void initFrontend() {
 		// application specific	
 	}
 	
