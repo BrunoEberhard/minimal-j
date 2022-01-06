@@ -381,9 +381,6 @@ public class JsonPageManager implements PageManager {
 	
 	@Override
 	public void login(Subject subject) {
-		System.out.println("Login --------------------------------");
-		
-		
 		this.subject = subject;
 		Subject.setCurrent(subject);
 		
