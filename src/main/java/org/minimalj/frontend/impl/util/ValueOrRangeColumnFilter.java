@@ -102,7 +102,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 		return component;
 	}
 	
-	private void setFilterString(String filterString) {
+	void setFilterString(String filterString) {
 		activeFilter = null;
 		for (int i = columnFilterPredicates.size() - 1; i >= 0; i--) {
 			ColumnFilterPredicate columnFilterPredicate = columnFilterPredicates.get(i);

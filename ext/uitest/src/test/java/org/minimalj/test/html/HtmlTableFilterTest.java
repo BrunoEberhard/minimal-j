@@ -114,10 +114,10 @@ public class HtmlTableFilterTest extends WebTest {
 		filterSelectionElement = dialog.getForm().element(ColumnFilterModel.$.filter);
 		Assert.assertEquals(Resources.getString("MaxFilterPredicate"), filterSelectionElement.getText());
 
+		filterSelectionElement.setText(Resources.getString("MinFilterPredicate"));
 		filterStringElement = dialog.getForm().element(ColumnFilterModel.$.filterString);
 		Assert.assertEquals("7.10.2020", filterStringElement.getText());
 
-		filterSelectionElement.setText(Resources.getString("MinFilterPredicate"));
 		dialog.save();
 
 		Assert.assertEquals("> 7.10.2020", table.getFilter(0));
