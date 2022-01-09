@@ -1,6 +1,9 @@
 package org.minimalj.repository.sql.relation;
 
+import static org.junit.Assert.assertNull;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +14,7 @@ import org.junit.Test;
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.repository.query.By;
 import org.minimalj.test.TestUtil;
 import org.minimalj.util.Codes;
 
@@ -78,6 +82,38 @@ public class SqlCodeListTest {
 		Object id = Backend.insert(entity);
 		entity = Backend.read(TestEntity.class, id);
 		Assert.assertEquals("Both codes should be read", 2, entity.codeViews.size());
+	}
+	
+	@Test
+	public void testDeleteWithRelation() {
+		TestElementB b = new TestElementB();
+		b.name = "testInRelationB";
+		b = Backend.save(b);
+		
+		TestEntity entity = new TestEntity();
+		entity.list = List.of(b);
+		entity = Backend.save(entity);
+		
+		Backend.delete(entity);
+
+		assertNull(Backend.read(TestEntity.class, entity.id));
+	}
+
+	@Test
+	public void testDeleteWithRelationWhereClause() {
+		TestElementB b = new TestElementB();
+		b.name = "testInRelationB";
+		b = Backend.save(b);
+		
+		TestEntity entity = new TestEntity();
+		entity.name = "testDeleteWithRelationWhereClause";
+		entity.list = List.of(b);
+		entity = Backend.save(entity);
+		
+		// delete by where clause
+		Backend.delete(TestEntity.class, By.field(TestEntity.$.name, "testDeleteWithRelationWhereClause"));
+		
+		assertNull(Backend.read(TestEntity.class, entity.id));
 	}
 
 }

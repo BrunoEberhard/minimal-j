@@ -19,7 +19,7 @@ public class TestEntity {
 
 	public Object id;
 
-	@Size(30)
+	@Size(50)
 	public String name;
 
 	public List<TestElementB> list;
