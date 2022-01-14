@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.web;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -7,9 +8,13 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -194,10 +199,26 @@ public class WebServer {
 					if (!secureAvailable && !Boolean.valueOf(Configuration.get("MjForceSsl", "false")) && !Configuration.isDevModeActive()) {
 						context.getFilters().add(new FowardedHttpsRedirectFilter());
 					}
+				} else {
+					if (!Configuration.available("MjKeyStorePassword") || !Configuration.available("MjKeyStore")) {
+						throw new RuntimeException("MjKeyStore / MjKeyStorePassword not set");
+					}
+				    SSLContext sslContext = SSLContext.getInstance("TLS");
+
+				    char[] password = Configuration.get("MjKeyStorePassword").toCharArray();
+				    KeyStore ks = KeyStore.getInstance("JKS");
+				    FileInputStream fis = new FileInputStream(Configuration.get("MjKeyStore"));
+				    ks.load(fis, password);
+
+				    KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+				    keyManagerFactory.init(ks, password);
+				    sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+				    
+					((HttpsServer) server).setHttpsConfigurator(new com.sun.net.httpserver.HttpsConfigurator(sslContext));
 				}
 				context.setHandler(WebServer::handle);
 				server.start();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
