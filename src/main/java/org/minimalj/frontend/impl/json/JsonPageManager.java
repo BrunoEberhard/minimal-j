@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
@@ -146,7 +147,7 @@ public class JsonPageManager implements PageManager {
 
 	private JsonComponent getComponentById(Object id) throws ComponentUnknowException {
 		JsonComponent result = componentById.get(id);
-		if (result == null) {
+		if (result == null && Configuration.isDevModeActive()) {
 			throw new ComponentUnknowException(id);
 		}
 		return result;
@@ -193,8 +194,10 @@ public class JsonPageManager implements PageManager {
 												// but not for password
 
 			JsonComponent component = getComponentById(componentId);
-			((JsonInputComponent<?>) component).changedValue(newValue);
-			output.add("source", componentId);
+			if (component != null) {
+				((JsonInputComponent<?>) component).changedValue(newValue);
+				output.add("source", componentId);
+			}
 		}
 
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
