@@ -361,7 +361,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean doTest(Object t) {
-			return value != null ? value.test(t) : false;
+			return t != null ? value.test(t) : false;
 		}
 
 		@Override
