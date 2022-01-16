@@ -868,14 +868,6 @@ $ICON
 	function setWidths(cellElement, cellContent, span, width) {
 		cellElement.style.width = (width * span / 6 + (span - 1)) + "em";
 		cellElement.style.flexGrow = span;
-	
-		if (cellContent.classList.contains("groupHorizontal")) {
-			var childCount = cellContent.children.length;
-			for (var i = 0; i < childCount; i++) {
-				var groupItem = cellContent.children[i];
-				setWidths(groupItem, groupItem.children[0], span / childCount, width);
-			}
-		}
 	}
 
 	function createTableColumns(headers, headerNames) {

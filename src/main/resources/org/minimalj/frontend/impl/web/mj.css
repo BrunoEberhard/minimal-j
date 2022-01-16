@@ -505,8 +505,14 @@ dialog .form div.list {
 /* group (of form elements) must not double the paddings and keep background pattern */
 
 .groupHorizontal {
-	display: flex;
-	flex-wrap: wrap;	
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+	box-sizing: border-box;	
+}
+
+.groupHorizontal > * {
+	display: table-cell;
 }
 
 .groupVertical {
