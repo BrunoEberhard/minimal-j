@@ -1,9 +1,13 @@
 package org.minimalj.frontend.impl.util;
 
+import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
 
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
@@ -20,6 +24,7 @@ import org.minimalj.util.resources.Resources;
 public abstract class ColumnFilterPredicate implements Predicate<Object>, Rendering, InputComponentListener {
 	protected final Class<?> clazz;
 	protected ChangeListener<String> listener;
+	protected FormContent formContent;
 
 	public ColumnFilterPredicate(Class<?> clazz) {
 		this.clazz = clazz;
@@ -42,16 +47,25 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 	public abstract boolean valid();
 
-	public abstract IComponent getComponent();
+	public void fillForm(FormContent formContent) {
+		this.formContent = formContent;
+	}
 
 	@Override
 	public final void changed(IComponent source) {
-		updateInternalValue();
+		voidUpdateInternalValueAndValidate();
 		listener.changed(getFilterString());
 	}
 
+	private void voidUpdateInternalValueAndValidate() {
+		updateInternalValue();
+		validate();
+	}
+	
 	protected abstract void updateInternalValue();
 
+	protected abstract void validate();
+	
 	protected void copyFrom(ColumnFilterPredicate other) {
 
 	}
@@ -86,8 +100,9 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected abstract String extractEditString(String filterString);
 
 		@Override
-		public IComponent getComponent() {
-			return getInput();
+		public void fillForm(FormContent formContent) {
+			super.fillForm(formContent);
+			formContent.add(Resources.getString("ColumnFilterModel.filterValue"), getInput(), null, 2);
 		}
 
 		private Input<String> getInput() {
@@ -96,11 +111,21 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 			}
 			return input;
 		}
+		
+		@Override
+		protected void validate() {
+			if (!valid()) {
+				String name = "TODO";
+				formContent.setValidationMessages(input, List.of(MessageFormat.format(Resources.getString("ObjectValidator.message"), name)));
+			} else {
+				formContent.setValidationMessages(input, Collections.emptyList());
+			}
+		}
 
 		@Override
 		protected void copyFrom(ColumnFilterPredicate other) {
 			if (other instanceof StringColumnFilterPredicate) {
-				input.setValue(((StringColumnFilterPredicate) other).input.getValue());
+				getInput().setValue(((StringColumnFilterPredicate) other).input.getValue());
 				updateInternalValue();
 				listener.changed(getFilterString());
 			}
@@ -128,7 +153,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected void updateInternalValue() {
 			value = ComparableRange.parse(clazz, input.getValue(), null);
 		}
-
+		
 		@Override
 		protected String getFilterString() {
 			return input.getValue();
@@ -154,6 +179,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		public TemporalEqualsFilterPredicate(Class<?> clazz) {
 			super(clazz);
+			value = new ComparableRange(clazz);
 		}
 
 		@Override
@@ -163,7 +189,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected void updateInternalValue() {
-			value = new ComparableRange(clazz, input.getValue());
+			((ComparableRange) value).setStringValue(input.getValue());
 		}
 
 		@Override
@@ -299,12 +325,12 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 	}
 
 	public static class RangeFilterPredicate extends ColumnFilterPredicate {
-		private ComparableRange value;
-		private IComponent component;
+		private ComparableRange range;
 		private Input<String> input1, input2;
 
 		public RangeFilterPredicate(Class<?> clazz) {
 			super(clazz);
+			range = new ComparableRange(clazz);
 		}
 
 		@Override
@@ -314,7 +340,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected void setFilterString(String filterString) {
-			getComponent(); // initialize components
+			initializeInputs();
 			if (isFilterStringValid(filterString)) {
 				int pos = filterString.indexOf("-");
 				input1.setValue(filterString.substring(0, pos).trim());
@@ -328,17 +354,33 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected void updateInternalValue() {
-			value = new ComparableRange(clazz, input1.getValue(), input2.getValue());
+			range.setStringValue1(input1.getValue());
+			range.setStringValue2(input2.getValue());
+		}
+
+		private void initializeInputs() {
+			if (input1 == null) {
+				input1 = Frontend.getInstance().createTextField(255, null, null, this);
+				input2 = Frontend.getInstance().createTextField(255, null, null, this);
+			}
+		}
+		
+		@Override
+		protected void validate() {
+			if (!valid()) {
+				String name = "TODO";
+				formContent.setValidationMessages(input1, List.of(MessageFormat.format(Resources.getString("ColumnFilterModel.filterValue1"), name)));
+			} else {
+				formContent.setValidationMessages(input1, Collections.emptyList());
+			}
 		}
 
 		@Override
-		public IComponent getComponent() {
-			if (component == null) {
-				input1 = Frontend.getInstance().createTextField(255, null, null, this);
-				input2 = Frontend.getInstance().createTextField(255, null, null, this);
-				component = Frontend.getInstance().createHorizontalGroup(input1, Frontend.getInstance().createText("  -  "), input2);
-			}
-			return component;
+		public void fillForm(FormContent formContent) {
+			super.fillForm(formContent);
+			initializeInputs();
+			formContent.add(Resources.getString("ColumnFilterModel.filterValue1"), input1, null, 1);
+			formContent.add(Resources.getString("ColumnFilterModel.filterValue2"), input2, null, 1);
 		}
 
 		@Override
@@ -356,32 +398,35 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean valid() {
-			return value != null && value.valid();
+			return range != null && range.valid();
 		}
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null ? value.test(t) : false;
+			return t != null ? range.test(t) : false;
 		}
 
 		@Override
 		public Criteria getCriteria(PropertyInterface property) {
-			return value.getCriteria(property);
+			return range.getCriteria(property);
 		}
 
 		@Override
 		protected void copyFrom(ColumnFilterPredicate other) {
 			if (other instanceof MinFilterPredicate) {
+				initializeInputs();
 				input1.setValue(((MinFilterPredicate) other).input.getValue());
 				input2.setValue("");
 				updateInternalValue();
 				listener.changed(getFilterString());
 			} else if (other instanceof MaxFilterPredicate) {
+				initializeInputs();
 				input1.setValue("");
 				input2.setValue(((MaxFilterPredicate) other).input.getValue());
 				updateInternalValue();
 				listener.changed(getFilterString());
 			} else if (other instanceof EqualsFilterPredicate) {
+				initializeInputs();
 				input1.setValue(((EqualsFilterPredicate) other).input.getValue());
 				input2.setValue("");
 				updateInternalValue();
