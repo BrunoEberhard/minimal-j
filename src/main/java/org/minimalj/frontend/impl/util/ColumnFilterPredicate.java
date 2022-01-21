@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.util;
 
 import java.text.MessageFormat;
+import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
@@ -18,6 +20,7 @@ import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.FieldOperator;
 import org.minimalj.util.ChangeListener;
+import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -61,11 +64,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		updateInternalValue();
 		validate();
 	}
-	
+
 	protected abstract void updateInternalValue();
 
 	protected abstract void validate();
-	
+
 	protected void copyFrom(ColumnFilterPredicate other) {
 
 	}
@@ -82,6 +85,15 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 	protected abstract boolean doTest(Object t);
 
 	public abstract Criteria getCriteria(PropertyInterface property);
+
+	protected Input<String> createStringInput() {
+		Input<String> input = Frontend.getInstance().createTextField(255, null, null, this);
+		// TODO placeholder / date format for other locales
+		if (Temporal.class.isAssignableFrom(clazz) && input instanceof JsonTextField && DateUtils.germanDateStyle()) {
+			((JsonTextField) input).setPlaceholder(Resources.getString("Placeholder." + clazz.getSimpleName()));
+		}
+		return input;
+	}
 
 	public static abstract class StringColumnFilterPredicate extends ColumnFilterPredicate {
 		protected Input<String> input;
@@ -107,11 +119,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		private Input<String> getInput() {
 			if (input == null) {
-				input = Frontend.getInstance().createTextField(255, null, null, this);
+				input = createStringInput();
 			}
 			return input;
 		}
-		
+
 		@Override
 		protected void validate() {
 			if (!valid()) {
@@ -153,7 +165,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected void updateInternalValue() {
 			value = ComparableRange.parse(clazz, input.getValue(), null);
 		}
-		
+
 		@Override
 		protected String getFilterString() {
 			return input.getValue();
@@ -360,11 +372,11 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		private void initializeInputs() {
 			if (input1 == null) {
-				input1 = Frontend.getInstance().createTextField(255, null, null, this);
-				input2 = Frontend.getInstance().createTextField(255, null, null, this);
+				input1 = createStringInput();
+				input2 = createStringInput();
 			}
 		}
-		
+
 		@Override
 		protected void validate() {
 			if (!valid()) {
