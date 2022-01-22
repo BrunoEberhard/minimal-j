@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -32,6 +33,7 @@ import com.sun.net.httpserver.HttpsServer;
 
 public class WebServer {
 	private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
+	private static final Logger LOG_WEB = Logger.getLogger("WEB");
 
 	public static final boolean SECURE = true;
 
@@ -107,12 +109,16 @@ public class WebServer {
 	}
 
 	private static void handle(HttpExchange exchange) {
+		long start = System.nanoTime();
 		try {
+			LOG_WEB.log(Level.FINEST, () -> exchange.getRequestURI().getPath());
+
 			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().getFirst(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
 			MjHttpExchange mjHttpExchange = new WebServerHttpExchange(exchange);
 			WebApplication.handle(mjHttpExchange);
 		} finally {
 			LocaleContext.resetLocale();
+			LOG_WEB.log(Level.FINER, () -> StringUtils.padLeft("" + ((System.nanoTime() - start) / 1000 / 1000), 5, ' ') + "ms " + exchange.getRequestURI().getPath());
 		}
 	}
 	
