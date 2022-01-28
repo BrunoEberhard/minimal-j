@@ -310,7 +310,6 @@ $ICON
 		pageElement.id = page.pageId;
 	
 		var hasActionMenu = page.actionMenu != null;
-		var isTable = page.content != null && page.content.type === "Table";
 	
 		// pageHeader will only be displayed on large displays
 		var headerElement = createPageHeader(page);
@@ -525,11 +524,16 @@ $ICON
 		titleElement.textContent = page.title;
 		element.appendChild(titleElement);
 	
-		if (page.content != null && page.content.type === "Table") {
+		var isTable = page.content != null && page.content.type === "Table";
+		if (isTable) {
 			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
 		    	element.appendChild(item.cloneNode(true));
 			});
-		}
+			document.getElementById("tableFilterButton").classList.remove("hide");
+		} else {
+			document.getElementById("tableFilterButton").classList.add("hide");
+		}		
+		
 		document.getElementById("pageHeaderButtons").childNodes.forEach(function(item) {
 	    	element.appendChild(item.cloneNode(true));
 		});
@@ -1679,7 +1683,7 @@ $ICON
 					<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
 				</g>
 			</svg>
-			<svg id="tableFilterButton" style="stroke-width:0px" class="filterButton headerButton button hidden-print" onclick="toggleFilter(evt);">
+			<svg id="tableFilterButton" style="stroke-width:0px" class="filterButton headerButton button hide hidden-print" onclick="toggleFilter(evt);">
 				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
 				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
 				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:10%" />
