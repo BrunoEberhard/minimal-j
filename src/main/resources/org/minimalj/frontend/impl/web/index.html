@@ -591,8 +591,7 @@ $ICON
 				footer.appendChild(button);
 			}
 			formAndActions.appendChild(footer);
-			addEnterAction(content.loginAction, contentElement);
-		
+			addEnterAction(actions[content.loginActionIndex], contentElement, true);
 		} else if (type === "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -1115,33 +1114,36 @@ $ICON
 		}
 	}
 
-	function addEnterAction(enterAction, form) {
+	function addEnterAction(enterAction, form, isLogin) {
 		var inputs = form.getElementsByTagName("input");
 		for (var i = 0; i < inputs.length; i++) {
 			inputs[i].onkeydown = function(event) {
-				if (event.keyCode === 13) focusNext(event, form, enterAction);
+				if (event.keyCode === 13) focusNext(event, form, enterAction, isLogin);
 			}
 		}
 	}
 	
-	function focusNext(event, form, enterAction) {
+	function focusNext(event, form, enterAction, isLogin) {
 		var inputs = form.querySelectorAll('input, select, textarea');
 		var i = 0;
 		while (inputs[i] != event.target && i < inputs.length - 1) {
 			i++;
 		}
 		var next = i + 1;
-		while (next < inputs.length - 1 && inputs[next].disabled) {
+		while (next < inputs.length && (inputs[next].disabled || isLogin && inputs[next].type == "checkbox")) {
 			next++;
 		}
 		if (next < inputs.length) {
 			inputs[next].focus();			
-		} else if (enterAction != undefined && enterAction.enabled) {
-			if (timerTextFieldChange) {
-				clearTimeout(timerTextFieldChange);
-				timerTextFieldChange = null;
+		} else if (enterAction != undefined) {
+			var button = document.getElementById(enterAction.id);
+			if (button.getAttribute("disabled") == undefined) {
+				if (timerTextFieldChange) {
+					clearTimeout(timerTextFieldChange);
+					timerTextFieldChange = null;
+				}
+				sendchange(event.target, enterAction.id);
 			}
-			sendchange(event.target, enterAction.id);
 		}
 	}	
 	
