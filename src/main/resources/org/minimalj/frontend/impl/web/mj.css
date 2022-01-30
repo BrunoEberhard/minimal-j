@@ -281,6 +281,10 @@ dialog:nth-child(3n+2) {
 	display: flex;
 }
 
+.dialogHeader .button {
+	cursor: default;
+}
+
 .dialogHeader span {
 	flex-grow: 1;
 	flex-shrink: 1;
