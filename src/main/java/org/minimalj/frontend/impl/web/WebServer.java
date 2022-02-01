@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.web;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,7 +9,12 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
@@ -206,20 +212,7 @@ public class WebServer {
 						context.getFilters().add(new FowardedHttpsRedirectFilter());
 					}
 				} else {
-					if (!Configuration.available("MjKeyStorePassword") || !Configuration.available("MjKeyStore")) {
-						throw new RuntimeException("MjKeyStore / MjKeyStorePassword not set");
-					}
-				    SSLContext sslContext = SSLContext.getInstance("TLS");
-
-				    char[] password = Configuration.get("MjKeyStorePassword").toCharArray();
-				    KeyStore ks = KeyStore.getInstance("JKS");
-				    FileInputStream fis = new FileInputStream(Configuration.get("MjKeyStore"));
-				    ks.load(fis, password);
-
-				    KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
-				    keyManagerFactory.init(ks, password);
-				    sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
-				    
+					SSLContext sslContext = createSslContext();
 					((HttpsServer) server).setHttpsConfigurator(new com.sun.net.httpserver.HttpsConfigurator(sslContext));
 				}
 				context.setHandler(WebServer::handle);
@@ -228,6 +221,25 @@ public class WebServer {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	public static SSLContext createSslContext()
+			throws NoSuchAlgorithmException, KeyStoreException, FileNotFoundException, IOException, CertificateException, UnrecoverableKeyException, KeyManagementException {
+		if (!Configuration.available("MjKeyStorePassword") || !Configuration.available("MjKeyStore")) {
+			throw new RuntimeException("MjKeyStore / MjKeyStorePassword not set");
+		}
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+
+		char[] password = Configuration.get("MjKeyStorePassword").toCharArray();
+		KeyStore ks = KeyStore.getInstance("JKS");
+		FileInputStream fis = new FileInputStream(Configuration.get("MjKeyStore"));
+		ks.load(fis, password);
+
+		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+		keyManagerFactory.init(ks, password);
+		
+		sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+		return sslContext;
 	}
 
 	public static String convertStreamToString(InputStream is) {
