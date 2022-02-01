@@ -46,6 +46,11 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		}
 
 		@Override
+		public void addHeader(String headerName, String headerValue) {
+			exchange.getRequestHeaders().put(HttpString.tryFromString(headerName), headerValue);
+		}
+		
+		@Override
 		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 			exchange.setStatusCode(statusCode);
 			exchange.setResponseContentLength(bytes.length);
