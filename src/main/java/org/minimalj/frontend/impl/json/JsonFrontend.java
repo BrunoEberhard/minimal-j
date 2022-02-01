@@ -269,7 +269,10 @@ public class JsonFrontend extends Frontend {
     }
 	   
 	private static String getIconLink() {
-		if (Application.getInstance().getIcon() != null) {
+		String iconHtml = Configuration.get("MjIconHtml");
+		if (iconHtml != null) {
+			return iconHtml;
+		} else if (Application.getInstance().getIcon() != null) {
 			return "<link rel=\"icon\" href=\"application.png\" type=\"image/png\">";
 		} else {
 			return "";
