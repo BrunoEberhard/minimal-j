@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>undertow</artifactId>
-	<version>1.0.0.0</version>
+	<version>1.0.1.0</version>
 	<name>MinimalJ Undertow</name>
 	<description>Use Undertow as web server</description>
 

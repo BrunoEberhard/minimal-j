@@ -23,9 +23,9 @@ public class MinimalTow {
 			try {
 				Builder builder = Undertow.builder();
 				if (secure) {
-					builder.addHttpsListener(port, "localhost", WebServer.createSslContext());
+					builder.addHttpsListener(port, "0.0.0.0", WebServer.createSslContext());
 				} else {
-					builder.addHttpListener(port, "localhost");
+					builder.addHttpListener(port, "0.0.0.0");
 				}
 	
 				boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
