@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.minimalj.frontend.impl.json.JsonInput;
 import org.minimalj.frontend.impl.json.JsonOutput;
@@ -30,6 +32,7 @@ import io.undertow.websockets.core.WebSockets;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 
 public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallback {
+	private static final Logger LOG_WEB = Logger.getLogger("WEB");
 
 	private static final HttpString CONTENT_TYPE = HttpString.tryFromString("Content-Type");
 
@@ -49,7 +52,7 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 		public void addHeader(String headerName, String headerValue) {
 			exchange.getRequestHeaders().put(HttpString.tryFromString(headerName), headerValue);
 		}
-		
+
 		@Override
 		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 			exchange.setStatusCode(statusCode);
@@ -97,12 +100,16 @@ public class MinimalTowHandler implements HttpHandler, WebSocketConnectionCallba
 	public void handleRequest(HttpServerExchange exchange) throws Exception {
 		MjHttpExchange mjExchange = new TowHttpExchange(exchange);
 
+		long start = System.nanoTime();
 		exchange.dispatch(() -> {
 			try {
+				LOG_WEB.log(Level.FINEST, () -> exchange.getRequestPath());
+
 				LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().get(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER).getFirst()));
 				WebApplication.handle(mjExchange);
 			} finally {
 				LocaleContext.resetLocale();
+				LOG_WEB.log(Level.FINER, () -> StringUtils.padLeft("" + ((System.nanoTime() - start) / 1000 / 1000), 5, ' ') + "ms " + exchange.getRequestPath());
 			}
 		});
 	}
