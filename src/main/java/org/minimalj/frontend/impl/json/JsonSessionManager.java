@@ -1,15 +1,22 @@
 package org.minimalj.frontend.impl.json;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.TablePage;
+import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Size;
 
 public class JsonSessionManager extends TimerTask {
 	private static final Logger logger = Logger.getLogger(JsonSessionManager.class.getName());
@@ -78,5 +85,62 @@ public class JsonSessionManager extends TimerTask {
 		return output.toString();
 	}
 
+	public static class JsonSessionInfo {
+		public static final JsonSessionInfo $ = Keys.of(JsonSessionInfo.class);
+		
+		public String sessionId;
+		@Size(Size.TIME_WITH_SECONDS)
+		public LocalDateTime lastUsed;
+		public String subject;
+		public Integer components;
+		public String page;
+		public Integer storedPages;
+		
+		public String getSession() {
+			if (Keys.isKeyObject(this)) {
+				return Keys.methodOf(this, "session");
+			}
+			return sessionId.substring(0, 8);
+		}
+	}
+	
+	List<JsonSessionInfo> getSessionInfos() {
+		return sessions.values().stream().map(JsonPageManager::getSessionInfo).collect(Collectors.toList());
+	}
+	
+	public static class JsonSessionTablePage extends TablePage<JsonSessionInfo> {
+		
+		@Override
+		protected Object[] getColumns() {
+			return new Object[] { JsonSessionInfo.$.getSession(), JsonSessionInfo.$.subject, JsonSessionInfo.$.lastUsed, JsonSessionInfo.$.page, JsonSessionInfo.$.components, JsonSessionInfo.$.storedPages }; 
+		}
+
+		@Override
+		protected List<JsonSessionInfo> load() {
+			return instance.getSessionInfos();
+		}
+
+		@Override
+		protected boolean allowMultiselect() {
+			return true;
+		}
+
+		@Override
+		public List<Action> getTableActions() {
+			return List.of(new JsonSessionRemoveAction());
+		}
+		
+		private class JsonSessionRemoveAction extends BaseTableSelectionAction<JsonSessionInfo> {
+			
+			@Override
+			public void run() {
+				getSelectedObjects().forEach(info -> {
+					instance.sessions.remove(info.sessionId);
+				});
+				refresh();
+			}
+		}
+		
+	}
 
 }
