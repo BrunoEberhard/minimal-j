@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.json;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,12 +18,14 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
+import org.minimalj.frontend.impl.json.JsonSessionManager.JsonSessionInfo;
 import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageList;
 import org.minimalj.frontend.impl.util.PageStore;
@@ -146,7 +150,7 @@ public class JsonPageManager implements PageManager {
 
 	private JsonComponent getComponentById(Object id) throws ComponentUnknowException {
 		JsonComponent result = componentById.get(id);
-		if (result == null) {
+		if (result == null && Configuration.isDevModeActive()) {
 			throw new ComponentUnknowException(id);
 		}
 		return result;
@@ -193,8 +197,10 @@ public class JsonPageManager implements PageManager {
 												// but not for password
 
 			JsonComponent component = getComponentById(componentId);
-			((JsonInputComponent<?>) component).changedValue(newValue);
-			output.add("source", componentId);
+			if (component != null) {
+				((JsonInputComponent<?>) component).changedValue(newValue);
+				output.add("source", componentId);
+			}
 		}
 
 		String actionId = (String) input.getObject(JsonInput.ACTIVATED_ACTION);
@@ -634,4 +640,17 @@ public class JsonPageManager implements PageManager {
 		}
 	}
 
+	JsonSessionInfo getSessionInfo() {
+		JsonSessionInfo info = new JsonSessionInfo();
+		info.sessionId = sessionId;
+		info.lastUsed = LocalDateTime.ofEpochSecond(lastUsed / 1000, 0, OffsetDateTime.now().getOffset());
+		info.subject = subject != null ? subject.getName() : null;
+		info.components = componentById.size();
+		List<String> pageIds = visiblePageAndDetailsList.getPageIds();
+		if (pageIds.size() > 0) {
+			info.page = pageStore.get(pageIds.get(pageIds.size() - 1)).getTitle();
+		}
+		info.storedPages = pageStore.getSize();
+		return info;
+	}
 }

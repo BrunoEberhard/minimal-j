@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.model.Column;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
@@ -61,6 +62,7 @@ public class StringColumnFilter implements ColumnFilter {
 		return string != null && string.length() > 2 && string.charAt(0) == '"' && string.charAt(string.length()-1) == '"';
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean test(Object object) {
 		if (!active()) {
@@ -79,7 +81,11 @@ public class StringColumnFilter implements ColumnFilter {
 		
 		if (property != null) {
 			Object value = property.getValue(object);
-			if (value instanceof Rendering) {
+			if (property instanceof Column) {
+				@SuppressWarnings("rawtypes")
+				Column column = (Column) property;
+				value = Rendering.toString(column.render(object, value));
+			} else if (value instanceof Rendering) {
 				value = ((Rendering) value).render();
 			}
 			return value != null ? predicate.test(value.toString()) : false;

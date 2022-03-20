@@ -24,7 +24,9 @@ import org.minimalj.util.resources.MultiResourceBundle;
 import org.minimalj.util.resources.Resources;
 
 /**
- * This is just a hack to make all the examples work in one application on heroku.
+ * This is just a hack to make all the examples run in a single server instance.
+ * This is not recommended for productive applications. There should be only one
+ * Application in a JVM.
  *
  */
 public class ThreadLocalApplication extends WebApplication {
@@ -33,17 +35,17 @@ public class ThreadLocalApplication extends WebApplication {
 
 	private final InheritableThreadLocal<Application> current = new InheritableThreadLocal<>();
 	private boolean backendSet = false;
-	
+
 	private Collection<Application> applications;
-	
+
 	public ThreadLocalApplication() {
 		// private
 	}
-	
+
 	public void setApplications(Collection<Application> applications) {
 		this.applications = applications;
 	}
-	
+
 	public void setCurrentApplication(Application application) {
 		if (!backendSet) {
 			Backend.setInstance(new ThreadLocalBackend());
@@ -51,38 +53,38 @@ public class ThreadLocalApplication extends WebApplication {
 		}
 		current.set(application);
 	}
-	
+
 	public Application getCurrentApplication() {
 		return current.get();
 	}
-	
+
 	@Override
 	public Class<?>[] getEntityClasses() {
 		return getCurrentApplication().getEntityClasses();
 	}
-	
+
 	@Override
 	public String getName() {
 		return getCurrentApplication().getName();
 	}
-	
+
 	@Override
 	public void search(String query) {
 		getCurrentApplication().search(query);
 	}
-	
+
 	@Override
 	public Page createDefaultPage() {
 		return getCurrentApplication().createDefaultPage();
 	}
-	
+
 	@Override
 	public List<Action> getNavigation() {
 		return getCurrentApplication().getNavigation();
 	}
 
 	public class ThreadLocalBackend extends Backend {
-		private final Map<Application, Repository> repositories = new HashMap<>(); 
+		private final Map<Application, Repository> repositories = new HashMap<>();
 
 		@Override
 		public Repository getRepository() {
@@ -93,18 +95,18 @@ public class ThreadLocalApplication extends WebApplication {
 			}
 			return repositories.get(application);
 		}
-		
+
 		@Override
 		public void setRepository(Repository repository) {
 			repositories.put(getCurrentApplication(), repository);
 		}
 	}
-	
+
 	@Override
 	protected MjHttpHandler createHttpHandler() {
 		return new ThreadLocalResourcesHttpHandler();
 	}
-	
+
 	private class ThreadLocalResourcesHttpHandler implements MjHttpHandler {
 
 		@Override
@@ -152,7 +154,7 @@ public class ThreadLocalApplication extends WebApplication {
 			}
 		}
 	}
-	
+
 	@Override
 	public ResourceBundle getResourceBundle(Locale locale) {
 		List<ResourceBundle> resourceBundles = new ArrayList<>();

@@ -16,23 +16,50 @@ import org.minimalj.util.StringUtils;
 
 public class ComparableRange implements Predicate<Object> {
 
-	private final Comparable value1, value2;
+	private final Class<?> clazz;
+	private Comparable value1, value2;
 
-	public ComparableRange(Class<?> clazz, String string) {
-		value1 = parse(clazz, string, false);
-		value2 = parse(clazz, string, true);
+	public ComparableRange(Class<?> clazz) {
+		this.clazz = clazz;
+	}
+
+	public void setValue1(Comparable value1) {
+		this.value1 = value1;
 	}
 	
-	public ComparableRange(Class<?> clazz, String string1, String string2) {
-		value1 = parse(clazz, string1, false);
-		value2 = parse(clazz, string2, true);
+	public void setStringValue1(String string1) {
+		this.value1 = parse(clazz, string1, false);
 	}
 
+	public void setStringValue2(String string2) {
+		this.value2 = parse(clazz, string2, true);
+	}
+
+	public void setValue2(Comparable value2) {
+		this.value2 = value2;
+	}
+
+	public void setStringValue(String value) {
+		setStringValue1(value);
+		setStringValue2(value);
+	}
+	
+	public Comparable getValue1() {
+		return value1;
+	}
+	
+	public Comparable getValue2() {
+		return value2;
+	}
+	
 	public boolean valid() {
 		if (value1 == null || InvalidValues.isInvalid(value1)) {
 			return false;
 		}
 		if (value2 == null || InvalidValues.isInvalid(value2)) {
+			return false;
+		}
+		if (value1.compareTo(value2) > 1) {
 			return false;
 		}
 		return true;

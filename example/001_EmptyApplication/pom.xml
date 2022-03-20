@@ -8,12 +8,16 @@
 	<description>The empty application shows how to set up a Minimal-J application</description>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ftp</artifactId>
-			</extension>
-		</extensions>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>11</release>
+				</configuration>
+			</plugin>		
+		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
@@ -22,12 +26,5 @@
 			<version>[1.7.0.0,)</version>
 		</dependency>
 	</dependencies>
-
-	<distributionManagement>
-		<repository>
-			<id>openech-repository</id>
-			<url>ftp://ftp.openech.ch/public_html/repository</url>
-		</repository>
-	</distributionManagement>
 
 </project>

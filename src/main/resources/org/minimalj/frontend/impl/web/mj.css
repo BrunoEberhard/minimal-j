@@ -88,7 +88,6 @@ body {
 .pageButton {
 	width: 1.1em;
 	height: 1.1em;
-	padding: 0.5em;
 }
 
 #navigationHeader {
@@ -280,6 +279,10 @@ dialog:nth-child(3n+2) {
 	cursor: move;
 	flex-shrink: 0;
 	display: flex;
+}
+
+.dialogHeader .button {
+	cursor: default;
 }
 
 .dialogHeader span {
@@ -505,8 +508,14 @@ dialog .form div.list {
 /* group (of form elements) must not double the paddings and keep background pattern */
 
 .groupHorizontal {
-	display: flex;
-	flex-wrap: wrap;	
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+	box-sizing: border-box;	
+}
+
+.groupHorizontal > * {
+	display: table-cell;
 }
 
 .groupVertical {

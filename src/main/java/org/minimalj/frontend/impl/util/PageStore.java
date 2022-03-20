@@ -34,6 +34,10 @@ public class PageStore {
 		}
 	}
 	
+	public int getSize() {
+		return queue.size();
+	}
+	
 	public boolean valid(List<String> pageIds) {
 		return pageIds.stream().allMatch(pageId -> queue.stream().anyMatch(entry -> entry.getId().equals(pageId)));
 	}

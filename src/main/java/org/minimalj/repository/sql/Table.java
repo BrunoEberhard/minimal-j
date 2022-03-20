@@ -176,22 +176,43 @@ public class Table<T> extends AbstractTable<T> {
 
 	protected void deleteLists(T object) {
 		for (ListTable list : lists.values()) {
-			// TODO implement ListTable.deleteList(parentId) would be more efficient
+			// TODO implement this more efficient
 			list.replaceList(object, Collections.emptyList());
 		}
 	}
 	
 	public int delete(Class<?> clazz, Criteria criteria) {
 		WhereClause<T> whereClause = new WhereClause<>(this, criteria);
-		String deleteString = "DELETE FROM " + getTableName() + whereClause.getClause();
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), deleteString, false)) {
-			for (int i = 0; i < whereClause.getValueCount(); i++) {
-				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
+		if (!lists.isEmpty()) {
+			// TODO implement this more efficient
+			int count = 0;
+			String deleteString = "SELECT id FROM " + getTableName() + whereClause.getClause();
+			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), deleteString, false)) {
+				for (int i = 0; i < whereClause.getValueCount(); i++) {
+					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
+				}
+				try (ResultSet resultSet = statement.executeQuery()) {
+					while (resultSet.next()) {
+						Object id = resultSet.getObject(1);
+						deleteById(id);
+						count++;
+					}
+					return count;
+				}
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "read with Criteria failed");
 			}
-			statement.execute();
-			return statement.getUpdateCount();
-		} catch (SQLException e) {
-			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
+		} else {
+			String deleteString = "DELETE FROM " + getTableName() + whereClause.getClause();
+			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), deleteString, false)) {
+				for (int i = 0; i < whereClause.getValueCount(); i++) {
+					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
+				}
+				statement.execute();
+				return statement.getUpdateCount();
+			} catch (SQLException e) {
+				throw new LoggingRuntimeException(e, sqlLogger, "delete with Criteria failed");
+			}
 		}
 	}
 

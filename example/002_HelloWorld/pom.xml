@@ -1,18 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
 	<artifactId>helloWorld</artifactId>
-	<version>1.0.1.0</version>
+	<version>1.0.2.0</version>
 	<name>Example_002_HelloWorld</name>
 	<description>The hello world application shows how a simple page can be displayed</description>
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<release>11</release>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -25,27 +25,16 @@
 						<argument>org.minimalj.example.empty.EmptyApplication</argument>
 					</arguments>
 				</configuration>
-			</plugin>			
+			</plugin>
 		</plugins>
 		<sourceDirectory>src</sourceDirectory>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ftp</artifactId>
-			</extension>
-		</extensions>		
 	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.14.0.0,)</version>
+			<version>[1.28.0.0,)</version>
 		</dependency>
 	</dependencies>
-	<distributionManagement>
-		<repository>
-			<id>openech-repository</id>
-			<url>ftp://ftp.openech.ch/public_html/repository</url>
-		</repository>
-	</distributionManagement>	
 </project>
