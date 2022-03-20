@@ -54,7 +54,7 @@ public class ResourcesHttpHandler implements MjHttpHandler {
 	}
 
 	public URL getUrl(String path) throws IOException {
-		return Application.getInstance().getClass().getResource("web/" + path);
+		return Application.getInstance().getClass().getResource("web" + (path.startsWith("/") ? "" : "/") + path);
 	}
 
 	private InputStream getInputStream(String path) throws IOException {
