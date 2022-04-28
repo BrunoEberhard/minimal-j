@@ -558,14 +558,15 @@ public class WebTestFacade implements UiTestFacade {
 			return new HtmlFormTestFacade(form);
 		}
 		
-		public boolean isFilterActive() {
+		@Override
+		public boolean isFilterVisible() {
 			WebElement filter = table.findElement(By.cssSelector(".columnFilters"));
 			return filter.isDisplayed();
 		}
 		
 		@Override
-		public void setFilterActive(boolean active) {
-			if (active != isFilterActive()) {
+		public void setFilterVisible(boolean visible) {
+			if (visible != isFilterVisible()) {
 				WebElement filterButton = page.findElement(By.cssSelector(".filterButton"));
 				if (!filterButton.isDisplayed()) {
 					filterButton = driver.findElement(By.id("tableFilterButton"));

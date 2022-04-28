@@ -29,6 +29,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
 	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "1000"));
+	private static final int FILTER_LINES = Integer.parseInt(Configuration.get("MjTableFilterLines", "12"));
 
 	private final JsonPageManager pageManager;
 	private final Object[] keys;
@@ -91,7 +92,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		pageManager.unregister(get("tableContent"));
 		this.objects = objects;
 
-		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, Boolean.TRUE.equals(get("filterVisible")) ? filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -108,9 +109,12 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 		
 		put("tableContent", tableContent);
-		putSilent("selectedRows", null); // allway fire this property change
+		putSilent("selectedRows", null); // always fire this property change
 		put("selectedRows", selectedRows);
 		updatePaging();
+		if (!containsKey("filterVisible")) {
+			put("filterVisible", objects.size() >= FILTER_LINES);
+		}
 		
 		selectedObjects.clear();
 		selectedObjects.addAll(newSelectedObjects);
@@ -278,14 +282,14 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 	}
 
-	public void filter(boolean enabled) {
-		int column = 0;
-		for (ColumnFilter filter : filters) {
-			filter.setEnabled(enabled);
+	public void setFilterVisible(boolean visible) {
+		put("filterVisible", visible);
 
-			ValidationMessage validationMessage = filters[column].validate();
-			((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
-			column++;
+		if (visible) {
+			for (int column = 0; column < filters.length; column++) {
+				ValidationMessage validationMessage = filters[column].validate();
+				((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+			}
 		}
 
 		page = 0;

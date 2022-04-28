@@ -12,10 +12,10 @@ import org.minimalj.repository.query.Criteria;
 
 public interface ColumnFilter extends Predicate<Object> {
 
+	public static final ColumnFilter[] NO_FILTER = new ColumnFilter[0];
+	
 	public IComponent getComponent(InputComponentListener listener);
 
-	public void setEnabled(boolean enabled);
-	
 	public boolean active();
 	
 	public ValidationMessage validate();

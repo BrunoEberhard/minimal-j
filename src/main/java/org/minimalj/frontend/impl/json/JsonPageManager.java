@@ -237,11 +237,11 @@ public class JsonPageManager implements PageManager {
 			table.page(direction);
 		}
 
-		String tableFilter = (String) input.getObject("tableFilter");
-		if (tableFilter != null) {
-			JsonTable<?> table = (JsonTable<?>) getComponentById(tableFilter);
+		String tableFilterVisible = (String) input.getObject("tableFilter");
+		if (tableFilterVisible != null) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableFilterVisible);
 			boolean filter = Boolean.TRUE.equals(input.getObject("filter"));
-			table.filter(filter);
+			table.setFilterVisible(filter);
 		}
 		
 		Map<String, Object> cellAction = input.get("cellAction");

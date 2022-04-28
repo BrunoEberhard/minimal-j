@@ -611,7 +611,7 @@ $ICON
 				tr.appendChild(th);
 			}
 			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes, content.headerFilters));
-			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters));
+			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters, content.filterVisible));
 			var tbody = document.createElement("tbody");
 			element.appendChild(tbody);
 			addTableRows(content.id, tbody, content.tableContent);
@@ -900,10 +900,12 @@ $ICON
 		return element;
 	}
 
-	function createTableFilters(tableId, headers, headerNames, headerFilterLookups) {
+	function createTableFilters(tableId, headers, headerNames, headerFilterLookups, filterVisible) {
 		var element = document.createElement("tr");
 		element.classList.add("columnFilters");
-		element.classList.add("hide");
+		if (!filterVisible) {
+			element.classList.add("hide");
+		}		
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
 			th.className = "columnFilter " + headerNames[i]; 

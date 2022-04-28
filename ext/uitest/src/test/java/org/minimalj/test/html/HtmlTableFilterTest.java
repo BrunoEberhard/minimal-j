@@ -10,7 +10,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.minimalj.application.Application;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageAction;
 import org.minimalj.frontend.page.TablePage;
 import org.minimalj.model.Keys;
 import org.minimalj.test.PageContainerTestFacade;
@@ -42,7 +45,7 @@ public class HtmlTableFilterTest extends WebTest {
 		PageTestFacade page = pageContainer.getPage();
 
 		TableTestFacade table = page.getTable();
-		table.setFilterActive(true);
+		table.setFilterVisible(true);
 
 		table.setFilter(0, "8.10.2020");
 		Assert.assertEquals(1, table.getRowCount());
@@ -88,7 +91,7 @@ public class HtmlTableFilterTest extends WebTest {
 		PageTestFacade page = pageContainer.getPage();
 
 		TableTestFacade table = page.getTable();
-		table.setFilterActive(true);
+		table.setFilterVisible(true);
 
 		table.setFilter(0, "8.10.2020");
 		DialogTestFacade dialog = table.filterLookup(0);
@@ -163,7 +166,7 @@ public class HtmlTableFilterTest extends WebTest {
 		PageTestFacade page = pageContainer.getPage();
 
 		TableTestFacade table = page.getTable();
-		table.setFilterActive(true);
+		table.setFilterVisible(true);
 
 		DialogTestFacade dialog = table.filterLookup(0);
 		FormElementTestFacade filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
@@ -202,13 +205,36 @@ public class HtmlTableFilterTest extends WebTest {
 		Assert.assertEquals("6.10.2020", filterStringElement1.getText());
 		Assert.assertEquals("", filterStringElement2.getText());
 	}
+	
+	@Test
+	public void testFilterAfterNavigation() {
+		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
 
+		PageTestFacade page = pageContainer.getPage();
+
+		TableTestFacade table = page.getTable();
+		table.setFilterVisible(true);
+		table.setFilter(0, "2.10.2020");
+		pageContainer.getNavigation().get("Empty").run();
+		pageContainer.getBack().run();
+
+		page = pageContainer.getPage();
+		table = page.getTable();
+		Assert.assertEquals("When navigating back to a table with set filter the filter should be active", 0, table.getRowCount());
+		Assert.assertEquals("When navigating back to a table with set filter the filter should be keep value", "2.10.2020", table.getFilter(0));
+		Assert.assertTrue("When navigating back to a table with set filter the filter should be visible", table.isFilterVisible());
+	}
 
 	public static class TableFilterTestApplication extends Application {
 
 		@Override
 		public Page createDefaultPage() {
 			return new TableFilterTestPage();
+		}
+		
+		@Override
+		public List<Action> getNavigation() {
+			return List.of(new PageAction(new EmptyPage(), "Empty"));
 		}
 	}
 

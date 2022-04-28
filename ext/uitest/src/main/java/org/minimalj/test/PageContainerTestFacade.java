@@ -167,7 +167,7 @@ public interface PageContainerTestFacade {
 			return null; // TODO
 		}
 		
-		public void setFilterActive(boolean active);
+		public void setFilterVisible(boolean visible);
 		
 		public void setFilter(int column, String filterString);
 		
@@ -215,6 +215,10 @@ public interface PageContainerTestFacade {
 		public default int column(Object key) {
 			String text = Resources.getPropertyName(Keys.getProperty(key));
 			return findColumn(text);
+		}
+
+		public default boolean isFilterVisible() {
+			return false;
 		}
 	}
 	
