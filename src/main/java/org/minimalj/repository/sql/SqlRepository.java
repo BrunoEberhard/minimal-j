@@ -695,7 +695,13 @@ public class SqlRepository implements TransactionalRepository {
 	
 	public String column(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
-		Class<?> declaringClass = property.getDeclaringClass();
+		Class<?> declaringClass;
+		if (property instanceof ChainedProperty) {
+			ChainedProperty chainedProperty = (ChainedProperty) property;
+			declaringClass = chainedProperty.getChain().get(0).getDeclaringClass();
+		} else {
+			declaringClass = property.getDeclaringClass();
+		}
 		if (tables.containsKey(declaringClass)) {
 			AbstractTable<?> table = getAbstractTable(declaringClass);
 			return table.column(property);
