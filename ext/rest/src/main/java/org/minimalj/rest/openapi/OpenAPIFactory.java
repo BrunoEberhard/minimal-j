@@ -45,7 +45,7 @@ public class OpenAPIFactory {
 		}
 	}
 
-	public String create(Application application, String serverPath) {
+	public String create(Application application) {
 		OpenAPI api = new OpenAPI();
 		if (this.api == API.OpenAPI3) {
 			api.openapi = "3.0.0";
@@ -85,7 +85,7 @@ public class OpenAPIFactory {
 				
 				operations = new HashMap<>();
 				
-				if (entity.type != MjEntityType.CODE) {
+				if (entity.type == MjEntityType.CODE) {
 					// the number of codes is expected to be small enough to be loaded at once
 					operation = operationGetAll(entity);
 					operations.put("get", operation);
