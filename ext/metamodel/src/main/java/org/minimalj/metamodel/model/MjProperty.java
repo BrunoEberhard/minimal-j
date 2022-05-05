@@ -39,6 +39,7 @@ public class MjProperty {
 	public Boolean notEmpty;
 	public Boolean searched;
 	public Boolean materialized;
+	public Boolean autoIncrement;
 	public TechnicalFieldType technical;
 	public String enabled;
 	

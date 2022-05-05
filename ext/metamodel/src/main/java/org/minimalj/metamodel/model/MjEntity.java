@@ -26,7 +26,7 @@ import org.minimalj.util.StringUtils;
 public class MjEntity {
 
 	public enum MjEntityType {
-		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE,
+		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE, VIEW,
 		
 		// primitives
 		String(String.class), Integer(Integer.class), Long(Long.class), Boolean(Boolean.class), //
@@ -64,6 +64,8 @@ public class MjEntity {
 	public MjEntityType type;
 
 	private final Class<?> clazz;
+
+	public MjEntity viewedEntity;
 
 	public Boolean validatable;
 	public final List<MjProperty> properties = new ArrayList<>();
@@ -146,7 +148,7 @@ public class MjEntity {
 
 	public boolean isPrimitiv() {
         if (type == null) {
-            System.out.println("Null type: " + clazz.getName());
+            System.out.println("Null type: " + getClassName());
         }
 		return type.isPrimitiv();
 	}

@@ -146,12 +146,14 @@ public class ClassGenerator {
 		forbiddenNames.add(className);
 		generateProperties(s, entity, packageName, forbiddenNames);
 		
-		if (entity.type == MjEntityType.ENTITY) {
+		if (entity.type == MjEntityType.ENTITY || entity.type == MjEntityType.VIEW || entity.type == MjEntityType.CODE && entity.properties.stream().noneMatch(p -> p.name.equals("id"))) {
 			s.insert(0, "\tpublic Object id;\n");
 		}
 		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
 		if (entity.type == MjEntityType.CODE) {
 			s.insert(0, "\npublic class " + className + " implements Code {\n");
+		} else if (entity.type == MjEntityType.VIEW) {
+			s.insert(0, "\npublic class " + className + " implements View<" + entity.viewedEntity.getClassName() + "> {\n");			
 		} else {
 			s.insert(0, "\npublic class " + className + " {\n");
 		}
@@ -199,10 +201,14 @@ public class ClassGenerator {
 		
 		boolean notEmpty = Boolean.TRUE.equals(property.notEmpty);
 		boolean inline = property.propertyType == MjPropertyType.INLINE || !property.type.isPrimitiv() && property.type.type == MjEntityType.DEPENDING_ENTITY && notEmpty;
+		boolean autoIncrement = Boolean.TRUE.equals(property.autoIncrement);
 
 		if (notEmpty && !inline) {
 			indent(s, indent).append("@NotEmpty\n");
 		}
+		if (autoIncrement) {
+			indent(s, indent).append("@AutoIncrement\n");
+		}		
 		if (property.technical != null) {
 			indent(s, indent).append("@TechnicalField(TechnicalFieldType." + property.technical.name() + ")\n");			
 		}
@@ -268,12 +274,14 @@ public class ClassGenerator {
 	protected void imprts(StringBuilder java) {
 		java.insert(0, "import org.minimalj.model.Keys;\n");
 		if (java.indexOf("implements Code ") > -1) java.insert(0, "import org.minimalj.model.Code;\n");
+		if (java.indexOf("implements View<") > -1) java.insert(0, "import org.minimalj.model.View;\n");
+		if (java.indexOf("@AutoIncrement") > -1) java.insert(0, "import org.minimalj.model.annotation.AutoIncrement;\n");
 		if (java.indexOf("@Generated") > -1) java.insert(0, "import javax.annotation.Generated;\n");
 		if (java.indexOf("@NotEmpty") > -1) java.insert(0, "import org.minimalj.model.annotation.NotEmpty;\n");
 		if (java.indexOf("@Size") > -1) java.insert(0, "import org.minimalj.model.annotation.Size;\n");
 		if (java.indexOf("@TechnicalField") > -1) java.insert(0, "import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;\nimport org.minimalj.model.annotation.TechnicalField;\n");
 		if (java.indexOf("BigDecimal") > -1) java.insert(0, "import java.math.BigDecimal;\n");
-		if (java.indexOf("LocalDate") > -1) java.insert(0, "import java.time.LocalDate;\n");
+		if (java.indexOf("LocalDate ") > -1) java.insert(0, "import java.time.LocalDate;\n");
 		if (java.indexOf("LocalTime") > -1) java.insert(0, "import java.time.LocalTime;\n");
 		if (java.indexOf("LocalDateTime") > -1) java.insert(0, "import java.time.LocalDateTime;\n");
 		if (java.indexOf("List<") > -1) java.insert(0, "import java.util.List;\n");
