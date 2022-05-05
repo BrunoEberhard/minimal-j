@@ -19,7 +19,6 @@ import org.minimalj.rest.openapi.model.OpenAPI.Property;
 import org.minimalj.rest.openapi.model.OpenAPI.RequestBody;
 import org.minimalj.rest.openapi.model.OpenAPI.Response;
 import org.minimalj.rest.openapi.model.OpenAPI.Schema;
-import org.minimalj.rest.openapi.model.OpenAPI.Server;
 import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
@@ -46,7 +45,7 @@ public class OpenAPIFactory {
 		}
 	}
 
-	public String create(Application application) {
+	public String create(Application application, String serverPath) {
 		OpenAPI api = new OpenAPI();
 		if (this.api == API.OpenAPI3) {
 			api.openapi = "3.0.0";
@@ -59,9 +58,10 @@ public class OpenAPIFactory {
 		api.info.version = "1.0.0";
 		api.info.title = application.getName();
 		
-		Server server = new Server();
-		server.url = "http://localhost:8080/";
-		api.servers.add(server);
+		// Without specification simply "/" is used which fits perfectly.
+		// Server server = new Server();
+		// server.url = "http://localhost:8080/";
+		// api.servers.add(server);
 
 		MjModel model = new MjModel(application.getEntityClasses());
 		for (MjEntity entity : model.entities) {
