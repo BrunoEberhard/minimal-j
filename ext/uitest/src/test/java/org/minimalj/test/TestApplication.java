@@ -7,6 +7,7 @@ import org.minimalj.application.Application;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 import org.minimalj.security.Authentication;
@@ -35,7 +36,11 @@ public class TestApplication extends Application {
 	
 	@Override
 	public Page createDefaultPage() {
-		return new TestPage("TestPage");
+		if (Subject.currentHasRole(TestAuthentication.ROLE_TEST)) {
+			return new TestPage("TestPage");
+		} else {
+			return new EmptyPage();
+		}
 	}
 
 	@Override
