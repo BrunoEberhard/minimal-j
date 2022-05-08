@@ -78,11 +78,12 @@ public class JsonSessionManager extends TimerTask {
 	public String handle(Map<String, Object> data) {
 		JsonPageManager session = getSession(data);
 		JsonInput input = new JsonInput(data);
-		JsonOutput output;
+		String output;
 		synchronized (session) {
-			output = session.handle(input);
+			JsonOutput jsonOutput = session.handle(input);
+			output = jsonOutput.toString();
 		}
-		return output.toString();
+		return output;
 	}
 
 	public static class JsonSessionInfo {
