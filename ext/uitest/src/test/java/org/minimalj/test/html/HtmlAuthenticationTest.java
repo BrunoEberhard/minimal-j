@@ -22,19 +22,64 @@ public class HtmlAuthenticationTest extends WebTest {
 	public void testAuthenticatonModeRequired() {
 		start(new TestApplication(AuthenticatonMode.REQUIRED));
 
-		UserPasswordLoginTestFacade userPasswordLogin = ui().getLoginTestFacade();
-
-		userPasswordLogin.setUser("test");
-		userPasswordLogin.setPassword("test");
-
-		userPasswordLogin.login();
-
+		login();
+		
 		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
 
 		PageTestFacade page = pageContainer.getPage();
 		Assert.assertTrue(page.contains("TestPage"));
 		Assert.assertTrue(page.contains("Subject: test"));
 		
+		pageContainer.logout();
+	}
+
+	private void login() {
+		UserPasswordLoginTestFacade userPasswordLogin = ui().getLoginTestFacade();
+		userPasswordLogin.setUser("test");
+		userPasswordLogin.setPassword("test");
+		userPasswordLogin.login();
+	}
+	
+	@Test
+	public void testRelogin() {
+		start(new TestApplication(AuthenticatonMode.REQUIRED));
+		
+		login();
+
+		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
+		Assert.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
+		pageContainer.logout();
+		
+		login();
+
+		pageContainer = ui().getCurrentPageContainerTestFacade();
+		Assert.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
+		pageContainer.logout();
+	}
+
+	@Test
+	public void testBackAfterLogout() {
+		start(new TestApplication(AuthenticatonMode.REQUIRED));
+		
+		login();
+
+		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
+		PageTestFacade page = pageContainer.getPage();
+		Assert.assertTrue(page.contains("TestPage"));
+
+		ui().getCurrentPageContainerTestFacade().getNavigation().get("Other Page").run();
+		page = pageContainer.getPage();
+		Assert.assertTrue(page.contains("Page 2"));
+
+		pageContainer.logout();
+		
+		ui().getCurrentPageContainerTestFacade().getBack().run();
+
+		login();
+
+		page = pageContainer.getPage();
+		Assert.assertTrue(page.contains("Page 2"));
+
 		pageContainer.logout();
 	}
 	
