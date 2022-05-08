@@ -32,7 +32,6 @@ $ICON
 	
 	var blockStyle = document.createElement('style');
 	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
-	var blockCount = 0;
 	var pendingRequests = 0;
 	
 	function onMessage(data) {
@@ -43,10 +42,11 @@ $ICON
 				"retry": dataObject.wait
 			};
 			document.getElementById("wait").style.width = (1 + (dataObject.wait - 1) % 3) + "em";
-			send(data, true);
+			send0(data);
 			return;
 		} else {
 			document.getElementById("wait").style.width = 0;
+			unblockUi();
 		}
 	
 		session = dataObject["session"];
@@ -149,11 +149,13 @@ $ICON
 							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
 							var validationElement = document.getElementById(id + "-validation");
-							if (value == undefined || value == "") {
-								validationElement.className = "hide";
-							} else {
-								validationElement.className = "";
-								validationElement.title = value;
+							if (validationElement != undefined) {
+								if (value == undefined || value == "") {
+									validationElement.className = "hide";
+								} else {
+									validationElement.className = "";
+									validationElement.title = value;
+								}
 							}
 						} else if (property === "enabled" && element.className === "list") {
 							element.style.display = value ? "block" : "none";
@@ -1465,33 +1467,43 @@ $ICON
 	}
 	
 	function send(data, block) {
-		data.inputTypes = isMobile && checkInput("date");
-		data.session = session;
+		if (isUiBlocked()) {
+			return;
+		}
+		if (block) {
+			blockUi();
+		}
 	
+		data.inputTypes = isMobile && checkInput("date");
+
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements && dialogElements.length > 0;
 	
-		$SEND(data, block);
+		send0(data);
+	}
+
+	function send0(data) {
+		data.session = session;
+		$SEND(data);
+	}
+	
+	function isUiBlocked() {
+		return blockStyle.parentNode != undefined;
 	}
 	
 	function blockUi() {
-		blockCount++;
-		if (!blockStyle.parentNode) {
-			document.body.appendChild(blockStyle);
-		}
+		document.body.appendChild(blockStyle);
 	}
 	
 	function unblockUi() {
-		blockCount--;
-		if (blockCount < 1 && blockStyle.parentNode) {
+		if (isUiBlocked()) {
 			blockStyle.parentNode.removeChild(blockStyle);
-			blockCount = 0;
 		}
 	}
 	
 	var heartbeatTimer;
 	
-	function sendAjax(data, block) {
+	function sendAjax(data) {
 		if (heartbeatTimer) {
 			clearInterval(heartbeatTimer);
 		}
@@ -1501,25 +1513,25 @@ $ICON
 		xmlhttp.open("POST", "ajax_request.json", true);
         xmlhttp.overrideMimeType('application/json');
 	
-		if (block) blockUi();
-		pendingRequests++;
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
-				unblockUi();
-				pendingRequests--;
+				pendingRequests--;			
 				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
 			}
 		}
+		pendingRequests++;
 		xmlhttp.send(JSON.stringify(data));
 	}
 	
 	function heartbeat() {
-		send({}, false);
+		if (!isUiBlocked()) {
+			send0({});
+		}
 	}
 	
-	function sendWebSocket(data, block) {
+	function sendWebSocket(data) {
 		if (websocket == null || websocket.readyState > 1) {
 			var pathname = location.pathname;
 			var index = pathname.lastIndexOf("/");
@@ -1531,20 +1543,18 @@ $ICON
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
 				pendingRequests--;
-				unblockUi();
 				onMessage(evt.data)
 			};
 			websocket.onopen = function(evt) {
-				send(data, block);
+				send(data);
 			}
 		} else {
-			if (block) blockUi();
 			pendingRequests++;
 			websocket.send(JSON.stringify(data));
 		}
 	}
 	
-	function sendCheerpj(data, block) {
+	function sendCheerpj(data) {
 		var sendStr = JSON.stringify(data);
 		console.log("send");
 		console.log(sendStr);
