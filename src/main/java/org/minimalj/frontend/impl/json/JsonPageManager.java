@@ -480,7 +480,15 @@ public class JsonPageManager implements PageManager {
 				return Resources.getString("Login.title");
 			}
 		};
-		show(page);
+
+		// don't use normal show(page) because login page should get part of history
+		visiblePageAndDetailsList.clear();
+		componentById.clear();
+		// At login there should be no application actions but maybe some help links in the navigation
+		register(navigation);
+		output.add("showPage", createJson(page, null, null));
+		updateTitle(page);
+		
 		return Optional.empty();
 	}
 	
