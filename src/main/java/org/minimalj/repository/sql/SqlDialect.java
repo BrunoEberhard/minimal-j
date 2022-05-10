@@ -202,6 +202,13 @@ public abstract class SqlDialect {
 			}
 			return true;
 		}
+		
+		@Override
+		protected void addAutoIncrement(StringBuilder s) {
+			// remove "INT "
+			s = s.delete(s.length() - 4, s.length());
+			s.append("SERIAL");
+		}
 
 		@Override
 		protected void addCreateStatementEnd(StringBuilder s) {
