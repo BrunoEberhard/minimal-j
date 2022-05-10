@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
+import org.minimalj.model.View;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.validation.Validation;
@@ -113,6 +114,8 @@ public class MjEntity {
 
 		} else if (Code.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.CODE;
+		} else if (View.class.isAssignableFrom(clazz)) {
+			type = MjEntityType.VIEW;
 		} else if (IdUtils.hasId(clazz)) {
 			type = MjEntityType.ENTITY;
 		} else {

@@ -73,11 +73,13 @@ public class OpenAPIFactory {
 				Operation operation = operationGetById(entity);
 				operations.put("get", operation);
 				
-				operation = operationPut(entity);
-				operations.put("put", operation);
+				if (entity.type != MjEntityType.VIEW) {
+					operation = operationPut(entity);
+					operations.put("put", operation);
 
-				operation = operationDelete(entity);
-				operations.put("delete", operation);
+					operation = operationDelete(entity);
+					operations.put("delete", operation);
+				}
 
 				api.paths.put("/" + entityName + "/{id}", operations);
 				
@@ -91,8 +93,10 @@ public class OpenAPIFactory {
 					operations.put("get", operation);
 				}
 				
-				operation = operationPost(entity);
-				operations.put("post", operation);
+				if (entity.type != MjEntityType.VIEW) {
+					operation = operationPost(entity);
+					operations.put("post", operation);
+				}
 				
 				api.paths.put("/" + entityName, operations);
 			}
