@@ -182,6 +182,10 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 			return BaseTableEditorPage.this.getNameArguments();
 		}
 		
+		protected T getSelection() {
+			return selection;
+		}
+		
 		@Override
 		protected T createObject() {
 			return IdUtils.hasId(getClazz()) ? CloneHelper.clone(selection) : selection;
