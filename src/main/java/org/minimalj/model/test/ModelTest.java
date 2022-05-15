@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
@@ -31,7 +32,6 @@ import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -204,23 +204,16 @@ public class ModelTest {
 	}
 	
 	private void testId(Class<?> clazz) {
+		if (!isMain(clazz)) {
+			return;
+		}
 		try {
 			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
-			if (Codes.isCode(clazz)) {
-				if (!FieldUtils.isAllowedCodeId(property.getClazz())) {
-					problems.add(clazz.getName() + ": Code id must be of Integer, String or Object");
-				}
-			} else {
-				if (property.getClazz() != Object.class) {
-					problems.add(clazz.getName() + ": Id must be Object");
-				}				
+			if (!FieldUtils.isAllowedId(property.getClazz())) {
+				problems.add(clazz.getName() + ": id must be of Integer, Long, String, Object");
 			}
 		} catch (IllegalArgumentException e) {
-			if (Codes.isCode(clazz)) {
-				problems.add(clazz.getName() + ": Code classes must have an id field of Integer, String or Object");
-			} else if (isMain(clazz)) {
-				problems.add(clazz.getName() + ": Domain classes must have an id field of type object");
-			}
+			problems.add(clazz.getName() + ": Class missing id field");
 		}
 	}
 
@@ -500,7 +493,7 @@ public class ModelTest {
 		for (Field field : fields) {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
 				Class<?> fieldType = field.getType();
-				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
+				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class && !Code.class.isAssignableFrom(fieldType)) {
 					if (forbiddenClasses.contains(fieldType)) {
 						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
 					} else {
