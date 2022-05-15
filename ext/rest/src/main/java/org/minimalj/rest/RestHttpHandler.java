@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.MjHttpHandler;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjModel;
+import org.minimalj.model.Api;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.rest.openapi.OpenAPIFactory;
@@ -34,7 +36,7 @@ import org.minimalj.util.resources.Resources;
 public class RestHttpHandler implements MjHttpHandler {
 
 	private final MjHttpHandler next;
-	private final Map<String, Class<?>> classByName;
+	private final Map<String, Class<?>> classByName = new HashMap<>();
 
 	public RestHttpHandler() {
 		this(null);
@@ -42,7 +44,23 @@ public class RestHttpHandler implements MjHttpHandler {
 	
 	public RestHttpHandler(MjHttpHandler next) {
 		this.next = next;
-		classByName = initClassMap();
+		Application application = Application.getInstance();
+		
+		MjModel mjModel = new MjModel(application.getEntityClasses());
+		for (MjEntity entity : mjModel.entities) {
+			classByName.put(entity.getClassName(), entity.getClazz());
+		}
+		
+		if (application instanceof Api) {
+			Api api = (Api) application;
+			Class<?>[] transactionClasses = api.getTransactionClasses();
+			for (Class<?> transactionClass : transactionClasses) {
+				if (!Transaction.class.isAssignableFrom(transactionClass)) {
+					throw new IllegalArgumentException(transactionClass.getSimpleName() + " must implement " + Transaction.class.getSimpleName());
+				}
+				classByName.put(transactionClass.getSimpleName(), transactionClass);
+			}
+		}
 	}
 
 	protected Map<String, Class<?>> initClassMap() {
@@ -50,6 +68,13 @@ public class RestHttpHandler implements MjHttpHandler {
 		MjModel model = new MjModel(Application.getInstance().getEntityClasses());
 		for (MjEntity entity : model.entities) {
 			classByName.put(entity.getClassName(), entity.getClazz());
+		}
+		if (Application.getInstance() instanceof Api) {
+			Api mjApi = (Api) Application.getInstance();
+			Class<?>[] transactionClasses = mjApi.getTransactionClasses();
+			for (Class<?> transactionClass : transactionClasses) {
+				classByName.put(transactionClass.getSimpleName(), transactionClass);
+			}
 		}
 		
 		return classByName;
@@ -71,6 +96,14 @@ public class RestHttpHandler implements MjHttpHandler {
 			if (clazz == null) {
 				exchange.sendResponse(HttpsURLConnection.HTTP_NOT_FOUND, "Class " + pathElements[0] + " not found", "text/html");
 				return;
+			} else if (Transaction.class.isAssignableFrom(clazz)) {
+				if (!exchange.getMethod().equals("POST")) {
+					exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, pathElements[0] + " only supports POST", "text/html");
+					return;
+				} else if (pathElements.length > 1) {
+					exchange.sendResponse(HttpsURLConnection.HTTP_BAD_REQUEST, pathElements[0] + " only must not have URL parameters. Request must be sent in request body.", "text/html");
+					return;
+				}
 			}
 		}
 		
@@ -148,15 +181,22 @@ public class RestHttpHandler implements MjHttpHandler {
 			break;
 		case "POST":
 			if (clazz != null) {
-//				String inputString = files.get("postData");
-//				if (inputString == null) {
-//					exchange.sendResponse(HttpsURLConnection.HTTP_BAD_REQUEST, "No Input", "text/plain");
-//					return;
-//				}
-				Object inputObject = EntityJsonReader.read(clazz, exchange.getRequest());
-				Object id = Backend.insert(inputObject);
-				exchange.sendResponse(HttpsURLConnection.HTTP_OK, id.toString(), "text/plain");
-				return;
+				if (!Transaction.class.isAssignableFrom(clazz)) {
+					Object inputObject = EntityJsonReader.read(clazz, exchange.getRequest());
+					Object id = Backend.insert(inputObject);
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, id.toString(), "text/plain");
+					return;
+				} else {
+					try {
+						Class<?> inputClass = clazz.getConstructors()[0].getParameters()[0].getType();
+						Object inputObject = EntityJsonReader.read(inputClass, exchange.getRequest());
+						Transaction<?> transaction = (Transaction<?>) clazz.getConstructors()[0].newInstance(inputObject);
+						Object outputObject = transaction.execute();
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject), "text/json");
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+						throw new RuntimeException(e);
+					}
+				}
 			}
 			break;
 		case "DELETE":

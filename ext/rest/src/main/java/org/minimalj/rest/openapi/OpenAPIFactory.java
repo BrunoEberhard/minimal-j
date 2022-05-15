@@ -1,5 +1,6 @@
 package org.minimalj.rest.openapi;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
+import org.minimalj.model.Api;
 import org.minimalj.rest.EntityJsonWriter;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
@@ -101,26 +103,56 @@ public class OpenAPIFactory {
 				api.paths.put("/" + entityName, operations);
 			}
 			
-			Schema schema;
-			if (entity.isEnumeration()) {
-				if (this.api == API.OpenAPI3) {
-					schema = eNum(entity);
-				} else {
-					// v2 has no reusable enum
-					continue;
-				}
-			} else {
-				schema = schema(entity);
+			addSchema(api, entity);	
+		}
+		
+		if (application instanceof Api) {
+			Api mjApi = (Api) application;
+			Class<?>[] transactionClasses = mjApi.getTransactionClasses();
+			for (Class<?> transactionClass : transactionClasses) {
+				
+				Constructor<?> constructor = transactionClass.getConstructors()[0];
+				Class<?> requestClass = constructor.getParameters()[0].getType();
+				addSchema(api, new MjEntity(model, requestClass));
+				Class<?> responseClass = getReturnType(transactionClass);
+				new MjEntity(model, responseClass);
+				addSchema(api, new MjEntity(model, responseClass));
+				
+				Map<String, Operation> operations = new HashMap<>();
+				Operation operation = operationPost(transactionClass);
+
+				operations.put("post", operation);
+				api.paths.put("/" + transactionClass.getSimpleName(), operations);
 			}
-			
-			if (this.api == API.OpenAPI3) {
-				api.components.schemas.put(entityName, schema);
-			} else {
-				api.definitions.put(entityName, schema);
-			}	
 		}
 		
 		return EntityJsonWriter.write(api);
+	}
+
+	public void addSchema(OpenAPI api, MjEntity entity) {
+		String entityName = entity.getClassName();	
+ 		if (api.components.schemas.containsKey(entityName) || api.definitions.containsKey(entityName)) {
+ 			return;
+		}
+		
+		Schema schema;
+		if (entity.isEnumeration()) {
+			if (this.api == API.OpenAPI3) {
+				schema = eNum(entity);
+			} else {
+				schema = null;
+			}
+		} else {
+			schema = schema(entity);
+		}
+		
+		if (schema != null) {
+	 		if (this.api == API.OpenAPI3) {
+				api.components.schemas.put(entityName, schema);
+			} else {
+				api.definitions.put(entityName, schema);
+			}
+		}
 	}
 
 
@@ -246,6 +278,66 @@ public class OpenAPIFactory {
 		
 		operation.responses.put("200", response);
 		return operation;
+	}
+	
+	private Operation operationPost(Class<?> transactionClass) {
+		String transactionName = transactionClass.getSimpleName();
+		
+		Operation operation = new Operation();
+		operation.summary = "Execute " + transactionName;
+		
+		{
+			Constructor<?> constructor = transactionClass.getConstructors()[0];
+			Class<?> requestClass = constructor.getParameters()[0].getType();
+			String requestEntityName = requestClass.getSimpleName();
+			
+			Schema schema = new Schema();
+			schema.$ref = SCHEMAS + requestEntityName;
+
+			if (api == API.OpenAPI3) {
+				Content content = new Content();
+				content.schema = schema;
+
+				RequestBody requestBody = new RequestBody();
+				requestBody.content.put("application/json", content);
+
+				operation.requestBody = requestBody;
+			} else {
+				// TODO response.schema = schema;
+			}
+		}
+
+		{
+			Class<?> resultClass = getReturnType(transactionClass);
+			String responseEntityName = resultClass.getSimpleName();
+
+			Response response = new Response();
+			response.description = "Successful operation";
+
+			Schema schemaResponse = new Schema();
+			schemaResponse.$ref = SCHEMAS + responseEntityName;
+
+			if (api == API.OpenAPI3) {
+				Content content = new Content();
+				content.schema = schemaResponse;
+
+				response.content.put("application/json", content);
+			} else {
+				response.schema = schemaResponse;
+			}
+
+			operation.responses.put("200", response);
+		}
+
+		return operation;
+	}
+	
+	private Class<?> getReturnType(Class<?> transactionClass) {
+		try {
+			return transactionClass.getMethod("execute").getReturnType();
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 	
 	private Operation operationPut(MjEntity entity) {
