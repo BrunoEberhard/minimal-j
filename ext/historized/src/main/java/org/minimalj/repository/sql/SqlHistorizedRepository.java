@@ -194,7 +194,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 						value = referenceTable.read(value, loadedReferences);
 					}
 				} else if (AbstractTable.isDependable(property)) {
-					value = getTable(fieldClass).read(value);
+					// TODO load dependables
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = property.getGenericClass();

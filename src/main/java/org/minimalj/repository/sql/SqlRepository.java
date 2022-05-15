@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -88,8 +90,7 @@ public class SqlRepository implements TransactionalRepository {
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
 		this.dataSource = dataSource;
 		
-		Connection connection = getAutoCommitConnection();
-		try {
+		try (Connection connection = getAutoCommitConnection()) {
 			sqlDialect = findDialect(connection);
 			sqlIdentifier = createSqlIdentifier();
 			for (Class<?> clazz : classes) {
@@ -353,6 +354,7 @@ public class SqlRepository implements TransactionalRepository {
 			String fieldName = field.getName();
 			if (StringUtils.equals(fieldName, "id", "version", "historized")) continue;
 			if (FieldUtils.isList(field)) continue;
+			if (!FieldUtils.isFinal(field) && AbstractTable.isDependable(field.getType())) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field) && !FlatProperties.hasCollidingFields(clazz, field.getType(), field.getName());
@@ -551,7 +553,7 @@ public class SqlRepository implements TransactionalRepository {
 						value = referencedValue;
 					}
 				} else if (AbstractTable.isDependable(property)) {
-					value = getTable(fieldClass).read(value);
+					continue;
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = property.getGenericClass();
@@ -587,26 +589,36 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	void createTables() {
-		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
-		for (AbstractTable<?> table : tableList) {
+		Collection<AbstractTable<?>> tables = Collections.unmodifiableCollection(this.tables.values());
+		for (AbstractTable<?> table : tables) {
 			table.createTable(sqlDialect);
 		}
-		for (AbstractTable<?> table : tableList) {
+		for (AbstractTable<?> table : tables) {
 			table.createIndexes(sqlDialect);
 		}
-		for (AbstractTable<?> table : tableList) {
+		for (AbstractTable<?> table : tables) {
 			table.createConstraints(sqlDialect);
 		}
+		afterCreateTables(tables);
+	}
+
+	protected void afterCreateTables(Collection<AbstractTable<?>> unmodifiableCollection) {
+		// for extensions
 	}
 
 	void dropTables() {
-		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
-		for (AbstractTable<?> table : tableList) {
+		Collection<AbstractTable<?>> tables = Collections.unmodifiableCollection(this.tables.values());
+		beforeDropTables(tables);
+		for (AbstractTable<?> table : tables) {
 			table.dropConstraints(sqlDialect);
 		}
-		for (AbstractTable<?> table : tableList) {
+		for (AbstractTable<?> table : tables) {
 			table.dropTable(sqlDialect);
 		}
+	}
+
+	protected void beforeDropTables(Collection<AbstractTable<?>> tables) {
+		// for extensions
 	}
 
 	// TODO move someplace where it's available for all kind of repositories (Memory DB for example)

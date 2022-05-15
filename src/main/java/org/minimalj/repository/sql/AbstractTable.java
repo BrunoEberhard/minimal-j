@@ -234,13 +234,6 @@ public abstract class AbstractTable<T> {
 	}
 	
 	private void findDependables() {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
-			Class<?> fieldClazz = property.getClazz();
-			if (isDependable(property) && fieldClazz != clazz) {
-				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
-			}
-		}
 		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
 			Class<?> listType = property.getGenericClass();
 			if (IdUtils.hasId(listType)) {
@@ -277,7 +270,7 @@ public abstract class AbstractTable<T> {
 				return null;
 			}
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new RuntimeException(x);
 		}
 	}
 	
@@ -330,29 +323,6 @@ public abstract class AbstractTable<T> {
 					} else {
 						Table referencedTable  = sqlRepository.getTable(property.getClazz());
 						value = referencedTable.insert(value);
-					}
-				}
-			} else if (isDependable(property)) {
-				Table dependableTable = sqlRepository.getTable(property.getClazz());
-				if (insert) {
-					if (value != null) {
-						value = dependableTable.insert(value);
-					}							
-				} else {
-					// update
-					String dependableColumnName = column.getKey();
-					Object dependableId = getDependableId(id, dependableColumnName);
-					if (value != null) {
-						value = updateDependable(dependableTable, dependableId, value, mode);
-					} else {
-						if (mode == ParameterMode.UPDATE) {
-							// to delete a dependable the value where its used has to be set
-							// to null first. This problem could also be solved by setting the
-							// reference constraint to 'deferred'. But this 'deferred' is more
-							// expensive for database and doesn't work with maria db (TODO: really?)
-							setColumnToNull(id, dependableColumnName);
-							dependableTable.deleteById(dependableId);
-						}
 					}
 				}
 			} else {
@@ -500,11 +470,18 @@ public abstract class AbstractTable<T> {
 	 * @return true if property isn't a base object like String, Integer, Date, enum but a dependable
 	 */
 	public static boolean isDependable(PropertyInterface property) {
-		if (property.getClazz().getName().startsWith("java")) return false;
-		if (Enum.class.isAssignableFrom(property.getClazz())) return false;
+		if (!isDependable(property.getClazz())) return false;
 		if (property.isFinal()) return false;
-		if (property.getClazz().isArray()) return false;
 		return true;
 	}
-	
+
+	public static boolean isDependable(Class<?> clazz) {
+		if (clazz.isPrimitive()) return false;
+		if (clazz.getName().startsWith("java")) return false;
+		if (Enum.class.isAssignableFrom(clazz)) return false;
+		if (clazz.isArray()) return false;
+		if (IdUtils.hasId(clazz)) return false;
+		return true;
+	}
+
 }
