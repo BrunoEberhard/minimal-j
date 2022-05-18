@@ -604,6 +604,7 @@ $ICON
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
 			thead.appendChild(createTableColumns(content.headers, content.headerPathes));
+			element.appendChild(createTableColumnStyles(content.alignments));
 			if (content.overview) {
 				var tr = document.createElement("tr");
 				thead.appendChild(tr);
@@ -883,6 +884,19 @@ $ICON
 			element.appendChild(th);
 		}
 		return element;
+	}
+	
+	function createTableColumnStyles(alignments) {
+		var tableStyle = document.createElement("style");
+		tableStyle.type = "text/css";
+		var style = "";
+		for (var i = 0; i < alignments.length; i++) {
+			if (alignments[i] != undefined) {		
+				style = style + "td:nth-child(" + (i+1) + ") { text-align: " + alignments[i] + "; }\n";
+			}
+		}
+		tableStyle.appendChild(document.createTextNode(style));
+		return tableStyle;
 	}
 	
 	function createTableHeaders(tableId, headers, headerNames, headerFilters) {

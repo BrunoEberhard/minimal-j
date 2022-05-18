@@ -16,6 +16,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Column;
+import org.minimalj.model.Column.ColumnAlignment;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
@@ -42,6 +43,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final List<Boolean> sortDirections = new ArrayList<>();
 	private final ColumnFilter[] filters;
 	private final IComponent[] headerFilters;
+	private final String[] alignments;
 	
 	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
@@ -54,6 +56,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		List<String> headerPathes = new ArrayList<>();
 		filters = new ColumnFilter[keys.length];
 		headerFilters = new IComponent[keys.length];
+		alignments = new String[keys.length];
 
 		for (PropertyInterface property : properties) {
 			String header = Resources.getPropertyName(property);
@@ -62,13 +65,23 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			int column = headers.size() - 1;
 			filters[column] = ColumnFilter.createFilter(property);
 			headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
+			alignments[column] = alignment(property);
 		}
 		put("headers", headers);
 		put("headerPathes", headerPathes);
 		put("headerFilters", headerFilters);
+		put("alignments", alignments);
 
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
+	}
+
+	private String alignment(PropertyInterface property) {
+		if (property instanceof Column) {
+			ColumnAlignment alignment = ((Column<?, ?>) property).getAlignment();
+			return alignment != null ? alignment.name() : null;
+		}
+		return null;
 	}
 
 	private static List<PropertyInterface> convert(Object[] keys) {

@@ -9,11 +9,16 @@ import org.minimalj.model.properties.PropertyInterface;
 public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 
 	protected final PropertyInterface property;
-
+	
+	/**
+	 * start is <code>null</code>
+	 */
+	public enum ColumnAlignment { center, end };
+	
 	public Column(Object key) {
 		this.property = Keys.getProperty(key);
 	}
-
+	
 	public CharSequence render(ROW rowObject, COLUMN value) {
 		return Rendering.render(value);
 	}
@@ -31,6 +36,10 @@ public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 	}
 	
 	public ColumnFilter getFilter() {
+		return null;
+	}
+
+	public ColumnAlignment getAlignment() {
 		return null;
 	}
 	
