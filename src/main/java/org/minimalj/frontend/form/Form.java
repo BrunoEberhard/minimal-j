@@ -246,10 +246,7 @@ public class Form<T> {
 	 */
 	public void addDependecy(Object from, Object... to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
-		if (!dependencies.containsKey(fromProperty.getPath())) {
-			dependencies.put(fromProperty.getPath(), new ArrayList<>());
-		}
-		List<PropertyInterface> list = dependencies.get(fromProperty.getPath());
+		List<PropertyInterface> list = dependencies.computeIfAbsent(fromProperty.getPath(), p -> new ArrayList<>());
 		for (Object key : to) {
 			list.add(Keys.getProperty(key));
 		}
@@ -260,10 +257,7 @@ public class Form<T> {
 	}
 
 	private void addDependecy(String fromPropertyPath, PropertyInterface to) {
-		if (!dependencies.containsKey(fromPropertyPath)) {
-			dependencies.put(fromPropertyPath, new ArrayList<>());
-		}
-		List<PropertyInterface> list = dependencies.get(fromPropertyPath);
+		List<PropertyInterface> list = dependencies.computeIfAbsent(fromPropertyPath, p -> new ArrayList<>());
 		list.add(to);
 	}
 
@@ -282,11 +276,8 @@ public class Form<T> {
 	 */
 	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
-		if (!propertyUpdater.containsKey(fromProperty)) {
-			propertyUpdater.put(fromProperty, new HashMap<>());
-		}
 		PropertyInterface toProperty = Keys.getProperty(to);
-		propertyUpdater.get(fromProperty).put(toProperty, updater);
+		propertyUpdater.computeIfAbsent(fromProperty, p -> new HashMap<>()).put(toProperty, updater);
 		addDependecy(from, to);
 	}
 
