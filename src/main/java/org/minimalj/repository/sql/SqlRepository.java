@@ -89,17 +89,18 @@ public class SqlRepository implements TransactionalRepository {
 	
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
 		this.dataSource = dataSource;
-		
+
 		try (Connection connection = getAutoCommitConnection()) {
 			sqlDialect = findDialect(connection);
 			sqlIdentifier = createSqlIdentifier();
-			for (Class<?> clazz : classes) {
+			for (Class<?> clazz : Model.getEntityClassesRecursive(classes)) {
 				addClass(clazz);
 			}
 			new ModelTest(classes).assertValid();
 			if (createTablesOnInitialize(dataSource)) {
 				createTables();
 				createCodes();
+				afterCreateTables(Collections.unmodifiableCollection(tables.values()));
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
@@ -589,20 +590,18 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	void createTables() {
-		Collection<AbstractTable<?>> tables = Collections.unmodifiableCollection(this.tables.values());
-		for (AbstractTable<?> table : tables) {
+		for (AbstractTable<?> table : tables.values()) {
 			table.createTable(sqlDialect);
 		}
-		for (AbstractTable<?> table : tables) {
+		for (AbstractTable<?> table : tables.values()) {
 			table.createIndexes(sqlDialect);
 		}
-		for (AbstractTable<?> table : tables) {
+		for (AbstractTable<?> table : tables.values()) {
 			table.createConstraints(sqlDialect);
 		}
-		afterCreateTables(tables);
 	}
 
-	protected void afterCreateTables(Collection<AbstractTable<?>> unmodifiableCollection) {
+	protected void afterCreateTables(Collection<AbstractTable<?>> tables) {
 		// for extensions
 	}
 
