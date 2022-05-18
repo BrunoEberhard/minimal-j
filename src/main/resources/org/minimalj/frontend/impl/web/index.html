@@ -682,11 +682,11 @@ $ICON
 				element.setAttribute("placeholder", content.placeholder);
 			}
 			if (content.suggestions) {
+				var datalist = document.createElement("datalist");
+				datalist.id = content.id + "-list";
+				element.appendChild(datalist);
 				element.setAttribute("list", content.id + "-list");
-				element.setAttribute("onkeydown", "clearSuggestions(this);");
-				element.setAttribute("onkeyup", "loadSuggestions(this);");
-				element.setAttribute("onfocus", "loadSuggestions(this);");
-				element.setAttribute("onblur", "clearSuggestions(this);");
+				element.setAttribute("onkeyup", "loadSuggestions(event);");
 			}
 			element.changeOnFocus = content.changeOnFocus;
 		} else if (type === "AreaField") {
@@ -1282,34 +1282,32 @@ $ICON
 			send(data, false);
 		}
 	}
-	
-	function loadSuggestions(source) {
-		var data = {
-			"loadSuggestions": source.id,
-			"searchText": source.value
-		};
-		send(data, false);
-	}
-	
-	function clearSuggestions(source) {
-		var input = document.getElementById(source.id);
-		while (input.firstChild) {
-			input.removeChild(input.firstChild);
+
+	function loadSuggestions(event) {
+		var source = event.target;
+		if (event.keyCode == 13) {
+			source.currentSuggestions = source.value;
+			return;
+		}
+		var currentSuggestions = source.currentSuggestions;
+		if (currentSuggestions == undefined || currentSuggestions != source.value) {
+			source.currentSuggestions = source.value;
+			var data = {
+				"loadSuggestions": source.id,
+				"searchText": source.value
+			};
+			send(data, false);
 		}
 	}
 	
 	function createSuggestions(id, suggestions) {
-		var datalist = document.createElement("datalist");
-		datalist.id = id + "-list";
+		var datalist = document.getElementById(id + "-list");
+		removeChildren(datalist);
 		for (var i = 0; i < suggestions.length; i++) {
 			var option = document.createElement("option");
 			option.setAttribute("value", suggestions[i]);
 			datalist.appendChild(option);
 		}
-	
-		var input = document.getElementById(id);
-		clearSuggestions(input);
-		input.appendChild(datalist);
 	}
 
 	function logout() {
