@@ -474,13 +474,25 @@ public class Form<T> {
 				addChangedPropertyRecursive(property, changedProperties);
 			}
 		}
-		
+
 		private void addChangedPropertyRecursive(PropertyInterface property, HashSet<PropertyInterface> changedProperties) {
-			if (!changedProperties.contains(property)) {
-				changedProperties.add(property);
+			changedProperties.add(property);
+			HashSet<PropertyInterface> changedRoots = new HashSet<>(changedProperties);
+			changedRoots.forEach(root -> changedProperties.addAll(collectDependencies(root)));
+		}
+		
+		private HashSet<PropertyInterface> collectDependencies(PropertyInterface property) {
+			HashSet<PropertyInterface> collection = new HashSet<>();
+			collectDependencies(property, collection);
+			return collection;
+		}
+
+		private void collectDependencies(PropertyInterface property, HashSet<PropertyInterface> collection) {
+			if (!collection.contains(property)) {
+				collection.add(property);
 				if (dependencies.containsKey(property.getName())) {
 					for (PropertyInterface dependingProperty : dependencies.get(property.getName())) {
-						addChangedPropertyRecursive(dependingProperty, changedProperties);
+						collectDependencies(dependingProperty, collection);
 					}
 				}
 			}
