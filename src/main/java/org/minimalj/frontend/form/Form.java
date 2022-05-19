@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -123,6 +124,8 @@ public class Form<T> {
 		}
 		if (key == null) {
 			throw new NullPointerException("Key must not be null");
+		} else if (key instanceof Function) {
+			return createElement(((Function) key).apply(this.editable &&!forcedReadonly));
 		} else if (key instanceof FormElement) {
 			element = (FormElement<?>) key;
 			property = element.getProperty();

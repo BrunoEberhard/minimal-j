@@ -3,8 +3,6 @@ package org.minimalj.frontend.form.element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -17,13 +15,13 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 
 public class PositionListFormElement<T> extends AbstractFormElement<List<T>> {
-	private static final Logger logger = Logger.getLogger(PositionListFormElement.class.getName());
-
 	private final SwitchComponent switchComponent;
 	private final boolean editable;
 	private List<T> object;
 	private final List<Form<?>> lineForms = new ArrayList<>();
-	protected final List<PropertyInterface> properties;
+	protected final List<Object> columns;
+	private final List<PropertyInterface> propertyAsChain;
+
 //	private final PositionListModel model;
 
 	public PositionListFormElement(List<T> key, List<Object> columns, boolean editable) {
@@ -33,25 +31,10 @@ public class PositionListFormElement<T> extends AbstractFormElement<List<T>> {
 	public PositionListFormElement(PropertyInterface property, List<Object> columns, boolean editable) {
 		super(property);
 		this.editable = editable;
-		this.properties = convert(columns);
+		this.columns = columns;
 //		this.model = createModel();
 		this.switchComponent = Frontend.getInstance().createSwitchComponent();
-	}
-
-	private static List<PropertyInterface> convert(List<Object> keys) {
-		List<PropertyInterface> properties = new ArrayList<>(keys.size());
-		for (Object key : keys) {
-			PropertyInterface property = Keys.getProperty(key);
-			if (property != null) {
-				properties.add(property);
-			} else {
-				logger.log(Level.WARNING, "Key not a property: " + key);
-			}
-		}
-		if (properties.size() == 0) {
-			logger.log(Level.SEVERE, "list without valid keys");
-		}
-		return Collections.unmodifiableList(properties);
+		this.propertyAsChain = ChainedProperty.getChain(getProperty());
 	}
 
 //	private PositionListModel createModel() {
@@ -151,10 +134,10 @@ public class PositionListFormElement<T> extends AbstractFormElement<List<T>> {
 		lineForms.clear();
 		lines[0] = Frontend.getInstance().createTitle(super.getCaption());
 		for (int index = 0; index < object.size(); index++) {
-			Form<T> lineForm = new Form<>(editable, properties.size());
+			Form<T> lineForm = new Form<>(editable, columns.size());
 			lineForms.add(lineForm);
 			lineForm.setIgnoreCaption(index > 0);
-			lineForm.line(properties.toArray());
+			lineForm.line(columns.toArray());
 			lineForm.setChangeListener(form -> super.fireChange());
 			lineForm.setObject(object.get(index));
 			lines[index + 1] = lineForm.getContent();
@@ -165,25 +148,23 @@ public class PositionListFormElement<T> extends AbstractFormElement<List<T>> {
 
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
 		ArrayList<ValidationMessage>[] validationMessagesByline = new ArrayList[lineForms.size()];
-		for (int i = 0; i < lineForms.size(); i++) {
-			validationMessagesByline[i] = new ArrayList<>();
-		}
 
 		for (ValidationMessage message : validationMessages) {
-			List<PropertyInterface> chainMessage = ChainedProperty.getChain(message.getProperty());
-			List<PropertyInterface> chainProperty = ChainedProperty.getChain(getProperty());
+			List<PropertyInterface> messagePropertyAsChain = ChainedProperty.getChain(message.getProperty());
 
-			PropertyInterface unchained = ChainedProperty.buildChain(chainMessage.subList(chainProperty.size() + 1, chainMessage.size()));
-			IndexProperty indexProperty = (IndexProperty) chainMessage.get(chainProperty.size());
+			PropertyInterface unchained = ChainedProperty.buildChain(messagePropertyAsChain.subList(propertyAsChain.size() + 1, messagePropertyAsChain.size()));
+			IndexProperty indexProperty = (IndexProperty) messagePropertyAsChain.get(propertyAsChain.size());
+			var index = indexProperty.getIndex();
 
 			message = new ValidationMessage(unchained, message.getFormattedText());
-			validationMessagesByline[indexProperty.getIndex()].add(message);
-
-			lineForms.get(indexProperty.getIndex());
+			if (validationMessagesByline[index] == null) {
+				validationMessagesByline[index] = new ArrayList<>();
+			}
+			validationMessagesByline[index].add(message);
 		}
 
 		for (int i = 0; i < lineForms.size(); i++) {
-			lineForms.get(i).indicate(validationMessagesByline[i]);
+			lineForms.get(i).indicate(validationMessagesByline[i] != null ? validationMessagesByline[i] : Collections.emptyList());
 		}
 	}
 
