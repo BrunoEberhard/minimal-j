@@ -12,7 +12,7 @@ public class ChainedProperty implements PropertyInterface {
 		this.property1 = property1;
 		this.property2 = property2;
 	}
-	
+
 	public List<PropertyInterface> getChain() {
 		List<PropertyInterface> chain = new ArrayList<>();
 		if (property1 instanceof ChainedProperty) {
@@ -26,6 +26,18 @@ public class ChainedProperty implements PropertyInterface {
 			chain.add(property2);
 		}
 		return chain;
+	}
+
+	public static List<PropertyInterface> getChain(PropertyInterface property) {
+		return property instanceof ChainedProperty ? ((ChainedProperty) property).getChain() : List.of(property);
+	}
+
+	public static PropertyInterface buildChain(List<PropertyInterface> chain) {
+		if (chain.size() == 1) {
+			return chain.get(0);
+		} else {
+			return new ChainedProperty(chain.get(0), buildChain(chain.subList(1, chain.size())));
+		}
 	}
 
 	@Override
@@ -49,8 +61,7 @@ public class ChainedProperty implements PropertyInterface {
 		if (value1 != null) {
 			property2.setValue(value1, value);
 		} else {
-			throw new NullPointerException(
-					property1.getName() + " on " + property1.getDeclaringClass().getSimpleName() + " is null");
+			throw new NullPointerException(property1.getName() + " on " + property1.getDeclaringClass().getSimpleName() + " is null");
 		}
 	}
 
@@ -58,17 +69,17 @@ public class ChainedProperty implements PropertyInterface {
 	public String getName() {
 		return property2.getName();
 	}
-	
+
 	@Override
 	public String getPath() {
 		return property1.getPath() + "." + property2.getPath();
 	}
-	
+
 	@Override
 	public Class<?> getGenericClass() {
 		return property2.getGenericClass();
 	}
-	
+
 	@Override
 	public Class<?> getClazz() {
 		return property2.getClazz();
@@ -83,7 +94,7 @@ public class ChainedProperty implements PropertyInterface {
 	public boolean isFinal() {
 		return property2.isFinal();
 	}
-	
+
 	@Override
 	public String toString() {
 		return property1.toString() + "." + property2.toString();
