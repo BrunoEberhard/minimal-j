@@ -62,13 +62,13 @@ public abstract class Editor<T, RESULT> extends Action {
 		object = createObject();
 		form = createForm();
 		
+		form.setChangeListener(this::validate);
+		form.setObject(object);
+		
 		saveAction = new SaveAction();
 		
 		validate(form);
 
-		form.setChangeListener(this::validate);
-		form.setObject(object);
-		
 		dialog = Frontend.showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
 	}
 	
