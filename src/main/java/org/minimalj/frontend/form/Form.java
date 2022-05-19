@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
@@ -33,6 +34,7 @@ import org.minimalj.frontend.form.element.LocalDateTimeFormElement;
 import org.minimalj.frontend.form.element.LocalTimeFormElement;
 import org.minimalj.frontend.form.element.LongFormElement;
 import org.minimalj.frontend.form.element.PasswordFormElement;
+import org.minimalj.frontend.form.element.PositionListFormElement;
 import org.minimalj.frontend.form.element.SelectionFormElement;
 import org.minimalj.frontend.form.element.SmallCodeListFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
@@ -68,6 +70,7 @@ public class Form<T> {
 	
 	private final int columns;
 	private final FormContent formContent;
+	private boolean ignoreCaption;
 	
 	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<>();
 	
@@ -172,6 +175,10 @@ public class Form<T> {
 		return new UnknownFormElement(property);
 	}
 	
+	public void setIgnoreCaption(boolean ignoreCaption) {
+		this.ignoreCaption = ignoreCaption;
+	}
+	
 	// 
 
 	public void line(Object... keys) {
@@ -211,7 +218,7 @@ public class Form<T> {
 	}
 
 	private void add(FormElement<?> element, int span) {
-		formContent.add(element.getCaption(), element.getComponent(), element.getConstraint(), span);
+		formContent.add(ignoreCaption ? null : element.getCaption(), element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
@@ -362,9 +369,14 @@ public class Form<T> {
 		}
 	}
 
-	private void setValidationMessage(PropertyInterface property, List<String> validationMessages) {
-		FormElement<?> field = elements.get(property);
-		formContent.setValidationMessages(field.getComponent(), validationMessages);
+	private void setValidationMessage(PropertyInterface property, List<ValidationMessage> validationMessages) {
+		FormElement<?> formElement = elements.get(property);
+		if (formElement instanceof PositionListFormElement) {
+			PositionListFormElement<?> positionListFormElement = (PositionListFormElement<?>) formElement;
+			positionListFormElement.setValidationMessages(validationMessages);
+		} else {
+			formContent.setValidationMessages(formElement.getComponent(), validationMessages.stream().map(ValidationMessage::getFormattedText).collect(Collectors.toList()));
+		}
 	}
 
 	public void setObject(T object) {
@@ -561,7 +573,7 @@ public class Form<T> {
 	public boolean indicate(List<ValidationMessage> validationMessages) {
 		boolean relevantValidationMessage = false;
 		for (PropertyInterface property : getProperties()) {
-			List<String> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
+			List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
 			setValidationMessage(property, filteredValidationMessages);
 			relevantValidationMessage |= !filteredValidationMessages.isEmpty();
 		}

@@ -13,6 +13,7 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.validation.Validation;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -76,7 +77,7 @@ public abstract class Frontend {
 
 	}
 	
-	 // http://www.w3schools.com/html/html_form_input_types.asp 
+	// http://www.w3schools.com/html/html_form_input_types.asp 
 	public enum InputType { TEXT, EMAIL, URL, TEL, NUMBER, DATE, TIME, DATETIME; }
 	
 	/**
@@ -96,6 +97,22 @@ public abstract class Frontend {
 		return Optional.empty();
 	}
 	
+//	public interface PositionListModel {
+//		int getColumnCount();
+//		int getWidth(int column);
+//		int getRowCount();
+//		boolean canAdd();
+//		void addRow(int beforeRow);
+//		boolean canDelete();
+//		void deleteRow(int row);
+//		boolean canMove();
+//		void moveRow(int row, int beforeRow);
+//	}
+//	
+//	public <T extends Position<T>> Input<List<T>> createPositionListInput(PositionListModel model, InputComponentListener changeListener) {
+//		throw new RuntimeException("Not yet implemented");
+//	}
+
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createText(Action action);
@@ -139,7 +156,7 @@ public abstract class Frontend {
 	public interface IContent {
 	}
 
-	public interface FormContent extends IContent {
+	public interface FormContent extends IContent, IComponent {
 		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);
 	}

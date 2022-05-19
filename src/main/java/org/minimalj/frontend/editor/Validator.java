@@ -12,6 +12,7 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.VirtualProperty;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
@@ -31,15 +32,17 @@ public class Validator {
 	public static List<ValidationMessage> validate(Object object) {
 		if (object instanceof Collection) {
 			Collection<?> list = (Collection<?>) object;
-			// TODO java 8
-			// list.stream().flatMap(Validator::validate).toList(Collectors.toList());
 			List<ValidationMessage> messages = new ArrayList<>();
+			int index = 0;
 			for (Object element : list) {
+				IndexProperty indexProperty = new IndexProperty(index);
 				if (InvalidValues.isInvalid(element)) {
 					messages.add(new ValidationMessage(null, Resources.getString("ObjectValidator.message")));
 				} else {
-					messages.addAll(validate(element));
+					List<ValidationMessage> elementMessages = validate(element);
+					elementMessages.forEach(m -> messages.add(new ValidationMessage(chain(indexProperty, m.getProperty()), m.getFormattedText())));
 				}
+				index = index + 1;
 			}
 			return messages;
 		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass())) {
@@ -72,6 +75,42 @@ public class Validator {
 			return new ChainedProperty(p1, p2);
 		}
 	}
+	
+	public static class IndexProperty extends VirtualProperty {
+		private final int index;
+		
+		public IndexProperty(int index) {
+			this.index = index;
+		}
+		
+		public int getIndex() {
+			return index;
+		}
+		
+		@Override
+		public String getName() {
+			return "[" + index + "]";
+		}
+
+		@Override
+		public Class<?> getClazz() {
+			// not implemented
+			return null;
+		}
+
+		@Override
+		public Object getValue(Object object) {
+			// not implemented
+			return null;
+		}
+
+		@Override
+		public void setValue(Object object, Object value) {
+			// not implemented
+		}
+		
+	}
+	
 
 	private static void validateEmpty(List<ValidationMessage> resultList, Object value, PropertyInterface property) {
 		if (property.getAnnotation(NotEmpty.class) != null && EmptyObjects.isEmpty(value)) {

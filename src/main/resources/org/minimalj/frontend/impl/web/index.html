@@ -148,14 +148,28 @@ $ICON
 							removeChildren(tfoot);
 							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
+						    // show / hide the red dot indicator
 							var validationElement = document.getElementById(id + "-validation");
 							if (validationElement != undefined) {
 								if (value == undefined || value == "") {
 									validationElement.className = "hide";
 								} else {
 									validationElement.className = "";
-									validationElement.title = value;
 								}
+							}
+					
+							// find place to set the validation message
+							var helpElement = document.getElementById(id + "-help");
+							if (helpElement != undefined && !helpElement.classList.contains("unfocused")) {
+								helpElement.innerText = value;
+								value = null; // the tooltip should be clear
+							}
+							
+							var cellElement = document.getElementById(id + "-element");
+							if (cellElement != undefined) {
+								cellElement.title = value;
+							} else if (validationElement != undefined) {
+								validationElement.title = value;
 							}
 						} else if (property === "enabled" && element.className === "list") {
 							element.style.display = value ? "block" : "none";
@@ -842,32 +856,58 @@ $ICON
 	
 	function createFormCell(cell, span, width) {
 		var cellContent = createContent(cell);
-
+		
 		var cellElement = document.createElement("div");
+		cellElement.appendChild(cellContent);
+		setWidths(cellElement, cellContent, span, width);
+
+		cellElement.id = cell.id + "-element";
+		if (cell.validationMessage && cell.validationMessage.length > 0) {
+			cell.setAttribute("title", cell.validationMessage);
+		}
+
 		var isTitle = cell.type === "Title";
-		if (!isTitle && cell.caption) {
+		if (isTitle) {
+			cellElement.style.display = "flex";
+			return cellElement;
+		}
+		
+		if (cell.caption) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.firstId ? cell.firstId : cell.id);
 			if (cellContent.hasAttribute("disabled")) {
 				caption.setAttribute("disabled", "true");
 			}
 			caption.appendChild(document.createTextNode(cell.caption));
+			
 			var tooltipTemplate = document.getElementById("tooltip");
 			var tooltip = tooltipTemplate.cloneNode(true);
 			tooltip.id = cell.id + "-validation";
-			if (cell.validationMessage && cell.validationMessage.length > 0) {
-				tooltip.setAttribute("title", cell.validationMessage);
-				caption.setAttribute("title", cell.validationMessage);
-			} else {
+			if (!cell.validationMessage || cell.validationMessage.length == 0) {
 				tooltip.className = "hide";
 			}
 			caption.appendChild(tooltip);
-			cellElement.appendChild(caption);
-		} else {
-			cellElement.style.display = "flex";
+			
+			cellElement.insertBefore(caption, cellContent);
 		}
-		setWidths(cellElement, cellContent, span, width);
-		cellElement.appendChild(cellContent);
+
+		var help = document.createElement("label");
+		help.classList.add("help");
+		if (help.style.visibility != "hidden") {
+			help.id = cell.id + "-help";
+			help.innerHTML = "&nbsp;";
+			help.classList.add("unfocused");
+			cellElement.appendChild(help);
+	
+			cellContent.onfocus = function(e) {
+				if (help != undefined) {
+				help.classList.remove("unfocused");
+				} else {
+				console.log("No help for " + cell.id);
+				}
+			};
+		}
+			
 		return cellElement;
 	}
 	

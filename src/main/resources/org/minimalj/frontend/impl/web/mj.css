@@ -561,8 +561,17 @@ label {
 	align-items: center;
 	white-space: nowrap;
 	overflow: hidden;
-	font-size: x-smaller;
+	font-size: small;
 	font-weight: bolder;
+}
+
+label.help {
+	font-size: x-small;
+	visibility: hidden;	
+}
+
+label.invisible {
+	color: transparent;
 }
 
 .title {
