@@ -863,7 +863,7 @@ $ICON
 
 		cellElement.id = cell.id + "-element";
 		if (cell.validationMessage && cell.validationMessage.length > 0) {
-			cell.setAttribute("title", cell.validationMessage);
+			cellElement.setAttribute("title", cell.validationMessage);
 		}
 
 		var isTitle = cell.type === "Title";
