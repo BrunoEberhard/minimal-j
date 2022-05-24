@@ -162,6 +162,7 @@ public class OpenAPI {
 		public String format; // int32, int64, float, double, byte, binary, date, date-time, password, etc...
 		public Schema items; // required for array Property
 		public String $ref;
+		public Map<String, Property> properties = new LinkedHashMap<>();
 		public Boolean nullable;
 		public String discriminator;
 		public Boolean readOnly, writeOnly;

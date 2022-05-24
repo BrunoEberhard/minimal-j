@@ -9,5 +9,9 @@ package org.minimalj.model;
 public interface Api extends Model {
 
 	public Class<?>[] getTransactionClasses();
+	
+	public default boolean accessible(Class<?> clazz) {
+		return true;
+	}
 
 }

@@ -24,6 +24,7 @@ import org.minimalj.rest.openapi.model.OpenAPI.Schema;
 import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.StringUtils;
 
 public class OpenAPIFactory {
 	
@@ -68,8 +69,10 @@ public class OpenAPIFactory {
 		MjModel model = new MjModel(application.getEntityClasses());
 		for (MjEntity entity : model.entities) {
 			String entityName = entity.getClassName();
+			
+			boolean accessible = !(application instanceof Api) || ((Api) application).accessible(entity.getClazz());
 
-			if (IdUtils.hasId(entity.getClazz())) {
+			if (IdUtils.hasId(entity.getClazz()) && accessible) {
 				Map<String, Operation> operations = new HashMap<>();
 
 				Operation operation = operationGetById(entity);
@@ -397,20 +400,20 @@ public class OpenAPIFactory {
 	private Schema schema(MjEntity entity) {
 		Schema schema = new Schema();
 
-		Property property = new Property();
-		if (api == API.OpenAPI3 ) {
-			property.nullable = true;
+		if (IdUtils.hasId(entity.getClazz())) {
+			Property property = new Property();
+			if (api == API.OpenAPI3 ) {
+				property.nullable = true;
+			}
+			
+			property.type = getIdType(entity);
+			
+			schema.properties.put("id", property);
 		}
-		property.type = OpenAPI.Type.STRING;
-		if (entity.type != MjEntityType.CODE) {
-			// for codes the id can be chosen. For normal entites the framework creates the id
-			property.readOnly = true;
-		}
-		schema.properties.put("id", property);
 		
 		boolean hasVersion = FieldUtils.hasValidVersionfield(entity.getClazz());
 		if (hasVersion) {
-			property = new Property();
+			Property property = new Property();
 			if (api == API.OpenAPI3 ) {
 				property.nullable = true;
 			}
@@ -421,7 +424,7 @@ public class OpenAPIFactory {
 		
 		boolean historized = FieldUtils.hasValidHistorizedField(entity.getClazz());
 		if (historized) {
-			property = new Property();
+			Property property = new Property();
 			if (api == API.OpenAPI3) {
 				property.nullable = true;
 			}
@@ -430,8 +433,14 @@ public class OpenAPIFactory {
 			schema.properties.put("historized", property);
 		}
 		
+		boolean completeEntities = entity.getClazz().getAnnotationsByType(CompleteEntities.class) != null;
 		for (MjProperty mjProperty : entity.properties) {
-			property = new Property();
+			String propertyName = mjProperty.name;
+			if (StringUtils.equals(propertyName, "mandant", "technicalFields")) {
+				continue;
+			}
+			
+			Property property = new Property();
 			if (api == API.OpenAPI3 ) {
 				property.nullable = mjProperty.notEmpty ? null : true; // nullable false is default, omit
 			}
@@ -445,12 +454,18 @@ public class OpenAPIFactory {
 			
 			if (api == API.OpenAPI3) {
 				if (property.type == Type.ARRAY) {
-					property.items = items(mjProperty);
+					property.items = items(mjProperty, completeEntities);
 				} else if (mjProperty.type.isEnumeration()) {
 					property.type = null;
 					property.$ref = SCHEMAS + mjProperty.type.getClassName();
 				} else {
-					property.$ref = ref(mjProperty);
+					if (IdUtils.hasId(mjProperty.type.getClazz())) {
+						Property idProperty = new Property();
+						idProperty.type = getIdType(mjProperty.type);
+						property.properties.put("id", idProperty);
+					} else {
+						property.$ref = ref(mjProperty);
+					}
 				}
 			} else {
 				if (property.type == Type.ARRAY) {
@@ -492,7 +507,10 @@ public class OpenAPIFactory {
 		case DEPENDABLE:
 			return OpenAPI.Type.OBJECT;
 		case VALUE:
-			if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long) {
+			if (!property.type.isPrimitiv()) {
+//				return getIdType(property.type);
+				return OpenAPI.Type.OBJECT;
+			} else if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long) {
 				return OpenAPI.Type.INTEGER;
 			} else {
 				return OpenAPI.Type.STRING;	
@@ -521,11 +539,24 @@ public class OpenAPIFactory {
 		default: return null;
 		}
 	}
+	
+	private OpenAPI.Type getIdType(MjEntity entity) {
+		Class<?> idClass = IdUtils.getIdClass(entity.getClazz());
+		if (idClass == Integer.class || idClass == Long.class) {
+			return OpenAPI.Type.INTEGER;
+		} else {
+			return OpenAPI.Type.STRING;	
+		}
+	}
 
-	private Schema items(MjProperty property) {
-		if (property.propertyType == MjPropertyType.LIST && IdUtils.hasId(property.type.getClazz())) {
+	private Schema items(MjProperty property, boolean completeEntities) {
+		if (property.propertyType == MjPropertyType.LIST && IdUtils.hasId(property.type.getClazz()) && !completeEntities) {
 			Schema schema = new Schema();
-			schema.type = OpenAPI.Type.STRING;
+			
+			Property idProperty = new Property();
+			idProperty.type = getIdType(property.type);
+			schema.properties.put("id", idProperty);
+
 			return schema;
 		}
 		if (property.propertyType == MjPropertyType.LIST || property.propertyType == MjPropertyType.ENUM_SET) {
