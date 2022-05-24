@@ -35,10 +35,10 @@ import org.minimalj.frontend.form.element.LocalDateTimeFormElement;
 import org.minimalj.frontend.form.element.LocalTimeFormElement;
 import org.minimalj.frontend.form.element.LongFormElement;
 import org.minimalj.frontend.form.element.PasswordFormElement;
-import org.minimalj.frontend.form.element.PositionListFormElement;
 import org.minimalj.frontend.form.element.SelectionFormElement;
 import org.minimalj.frontend.form.element.SmallCodeListFormElement;
 import org.minimalj.frontend.form.element.StringFormElement;
+import org.minimalj.frontend.form.element.TableFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
 import org.minimalj.frontend.form.element.UnknownFormElement;
 import org.minimalj.model.Code;
@@ -374,8 +374,8 @@ public class Form<T> {
 
 	private void setValidationMessage(PropertyInterface property, List<ValidationMessage> validationMessages) {
 		FormElement<?> formElement = elements.get(property);
-		if (formElement instanceof PositionListFormElement) {
-			PositionListFormElement<?> positionListFormElement = (PositionListFormElement<?>) formElement;
+		if (formElement instanceof TableFormElement) {
+			TableFormElement<?> positionListFormElement = (TableFormElement<?>) formElement;
 			positionListFormElement.setValidationMessages(validationMessages);
 		} else {
 			formContent.setValidationMessages(formElement.getComponent(), validationMessages.stream().map(ValidationMessage::getFormattedText).collect(Collectors.toList()));
