@@ -442,23 +442,35 @@ dialog table {
 	padding-top: 3.5px;
 }
 
-.form .lookup .text, .form .lookup input {
+.lookup .text, .lookup input {
 	width: 100%;
 	min-height: 1.8em;
 	box-sizing: border-box;
 }
 
-.form .lookup input {
+.lookup input {
 	width: 100%;
 }
 
-.form .lookup .text {
+.lookup .text {
 	padding: 3.5px;
 	border: lightgray solid 1px;
 	margin: 0em 2em 0em 0em;
 	padding-right: 2em !important;
 	text-overflow: ellipsis;
     overflow: hidden;
+}
+
+.formElement[title] input.changed,
+.form.showValidations .formElement[title] input {
+	border-color: red;
+}
+
+.asterisk {
+	position: relative;
+	top: -2px;
+	color: red;
+	padding-left: 0.2ex;
 }
 
 th .form {
@@ -493,7 +505,7 @@ th .form {
 	z-index: 1;
 }
 
-.form .lookup .dropdown div {
+.lookup .dropdown div {
 	padding: 0.2em;
 }
 

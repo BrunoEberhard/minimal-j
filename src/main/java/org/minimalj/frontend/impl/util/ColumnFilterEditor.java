@@ -106,7 +106,7 @@ public class ColumnFilterEditor extends Action {
 
 	private void updateForm() {
 		formContent = Frontend.getInstance().createFormContent(2, 100);
-		formContent.add(Resources.getString("ColumnFilterModel.filter"), filterComboBox, null, 2); // TODO i18n
+		formContent.add(Resources.getString("ColumnFilterModel.filter"), false, filterComboBox, null, 2); // TODO i18n
 		if (predicate != null) {
 			predicate.fillForm(formContent);
 		}

@@ -45,6 +45,7 @@ import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Selection;
 import org.minimalj.model.annotation.Enabled;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
@@ -216,12 +217,13 @@ public class Form<T> {
 		if (element != null) {
 			add(element, elementSpan);
 		} else {
-			formContent.add(null, Frontend.getInstance().createText("" + key), null, elementSpan);
+			formContent.add(null, false, Frontend.getInstance().createText("" + key), null, elementSpan);
 		}
 	}
 
 	private void add(FormElement<?> element, int span) {
-		formContent.add(ignoreCaption ? null : element.getCaption(), element.getComponent(), element.getConstraint(), span);
+		boolean required = element.getProperty().getAnnotation(NotEmpty.class) != null;
+		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
@@ -240,7 +242,7 @@ public class Form<T> {
 	
 	public void addTitle(String text) {
 		IComponent label = Frontend.getInstance().createTitle(text);
-		formContent.add(null, label, null, -1);
+		formContent.add(null, false, label, null, -1);
 	}
 
 	//

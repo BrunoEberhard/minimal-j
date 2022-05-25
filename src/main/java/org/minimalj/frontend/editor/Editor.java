@@ -66,6 +66,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		form.setObject(object);
 		
 		saveAction = new SaveAction();
+		saveAction.setForm(form);
 		
 		validate(form);
 
@@ -136,7 +137,7 @@ public abstract class Editor<T, RESULT> extends Action {
 		//
 	}
 
-	protected final class SaveAction extends Action {
+	protected final class SaveAction extends ValidationAwareAction {
 		@Override
 		public void run() {
 			save();

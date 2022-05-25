@@ -13,7 +13,6 @@ import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.validation.Validation;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -159,6 +158,12 @@ public abstract class Frontend {
 	public interface FormContent extends IContent, IComponent {
 		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);
+		
+		// TODO remove method without required
+		public default void add(String caption, boolean required, IComponent component, FormElementConstraint constraint, int span) {
+			add(caption, component, constraint, span);
+		}
+
 	}
 	
 	public abstract FormContent createFormContent(int columns, int columnWidth);

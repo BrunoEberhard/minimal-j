@@ -84,6 +84,7 @@ public abstract class Wizard<RESULT> extends Action {
 		form = step.createForm();
 		form.setChangeListener(changeListener);
 		form.setObject(stepObject);
+		nextAction.setForm(form);
 		
 		validate(stepObject);
 		
@@ -102,8 +103,9 @@ public abstract class Wizard<RESULT> extends Action {
 		if (step instanceof Validation) {
 			validationMessages.addAll(((Validation) step).validateNullSafe());
 		}
-		form.indicate(validationMessages);
-		nextAction.setValidationMessages(validationMessages);
+				
+		boolean relevantValidationMessage = form.indicate(validationMessages);
+		nextAction.setEnabled(!relevantValidationMessage);
 		finishAction.setValidationMessages(validationMessages);
 	}
 	
@@ -149,17 +151,12 @@ public abstract class Wizard<RESULT> extends Action {
 		}
 	}	
 
-	protected final class NextWizardStepAction extends Action {
+	protected final class NextWizardStepAction extends ValidationAwareAction {
 		private boolean valid = false;
 		
 		@Override
 		public void run() {
 			next(stepObject);
-		}
-		
-		public void setValidationMessages(List<ValidationMessage> validationMessages) {
-			valid = validationMessages == null || validationMessages.isEmpty();
-			fireChange();
 		}
 
 		@Override

@@ -148,28 +148,11 @@ $ICON
 							removeChildren(tfoot);
 							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
-						    // show / hide the red dot indicator
-							var validationElement = document.getElementById(id + "-validation");
-							if (validationElement != undefined) {
-								if (value == undefined || value == "") {
-									validationElement.className = "hide";
-								} else {
-									validationElement.className = "";
-								}
-							}
-					
-							// find place to set the validation message
-							var helpElement = document.getElementById(id + "-help");
-							if (helpElement != undefined && !helpElement.classList.contains("unfocused")) {
-								helpElement.innerText = value;
-								value = null; // the tooltip should be clear
-							}
-							
-							var cellElement = document.getElementById(id + "-element");
-							if (cellElement != undefined) {
-								cellElement.title = value;
-							} else if (validationElement != undefined) {
-								validationElement.title = value;
+							var formElement = document.getElementById(id + "-element");
+							if (value) {
+								formElement.title = value;
+							} else {
+								formElement.removeAttribute("title");
 							}
 						} else if (property === "enabled" && element.className === "list") {
 							element.style.display = value ? "block" : "none";
@@ -858,12 +841,13 @@ $ICON
 		var cellContent = createContent(cell);
 		
 		var cellElement = document.createElement("div");
+		cellElement.classList.add("formElement");
+		cellElement.id = cell.id + "-element";
 		cellElement.appendChild(cellContent);
 		setWidths(cellElement, cellContent, span, width);
 
-		cellElement.id = cell.id + "-element";
 		if (cell.validationMessage && cell.validationMessage.length > 0) {
-			cellElement.setAttribute("title", cell.validationMessage);
+			cellElement.title = cell.validationMessage;
 		}
 
 		var isTitle = cell.type === "Title";
@@ -879,33 +863,15 @@ $ICON
 				caption.setAttribute("disabled", "true");
 			}
 			caption.appendChild(document.createTextNode(cell.caption));
-			
-			var tooltipTemplate = document.getElementById("tooltip");
-			var tooltip = tooltipTemplate.cloneNode(true);
-			tooltip.id = cell.id + "-validation";
-			if (!cell.validationMessage || cell.validationMessage.length == 0) {
-				tooltip.className = "hide";
-			}
-			caption.appendChild(tooltip);
+
+			if (cell.required) {
+				var asterisk = document.createElement("span");
+				asterisk.appendChild(document.createTextNode("*"));
+				asterisk.className = "asterisk";
+				caption.appendChild(asterisk);			
+			}			
 			
 			cellElement.insertBefore(caption, cellContent);
-		}
-
-		var help = document.createElement("label");
-		help.classList.add("help");
-		if (help.style.visibility != "hidden") {
-			help.id = cell.id + "-help";
-			help.innerHTML = "&nbsp;";
-			help.classList.add("unfocused");
-			cellElement.appendChild(help);
-	
-			cellContent.onfocus = function(e) {
-				if (help != undefined) {
-				help.classList.remove("unfocused");
-				} else {
-				console.log("No help for " + cell.id);
-				}
-			};
 		}
 			
 		return cellElement;
@@ -946,11 +912,6 @@ $ICON
 			var th = document.createElement("th");
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
-			var tooltipTemplate = document.getElementById("tooltip");
-			var tooltip = tooltipTemplate.cloneNode(true);
-			tooltip.id = headerFilters[i].id + "-validation";
-			tooltip.className = "hide";
-			th.appendChild(tooltip);
 			element.appendChild(th);
 		}
 		return element;
@@ -964,10 +925,13 @@ $ICON
 		}		
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
-			th.className = "columnFilter " + headerNames[i]; 
+			th.classList.add("formElement");
+			th.classList.add("columnFilter");
+			th.classList.add(headerNames[i]);
 			
 			var input = createContent(headerFilterLookups[i]);
 			th.appendChild(input);
+			th.id = headerFilterLookups[i].id + "-element";
 			
 			element.appendChild(th);
 		}
@@ -1124,7 +1088,11 @@ $ICON
 				var button = document.createElement("button");
 				button.id = action.id;
 				button.appendChild(document.createTextNode(action.name));
-				button.setAttribute("onclick", "action(\"" + action.id + "\");");
+				if (action.form) {
+					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.form + "\");");
+				} else {
+					button.setAttribute("onclick", "action(\"" + action.id + "\");");
+				}
 				if (!action.enabled)
 					button.setAttribute("disabled", "true");
 				footer.appendChild(button);
@@ -1290,6 +1258,7 @@ $ICON
 	}
 	
 	function sendchange(source, saveAction) {
+		source.classList.add("changed");
 		var data = {};
 		var changedValue = {};
 		if (source.type == "checkbox") {
@@ -1357,8 +1326,12 @@ $ICON
 	function login() {
 		send({"login": "login"}, true);
 	}
-	
-	function action(actionId) {
+
+	function action(actionId, formId) {
+		if (formId) {
+			var formElement = document.getElementById(formId);
+			formElement.classList.add("showValidations");
+		}
 		closeActionMenu();
 		var data = {
 			"activatedAction": actionId
@@ -1841,13 +1814,6 @@ $ICON
 			  <line x1="70%" y1="90%" x2="90%" y2="70%" style="stroke-width:10%" />
 			</svg>
 		</div>		
-		<span id="tooltip">
-			<svg width="0.75em" height="0.75em" style="padding-left: 0.3em">
-	  		  <circle cx="50%" cy="50%" r="49%" stroke-width="1%" fill="red" />
-	  		  <rect x="38%" y="15%" width="24%" height="37%" style="fill:white;" />
-	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
-			</svg>		
-		</span>
 		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
 			<div style="flex-grow: 2;"></div>
 			<div id="queryCaption" style="text-align: center;"></div>

@@ -114,7 +114,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		@Override
 		public void fillForm(FormContent formContent) {
 			super.fillForm(formContent);
-			formContent.add(Resources.getString("ColumnFilterModel.filterValue"), getInput(), null, 2);
+			formContent.add(Resources.getString("ColumnFilterModel.filterValue"), false, getInput(), null, 2);
 		}
 
 		private Input<String> getInput() {
@@ -391,8 +391,8 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		public void fillForm(FormContent formContent) {
 			super.fillForm(formContent);
 			initializeInputs();
-			formContent.add(Resources.getString("ColumnFilterModel.filterValue1"), input1, null, 1);
-			formContent.add(Resources.getString("ColumnFilterModel.filterValue2"), input2, null, 1);
+			formContent.add(Resources.getString("ColumnFilterModel.filterValue1"), false, input1, null, 1);
+			formContent.add(Resources.getString("ColumnFilterModel.filterValue2"), false, input2, null, 1);
 		}
 
 		@Override
