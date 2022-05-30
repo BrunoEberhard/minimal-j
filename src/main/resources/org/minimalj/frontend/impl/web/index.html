@@ -560,7 +560,7 @@ $ICON
 			element.dataset.columnWidth = content.columnWidth;
 			var rows = content.rows;
 			for (var i = 0; i < rows.length; i++) {
-				element.appendChild(createFormRow(rows[i], content.columnWidth));
+				element.appendChild(createFormRow(rows[i], content.columnWidth, content.columnWidths));
 			}
 		} else if (type === "Query") {
 			element = document.getElementById("queryCaption");
@@ -826,12 +826,12 @@ $ICON
 		return element;
 	}
 	
-	function createFormRow(row, columnWidth) {
+	function createFormRow(row, columnWidth, columnWidths) {
 		var element = document.createElement("div");
 		for (var i = 0; i < row.length; i++) {
 			var span = row[i].span;
 			span = span ? span : 1;
-			var cellElement = createFormCell(row[i], span, columnWidth);
+			var cellElement = createFormCell(row[i], span, columnWidths ? columnWidths[i] : columnWidth);
 			element.appendChild(cellElement);
 		}
 		return element;

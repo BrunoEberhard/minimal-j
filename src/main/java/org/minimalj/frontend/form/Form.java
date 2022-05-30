@@ -108,6 +108,12 @@ public class Form<T> {
 		this.columns = columns;
 		this.formContent = Frontend.getInstance().createFormContent(columns, columnWidth);
 	}
+
+	public Form(boolean editable, List<Integer> columnWidths) {
+		this.editable = editable;
+		this.columns = columnWidths.size();
+		this.formContent = Frontend.getInstance().createFormContent(columnWidths);
+	}
 	
 	// Methods to create the form
 
@@ -222,7 +228,7 @@ public class Form<T> {
 	}
 
 	private void add(FormElement<?> element, int span) {
-		boolean required = element.getProperty().getAnnotation(NotEmpty.class) != null;
+		boolean required = element.getProperty().getAnnotation(NotEmpty.class) != null && element.getProperty().getClazz() != Boolean.class;
 		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
