@@ -12,7 +12,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
-public abstract class SearchPage<T> extends Page implements TableActionListener<T> {
+public abstract class SearchPage<T> implements Page, TableActionListener<T> {
 
 	private final String query;
 	private final Object[] keys;

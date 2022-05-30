@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -30,8 +29,8 @@ import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageList;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.ExpiredPage;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication;
@@ -39,7 +38,6 @@ import org.minimalj.security.Authorization;
 import org.minimalj.security.RememberMeAuthentication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 public class JsonPageManager implements PageManager {
 	private static final Logger logger = Logger.getLogger(JsonPageManager.class.getName());
@@ -55,6 +53,7 @@ public class JsonPageManager implements PageManager {
 	private List<Object> navigation;
 	private final PageList visiblePageAndDetailsList = new PageList();
 	private final Set<String> horizontalPageIds = new HashSet<>();
+	private final Map<Dialog, JsonDialog> visibleDialogs = new HashMap<>();
 	// this makes this class not thread safe. Caller of handle have to synchronize.
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
@@ -455,29 +454,30 @@ public class JsonPageManager implements PageManager {
 	}
 
 	@Override
-	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		JsonDialog dialog = new JsonDialog(title, content, saveAction, closeAction, actions);
-		openDialog(dialog);
-		return dialog;
+	public void showDialog(Dialog dialog) {
+		JsonDialog jsonDialog = new JsonDialog(dialog.getTitle(), dialog.getContent(), dialog.getSaveAction(), dialog.getCancelAction(), dialog.getActions());
+		output.add("dialog", jsonDialog);
+		visibleDialogs.put(dialog, jsonDialog);
 	}
 	
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+
+	public void showLogin(Dialog dialog) {
 		Action[] actions;
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
 			SkipLoginAction skipLoginAction = new SkipLoginAction();
-			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
+			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, dialog.getSaveAction()};
 		} else {
-			actions = new org.minimalj.frontend.action.Action[] {loginAction};
+			actions = new org.minimalj.frontend.action.Action[] {dialog.getSaveAction()};
 		}
 		Page page = new Page() {
 			@Override
 			public IContent getContent() {
-				return new JsonLoginContent(content, loginAction, actions);
+				return new JsonLoginContent(dialog.getContent(), dialog.getSaveAction(), actions);
 			}
 			
 			@Override
 			public String getTitle() {
-				return Resources.getString("Login.title");
+				return dialog.getTitle();
 			}
 		};
 
@@ -488,8 +488,6 @@ public class JsonPageManager implements PageManager {
 		register(navigation);
 		output.add("showPage", createJson(page, null, null));
 		updateTitle(page);
-		
-		return Optional.empty();
 	}
 	
 	private class SkipLoginAction extends Action {
@@ -589,14 +587,19 @@ public class JsonPageManager implements PageManager {
 			Arrays.stream((Object[]) o).forEach(v -> travers(v, c));
 		}
 	}
-
-	public void openDialog(JsonDialog jsonDialog) {
-		output.add("dialog", jsonDialog);
+	
+	@Override
+	public void closeDialog(Dialog dialog) {
+		JsonDialog jsonDialog = visibleDialogs.get(dialog);
+		if (jsonDialog != null) {
+			closeDialog(jsonDialog);
+		}
+		visibleDialogs.remove(dialog);
 	}
 
-	public void closeDialog(JsonDialog dialog) {
-		unregister(dialog);
-		output.addElement("closeDialog", dialog.getId());
+	public void closeDialog(JsonDialog jsonDialog) {
+		unregister(jsonDialog);
+		output.addElement("closeDialog", jsonDialog.getId());
 	}
 
 	public void replaceContent(JsonSwitch jsonSwitch, JsonComponent content) {

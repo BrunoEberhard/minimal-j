@@ -8,23 +8,23 @@ import java.util.function.Consumer;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.resources.Resources;
 
-public class ColumnFilterEditor extends Action {
+public class ColumnFilterEditor extends Action implements Dialog {
 
-	private final String propertyName;
 	private final List<ColumnFilterPredicate> columnFilters;
 	private final Consumer<String> finishedListener;
 	
-	private SaveAction saveAction = new SaveAction();
+	private final String title;
+	private final SaveAction saveAction = new SaveAction();
 	private final CancelAction cancelAction = new CancelAction();
-	private IDialog dialog;
 
 	private Input<ColumnFilterPredicate> filterComboBox;
 	private ColumnFilterPredicate predicate;
@@ -35,10 +35,10 @@ public class ColumnFilterEditor extends Action {
 	private FormContent formContent;
 
 	public ColumnFilterEditor(String propertyName, Input<String> textField, List<ColumnFilterPredicate> columnFilters, Consumer<String> finishedListener) {
-		this.propertyName = propertyName;
 		this.textField = textField;
 		this.columnFilters = Objects.requireNonNull(columnFilters);
 		this.finishedListener = Objects.requireNonNull(finishedListener);
+		this.title = MessageFormat.format(Resources.getString(ColumnFilterEditor.class), propertyName);
 	}
 	
 	@Override
@@ -51,10 +51,33 @@ public class ColumnFilterEditor extends Action {
 
 		initializeFilter();
 		
-		String title = MessageFormat.format(Resources.getString(ColumnFilterEditor.class), propertyName);
-		dialog = Frontend.showDialog(title, switchContent, saveAction, cancelAction, new Action[] {cancelAction, saveAction});
+		Frontend.showDialog(this);
 	}
-
+	
+	@Override
+	public String getTitle() {
+		return title;
+	}
+	
+	@Override
+	public IContent getContent() {
+		return switchContent;
+	}
+	
+	@Override
+	public List<Action> getActions() {
+		return List.of(cancelAction, saveAction);
+	}
+	
+	public SaveAction getSaveAction() {
+		return saveAction;
+	}
+	
+	@Override
+	public Action getCancelAction() {
+		return cancelAction;
+	}
+	
 	private class FilterComboBoxListener implements InputComponentListener {
 
 		@Override
@@ -80,14 +103,14 @@ public class ColumnFilterEditor extends Action {
 		@Override
 		public void run() {
 			finishedListener.accept(filterString);
-			dialog.closeDialog();
+			Frontend.closeDialog(ColumnFilterEditor.this);
 		}
 	}
 	
 	private class CancelAction extends Action {
 		@Override
 		public void run() {
-			dialog.closeDialog();
+			Frontend.closeDialog(ColumnFilterEditor.this);
 		}
 	}
 	

@@ -65,7 +65,7 @@ public class PageListTest {
 		Assert.assertFalse(list.contains(testPage2));
 	}
 
-	private static class TestPage extends Page {
+	private static class TestPage implements Page {
 		@Override
 		public IContent getContent() {
 			return null;

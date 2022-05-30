@@ -9,8 +9,8 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.form.element.FormElementConstraint;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
@@ -236,14 +236,15 @@ public abstract class Frontend {
 
 	/**
 	 * A web frontend may show the login like a page. A standalone Frontend may show
-	 * it as a dialog.
+	 * it in a system window.
 	 * 
-	 * @param content the login form
-	 * @param loginAction the action used for enter key
-	 * @param actions the actions are shown from right to left
-	 * @return dialog if frontend uses a dialog
+	 * @return true if frontend uses a dialog
 	 */
-	public abstract Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions);
+	public abstract boolean showLogin(Dialog dialog);
+	
+	protected void close(Dialog dialog) {
+		getPageManager().closeDialog(dialog);
+	}
 	
 	/**
 	 * 
@@ -287,8 +288,12 @@ public abstract class Frontend {
 		return getInstance().getPageManager().isDetailShown(page);
 	}
 
-	public static IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		return getInstance().getPageManager().showDialog(title, content, saveAction, closeAction, actions);
+	public static void showDialog(Dialog dialog) {
+		getInstance().getPageManager().showDialog(dialog);
+	}
+	
+	public static void closeDialog(Dialog dialog) {
+		getInstance().close(dialog);
 	}
 	
 	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);

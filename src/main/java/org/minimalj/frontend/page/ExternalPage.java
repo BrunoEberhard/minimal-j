@@ -5,13 +5,14 @@ import java.net.URL;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.util.resources.Resources;
 
 /**
  * Note: If you use this Page as a detail the web frontend may not be able to
  * calculate the height for security reason. This may produce a double
  * scrollbar.
  */
-public class ExternalPage extends Page {
+public class ExternalPage implements Page {
 
 	private final URL url;
 	private final String title;
@@ -36,7 +37,7 @@ public class ExternalPage extends Page {
 
 	@Override
 	public String getTitle() {
-		return title != null ? title : super.getTitle();
+		return title != null ? title : Resources.getPageTitle(this);
 	}
 	
 	@Override

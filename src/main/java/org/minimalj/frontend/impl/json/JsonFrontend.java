@@ -20,7 +20,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
@@ -200,8 +200,9 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions) {
-		return getClientSession().showLogin(content, loginAction, actions);
+	public boolean showLogin(Dialog dialog) {
+		getClientSession().showLogin(dialog);
+		return false;
 	}
 	
 	//

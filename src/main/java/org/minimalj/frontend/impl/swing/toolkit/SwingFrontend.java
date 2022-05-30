@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
@@ -16,8 +17,9 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -50,7 +52,7 @@ import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.component.QueryLayout;
 import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
@@ -58,6 +60,8 @@ import org.minimalj.util.resources.Resources;
 
 public class SwingFrontend extends Frontend {
 
+	private final Map<Dialog, SwingDialog> visibleDialogs = new HashMap<>();
+	
 	@Override
 	public IComponent createText(String string) {
 		return new SwingText(string);
@@ -355,10 +359,10 @@ public class SwingFrontend extends Frontend {
 		}
 	}
 
-	public static javax.swing.Action[] adaptActions(Action[] actions) {
-		javax.swing.Action[] swingActions = new javax.swing.Action[actions.length];
-		for (int i = 0; i < actions.length; i++) {
-			swingActions[i] = adaptAction(actions[i]);
+	public static javax.swing.Action[] adaptActions(List<org.minimalj.frontend.action.Action> actions) {
+		javax.swing.Action[] swingActions = new javax.swing.Action[actions.size()];
+		for (int i = 0; i < actions.size(); i++) {
+			swingActions[i] = adaptAction(actions.get(i));
 		}
 		return swingActions;
 	}
@@ -479,33 +483,33 @@ public class SwingFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+	public boolean showLogin(Dialog dialog) {
 		SkipLoginAction skipLoginAction = new SkipLoginAction();
-		Action[] actions;
+		List<Action> actions;
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED && !hasContext()) {
-			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
+			actions = List.of(skipLoginAction, dialog.getSaveAction());
 		} else {
-			actions = new org.minimalj.frontend.action.Action[] {loginAction};
+			actions = List.of(dialog.getSaveAction());
 		}
 		
-		SwingDialog dialog;
+		SwingDialog swingDialog;
 		if (!hasContext()) {
 			// startup of application. no open jframe yet.
-			loginAction = new SwingLoginAction(loginAction, null);
-			JComponent contentComponent = new SwingEditorPanel(content, actions);
-			dialog = new SwingDialog(null, Resources.getString("Login.title"), contentComponent, loginAction, null);
+			SwingLoginAction loginAction = new SwingLoginAction(dialog.getSaveAction(), null);
+			JComponent contentComponent = new SwingEditorPanel(dialog.getContent(), actions);
+			swingDialog = new SwingDialog(null, dialog, contentComponent, loginAction, null);
 		} else {
 			// user clicked 'Login' menu
 			JCheckBox checkBoxNewWindow = new JCheckBox(Resources.getString("OpenNewWindow"));
 			JPanel panel = new JPanel(new BorderLayout());
-			panel.add((Component) content, BorderLayout.CENTER);
+			panel.add((Component) dialog.getContent(), BorderLayout.CENTER);
 			panel.add(checkBoxNewWindow, BorderLayout.SOUTH);
-			loginAction = new SwingLoginAction(loginAction, checkBoxNewWindow);
+			SwingLoginAction loginAction = new SwingLoginAction(dialog.getSaveAction(), checkBoxNewWindow);
 			JComponent contentComponent = new SwingEditorPanel(panel, actions);
-			dialog = new SwingDialog(findFrame(pageManager), Resources.getString("Login.title"), contentComponent, loginAction, null);
+			swingDialog = new SwingDialog(findFrame(pageManager), dialog, contentComponent, loginAction, null);
 		}
-		skipLoginAction.setDialog(dialog);
-		return Optional.of(dialog);
+		skipLoginAction.setDialog(swingDialog);
+		return true;
 	}
 	
 	private class SkipLoginAction extends Action {
@@ -541,7 +545,20 @@ public class SwingFrontend extends Frontend {
 		
 		@Override
 		public void run() {
-			action.run();
+			SwingFrontend.run(this, action);
 		}
+	}
+	
+	@Override
+	protected void close(Dialog dialog) {
+		for (Window window : Window.getWindows()) {
+			if (window instanceof SwingDialog) {
+				SwingDialog swingDialog = (SwingDialog) window;
+				if (swingDialog.getDialog() == dialog) {
+					swingDialog.closeDialog();
+				}
+			}
+		}
+		visibleDialogs.remove(dialog);
 	}
 }

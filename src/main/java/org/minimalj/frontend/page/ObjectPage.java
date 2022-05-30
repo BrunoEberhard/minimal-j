@@ -20,7 +20,7 @@ import org.minimalj.util.resources.Resources;
  * normal page with this pattern:
  * 
  * <pre>
- * public class TeaCupPage extends Page {
+ * public class TeaCupPage implements Page {
  * 
  * 	private final TeaCup teaCup;
  * 
@@ -38,7 +38,7 @@ import org.minimalj.util.resources.Resources;
  *
  * But be careful as this pattern keeps the complete object in the memory.
  */
-public abstract class ObjectPage<T> extends Page implements ChangeableDetailPage<T> {
+public abstract class ObjectPage<T> implements ChangeableDetailPage<T> {
 
 	private final Class<T> objectClass;
 	private Object objectId;

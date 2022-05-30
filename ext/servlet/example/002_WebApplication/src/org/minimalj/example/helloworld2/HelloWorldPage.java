@@ -4,7 +4,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
 
-public class HelloWorldPage extends Page {
+public class HelloWorldPage implements Page {
 
 	@Override
 	public String getTitle() {

@@ -6,9 +6,10 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
@@ -23,13 +24,13 @@ import org.minimalj.util.resources.Resources;
  * of the edited object. Then you could use the {@link SimpleEditor}. In more complex situations the
  * backend called in the save method will do some business logic resulting in a different output object.
  */
-public abstract class Editor<T, RESULT> extends Action {
+public abstract class Editor<T, RESULT> extends Action implements Dialog {
 	private static final Logger logger = Logger.getLogger(Editor.class.getName());
 
 	private T object;
 	private Form<T> form;
 	private SaveAction saveAction;
-	private IDialog dialog;
+	private final CancelAction cancelAction = new CancelAction();
 	
 	public Editor() {
 		super();
@@ -53,10 +54,16 @@ public abstract class Editor<T, RESULT> extends Action {
 		return GenericUtils.getGenericClass(getClass());
 	}
 
+	@Override
 	public String getTitle() {
 		return getName();
 	}
 
+	@Override
+	public IContent getContent() {
+		return form.getContent();
+	}
+	
 	@Override
 	public void run() {
 		object = createObject();
@@ -70,18 +77,14 @@ public abstract class Editor<T, RESULT> extends Action {
 		
 		validate(form);
 
-		dialog = Frontend.showDialog(getTitle(), form.getContent(), saveAction, new CancelAction(), createActions());
+		Frontend.showDialog(this);
 	}
 	
-	private Action[] createActions() {
-		List<Action> additionalActions = createAdditionalActions();
-		Action[] actions = new Action[additionalActions.size() + 2];
-		int index;
-		for (index = 0; index<additionalActions.size(); index++) {
-			actions[index] = additionalActions.get(index);
-		}
-		actions[index++] = new CancelAction();
-		actions[index++] = saveAction;
+	@Override
+	public List<Action> getActions() {
+		List<Action> actions = createAdditionalActions();
+		actions.add(cancelAction);
+		actions.add(saveAction);
 		return actions;
 	}
  	
@@ -113,11 +116,21 @@ public abstract class Editor<T, RESULT> extends Action {
 		// 
 	}
 	
+	@Override
+	public Action getSaveAction() {
+		return saveAction;
+	}
+	
+	@Override
+	public Action getCancelAction() {
+		return cancelAction;
+	}
+	
 	private void save() {
 		try {
 			RESULT result = save(object);
 			if (closeWith(result)) {
-				dialog.closeDialog();
+				Frontend.closeDialog(this);
 				finished(result);
 			}
 		} catch (Exception x) {
@@ -151,8 +164,8 @@ public abstract class Editor<T, RESULT> extends Action {
 		}
 	}
 	
-	public void cancel() {
-		dialog.closeDialog();
+	private void cancel() {
+		Frontend.closeDialog(this);
 	}
 
 	protected void objectChanged() {

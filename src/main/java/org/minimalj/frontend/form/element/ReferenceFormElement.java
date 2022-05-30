@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
@@ -50,7 +51,7 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 		List<Action> additionalActions = createAdditionalActions();
 		additionalActions = additionalActions.stream().filter(Action::isEnabled).collect(Collectors.toList());
 		dialog = new SearchDialog<>(this, columns, false, new SearchDialogActionListener(), additionalActions);
-		dialog.show();
+		Frontend.showDialog(dialog);
 	}
 
 	protected List<Action> createAdditionalActions() {
@@ -102,7 +103,7 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 		@Override
 		protected void finished(T result) {
 			ReferenceFormElement.this.setValueInternal(result);
-			dialog.closeDialog();
+			Frontend.closeDialog(dialog);
 		}
 	}
 	
@@ -114,7 +115,7 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 		@Override
 		public void action(T selectedObject) {
 			ReferenceFormElement.this.setValueInternal(selectedObject);
-			dialog.closeDialog();
+			Frontend.closeDialog(dialog);
 		}
 	}
 

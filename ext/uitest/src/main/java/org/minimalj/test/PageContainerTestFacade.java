@@ -242,7 +242,7 @@ public interface PageContainerTestFacade {
 
 	}
 
-	public static abstract class TablePageTestFacade extends PageTestFacade {
+	public static abstract class TablePageTestFacade implements PageTestFacade {
 		
 		public TablePageTestFacade(String title) {
 			super(title);
@@ -251,7 +251,7 @@ public interface PageContainerTestFacade {
 		public abstract String getColumns();
 	}
 
-	public static abstract class QueryPageTestFacade extends PageTestFacade {
+	public static abstract class QueryPageTestFacade implements PageTestFacade {
 		
 		public QueryPageTestFacade(String title) {
 			super(title);
@@ -260,7 +260,7 @@ public interface PageContainerTestFacade {
 		public abstract void executeQuery(String query);
 	}
 	
-	public static class TextPageTestFacade extends PageTestFacade {
+	public static class TextPageTestFacade implements PageTestFacade {
 		public final String text;
 		
 		public TextPageTestFacade(String title, String text) {
@@ -274,7 +274,7 @@ public interface PageContainerTestFacade {
 	}
 
 	
-	public static abstract class FormPageTestFacade extends PageTestFacade {
+	public static abstract class FormPageTestFacade implements PageTestFacade {
 
 		public FormPageTestFacade(String title) {
 			super(title);

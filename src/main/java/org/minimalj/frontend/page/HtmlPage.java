@@ -13,6 +13,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 /**
  * <b>note:</b> for security reasons read the JavaDoc in the Frontend class
@@ -20,7 +21,7 @@ import org.minimalj.util.StringUtils;
  * @see Frontend#createHtmlContent(String)
  * @see StringUtils#escapeHTML(String)
  */
-public class HtmlPage extends Page {
+public class HtmlPage implements Page {
 	private static final Logger logger = Logger.getLogger(HtmlPage.class.getName());
 
 	private final String html;
@@ -65,7 +66,7 @@ public class HtmlPage extends Page {
 			}
 		}
 		if (title == null) {
-			title = super.getTitle();
+			title = Resources.getPageTitle(this);
 		}
 		return title;
 	}

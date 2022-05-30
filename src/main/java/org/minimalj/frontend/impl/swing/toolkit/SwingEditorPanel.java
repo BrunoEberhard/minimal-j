@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -23,11 +24,11 @@ import org.minimalj.frontend.Frontend.IContent;
 public class SwingEditorPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
-	public SwingEditorPanel(IContent content, org.minimalj.frontend.action.Action[] actions) {
+	public SwingEditorPanel(IContent content, List<org.minimalj.frontend.action.Action> actions) {
 		this((Component) content, actions);
 	}
 	
-	public SwingEditorPanel(Component content, org.minimalj.frontend.action.Action[] actions) {
+	public SwingEditorPanel(Component content, List<org.minimalj.frontend.action.Action> actions) {
 		super(new BorderLayout());
 		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(content));
 		scrollPane.setBorder(new TopBottomBorder(scrollPane.getBorder()));

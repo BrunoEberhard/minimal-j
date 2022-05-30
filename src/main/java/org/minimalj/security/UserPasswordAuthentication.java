@@ -8,20 +8,20 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Validator;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.impl.json.JsonFrontend;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Keys;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
@@ -40,11 +40,10 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		return new UserPasswordLoginAction();
 	}
 	
-	public static class UserPasswordLoginAction extends Action {
+	public static class UserPasswordLoginAction extends Action implements Dialog {
 		private UserPassword userPassword;
 		private Form<UserPassword> form;
 		private LoginAction loginAction;
-		private Optional<IDialog> dialog;
 		
 		public UserPasswordLoginAction() {
 			super(Resources.getString("Login.title"));
@@ -62,9 +61,36 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			form.setChangeListener(this::validate);
 			form.setObject(userPassword);
 			
-			dialog = Frontend.getInstance().showLogin(form.getContent(), loginAction);
+			Frontend.getInstance().showLogin(this);
 		}
 		
+		@Override
+		public String getTitle() {
+			return Resources.getString("Login.title");
+		}
+		
+		@Override
+		public IContent getContent() {
+			return form.getContent();
+		}
+		
+		@Override
+		public Action getSaveAction() {
+			return loginAction;
+		}
+		
+		private class CancelAction extends Action {
+			@Override
+			public void run() {
+				Frontend.closeDialog(UserPasswordLoginAction.this);
+			}
+		}
+		
+		@Override
+		public Action getCancelAction() {
+			return new CancelAction();
+		}
+
 		private boolean validate(Form<?> form) {
 			List<ValidationMessage> validationMessages = Validator.validate(userPassword);
 			form.indicate(validationMessages);
@@ -92,7 +118,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 							setRememberMeCookie(userPassword);
 						}
 						Frontend.getInstance().login(subject);
-						dialog.ifPresent(IDialog::closeDialog);
+						Frontend.closeDialog(UserPasswordLoginAction.this);
 					} else {
 						Frontend.showMessage(Resources.getString("UsernamePasswordInvalid"));
 					}

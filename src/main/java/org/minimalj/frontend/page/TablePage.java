@@ -29,7 +29,7 @@ import org.minimalj.util.resources.Resources;
  * @param <T>
  *            Class of objects in this TablePage. Must be specified.
  */
-public abstract class TablePage<T> extends Page implements TableActionListener<T> {
+public abstract class TablePage<T> implements Page, TableActionListener<T> {
 
 	private boolean multiSelect;
 	private Object[] columns;

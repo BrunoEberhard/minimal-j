@@ -26,7 +26,7 @@ public abstract class TableFormPage<T> extends TableDetailPage<T> {
 	 * details could also be depending entities. Depending entities don't have an id
 	 * an cannot be loaded separately.
 	 */
-	public class DetailPage extends Page implements ChangeableDetailPage<T> {
+	public class DetailPage implements ChangeableDetailPage<T> {
 
 		private final Form<T> form;
 

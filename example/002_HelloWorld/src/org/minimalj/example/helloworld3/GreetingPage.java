@@ -7,7 +7,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.page.Page;
 
-public class GreetingPage extends Page {
+public class GreetingPage implements Page {
 
 	private final User user;
 	

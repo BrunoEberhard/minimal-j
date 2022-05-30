@@ -4,7 +4,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
 
-public class GreetingPage extends Page {
+public class GreetingPage implements Page {
 
 	private final User user;
 	

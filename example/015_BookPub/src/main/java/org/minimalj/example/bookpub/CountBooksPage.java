@@ -7,7 +7,7 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.repository.query.By;
 
-public class CountBooksPage extends Page {
+public class CountBooksPage implements Page {
 
 	@Override
 	public IContent getContent() {

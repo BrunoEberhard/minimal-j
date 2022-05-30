@@ -64,7 +64,7 @@ public class TestApplication extends Application {
 	}
 	
 	@Role(TestAuthentication.ROLE_TEST)
-	public static class TestPage extends Page {
+	public static class TestPage implements Page {
 		private final String text;
 
 		public TestPage(String text) {

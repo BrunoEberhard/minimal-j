@@ -16,9 +16,8 @@ import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
-import org.minimalj.frontend.page.IDialog;
 
-public class SwingInternalFrame extends JInternalFrame implements IDialog {
+public class SwingInternalFrame extends JInternalFrame {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = Logger.getLogger(SwingInternalFrame.class.getName());
 	
@@ -78,7 +77,6 @@ public class SwingInternalFrame extends JInternalFrame implements IDialog {
 		}
 	}
 	
-	@Override
 	public void closeDialog() {
 		try {
 			setClosed(true);

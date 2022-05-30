@@ -20,13 +20,13 @@ import org.minimalj.util.resources.Resources;
  * getContent(). 
  *
  */
-public abstract class Page implements AccessControl {
+public interface Page extends AccessControl {
 	
-	public String getTitle() {
-		return Resources.getString(getClass());
+	public default String getTitle() {
+		return Resources.getPageTitle(this);
 	}
 	
-	public abstract IContent getContent();
+	public IContent getContent();
 	
 	/**
 	 * 
@@ -36,11 +36,11 @@ public abstract class Page implements AccessControl {
 	 *         but not added or removed. Actions can be grouped with an
 	 *         ActionGroup.
 	 */
-	public List<Action> getActions() {
+	public default List<Action> getActions() {
 		return null;
 	}
 	
-	private static final String ALLOWED_CHARS = "-._~:/?#[]@!$&'()*+,;=%"; // #% additional to URL Fragment
+	public static final String ALLOWED_CHARS = "-._~:/?#[]@!$&'()*+,;=%"; // #% additional to URL Fragment
 
 	/**
 	 * Route String must obey some rules to be valid:
@@ -83,7 +83,28 @@ public abstract class Page implements AccessControl {
 	 * @return true if the current subject can access this page.
 	 */
 	@Override
-	public boolean hasAccess(Subject subject) {
+	public default boolean hasAccess(Subject subject) {
 		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, getClass()));
+	}
+	
+	/**
+	 * A dialog blocks the page navigation
+	 *
+	 */
+	public interface Dialog extends Page {
+		
+		/**
+		 * This action should also be performed if the user hits enter on the last input element.
+		 * 
+		 * @return the positive action. The changes made by the user should be persisted.
+		 */
+		public Action getSaveAction();
+		
+		/**
+		 * This action should also be performed if user hits escape key.
+		 * 
+		 * @return the negative action. The changes made by the user should be rolled back.
+		 */
+		public Action getCancelAction();
 	}
 }
