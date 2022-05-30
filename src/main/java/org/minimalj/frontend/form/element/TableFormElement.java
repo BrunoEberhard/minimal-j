@@ -2,7 +2,10 @@ package org.minimalj.frontend.form.element;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -19,7 +22,9 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private final boolean editable;
 	private List<T> object;
 	private final List<Form<?>> rowForms = new ArrayList<>();
-//	protected final List<Object> columns;
+	private final Map<T, Form<T>> formByObject = new HashMap<>();
+
+	//	protected final List<Object> columns;
 	private final TableRowFormFactory<T> formFactory;
 	private final List<PropertyInterface> propertyAsChain;
 
@@ -164,12 +169,16 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		rowForms.clear();
 		for (int index = 0; index < object.size(); index++) {
 			var rowObject = object.get(index);
-			Form<T> rowForm = formFactory.create(rowObject, index, editable);
+			var i = index;
+			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> formFactory.create(r, i, editable));
 			rowForms.add(rowForm);
 			rowForm.setChangeListener(form -> super.fireChange());
 			rowForm.setObject(rowObject);
 			rows[index] = rowForm.getContent();
 		}
+		List<T> unsedForms = formByObject.entrySet().stream().filter(e -> !rowForms.contains(e.getValue())).map(e -> e.getKey()).collect(Collectors.toList());
+		unsedForms.forEach(formByObject::remove);
+		
 		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows);
 		switchComponent.show(vertical);
 	}
