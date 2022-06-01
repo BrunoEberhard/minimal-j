@@ -481,6 +481,7 @@ public class Table<T> extends AbstractTable<T> {
 			while (resultSet.next()) {
 				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 				loadViewLists(resultObject);
+				// TODO loadDependables?
 				result.add(resultObject);
 			}
 		}
