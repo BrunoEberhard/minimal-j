@@ -425,7 +425,7 @@ public class JsonPageManager implements PageManager {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
-		json.put("pageClass", page.getClass().getSimpleName());
+		json.put("className", page.getClass().getSimpleName());
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
 			json.put("route", route);
@@ -456,6 +456,9 @@ public class JsonPageManager implements PageManager {
 	@Override
 	public void showDialog(Dialog dialog) {
 		JsonDialog jsonDialog = new JsonDialog(dialog.getTitle(), dialog.getContent(), dialog.getSaveAction(), dialog.getCancelAction(), dialog.getActions());
+		jsonDialog.put("className", dialog.getClass().getSimpleName());
+		jsonDialog.put("height", dialog.getHeight());
+		jsonDialog.put("width", dialog.getWidth());
 		output.add("dialog", jsonDialog);
 		visibleDialogs.put(dialog, jsonDialog);
 	}

@@ -56,6 +56,10 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 		return (String) get(ID);
 	}
 	
+	public void setCssClass(String cssClass) {
+		put("cssClass", cssClass);
+	}
+	
 	public void setPropertyListener(JsonPropertyListener propertyListener) {
 		this.propertyListener = propertyListener;
 	}
