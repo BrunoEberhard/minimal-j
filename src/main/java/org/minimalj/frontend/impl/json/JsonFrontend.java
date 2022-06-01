@@ -108,6 +108,11 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
+	public <T> Input<T> createRadioButtons(List<T> items, InputComponentListener changeListener) {
+		return new JsonRadioButtons<>(items, changeListener);
+	}
+	
+	@Override
 	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		return new JsonCheckBox(text, changeListener);
 	}

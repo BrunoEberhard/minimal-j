@@ -568,12 +568,25 @@ hr {
 	border-top: 1px rgb(160,160,160) solid;
 }
 
+fieldset {
+	border: none;
+	padding: 0px;
+}
+
+fieldset label {
+	display: inline;
+	font-size: unset;
+	font-weight: normal;
+	padding-right: 2em;
+	vertical-align: bottom;
+}
+
 label {
 	display: block;
 	align-items: center;
 	white-space: nowrap;
 	overflow: hidden;
-	font-size: small;
+	font-size: smaller;
 	font-weight: bolder;
 }
 
