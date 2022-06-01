@@ -2,6 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.minimalj.backend.Backend;
@@ -23,7 +24,9 @@ import org.minimalj.util.StringUtils;
 public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
 	private final Class<T> fieldClazz;
 	private Object[] columns;
-	private Form<T> newForm;
+	private Form<?> newForm;
+	private Class<?> formClazz;
+	private Function<Object, T> formResultConverter;
 	private SearchDialog<T> dialog;
 
 	public ReferenceFormElement(T key) {
@@ -68,6 +71,13 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 
 	public ReferenceFormElement<T> newForm(Form<T> form) {
 		this.newForm = form;
+		this.formClazz = fieldClazz;
+		return this;
+	}
+	
+	public ReferenceFormElement<T> newForm(Class formClazz, Form form, Function<Object, T> formResultConvert) {
+		this.newForm = form;
+		this.formClazz = formClazz;
 		return this;
 	}
 
@@ -78,37 +88,38 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 		}
 	}
 
-	protected class NewReferenceEditor extends NewObjectEditor<T> {
+	protected class NewReferenceEditor extends NewObjectEditor {
 
 		@Override
-		protected T createObject() {
+		protected Object createObject() {
 			return ReferenceFormElement.this.createObject();
 		}
 		
 		@Override
-		protected Class<T> getEditedClass() {
-			return fieldClazz;
+		protected Class<?> getEditedClass() {
+			return formClazz;
 		}
 
 		@Override
-		protected Form<T> createForm() {
+		protected Form createForm() {
 			return newForm;
 		}
 
 		@Override
-		protected T save(T object) {
+		protected Object save(Object object) {
 			return Backend.save(object);
 		}
 
 		@Override
-		protected void finished(T result) {
-			ReferenceFormElement.this.setValueInternal(result);
+		protected void finished(Object result) {
+			T converted = (T) formResultConverter.apply(result);
+			ReferenceFormElement.this.setValueInternal(converted);
 			Frontend.closeDialog(dialog);
 		}
 	}
 	
-	protected T createObject() {
-		return CloneHelper.newInstance(fieldClazz);
+	protected Object createObject() {
+		return CloneHelper.newInstance(formClazz);
 	}
 
 	private class SearchDialogActionListener implements TableActionListener<T> {
