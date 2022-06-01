@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.SwitchComponent;
@@ -18,6 +20,8 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 
 public class TableFormElement<T> extends AbstractFormElement<List<T>> {
+	private static final Logger logger = Logger.getLogger(TableFormElement.class.getName());
+
 	private final SwitchComponent switchComponent;
 	private final boolean editable;
 	private List<T> object;
@@ -53,6 +57,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 
 	public static interface TableRowFormFactory<T> {
 		
+		// "NonNull"
 		public Form<T> create(T object, int row, boolean editable);
 		
 	}
@@ -171,6 +176,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			var rowObject = object.get(index);
 			var i = index;
 			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> formFactory.create(r, i, editable));
+			rowForm = checkNonNull(rowForm, rowObject);
 			rowForms.add(rowForm);
 			rowForm.setChangeListener(form -> super.fireChange());
 			rowForm.setObject(rowObject);
@@ -181,6 +187,20 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		
 		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows);
 		switchComponent.show(vertical);
+	}
+
+	private Form<T> checkNonNull(Form<T> rowForm, T rowObject) {
+		if (rowForm == null) {
+			rowForm = new Form<>();
+			String message = formFactory + " should not return null for " + rowObject;
+			if (Configuration.isDevModeActive()) {
+				rowForm.addTitle("No form for " + rowObject);
+				logger.severe(message);
+			} else {
+				logger.warning(message);
+			}
+		}
+		return rowForm;
 	}
 
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
