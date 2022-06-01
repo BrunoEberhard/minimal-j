@@ -41,6 +41,16 @@ public class SearchDialog<T> implements Dialog {
 	}
 	
 	@Override
+	public int getWidth() {
+		return 1000;
+	}
+	
+	@Override
+	public int getHeight() {
+		return 600;
+	}
+	
+	@Override
 	public List<Action> getActions() {
 		return actions;
 	}

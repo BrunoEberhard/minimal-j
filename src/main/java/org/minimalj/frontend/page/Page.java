@@ -22,6 +22,9 @@ import org.minimalj.util.resources.Resources;
  */
 public interface Page extends AccessControl {
 	
+	public static final int FIT_CONTENT = -1;
+	public static final int STRETCH = Integer.MAX_VALUE;
+	
 	public default String getTitle() {
 		return Resources.getPageTitle(this);
 	}
@@ -86,6 +89,10 @@ public interface Page extends AccessControl {
 	public default boolean hasAccess(Subject subject) {
 		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, getClass()));
 	}
+
+	public default int getWidth() {
+		return FIT_CONTENT;
+	}
 	
 	/**
 	 * A dialog blocks the page navigation
@@ -106,5 +113,9 @@ public interface Page extends AccessControl {
 		 * @return the negative action. The changes made by the user should be rolled back.
 		 */
 		public Action getCancelAction();
+		
+		public default int getHeight() {
+			return FIT_CONTENT;
+		}
 	}
 }

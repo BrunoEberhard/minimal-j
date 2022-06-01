@@ -163,8 +163,26 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 			VIEW view = view(result);
 			BaseTableEditorPage.this.selectionChanged(Arrays.asList(view));
 		}
+
+		@Override
+		public int getWidth() {
+			return BaseTableEditorPage.this.getEditorWidth();
+		}
+
+		@Override
+		public int getHeight() {
+			return BaseTableEditorPage.this.getEditorHeight();
+		}
 	}	
 	
+	public int getEditorWidth() {
+		return FIT_CONTENT;
+	}
+
+	public int getEditorHeight() {
+		return FIT_CONTENT;
+	}
+
 	public class TableEditor extends AbstractTableEditor implements TableSelectionAction<T> {
 		private T selection;
 
