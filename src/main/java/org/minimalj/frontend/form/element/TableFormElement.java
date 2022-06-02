@@ -12,6 +12,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.SwitchComponent;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Validator.IndexProperty;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.Keys;
@@ -28,47 +29,48 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private final List<Form<?>> rowForms = new ArrayList<>();
 	private final Map<T, Form<T>> formByObject = new HashMap<>();
 
-	//	protected final List<Object> columns;
+	// protected final List<Object> columns;
 	private final TableRowFormFactory<T> formFactory;
+	private final List<Action> actions;
 	private final List<PropertyInterface> propertyAsChain;
 
 //	private final PositionListModel model;
 
-	public TableFormElement(List<T> key, List<Object> columns, boolean editable) {
-		this(Keys.getProperty(key), columns, editable);
+	public TableFormElement(List<T> key, List<Object> columns, List<Action> actions, boolean editable) {
+		this(Keys.getProperty(key), columns, actions, editable);
 	}
 
-	public TableFormElement(PropertyInterface property, List<Object> columns, boolean editable) {
-		this(property, new SimpleTableRowFormFactory<T>(columns), editable);
+	public TableFormElement(PropertyInterface property, List<Object> columns, List<Action> actions, boolean editable) {
+		this(property, new SimpleTableRowFormFactory<T>(columns), actions, editable);
 	}
 
-	public TableFormElement(List<T> key, TableRowFormFactory<T> formFactory, boolean editable) {
-		this(Keys.getProperty(key), formFactory, editable);
+	public TableFormElement(List<T> key, TableRowFormFactory<T> formFactory, List<Action> actions, boolean editable) {
+		this(Keys.getProperty(key), formFactory, actions, editable);
 	}
-	
-	public TableFormElement(PropertyInterface property, TableRowFormFactory<T> formFactory, boolean editable) {
+
+	public TableFormElement(PropertyInterface property, TableRowFormFactory<T> formFactory, List<Action> actions, boolean editable) {
 		super(property);
 		this.editable = editable;
 		this.formFactory = formFactory;
+		this.actions = Collections.unmodifiableList(actions);
 //		this.model = createModel();
 		this.switchComponent = Frontend.getInstance().createSwitchComponent();
 		this.propertyAsChain = ChainedProperty.getChain(getProperty());
 	}
 
 	public static interface TableRowFormFactory<T> {
-		
+
 		// "NonNull"
 		public Form<T> create(T object, int row, boolean editable);
-		
 	}
-	
+
 	protected static class SimpleTableRowFormFactory<T> implements TableRowFormFactory<T> {
 		private final List<Object> columns;
-		
+
 		public SimpleTableRowFormFactory(List<Object> columns) {
 			this.columns = Collections.unmodifiableList(columns);
 		}
-		
+
 		@Override
 		public Form<T> create(T object, int row, boolean editable) {
 			Form<T> rowForm = new Form<>(editable, columns.size());
@@ -76,7 +78,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			return rowForm;
 		}
 	}
-	
+
 //	private PositionListModel createModel() {
 //		return new BasePositionListModel();
 //	}
@@ -170,7 +172,14 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	}
 
 	private void update() {
-		IComponent[] rows = new IComponent[object.size()];
+		int rowCount = object.size();
+		if (!actions.isEmpty()) {
+			rowCount = rowCount + 1;
+		}
+		IComponent[] rows = new IComponent[rowCount];
+		if (!actions.isEmpty()) {
+			rows[rowCount - 1] = createActions(actions);
+		}
 		rowForms.clear();
 		for (int index = 0; index < object.size(); index++) {
 			var rowObject = object.get(index);
@@ -184,9 +193,17 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 		List<T> unsedForms = formByObject.entrySet().stream().filter(e -> !rowForms.contains(e.getValue())).map(e -> e.getKey()).collect(Collectors.toList());
 		unsedForms.forEach(formByObject::remove);
-		
+
 		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows);
 		switchComponent.show(vertical);
+	}
+
+	private IComponent createActions(List<Action> actions) {
+		IComponent[] components = new IComponent[actions.size()];
+		for (int i = 0; i < actions.size(); i++) {
+			components[i] = Frontend.getInstance().createText(actions.get(i));
+		}
+		return Frontend.getInstance().createHorizontalGroup(components);
 	}
 
 	private Form<T> checkNonNull(Form<T> rowForm, T rowObject) {
