@@ -82,7 +82,7 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog {
 	
 	@Override
 	public List<Action> getActions() {
-		List<Action> actions = createAdditionalActions();
+		List<Action> actions = new ArrayList<>(createAdditionalActions());
 		actions.add(cancelAction);
 		actions.add(saveAction);
 		return actions;
