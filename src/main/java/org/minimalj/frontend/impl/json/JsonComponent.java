@@ -60,6 +60,13 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 		put("cssClass", cssClass);
 	}
 	
+	public void setFormElementVisible(boolean visible) {
+		if (visible && !containsKey("hideFormElement")) {
+			return;
+		}
+		put("hideFormElement", !visible);
+	}
+	
 	public void setPropertyListener(JsonPropertyListener propertyListener) {
 		this.propertyListener = propertyListener;
 	}

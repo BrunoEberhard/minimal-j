@@ -171,6 +171,13 @@ $ICON
 									label[0].setAttribute("disabled", true);
 								}
 							}
+						} else if (property === "hideFormElement") {
+							var formElement = document.getElementById(id + "-element");
+							if (value) {
+								formElement.setAttribute("hide", true);
+							} else {
+								formElement.removeAttribute("hide");
+							}
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
 							element.checked = value ? "checked" : "";
 						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
@@ -302,9 +309,9 @@ $ICON
 	
 		var pageElement = document.createElement("div");
 		pageElement.classList.add("page");
-		if (page.pageClass) {
+		if (page.className) {
 		    // undefined for login page, see JsonPageManager.showLogin
-			pageElement.classList.add(page.pageClass);
+			pageElement.classList.add(page.className);
 		}
 		pageElement.id = page.pageId;
 	
@@ -743,6 +750,27 @@ $ICON
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
+		} else if (type === "RadioButtons") {
+			element = document.createElement("fieldset");
+			element.value = content.value;
+			for (var id in content.options) {
+				var button = document.createElement("input");
+				button.type = "radio";
+				button.value = id;
+				button.id = id;
+				button.name = content.id + "-name";
+				if (element.value == button.id) {
+				 	button.setAttribute("checked", "checked");
+				 }
+				button.setAttribute("onchange", "sendchange(this);");
+				element.appendChild(button);
+				var label = document.createElement("label");
+				label.setAttribute("for", id);
+				label.appendChild(document.createTextNode(content.options[id].text));
+				var description = content.options[id].description;
+				if (description) label.title = description;
+				element.appendChild(label);
+			}
 		} else if (type === "Lookup") {
 			element = document.createElement("div");
 			element.className = "lookup";
@@ -823,6 +851,9 @@ $ICON
 		if (content.id) {
 			element.id = content.id;
 		}
+		if (content.cssClass) {
+			element.classList.add(content.cssClass);
+		}
 		return element;
 	}
 	
@@ -843,6 +874,9 @@ $ICON
 		var cellElement = document.createElement("div");
 		cellElement.classList.add("formElement");
 		cellElement.id = cell.id + "-element";
+		if (cell.hideFormElement) {
+			cellElement.setAttribute("hide", "true");
+		}
 		cellElement.appendChild(cellContent);
 		setWidths(cellElement, cellContent, span, width);
 
@@ -1055,6 +1089,7 @@ $ICON
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
 		dialog.id = json.id;
+		dialog.classList.add(json.className);
 	
 		var block = document.createElement("div");
 		block.classList.add("is-blocked");
@@ -1119,24 +1154,27 @@ $ICON
 
 		dialog.showModal();
 
-		if (json.type === "SearchDialog") {
-			dialog.style.width = Math.max(500, Math.min(1000, window.innerWidth - 200));
-		}
-
-		var computedStyle = window.getComputedStyle(dialog);
 		if (window.innerWidth < 600) {
 			dialog.classList.add("fullscreen");
 		} else {
-			header.addEventListener("mousedown", addMoveListener);
-			header.addEventListener("dblclick", dialogClickListener);
+			var computedStyle = window.getComputedStyle(dialog);
+	
+			var initialWidth = json.width;
+			if (initialWidth <= 0) {
+				initialWidth = parseInt(computedStyle.width, 10);
+			}
+			dialog.style.width = Math.min(initialWidth, window.innerWidth - 200);
+			dialog.style.left = Math.max((window.innerWidth - initialWidth) / 3 , 0);
 
-			// plus 1 or firefox in uhd and material-design will scroll
-			var intialHeight = parseInt(computedStyle.height, 10) + 1;
-			if (json.type === "SearchDialog") {
-			 	intialHeight = Math.min(600, window.innerHeight - 50);
+			var intialHeight = json.height;
+			if (intialHeight <= 0) {
+				// plus 1 or firefox in uhd and material-design will scroll
+				var intialHeight = parseInt(computedStyle.height, 10) + 1;
 			}
 			dialog.style.height = Math.min(intialHeight, window.innerHeight - 40);
-			dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width, 10)) / 3 , 0);
+
+			header.addEventListener("mousedown", addMoveListener);
+			header.addEventListener("dblclick", dialogClickListener);
 		}
 	}
 
@@ -1264,6 +1302,8 @@ $ICON
 		if (source.type == "checkbox") {
 			/* for checkboxes value is always true */
 			changedValue[source.id] = source.checked;
+		} else if (source.type == "radio") {
+			changedValue[source.name.substring(0, source.name.length - 5)] = source.id;
 		} else if (source.type == "password") {
 			changedValue[source.id] = source.value.split("");
 		} else if (source.type == "file") {

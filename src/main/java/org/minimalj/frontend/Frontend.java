@@ -166,6 +166,10 @@ public abstract class Frontend {
 		public default void add(String caption, boolean required, IComponent component, FormElementConstraint constraint, int span) {
 			add(caption, component, constraint, span);
 		}
+		
+		public default void setVisible(IComponent component, boolean visible) {
+			throw new RuntimeException("Not implemented");
+		}
 
 	}
 	

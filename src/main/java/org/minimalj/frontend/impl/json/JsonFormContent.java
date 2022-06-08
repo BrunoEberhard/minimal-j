@@ -98,4 +98,9 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		}
 	}
 
+	@Override
+	public void setVisible(IComponent component, boolean visible) {
+		((JsonComponent) component).setFormElementVisible(visible);
+	}
+	
 }

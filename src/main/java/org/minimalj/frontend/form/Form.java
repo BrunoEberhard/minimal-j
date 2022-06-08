@@ -1,5 +1,6 @@
 package org.minimalj.frontend.form;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -46,8 +47,8 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Selection;
 import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.NotEmpty;
+import org.minimalj.model.annotation.Visible;
 import org.minimalj.model.properties.ChainedProperty;
-import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.security.model.Password;
@@ -84,6 +85,8 @@ public class Form<T> {
 	private final Map<String, List<PropertyInterface>> dependencies = new HashMap<>();
 	@SuppressWarnings("rawtypes")
 	private final Map<PropertyInterface, Map<PropertyInterface, PropertyUpdater>> propertyUpdater = new HashMap<>();
+	
+	private final Map<IComponent, Object[]> keysForTitle = new HashMap<>();
 	
 	private T object;
 
@@ -246,9 +249,12 @@ public class Form<T> {
 		private Object key;
 	}
 	
-	public void addTitle(String text) {
+	public void addTitle(String text, Object... keys)  {
 		IComponent label = Frontend.getInstance().createTitle(text);
 		formContent.add(null, false, label, null, -1);
+		if (keys.length > 0) {
+			keysForTitle.put(label, keys);
+		}
 	}
 
 	//
@@ -404,6 +410,7 @@ public class Form<T> {
 			set(property, propertyValue);
 		}
 		updateEnable();
+		updateVisible();
 	}
 	
 	private String getName(FormElement<?> field) {
@@ -443,6 +450,7 @@ public class Form<T> {
 
 				// update enable/disable status of the form elements
 				updateEnable();
+				updateVisible();
 				
 				changeListener.changed(Form.this);
 			}
@@ -517,13 +525,7 @@ public class Form<T> {
 		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
 			PropertyInterface property = element.getKey();
 
-			boolean enabled = true;
-			if (property instanceof ChainedProperty) {
-				enabled = isEnabled(object, (ChainedProperty) property);
-			} else {
-				Enabled enabledAnnotation = property.getAnnotation(Enabled.class);
-				enabled = enabledAnnotation == null || isEnabled(object, property, enabledAnnotation);
-			}
+			boolean enabled = evaluate(object, property, Enabled.class);
 
 			if (element.getValue() instanceof Enable) {
 				((Enable) element.getValue()).setEnabled(enabled);
@@ -536,32 +538,42 @@ public class Form<T> {
 			}
 		}
 	}
+	
+	private void updateVisible() {
+		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
+			PropertyInterface property = element.getKey();
+			boolean visible = evaluate(object, property, Visible.class);
+			formContent.setVisible(element.getValue().getComponent(), visible);
+		}
+		for (Map.Entry<IComponent, Object[]> element : keysForTitle.entrySet()) {
+			boolean visible = false;
+			for (Object key : element.getValue()) {
+				if (evaluate(object, Keys.getProperty(key), Visible.class)) {
+					visible = true;
+					break;
+				}
+			}
+			formContent.setVisible(element.getKey(), visible);
+		}
+	}
 
 	// TODO move to properties package, remove use of getPath, write tests
-	static boolean isEnabled(Object object, ChainedProperty property) {
-		String fieldPath = property.getPath();
-		while (fieldPath.contains(".")) {
-			if (object == null) {
-				return false;
-			}
-			int pos = fieldPath.indexOf(".");
-			PropertyInterface p2 = Properties.getProperty(object.getClass(), fieldPath.substring(0, pos));
-			Enabled enabledAnnotation = p2.getAnnotation(Enabled.class);
+	static boolean evaluate(Object object, PropertyInterface property, Class<? extends Annotation> annotationClass) {
+		for (PropertyInterface p2 : ChainedProperty.getChain(property)) {
+			Annotation annotation = p2.getAnnotation(annotationClass);
 			
-			if (enabledAnnotation != null) {
-				if (!isEnabled(object, p2, enabledAnnotation)) {
+			if (annotation != null) {
+				// No common class between Enabled and Visible
+				String condition = annotation instanceof Enabled ? ((Enabled) annotation).value() : ((Visible) annotation).value();
+				if (!evaluateCondition(object, p2, condition)) {
 					return false;
 				}
 			}	
-			object = p2.getValue(object);
-			fieldPath = fieldPath.substring(pos + 1);
 		}
 		return true;
 	}
 
-	// TODO move to properties package, write tests
-	static boolean isEnabled(Object object, PropertyInterface property, Enabled enabledAnnotation) {
-		String methodName = enabledAnnotation.value();
+	static boolean evaluateCondition(Object object, PropertyInterface property, String methodName) {
 		boolean invert = methodName.startsWith("!");
 		if (invert)
 			methodName = methodName.substring(1);
