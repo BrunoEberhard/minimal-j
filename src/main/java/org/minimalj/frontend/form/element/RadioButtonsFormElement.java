@@ -23,7 +23,7 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 		this(Keys.getProperty(key), createCodeItems(key, resourceName));
 	}
 
-	public RadioButtonsFormElement(Enum<?> key, String resourceName) {
+	public RadioButtonsFormElement(Enum<?> key) {
 		this(Keys.getProperty(key), (List) EnumUtils.itemList(key.getClass()));
 	}
 	
