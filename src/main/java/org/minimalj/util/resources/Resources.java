@@ -19,6 +19,7 @@ import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.StringUtils;
 
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
@@ -209,6 +210,12 @@ public class Resources {
 			// unqualifiedKey example: "nationality"
 			if (resourceBundle.containsKey(fieldName)) {
 				return resourceBundle.getString(fieldName);
+			}
+			
+			// class of same name
+			String className = StringUtils.upperFirstChar(fieldName);
+			if (resourceBundle.containsKey(className)) {
+				return resourceBundle.getString(className);
 			}
 
 			if (!optional) {
