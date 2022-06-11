@@ -434,7 +434,7 @@ dialog table {
 	width: 100%;
 }
 
-.form input, .form select {
+.form input, .form select, .form .text {
 	height: 1.8em;
 }
 
@@ -461,6 +461,8 @@ dialog table {
     overflow: hidden;
 }
 
+.formElement[title] input.changed,
+.formElement[title] .lookup .text,
 .formElement[title] input.changed,
 .form.showValidations .formElement[title] input {
 	border-color: red;
