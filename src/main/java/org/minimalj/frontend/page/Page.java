@@ -89,9 +89,17 @@ public interface Page extends AccessControl {
 	public default boolean hasAccess(Subject subject) {
 		return !Boolean.FALSE.equals(Authorization.hasAccessByAnnotation(subject, getClass()));
 	}
+	
+	public default int getMinWidth() {
+		return 0;
+	}
 
 	public default int getWidth() {
 		return FIT_CONTENT;
+	}
+	
+	public default int getMaxWidth() {
+		return Integer.MAX_VALUE;
 	}
 	
 	/**
