@@ -173,7 +173,8 @@ body {
 	width: 100%;
 	flex-grow: 1;
 	flex-basis: 2em;
-	overflow: hidden;
+	overflow-y: hidden;
+	overflow-x: auto;
 	box-sizing: border-box;
 }
 
