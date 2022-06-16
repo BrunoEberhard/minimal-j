@@ -437,6 +437,9 @@ public class JsonPageManager implements PageManager {
 		List<Object> actionMenu = createActionMenu(page);
 		json.put("actionMenu", actionMenu);
 
+		json.put("minWidth", page.getMinWidth());
+		json.put("maxWidth", page.getMaxWidth());
+
 		return json;
 	}
 
