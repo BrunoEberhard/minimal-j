@@ -95,6 +95,16 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	}
 	
 	@Override
+	public int getMinWidth() {
+		return columns.length * 100;
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return columns.length * 200;
+	}
+
+	@Override
 	public final List<Action> getActions() {
 		List<Action> actions = this.actions != null ? this.actions.get() : null;
 		if (actions == null) {
@@ -154,6 +164,28 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		public void selectionChanged(List<U> selectedObjects) {
 			this.selectedObjects = selectedObjects;
 			setEnabled(!selectedObjects.isEmpty());
+		}
+	}
+	
+	public static abstract class ObjectTableSelectionAction<U> extends Action implements TableSelectionAction<U> {
+		private U selectedObject;
+		
+		public ObjectTableSelectionAction() {
+			selectionChanged(Collections.emptyList());
+		}
+		
+		public U getSelectedObject() {
+			return selectedObject;
+		}
+		
+		@Override
+		public void selectionChanged(List<U> selectedObjects) {
+			if (selectedObjects.size() == 1) {
+				this.selectedObject = selectedObjects.get(0);
+			} else {
+				this.selectedObject = null;
+			}
+			setEnabled(selectedObject != null);
 		}
 	}
 	
