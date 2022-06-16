@@ -272,7 +272,7 @@ public class Form<T> {
 		PropertyInterface fromProperty = Keys.getProperty(from);
 		List<PropertyInterface> list = dependencies.computeIfAbsent(fromProperty.getPath(), p -> new ArrayList<>());
 		for (Object key : to) {
-			list.add(Keys.getProperty(key));
+			list.add(Objects.requireNonNull(Keys.getProperty(key)));
 		}
 	}
 
