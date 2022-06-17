@@ -100,7 +100,7 @@ public class SqlRepository implements TransactionalRepository {
 			if (createTablesOnInitialize(dataSource)) {
 				createTables();
 				createCodes();
-				afterCreateTables(Collections.unmodifiableCollection(tables.values()));
+				afterCreateTables();
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
@@ -601,6 +601,10 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 
+	void afterCreateTables() {
+		afterCreateTables(Collections.unmodifiableCollection(tables.values()));
+	}
+	
 	protected void afterCreateTables(Collection<AbstractTable<?>> tables) {
 		// for extensions
 	}
