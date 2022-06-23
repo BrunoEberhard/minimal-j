@@ -398,6 +398,9 @@ public class Form<T> {
 
 	public void setObject(T object) {
 		if (editable && changeListener == null) throw new IllegalStateException("Listener has to be set on a editable Form");
+		if (logger.isLoggable(Level.FINE)) {
+			logDependencies();
+		}
 		changeFromOutside = true;
 		this.object = object;
 		readValueFromObject();
@@ -411,6 +414,13 @@ public class Form<T> {
 		}
 		updateEnable();
 		updateVisible();
+	}
+	
+	private void logDependencies() {
+		logger.fine("Dependencies in " + this.getClass().getSimpleName());
+		for (Map.Entry<String, List<PropertyInterface>> entry : dependencies.entrySet()) {
+			logger.fine(entry.getKey() + " -> " + entry.getValue().stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
+		}
 	}
 	
 	private String getName(FormElement<?> field) {
@@ -432,21 +442,18 @@ public class Form<T> {
 				return;
 			}
 			
-			logger.fine("ChangeEvent from " + getName(changedField));
-			
 			PropertyInterface property = changedField.getProperty();
 			Object newValue = changedField.getValue();
+			logger.fine(() -> "ChangeEvent from element: " + getName(changedField) + ", property: " + property.getPath() + ", value: " + newValue);
 
 			HashSet<PropertyInterface> changedProperties = new HashSet<>();
-			
+
 			setValue(property, newValue, changedProperties);
+			logger.fine(() -> "Changed properties: " + changedProperties.stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
 			
 			if (!changedProperties.isEmpty()) {
-				// don't need to update the form where the change comes from
-				changedProperties.remove(property);
-				
 				// propagate all possible changed values to the form elements
-				updateDependingFormElements(changedProperties);
+				updateDependingFormElements(changedField, changedProperties);
 
 				// update enable/disable status of the form elements
 				updateEnable();
@@ -457,9 +464,13 @@ public class Form<T> {
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		private void updateDependingFormElements(HashSet<PropertyInterface> changedProperties) {
+		private void updateDependingFormElements(FormElement<?> changedFormElement, HashSet<PropertyInterface> changedProperties) {
 			for (PropertyInterface changedProperty : changedProperties) {
 				for (FormElement formElement : elements.values()) {
+					if (formElement == changedFormElement) {
+						// don't need to update the FormElement where the change comes from
+						continue;
+					}
 					PropertyInterface formElementProperty = formElement.getProperty();
 					String formElementPath = formElementProperty.getPath();
 					String changedPropertyPath = changedProperty.getPath();
