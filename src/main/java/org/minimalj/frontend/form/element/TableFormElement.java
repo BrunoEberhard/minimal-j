@@ -171,6 +171,10 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		super.fireChange();
 	}
 
+	public void clearFormCache() {
+		formByObject.clear();
+	}
+	
 	private void update() {
 		int rowCount = object.size();
 		if (!actions.isEmpty()) {
