@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -605,11 +606,18 @@ public class Form<T> {
 	}
 	
 	public boolean indicate(List<ValidationMessage> validationMessages) {
+		List<ValidationMessage> unused = new ArrayList<>(validationMessages);
 		boolean relevantValidationMessage = false;
 		for (PropertyInterface property : getProperties()) {
 			List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
 			setValidationMessage(property, filteredValidationMessages);
 			relevantValidationMessage |= !filteredValidationMessages.isEmpty();
+			unused.removeAll(filteredValidationMessages);
+		}
+		if (!unused.isEmpty()) {
+			for (ValidationMessage unusedMessage : unused) {
+				logger.log(Configuration.isDevModeActive() ? Level.WARNING : Level.FINER, "Unused validation message for: " + unusedMessage.getProperty().getPath());
+			}
 		}
 		return relevantValidationMessage;
 	}
