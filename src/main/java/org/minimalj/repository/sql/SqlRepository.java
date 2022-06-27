@@ -479,7 +479,7 @@ public class SqlRepository implements TransactionalRepository {
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex).toUpperCase();
+			String columnName = resultSet.getMetaData().getColumnLabel(columnIndex).toUpperCase();
 			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
@@ -493,7 +493,10 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			
 			PropertyInterface property = columns.get(columnName);
-			if (property == null) continue;
+			if (property == null) {
+				logger.log(Level.FINE, "Column not found: " + columnName);
+				continue;
+			}
 			
 			Class<?> fieldClass = property.getClazz();
 			boolean isByteArray = fieldClass.isArray() && fieldClass.getComponentType() == Byte.TYPE;
