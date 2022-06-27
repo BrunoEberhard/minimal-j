@@ -11,11 +11,12 @@ import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.model.Selection;
 import org.minimalj.util.IdUtils;
 
-public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> {
+public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> implements Enable {
 
 	private final SwitchComponent component;
 	private Input<T> input;
-
+	private boolean hasSelection;
+	
 	public SelectionFormElement(Object key) {
 		super(key);
 		component = Frontend.getInstance().createSwitchComponent();
@@ -28,6 +29,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> {
 
 	@Override
 	public void setValue(Selection<T> selection) {
+		hasSelection = selection != null;
 		if (selection != null) {
 			List<T> values = selection.values != null ? selection.values : Collections.emptyList();
 			component.show(input = Frontend.getInstance().createComboBox(values, listener()));
@@ -51,5 +53,10 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> {
 	@Override
 	public Selection<T> getValue() {
 		return new Selection<>(input.getValue());
+	}
+	
+	@Override
+	public void setEnabled(boolean enabled) {
+		input.setEditable(hasSelection && enabled);
 	}
 }
