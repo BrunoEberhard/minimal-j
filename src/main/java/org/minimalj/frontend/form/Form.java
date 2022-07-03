@@ -223,16 +223,21 @@ public class Form<T> {
 	}
 
 	private void add(Object key, int elementSpan) {
+		boolean forcedNotEmpty = false;
+		if (key instanceof NotEmptyWrapper) {
+			forcedNotEmpty = true;
+			key = ((NotEmptyWrapper) key).key;
+		}
 		FormElement<?> element = createElement(key);
 		if (element != null) {
-			add(element, elementSpan);
+			add(element, elementSpan, forcedNotEmpty);
 		} else {
 			formContent.add(null, false, Frontend.getInstance().createText("" + key), null, elementSpan);
 		}
 	}
 
-	private void add(FormElement<?> element, int span) {
-		boolean required = element.getProperty().getAnnotation(NotEmpty.class) != null && element.getProperty().getClazz() != Boolean.class;
+	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
+		boolean required = forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null && element.getProperty().getClazz() != Boolean.class;
 		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
@@ -247,6 +252,20 @@ public class Form<T> {
 	}
 	
 	private static class ReadOnlyWrapper {
+		private Object key;
+	}
+
+	public static Object notEmpty(Object key, boolean notEmpty) {
+		return notEmpty ? notEmpty(key) : key;
+	}
+	
+	public static Object notEmpty(Object key) {
+		NotEmptyWrapper wrapper = new NotEmptyWrapper();
+		wrapper.key = key;
+		return wrapper;
+	}
+	
+	private static class NotEmptyWrapper {
 		private Object key;
 	}
 	
