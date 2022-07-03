@@ -9,8 +9,16 @@ import java.util.UUID;
 
 public class EqualsHelper {
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static boolean equals(Object from, Object to) {
+		return equals(from, to, false);
+	}
+
+	public static boolean equalsById(Object from, Object to) {
+		return equals(from, to, true);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static boolean equals(Object from, Object to, boolean equalsById) {
 		if (from == null) {
 			return to == null;
 		}
@@ -52,11 +60,15 @@ public class EqualsHelper {
 		}
 		if (IdUtils.hasId(from.getClass()) && !IdUtils.equals(from, to)) {
 			return false;
-		} 
-		try {
-			return equalsByFields(from, to);
-		} catch (IllegalAccessException | IllegalArgumentException x) {
-			throw new RuntimeException(x);
+		}
+		if (!equalsById) {
+			try {
+				return equalsByFields(from, to);
+			} catch (IllegalAccessException | IllegalArgumentException x) {
+				throw new RuntimeException(x);
+			}
+		} else {
+			return true;
 		}
 	}
 	
