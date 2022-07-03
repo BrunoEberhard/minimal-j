@@ -2,6 +2,7 @@ package org.minimalj.frontend.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
@@ -31,6 +32,7 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog {
 	private Form<T> form;
 	private SaveAction saveAction;
 	private final CancelAction cancelAction = new CancelAction();
+	private Consumer<RESULT> finishedListener;
 	
 	public Editor() {
 		super();
@@ -78,6 +80,11 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog {
 		validate(form);
 
 		Frontend.showDialog(this);
+	}
+	
+	public void run(Consumer<RESULT> finishedListenr) {
+		this.finishedListener = finishedListenr;
+		run();
 	}
 	
 	@Override
@@ -147,7 +154,9 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog {
 	protected abstract RESULT save(T object);
 	
 	protected void finished(RESULT result) {
-		//
+		if (finishedListener != null) {
+			finishedListener.accept(result);
+		}
 	}
 
 	protected final class SaveAction extends ValidationAwareAction {
