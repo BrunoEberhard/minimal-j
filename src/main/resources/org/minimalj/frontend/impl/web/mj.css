@@ -104,6 +104,7 @@ body {
 #navigation {
 	position: relative;
 	width: calc(15em - 1px);
+	height: 100%;
 	max-height: calc(100% - 2em);
 	bottom: 0;
 	overflow: auto;
@@ -462,10 +463,13 @@ dialog table {
     overflow: hidden;
 }
 
-.formElement[title] input.changed,
+.formElement[title] .changed,
 .formElement[title] .lookup .text,
-.formElement[title] input.changed,
-.form.showValidations .formElement[title] input {
+
+.form.showValidations .formElement[title] input,
+.form.showValidations .formElement[title] .lookup .text,
+.form.showValidations .formElement[title] select,
+.form.showValidations .formElement[title] textarea {
 	border-color: red;
 }
 
@@ -478,6 +482,10 @@ dialog table {
 
 th .form {
 	font-weight: normal;
+}
+
+input[disabled]::placeholder, textarea[disabled]::placeholder {
+	color: transparent;
 }
 
 .dropdownButton {
