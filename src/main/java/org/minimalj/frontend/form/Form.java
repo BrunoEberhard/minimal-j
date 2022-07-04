@@ -556,8 +556,8 @@ public class Form<T> {
 		private void collectDependencies(PropertyInterface property, HashSet<PropertyInterface> collection) {
 			if (!collection.contains(property)) {
 				collection.add(property);
-				if (dependencies.containsKey(property.getName())) {
-					for (PropertyInterface dependingProperty : dependencies.get(property.getName())) {
+				if (dependencies.containsKey(property.getPath())) {
+					for (PropertyInterface dependingProperty : dependencies.get(property.getPath())) {
 						collectDependencies(dependingProperty, collection);
 					}
 				}
