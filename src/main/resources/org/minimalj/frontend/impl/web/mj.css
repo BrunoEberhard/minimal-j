@@ -463,19 +463,16 @@ dialog table {
     overflow: hidden;
 }
 
-.formElement[title] .changed,
-.formElement[title] .lookup .text,
-
-.form.showValidations .formElement[title] input,
-.form.showValidations .formElement[title] .lookup .text,
-.form.showValidations .formElement[title] select,
-.form.showValidations .formElement[title] textarea {
+.changed[title],
+.form.showValidations *[title],
+.form.showValidations div[title] *
+{
 	border-color: red;
 }
 
 .asterisk {
 	position: relative;
-	top: -2px;
+	top: -1px;
 	color: red;
 	padding-left: 0.2ex;
 }

@@ -31,6 +31,7 @@ import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
 import org.minimalj.frontend.form.element.FormElement;
+import org.minimalj.frontend.form.element.Indication;
 import org.minimalj.frontend.form.element.IntegerFormElement;
 import org.minimalj.frontend.form.element.LocalDateFormElement;
 import org.minimalj.frontend.form.element.LocalDateTimeFormElement;
@@ -409,8 +410,20 @@ public class Form<T> {
 	private void setValidationMessage(PropertyInterface property, List<ValidationMessage> validationMessages) {
 		FormElement<?> formElement = elements.get(property);
 		if (formElement instanceof TableFormElement) {
-			TableFormElement<?> positionListFormElement = (TableFormElement<?>) formElement;
-			positionListFormElement.setValidationMessages(validationMessages);
+			// TODO make tableFormElement to Indication
+			TableFormElement<?> tableFormElement = (TableFormElement<?>) formElement;
+			tableFormElement.setValidationMessages(validationMessages);
+		} else if (formElement instanceof Indication) {
+			Indication indication = (Indication) formElement;
+			List<ValidationMessage> localValidationMessages = new ArrayList<>(validationMessages.size());
+			int prefixSize = ChainedProperty.getChain(property).size();
+			for (ValidationMessage message : validationMessages) {
+				List<PropertyInterface> chain = ChainedProperty.getChain(message.getProperty());
+				chain = chain.subList(prefixSize, chain.size());
+				ValidationMessage localValidationMessage = new ValidationMessage(ChainedProperty.buildChain(chain), message.getFormattedText());
+				localValidationMessages.add(localValidationMessage);
+			}
+			indication.setValidationMessages(localValidationMessages, formContent);
 		} else {
 			formContent.setValidationMessages(formElement.getComponent(), validationMessages.stream().map(ValidationMessage::getFormattedText).collect(Collectors.toList()));
 		}
