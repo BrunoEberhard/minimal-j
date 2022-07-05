@@ -601,7 +601,7 @@ public class Form<T> {
 		}
 	}
 
-	// TODO move to properties package, remove use of getPath, write tests
+	// TODO move to properties package, write tests
 	static boolean evaluate(Object object, PropertyInterface property, Class<? extends Annotation> annotationClass) {
 		for (PropertyInterface p2 : ChainedProperty.getChain(property)) {
 			Annotation annotation = p2.getAnnotation(annotationClass);
@@ -613,6 +613,10 @@ public class Form<T> {
 					return false;
 				}
 			}	
+			object = p2.getValue(object);
+			if (object == null) {
+				return true;
+			}
 		}
 		return true;
 	}
