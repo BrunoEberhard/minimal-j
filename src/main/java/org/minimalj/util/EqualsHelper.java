@@ -73,16 +73,20 @@ public class EqualsHelper {
 	}
 	
 	private static boolean equalsByFields(Object from, Object to) throws IllegalArgumentException, IllegalAccessException {
-		for (Field field : from.getClass().getDeclaredFields()) {
-			if (FieldUtils.isStatic(field)) continue;
-			field.setAccessible(true);
-			Object fromValue = field.get(from);
-			Object toValue = field.get(to);
-			
-			boolean fieldEqual = equals(fromValue, toValue);
-			if (!fieldEqual) {
-				return false;
+		Class<?> clazz = from.getClass();
+		while (clazz != null) {
+			for (Field field : clazz.getDeclaredFields()) {
+				if (FieldUtils.isStatic(field)) continue;
+				field.setAccessible(true);
+				Object fromValue = field.get(from);
+				Object toValue = field.get(to);
+				
+				boolean fieldEqual = equals(fromValue, toValue);
+				if (!fieldEqual) {
+					return false;
+				}
 			}
+			clazz = clazz.getSuperclass();
 		}
 		return true;
 	}

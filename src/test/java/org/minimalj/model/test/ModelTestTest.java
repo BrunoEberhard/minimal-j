@@ -217,7 +217,7 @@ public class ModelTestTest {
 	//
 
 	@Test public void 
-	should_not_accept_inheritence() {
+	should_not_accept_inheritence_from_non_abstract_superclass() {
 		ModelTest modelTest = new ModelTest(TestClass14.class);
 		Assert.assertFalse(modelTest.isValid());
 	}
@@ -225,7 +225,36 @@ public class ModelTestTest {
 	public static class TestClass14 extends TestClass2 {
 		public Integer i;
 	}
+	
+	//
 
+	@Test public void 
+	should_accept_inheritence_from_abstract_superclass() {
+		ModelTest modelTest = new ModelTest(TestClass19.class);
+		Assert.assertTrue(modelTest.isValid());
+	}
+
+	public static abstract class TestClass18 {
+		public Integer id;
+	}
+
+	public static class TestClass19 extends TestClass18 {
+		public Integer a;
+	}
+
+	//
+
+	@Test public void 
+	should_not_accept_fields_of_abstract_class() {
+		ModelTest modelTest = new ModelTest(TestClass22.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass22 {
+		public Integer id;
+		public TestClass18 fieldOfAbstractClass;
+	}
+	
 	//
 
 	@Test public void 

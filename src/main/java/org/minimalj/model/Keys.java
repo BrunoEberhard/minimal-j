@@ -206,7 +206,10 @@ public class Keys {
 	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
 		Method[] methods = clazz.getMethods();
 		for (Method method: methods) {
-			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;
+			// TODO the last condition should not be based on super method returns abstract class
+			// somehow the method in the extension class should win
+			// the array check is because of char[]  . char[] is reported as abstract
+			if (isStatic(method) || !isPublic(method) || Modifier.isAbstract(method.getModifiers()) || Modifier.isAbstract(method.getReturnType().getModifiers()) && !method.getReturnType().isArray()) continue;
 			String name = method.getName();
 			if (!name.startsWith("get") || name.length() <= 3) continue; // TODO check
 			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;

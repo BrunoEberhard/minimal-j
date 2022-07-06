@@ -5,19 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class KeysTest {
-
-	@BeforeClass
-	public static void initializeAllClasses() {
-		new TestClass1();
-		new TestClass2();
-		new TestClass3();
-		new TestClass4();
-	}
 	
 	@Test
 	public void accessString() {
@@ -198,6 +189,20 @@ public class KeysTest {
 		Assert.assertEquals("Test2", pB.getValue(testB));
 	}
 	
+	@Test
+	public void testExtensionClasses() {
+		TestClass12b testObject = new TestClass12b();
+
+		testObject.a = 1;
+		testObject.b = 2;
+		
+		PropertyInterface pA = Keys.getProperty(TestClass12b.$.a);
+		PropertyInterface pB = Keys.getProperty(TestClass12b.$.b);
+
+		Assert.assertEquals(1, pA.getValue(testObject));
+		Assert.assertEquals(2, pB.getValue(testObject));
+	}
+	
 	//
 	
 	public static class TestClass1 {
@@ -345,5 +350,19 @@ public class KeysTest {
 
 		public TestClass11 t = new TestClass11();
 	}
+	
+	public static abstract class TestClass12 {
+		
+		public Integer a;
+	}
+	
+	public static class TestClass12b extends TestClass12 {
+		
+		public static final TestClass12b $ = Keys.of(TestClass12b.class);
+		
+		public Integer b;
+
+	}
+
 
 }

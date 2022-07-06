@@ -118,10 +118,10 @@ public class ModelTest {
 		if (!modelClasses.contains(clazz)) {
 			modelClasses.add(clazz);
 			testName(clazz);
-			if (!clazz.isEnum()) { // it's neither pretty for enum but it should work
+			if (!clazz.isEnum()) { // it's not pretty to have several enum classes with same name but it works
 				testNoDuplicateName(clazz);
 			}
-			testNoSuperclass(clazz);
+			testNoOrAbstractSuperclass(clazz);
 			if (!testNoSelfMixins(clazz)) {
 				return; // further tests could create a StackOverflowException
 			}
@@ -138,12 +138,13 @@ public class ModelTest {
 			if (Configuration.isDevModeActive()) {
 				testResources(clazz);
 			}
+			// testNoDuplicateFieldsInSuperClass(clazz)
 		}
 	}
 
 	private void testInlineClass(Class<?> clazz) {
 		testName(clazz);
-		testNoSuperclass(clazz);
+		testNoOrAbstractSuperclass(clazz);
 		testFields(clazz);
 		// TODO testNoInlineRecursion(clazz);
 	}
@@ -172,9 +173,12 @@ public class ModelTest {
 		return mainClasses.contains(clazz);
 	}
 	
-	private void testNoSuperclass(Class<?> clazz) {
-		if (clazz.getSuperclass() != Object.class && (clazz.getSuperclass() != Enum.class || isMain(clazz))) {
-			problems.add(clazz.getName() + ": Domain classes must not extends other classes");
+	private void testNoOrAbstractSuperclass(Class<?> clazz) {
+		Class<?> superclass = clazz.getSuperclass();
+		if (superclass != null && superclass != Object.class && superclass != Enum.class) {
+			if (!Modifier.isAbstract(superclass.getModifiers())) {
+				problems.add(clazz.getName() + ": Domain super classes must be abstract");
+			}
 		}
 	}
 	
@@ -372,6 +376,9 @@ public class ModelTest {
 	private void testTypeOfListField(Field field, String messagePrefix) {
 		Class<?> listType = GenericUtils.getGenericClass(field);
 		if (listType != null) {
+			if (Modifier.isAbstract(listType.getModifiers())) {
+				problems.add(messagePrefix + " must not be of an abstract Type");
+			}
 			testTypeOfListField(listType, "Generic of " + messagePrefix);
 			if (IdUtils.hasId(listType) && FieldUtils.isFinal(field)) {
 				problems.add("List of identifiables must not be final: " + messagePrefix);

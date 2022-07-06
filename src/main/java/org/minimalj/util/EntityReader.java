@@ -118,23 +118,26 @@ public class EntityReader {
 	
 	private Object readEntity(Class<?> clazz) throws IOException {
 		Object object = CloneHelper.newInstance(clazz);
-		Field[] fields = clazz.getDeclaredFields();
-		Arrays.sort(fields, new FlatProperties.FieldComparator());
-		for (Field field : fields) {
-			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field))
-				continue;
-
-			if (!FieldUtils.isFinal(field) && field.getType() == Object.class && "id".equals(field.getName())) {
-				Object value = readValue(String.class);
-				try {
-					field.setAccessible(true);
-					field.set(object, value);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
+		while (clazz != null) {
+			Field[] fields = clazz.getDeclaredFields();
+			Arrays.sort(fields, new FlatProperties.FieldComparator());
+			for (Field field : fields) {
+				if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field))
+					continue;
+				
+				if (!FieldUtils.isFinal(field) && field.getType() == Object.class && "id".equals(field.getName())) {
+					Object value = readValue(String.class);
+					try {
+						field.setAccessible(true);
+						field.set(object, value);
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				} else {
+					readField(object, field);
 				}
-			} else {
-				readField(object, field);
 			}
+			clazz = clazz.getSuperclass();
 		}
 		return object;
 	}

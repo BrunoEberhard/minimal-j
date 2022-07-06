@@ -26,26 +26,29 @@ public class EntityWriter {
 	
 	private void writeObject(Object object) throws IOException {
 		Class<?> clazz = object.getClass();
-		Field[] fields = clazz.getDeclaredFields();
-		Arrays.sort(fields, new FlatProperties.FieldComparator());
-		for (Field field : fields) {
-			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
-			Object value = null;
-			try {
-				field.setAccessible(true);
-				value = field.get(object);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
+		while (clazz != null) {
+			Field[] fields = clazz.getDeclaredFields();
+			Arrays.sort(fields, new FlatProperties.FieldComparator());
+			for (Field field : fields) {
+				if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
+				Object value = null;
+				try {
+					field.setAccessible(true);
+					value = field.get(object);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				Class<?> fieldClass = field.getType();
+				if (fieldClass == Object.class && "id".equals(field.getName())) {
+					// id values are serialized as String
+					fieldClass = String.class;
+					value = value != null ? value.toString() : null;
+				}
+				if (!writeValue(value, fieldClass)) {
+					writeIfNotNull(value);	
+				}
 			}
-			Class<?> fieldClass = field.getType();
-			if (fieldClass == Object.class && "id".equals(field.getName())) {
-				// id values are serialized as String
-				fieldClass = String.class;
-				value = value != null ? value.toString() : null;
-			}
-			if (!writeValue(value, fieldClass)) {
-	    		writeIfNotNull(value);	
-			}
+			clazz = clazz.getSuperclass();
 		}
 	}
 
