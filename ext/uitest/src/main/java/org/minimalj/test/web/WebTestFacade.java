@@ -426,7 +426,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public String getValidation() {
 			String id = formElement.getAttribute("id");
-			WebElement formElement = driver.findElementById(id + "-element");
+			WebElement formElement = driver.findElementById(id);
 			String validation = formElement.getAttribute("title");
 			return StringUtils.isEmpty(validation) ? null : validation;
 		}
