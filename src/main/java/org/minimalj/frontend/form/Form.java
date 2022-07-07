@@ -72,24 +72,24 @@ public class Form<T> {
 	public static final Object GROW_FIRST_ELEMENT = new Object();
 
 	protected final boolean editable;
-	
+
 	private final int columns;
 	private final FormContent formContent;
 	private boolean ignoreCaption;
-	
+
 	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<>();
-	
+
 	private final FormChangeListener formChangeListener = new FormChangeListener();
-	
+
 	private ChangeListener<Form<?>> changeListener;
 	private boolean changeFromOutside;
 
-	private final Map<String, List<PropertyInterface>> dependencies = new HashMap<>();
+	private final LinkedHashMap<String, List<PropertyInterface>> dependencies = new LinkedHashMap<>();
 	@SuppressWarnings("rawtypes")
-	private final Map<PropertyInterface, Map<PropertyInterface, PropertyUpdater>> propertyUpdater = new HashMap<>();
-	
+	private final LinkedHashMap<PropertyInterface, LinkedHashMap<PropertyInterface, PropertyUpdater>> propertyUpdater = new LinkedHashMap<>();
+
 	private final Map<IComponent, Object[]> keysForTitle = new HashMap<>();
-	
+
 	private T object;
 
 	public Form() {
@@ -119,7 +119,7 @@ public class Form<T> {
 		this.columns = columnWidths.size();
 		this.formContent = Frontend.getInstance().createFormContent(columnWidths);
 	}
-	
+
 	// Methods to create the form
 
 	public FormContent getContent() {
@@ -137,22 +137,22 @@ public class Form<T> {
 		if (key == null) {
 			throw new NullPointerException("Key must not be null");
 		} else if (key instanceof Function) {
-			return createElement(((Function) key).apply(this.editable &&!forcedReadonly));
+			return createElement(((Function) key).apply(this.editable && !forcedReadonly));
 		} else if (key instanceof FormElement) {
 			element = (FormElement<?>) key;
 			property = element.getProperty();
-			if (property == null) throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
+			if (property == null)
+				throw new IllegalArgumentException(IComponent.class.getSimpleName() + " has no key");
 		} else {
 			property = Keys.getProperty(key);
 			if (property != null) {
-				boolean editable = !forcedReadonly && this.editable
-						&& !(FieldUtils.isAllowedPrimitive(property.getClazz()) && property.isFinal());
+				boolean editable = !forcedReadonly && this.editable && !(FieldUtils.isAllowedPrimitive(property.getClazz()) && property.isFinal());
 				element = createElement(property, editable);
 			}
 		}
 		return element;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	protected FormElement<?> createElement(PropertyInterface property, boolean editable) {
 		Class<?> fieldClass = property.getClazz();
@@ -172,29 +172,29 @@ public class Form<T> {
 		} else if (fieldClass == LocalTime.class) {
 			return new LocalTimeFormElement(property, editable);
 		} else if (fieldClass == LocalDateTime.class) {
-			return new LocalDateTimeFormElement(property, editable);			
+			return new LocalDateTimeFormElement(property, editable);
 		} else if (Code.class.isAssignableFrom(fieldClass)) {
 			return editable ? new CodeFormElement(property) : new TextFormElement(property);
 		} else if (Enum.class.isAssignableFrom(fieldClass)) {
 			return editable ? new EnumFormElement(property) : new TextFormElement(property);
 		} else if (fieldClass == Set.class) {
-            return new EnumSetFormElement(property, editable);
+			return new EnumSetFormElement(property, editable);
 		} else if (fieldClass == List.class && Codes.isCode(property.getGenericClass())) {
 			return new SmallCodeListFormElement(property, editable);
 		} else if (fieldClass == Password.class) {
 			return new PasswordFormElement(new ChainedProperty(property, Keys.getProperty(Password.$.getPassword())));
 		} else if (fieldClass == Selection.class) {
 			return new SelectionFormElement(property);
-		}	
+		}
 		logger.severe("No FormElement could be created for: " + property.getName() + " of class " + fieldClass.getName());
 		return new UnknownFormElement(property);
 	}
-	
+
 	public void setIgnoreCaption(boolean ignoreCaption) {
 		this.ignoreCaption = ignoreCaption;
 	}
-	
-	// 
+
+	//
 
 	public void line(Object... keys) {
 		if (keys[0] == GROW_FIRST_ELEMENT) {
@@ -243,15 +243,15 @@ public class Form<T> {
 		registerNamedElement(element);
 		addDependencies(element);
 	}
-	
-	// 
-	
+
+	//
+
 	public static Object readonly(Object key) {
 		ReadOnlyWrapper wrapper = new ReadOnlyWrapper();
 		wrapper.key = key;
 		return wrapper;
 	}
-	
+
 	private static class ReadOnlyWrapper {
 		private Object key;
 	}
@@ -259,18 +259,18 @@ public class Form<T> {
 	public static Object notEmpty(Object key, boolean notEmpty) {
 		return notEmpty ? notEmpty(key) : key;
 	}
-	
+
 	public static Object notEmpty(Object key) {
 		NotEmptyWrapper wrapper = new NotEmptyWrapper();
 		wrapper.key = key;
 		return wrapper;
 	}
-	
+
 	private static class NotEmptyWrapper {
 		private Object key;
 	}
-	
-	public void addTitle(String text, Object... keys)  {
+
+	public void addTitle(String text, Object... keys) {
 		IComponent label = Frontend.getInstance().createTitle(text);
 		formContent.add(null, false, label, null, -1);
 		if (keys.length > 0) {
@@ -281,13 +281,13 @@ public class Form<T> {
 	//
 
 	/**
-	 * Declares that if the <i>from</i> property changes all
-	 * the properties with <i>to</i> could change. This is normally used
-	 * if the to <i>to</i> property is a getter that calculates something that
-	 * depends on the <i>from</i> in some way.
+	 * Declares that if the <i>from</i> property changes all the properties with
+	 * <i>to</i> could change. This is normally used if the to <i>to</i> property is
+	 * a getter that calculates something that depends on the <i>from</i> in some
+	 * way.
 	 * 
 	 * @param from the key or property of the field triggering the update
-	 * @param to the field possible changed its value implicitly
+	 * @param to   the field possible changed its value implicitly
 	 */
 	public void addDependecy(Object from, Object... to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
@@ -309,36 +309,39 @@ public class Form<T> {
 	/**
 	 * Declares that if the key or property <i>from</i> changes the specified
 	 * updater should be called and after its return the <i>to</i> key or property
-	 * could have changed.<p>
+	 * could have changed.
+	 * <p>
 	 * 
 	 * This is used if there is a more complex relation between two fields.
 	 * 
-	 * @param <FROM> the type (class) of the fromKey / field
-	 * @param <TO> the type (class) of the toKey / field
-	 * @param from the field triggering the update
+	 * @param <FROM>  the type (class) of the fromKey / field
+	 * @param <TO>    the type (class) of the toKey / field
+	 * @param from    the field triggering the update
 	 * @param updater the updater doing the change of the to field
-	 * @param to the changed field by the updater
+	 * @param to      the changed field by the updater
 	 */
 	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
 		PropertyInterface fromProperty = Keys.getProperty(from);
 		PropertyInterface toProperty = Keys.getProperty(to);
-		propertyUpdater.computeIfAbsent(fromProperty, p -> new HashMap<>()).put(toProperty, updater);
+		propertyUpdater.computeIfAbsent(fromProperty, p -> new LinkedHashMap<>()).put(toProperty, updater);
 		addDependecy(from, to);
 	}
 
 	@FunctionalInterface
 	public interface PropertyUpdater<FROM, TO, EDIT_OBJECT> {
-		
+
 		/**
 		 * 
-		 * @param input The new value of the property that has changed
-		 * @param copyOfEditObject The current object of the  This reference should <b>not</b> be changed.
-		 * It should be treated as a read only version or a copy of the object.
-		 * It's probably not a real copy as it is to expensive to copy the object for every call. 
+		 * @param input            The new value of the property that has changed
+		 * @param copyOfEditObject The current object of the This reference should
+		 *                         <b>not</b> be changed. It should be treated as a read
+		 *                         only version or a copy of the object. It's probably
+		 *                         not a real copy as it is to expensive to copy the
+		 *                         object for every call.
 		 * @return The new value the updater wants to set to the toKey property
 		 */
 		public TO update(FROM input, EDIT_OBJECT copyOfEditObject);
-		
+
 	}
 
 	//
@@ -354,7 +357,7 @@ public class Form<T> {
 		for (PropertyInterface dependency : dependencies) {
 			addDependecy(dependency, field.getProperty());
 		}
-		
+
 		// a.b.c
 		String path = property.getPath();
 		while (path != null && path.contains(".")) {
@@ -363,7 +366,7 @@ public class Form<T> {
 			path = path.substring(0, pos);
 		}
 	}
-	
+
 	public final void mock() {
 		changeFromOutside = true;
 		try {
@@ -384,11 +387,11 @@ public class Form<T> {
 				demoEnabledElement.mock();
 				property.setValue(object, field.getValue());
 			}
-		}		
+		}
 	}
-	
+
 	//
-	
+
 	/**
 	 * 
 	 * @return Collection provided by a LinkedHashMap so it will be a ordered set
@@ -396,7 +399,7 @@ public class Form<T> {
 	public Collection<PropertyInterface> getProperties() {
 		return elements.keySet();
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void set(PropertyInterface property, Object value) {
 		FormElement element = elements.get(property);
@@ -430,7 +433,8 @@ public class Form<T> {
 	}
 
 	public void setObject(T object) {
-		if (editable && changeListener == null) throw new IllegalStateException("Listener has to be set on a editable Form");
+		if (editable && changeListener == null)
+			throw new IllegalStateException("Listener has to be set on a editable Form");
 		if (logger.isLoggable(Level.FINE)) {
 			logDependencies();
 		}
@@ -448,19 +452,19 @@ public class Form<T> {
 		updateEnable();
 		updateVisible();
 	}
-	
+
 	private void logDependencies() {
 		logger.fine("Dependencies in " + this.getClass().getSimpleName());
 		for (Map.Entry<String, List<PropertyInterface>> entry : dependencies.entrySet()) {
 			logger.fine(entry.getKey() + " -> " + entry.getValue().stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
 		}
 	}
-	
+
 	private String getName(FormElement<?> field) {
 		PropertyInterface property = field.getProperty();
 		return property.getName();
 	}
-	
+
 	public void setChangeListener(ChangeListener<Form<?>> changeListener) {
 		this.changeListener = Objects.requireNonNull(changeListener);
 	}
@@ -469,21 +473,23 @@ public class Form<T> {
 
 		@Override
 		public void changed(FormElement<?> changedField) {
-			if (changeFromOutside) return;
+			if (changeFromOutside)
+				return;
 			if (changeListener == null) {
-				if (editable) logger.severe("Editable Form must have a listener");
+				if (editable)
+					logger.severe("Editable Form must have a listener");
 				return;
 			}
-			
+
 			PropertyInterface property = changedField.getProperty();
 			Object newValue = changedField.getValue();
-			logger.fine(() -> "ChangeEvent from element: " + getName(changedField) + ", property: " + property.getPath() + ", value: " + newValue);
+			logger.finer(() -> "ChangeEvent from element: " + getName(changedField) + ", property: " + property.getPath() + ", value: " + newValue);
 
 			HashSet<PropertyInterface> changedProperties = new HashSet<>();
 
 			setValue(property, newValue, changedProperties);
-			logger.fine(() -> "Changed properties: " + changedProperties.stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
-			
+			logger.finer(() -> "Changed properties: " + changedProperties.stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
+
 			if (!changedProperties.isEmpty()) {
 				// propagate all possible changed values to the form elements
 				updateDependingFormElements(changedField, changedProperties);
@@ -491,7 +497,7 @@ public class Form<T> {
 				// update enable/disable status of the form elements
 				updateEnable();
 				updateVisible();
-				
+
 				changeListener.changed(Form.this);
 			}
 		}
@@ -520,6 +526,7 @@ public class Form<T> {
 			if (propertyUpdater.containsKey(property)) {
 				Map<PropertyInterface, PropertyUpdater> updaters = propertyUpdater.get(property);
 				for (Map.Entry<PropertyInterface, PropertyUpdater> entry : updaters.entrySet()) {
+					logger.finer(() -> "Update from " + property.getPath() + " to " + entry.getKey().getPath());
 					Object updaterOutput = entry.getValue().update(updaterInput, clonedObject);
 					setValue(entry.getKey(), updaterOutput, changedProperties);
 				}
@@ -527,14 +534,16 @@ public class Form<T> {
 		}
 
 		private void setValue(PropertyInterface property, Object newValue, HashSet<PropertyInterface> changedProperties) {
-			Object oldToValue = property.getValue(object);
-			if (!EqualsHelper.equals(oldToValue, newValue) || newValue instanceof Collection) {
+			Object oldValue = property.getValue(object);
+			logger.finest(() -> "Set " + property.getPath() + " to " + newValue + " (previous: " + oldValue + ")");
+			if (!EqualsHelper.equals(oldValue, newValue) || newValue instanceof Collection) {
 				Object clonedObject = CloneHelper.clone(object); // clone before change!
 				property.setValue(object, newValue);
 				executeUpdater(property, newValue, clonedObject, changedProperties);
 				addChangedPropertyRecursive(property, changedProperties);
 			} else if (newValue instanceof Collection) {
-				// same instance of Collection can have changed content always assume a change. But not need of setValue .
+				// same instance of Collection can have changed content always assume a change.
+				// But not need of setValue .
 				Object clonedObject = CloneHelper.clone(object);
 				executeUpdater(property, newValue, clonedObject, changedProperties);
 				addChangedPropertyRecursive(property, changedProperties);
@@ -546,7 +555,7 @@ public class Form<T> {
 			HashSet<PropertyInterface> changedRoots = new HashSet<>(changedProperties);
 			changedRoots.forEach(root -> changedProperties.addAll(collectDependencies(root)));
 		}
-		
+
 		private HashSet<PropertyInterface> collectDependencies(PropertyInterface property) {
 			HashSet<PropertyInterface> collection = new HashSet<>();
 			collectDependencies(property, collection);
@@ -564,16 +573,16 @@ public class Form<T> {
 			}
 		}
 	}
-	
+
 	private void updateEnable() {
 		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
 			PropertyInterface property = element.getKey();
 
-			boolean enabled = evaluate(object, property, Enabled.class);
+			boolean enabled = !property.isFinal() && evaluate(object, property, Enabled.class);
 
 			if (element.getValue() instanceof Enable) {
 				((Enable) element.getValue()).setEnabled(enabled);
-			} else if (!enabled) {
+			} else if (!enabled && !property.isFinal()) {
 				if (editable) {
 					logger.severe("element " + property.getPath() + " should implement Enable");
 				} else {
@@ -582,7 +591,7 @@ public class Form<T> {
 			}
 		}
 	}
-	
+
 	private void updateVisible() {
 		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
 			PropertyInterface property = element.getKey();
@@ -605,14 +614,14 @@ public class Form<T> {
 	static boolean evaluate(Object object, PropertyInterface property, Class<? extends Annotation> annotationClass) {
 		for (PropertyInterface p2 : ChainedProperty.getChain(property)) {
 			Annotation annotation = p2.getAnnotation(annotationClass);
-			
+
 			if (annotation != null) {
 				// No common class between Enabled and Visible
 				String condition = annotation instanceof Enabled ? ((Enabled) annotation).value() : ((Visible) annotation).value();
 				if (!evaluateCondition(object, p2, condition)) {
 					return false;
 				}
-			}	
+			}
 			object = p2.getValue(object);
 			if (object == null) {
 				return true;
@@ -640,7 +649,7 @@ public class Form<T> {
 		}
 		return true;
 	}
-	
+
 	public boolean indicate(List<ValidationMessage> validationMessages) {
 		List<ValidationMessage> unused = new ArrayList<>(validationMessages);
 		boolean relevantValidationMessage = false;
