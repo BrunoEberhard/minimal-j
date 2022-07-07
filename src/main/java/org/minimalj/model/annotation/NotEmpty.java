@@ -17,4 +17,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface NotEmpty {
 
+	boolean zeroAllowed() default false;
+	
 }

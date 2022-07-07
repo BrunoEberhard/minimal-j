@@ -1,10 +1,13 @@
 package org.minimalj.frontend.editor;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Selection;
@@ -31,6 +34,15 @@ public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());
 
 	public static List<ValidationMessage> validate(Object object) {
+		return validate(object, new HashSet<>());
+	}
+
+	private static List<ValidationMessage> validate(Object object, Set<Object> validated) {
+		if (validated.contains(object)) {
+			return Collections.emptyList();
+		} else {
+			validated.add(object);
+		}
 		if (object instanceof Collection) {
 			Collection<?> list = (Collection<?>) object;
 			List<ValidationMessage> messages = new ArrayList<>();
@@ -40,7 +52,7 @@ public class Validator {
 				if (InvalidValues.isInvalid(element)) {
 					messages.add(new ValidationMessage(null, Resources.getString("ObjectValidator.message")));
 				} else {
-					List<ValidationMessage> elementMessages = validate(element);
+					List<ValidationMessage> elementMessages = validate(element, validated);
 					elementMessages.forEach(m -> messages.add(new ValidationMessage(chain(indexProperty, m.getProperty()), m.getFormattedText())));
 				}
 				index = index + 1;
@@ -56,7 +68,7 @@ public class Validator {
 				validateSize(validationMessages, value, property);
 				validateInvalid(validationMessages, value, property);
 
-				List<ValidationMessage> innerMessages = validate(value);
+				List<ValidationMessage> innerMessages = validate(value, validated);
 				innerMessages.forEach(m -> validationMessages.add(new ValidationMessage(chain(property, m.getProperty()), m.getFormattedText())));
 			});
 			if (object instanceof Validation) {
@@ -114,8 +126,21 @@ public class Validator {
 	
 
 	private static void validateEmpty(List<ValidationMessage> resultList, Object value, PropertyInterface property) {
-		if (property.getAnnotation(NotEmpty.class) != null && EmptyObjects.isEmpty(value)) {
+		NotEmpty notEmpty = property.getAnnotation(NotEmpty.class);
+		if (notEmpty != null && EmptyObjects.isEmpty(value) && !(notEmpty.zeroAllowed() && isZero(value))) {
 			resultList.add(Validation.createEmptyValidationMessage(property));
+		}
+	}
+	
+	private static boolean isZero(Object value) {
+		if (value instanceof Integer) {
+			return ((Integer) value) == 0;
+		} else if (value instanceof Long) {
+			return ((Long) value) == 0;
+		} else if (value instanceof BigDecimal) {
+			return ((BigDecimal) value).signum() == 0;
+		} else {
+			return false;
 		}
 	}
 
