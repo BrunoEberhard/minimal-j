@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -209,7 +210,10 @@ public class Keys {
 			// TODO the last condition should not be based on super method returns abstract class
 			// somehow the method in the extension class should win
 			// the array check is because of char[]  . char[] is reported as abstract
-			if (isStatic(method) || !isPublic(method) || Modifier.isAbstract(method.getModifiers()) || Modifier.isAbstract(method.getReturnType().getModifiers()) && !method.getReturnType().isArray()) continue;
+			if (isStatic(method) || !isPublic(method) || Modifier.isAbstract(method.getModifiers()) || //
+					Modifier.isAbstract(method.getReturnType().getModifiers()) && //
+					!method.getReturnType().isArray() && //
+					!Collection.class.isAssignableFrom(method.getReturnType())) continue;
 			String name = method.getName();
 			if (!name.startsWith("get") || name.length() <= 3) continue; // TODO check
 			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;
