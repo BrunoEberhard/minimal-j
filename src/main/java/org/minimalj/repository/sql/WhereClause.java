@@ -173,6 +173,9 @@ public class WhereClause<T> {
 	}
 
 	private static String whereStatement(AbstractTable<?> table, String wholeFieldPath, String criteriaString) {
+		if ("id".equals(wholeFieldPath)) {
+			return wholeFieldPath + " " + criteriaString;
+		}
 		String fieldPath = wholeFieldPath;
 		String column;
 		while (true) {
