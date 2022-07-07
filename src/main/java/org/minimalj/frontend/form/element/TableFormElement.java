@@ -30,7 +30,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private final Map<T, Form<T>> formByObject = new HashMap<>();
 
 	// protected final List<Object> columns;
-	private final TableRowFormFactory<T> formFactory;
+	private final TableRowFormFactory<? super T> formFactory;
 	private final List<Action> actions;
 	private final List<PropertyInterface> propertyAsChain;
 
@@ -44,11 +44,11 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this(property, new SimpleTableRowFormFactory<T>(columns), actions, editable);
 	}
 
-	public TableFormElement(List<T> key, TableRowFormFactory<T> formFactory, List<Action> actions, boolean editable) {
+	public TableFormElement(List<T> key, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
 		this(Keys.getProperty(key), formFactory, actions, editable);
 	}
 
-	public TableFormElement(PropertyInterface property, TableRowFormFactory<T> formFactory, List<Action> actions, boolean editable) {
+	public TableFormElement(PropertyInterface property, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
 		super(property);
 		this.editable = editable;
 		this.formFactory = formFactory;
@@ -188,7 +188,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		for (int index = 0; index < object.size(); index++) {
 			var rowObject = object.get(index);
 			var i = index;
-			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> formFactory.create(r, i, editable));
+			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
 			rowForm = checkNonNull(rowForm, rowObject);
 			rowForms.add(rowForm);
 			rowForm.setChangeListener(form -> super.fireChange());
