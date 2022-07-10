@@ -168,7 +168,7 @@ public abstract class Frontend {
 		}
 		
 		public default void setVisible(IComponent component, boolean visible) {
-			throw new RuntimeException("Not implemented");
+			// throw new RuntimeException("Not implemented");
 		}
 
 	}
