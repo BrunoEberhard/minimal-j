@@ -315,11 +315,11 @@ dialog:nth-child(3n+2) {
 }
 
 .dialogFooter button {
-	margin-right: 0.8em;
+	margin-right: 1rem;
 }
 
 .fullscreen .dialogFooter button {
-	margin-right: 0.2em;
+	margin-right: 0.2rem;
 }
 
 .dialogResize {
@@ -414,7 +414,11 @@ dialog table {
 }
 
 .form > div > div, .dialogButtons {
-	padding-right: 1em;
+	padding-right: 1rem;
+}
+
+.form > div > div:last-child {
+	padding-right: 0em;
 }
 
 .form > div > div {
@@ -637,8 +641,9 @@ label.invisible {
 	top: 0;
 	right: 0;
 	bottom: 0;
+	stroke: black; 
 	background-size: 0.5em 0.8em;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='93%25' y2='51%25'/%3E%3Cline x1='7%25' y1='93%25' x2='93%25' y2='49%25'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='93%25' y2='51%25'/%3E%3Cline x1='7%25' y1='93%25' x2='93%25' y2='49%25'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: center;
 }
