@@ -208,7 +208,14 @@ public class Form<T> {
 			int span = columns / keys.length;
 			int rest = columns;
 			for (int i = 0; i < keys.length; i++) {
-				int elementSpan = i < keys.length - 1 ? span : rest;
+				int elementSpan = span;
+				while (i < keys.length - 1 && keys[i + 1] == keys[i]) {
+					elementSpan += span;
+					i++;
+				}
+				if (i == keys.length - 1) {
+					elementSpan = rest;
+				}
 				add(keys[i], elementSpan);
 				rest = rest - elementSpan;
 			}
