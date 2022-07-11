@@ -72,6 +72,15 @@ public class AnnotationUtil {
 		}
 	}
 
+	public static int getMinDecimals(PropertyInterface property) {
+		Decimal decimal = property.getAnnotation(Decimal.class);
+		if (decimal != null) {
+			return decimal.minDecimals();
+		} else {
+			return 0;
+		}
+	}
+
 	public static <T extends Annotation> T get(Class<T> annotationClass, Object key) {
 		PropertyInterface property = Keys.getProperty(key);
 		return property.getAnnotation(annotationClass);

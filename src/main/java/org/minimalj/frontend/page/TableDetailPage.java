@@ -2,9 +2,11 @@ package org.minimalj.frontend.page;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.TableActionListener;
+import org.minimalj.util.resources.Resources;
 
 public abstract class TableDetailPage<T> extends TablePage<T> implements TableActionListener<T> {
 
@@ -75,5 +77,55 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 
 	public interface ChangeableDetailPage<T> extends Page {
 		public void setObjects(List<T> objects);
+	}
+	
+	protected class DetailAction extends ObjectTableSelectionAction<T> {
+		private final String resourceName;
+
+		public DetailAction(String resourceName) {
+			this.resourceName = resourceName;
+			setEnabled(false);
+		}
+		
+		@Override
+		protected String getResourceName() {
+			return resourceName != null ? resourceName : super.getResourceName();
+		}
+
+		@Override
+		public void run() {
+			showDetail(getSelectedObject());
+		}
+	}
+	
+	protected class DetailPageAction extends BaseTableSelectionAction<T> {
+		private final String resourceName;
+		private final ChangeableDetailPage<T> page;
+
+		public DetailPageAction(ChangeableDetailPage<T> page) {
+			this(page, null);
+		}
+		
+		public DetailPageAction(ChangeableDetailPage<T> page, String resourceName) {
+			this.page = Objects.requireNonNull(page);
+			this.resourceName = resourceName;
+			setEnabled(false);
+		}
+		
+		@Override
+		protected String getResourceName() {
+			return resourceName != null ? resourceName : super.getResourceName();
+		}
+
+		@Override
+		protected Object[] getNameArguments() {
+			return new Object[] { Resources.getString(page.getClass()) };
+		}
+		
+		@Override
+		public void run() {
+			page.setObjects(getSelectedObjects());
+			setDetailPage(page);
+		}
 	}
 }

@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.minimalj.frontend.editor.Editor;
-import org.minimalj.frontend.page.DetailPageAction;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.PageAction;
 
@@ -32,10 +31,6 @@ public class ActionGroup extends Action {
 
 	public void add(Editor<?, ?> item) {
 		items.add(item);
-	}
-	
-	public void addDetail(Page mainPage, Page detail) {
-		items.add(new DetailPageAction(mainPage, detail));
 	}
 
 	public void add(Page page, String name) {

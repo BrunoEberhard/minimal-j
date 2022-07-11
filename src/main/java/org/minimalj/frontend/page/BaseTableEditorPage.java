@@ -15,17 +15,8 @@ import org.minimalj.util.resources.Resources;
 
 abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
-	protected final boolean hasDetailPage;
-
-	private DetailPage detailPage;
-
 	protected BaseTableEditorPage() {
-		this(false);
-	}
-
-	protected BaseTableEditorPage(boolean hasDetailPage) {
 		super();
-		this.hasDetailPage = hasDetailPage;
 	}
 
 	protected abstract Form<T> createForm(boolean editable, boolean newObject);
@@ -39,8 +30,11 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	}
 	
 	protected T save(T object) {
-		// TODO only with ID
-		return Backend.save(object);
+		if (IdUtils.hasId(getClazz())) {
+			return Backend.save(object);
+		} else {
+			throw new IllegalArgumentException("Save not implemented");
+		}
 	}
 	
 	@Override
@@ -50,12 +44,7 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	
 	@Override
 	public void action(VIEW selectedView) {
-		if (hasDetailPage) {
-			super.action(selectedView);
-		} else {
-			T selectedObject = viewed(selectedView);
-			openEditor(selectedObject);
-		}
+		openEditor(selectedView);
 	}
 	
 	protected abstract T createObject();
@@ -64,19 +53,13 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 
 	protected abstract VIEW view(T object);
 	
-	protected void openEditor(T selectedObject) {
+	protected void openEditor(VIEW selectedObject) {
 		new TableEditor(selectedObject).run();
 	}
 	
 	@Override
-	protected Page getDetailPage(VIEW view) {
-		T object = viewed(view);
-		if (detailPage != null) {
-			detailPage.setObject(object);
-		} else {
-			detailPage = new DetailPage(object);
-		}
-		return detailPage;
+	protected Page getDetailPage(VIEW mainObject) {
+		return null;
 	}
 
 	public class DetailPage extends ObjectPage<T> {
@@ -183,15 +166,16 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 		return FIT_CONTENT;
 	}
 
-	public class TableEditor extends AbstractTableEditor implements TableSelectionAction<T> {
-		private T selection;
+	public class TableEditor extends AbstractTableEditor implements TableSelectionAction<VIEW> {
+		private VIEW selection;
+		private T viewed;
 
 		public TableEditor() {
 			selectionChanged(null);
 		}
 		
-		public TableEditor(T selectedObject) {
-			this.selection = selectedObject;
+		public TableEditor(VIEW selectedView) {
+			this.selection = selectedView;
 			setEnabled(selection != null);
 		}
 
@@ -200,22 +184,23 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 			return BaseTableEditorPage.this.getNameArguments();
 		}
 		
-		protected T getSelection() {
+		protected VIEW getSelection() {
 			return selection;
 		}
 		
 		@Override
 		protected T createObject() {
-			return IdUtils.hasId(getClazz()) ? CloneHelper.clone(selection) : selection;
+			viewed = viewed(selection);
+			return IdUtils.hasId(getClazz()) ? CloneHelper.clone(viewed) : viewed;
 		}
 		
 		@Override
 		protected T save(T object) {
-			return BaseTableEditorPage.this.save(object, selection);
+			return BaseTableEditorPage.this.save(object, viewed);
 		}
 		
 		@Override
-		public void selectionChanged(List<T> selectedObjects) {
+		public void selectionChanged(List<VIEW> selectedObjects) {
 			this.selection = selectedObjects != null && !selectedObjects.isEmpty() ? selectedObjects.get(0) : null;
 			setEnabled(selection != null);
 		}

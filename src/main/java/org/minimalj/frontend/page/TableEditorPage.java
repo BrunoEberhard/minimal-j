@@ -22,12 +22,6 @@ public abstract class TableEditorPage<VIEW extends View<T>, T> extends BaseTable
 	private final ClassHolder<T> classT;
 
 	public TableEditorPage() {
-		this(false);
-	}
-
-	@SuppressWarnings("unchecked")
-	public TableEditorPage(boolean hasDetailPage) {
-		super(hasDetailPage);
 		this.classT = new ClassHolder<>((Class<T>) GenericUtils.getGenericClass(this.getClass(), 1));
 	}
 	
