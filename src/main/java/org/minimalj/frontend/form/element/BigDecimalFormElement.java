@@ -30,7 +30,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 		NumberFormat format = new DecimalFormat();
 		if (decimalPlaces > 0) {
 			format.setMaximumFractionDigits(decimalPlaces);
-			format.setMinimumFractionDigits(decimalPlaces);
+			format.setMinimumFractionDigits(minDecimalPlaces);
 		} else {
 			format.setMaximumFractionDigits(0);
 			format.setMinimumFractionDigits(0);

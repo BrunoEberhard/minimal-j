@@ -467,6 +467,10 @@ dialog table {
     overflow: hidden;
 }
 
+.textAlignRight {
+	text-align: right;
+}
+
 .changed[title],
 .form.showValidations *[title],
 .form.showValidations div[title] *
@@ -641,9 +645,8 @@ label.invisible {
 	top: 0;
 	right: 0;
 	bottom: 0;
-	stroke: black; 
 	background-size: 0.5em 0.8em;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='93%25' y2='51%25'/%3E%3Cline x1='7%25' y1='93%25' x2='93%25' y2='49%25'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='93%25' y2='51%25'/%3E%3Cline x1='7%25' y1='93%25' x2='93%25' y2='49%25'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: center;
 }
