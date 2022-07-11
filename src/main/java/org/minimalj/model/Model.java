@@ -48,8 +48,11 @@ public interface Model {
 				}
 				if (Collection.class.isAssignableFrom(propertyClass)) {
 					propertyClass = property.getGenericClass();
+					if (propertyClass == null) {
+						continue;
+					}
 				}
-				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass) && !property.isFinal()) {
+				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass) /* && !property.isFinal() */) {
 					getClassesRecursive(classes, propertyClass, depthFirst, onlyWithId);
 				}
 			}

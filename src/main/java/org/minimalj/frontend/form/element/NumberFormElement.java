@@ -8,12 +8,13 @@ import org.minimalj.model.properties.PropertyInterface;
 public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 
 	protected final boolean signed;
-	protected final int size, decimalPlaces;
+	protected final int size, decimalPlaces, minDecimalPlaces;
 	
 	protected NumberFormElement(PropertyInterface property, boolean editable) {
 		super(property, editable);
 		size = AnnotationUtil.getSize(property);
 		decimalPlaces = AnnotationUtil.getDecimal(property);
+		minDecimalPlaces = Math.min(decimalPlaces, AnnotationUtil.getMinDecimals(property));
 		signed = AnnotationUtil.isSigned(property);
 	}
 	
