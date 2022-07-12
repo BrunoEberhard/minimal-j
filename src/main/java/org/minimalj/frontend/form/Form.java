@@ -585,7 +585,7 @@ public class Form<T> {
 		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
 			PropertyInterface property = element.getKey();
 
-			boolean enabled = !property.isFinal() && evaluate(object, property, Enabled.class);
+			boolean enabled = !(property.isFinal() && FieldUtils.isAllowedPrimitive(property.getClazz())) && evaluate(object, property, Enabled.class);
 
 			if (element.getValue() instanceof Enable) {
 				((Enable) element.getValue()).setEnabled(enabled);
