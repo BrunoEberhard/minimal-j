@@ -578,6 +578,10 @@ textarea {
 	resize: vertical;
 }
 
+textarea[disabled] {
+	resize: none;
+}
+
 hr {
 	margin: 0px;
 	border: 0px;
