@@ -230,7 +230,7 @@ public class Keys {
 					break;
 				}
 			}
-			return new MethodProperty(clazz, methodName, method, setterMethod);
+			return new MethodProperty(method.getDeclaringClass(), methodName, method, setterMethod);
 		}
 		return null;
 	}
