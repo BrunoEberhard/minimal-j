@@ -24,7 +24,6 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
-import org.minimalj.util.resources.Resources;
 
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
@@ -59,7 +58,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		alignments = new String[keys.length];
 
 		for (PropertyInterface property : properties) {
-			String header = Resources.getPropertyName(property);
+			String header = Column.evalHeader(property);
 			headers.add(header);
 			headerPathes.add(property.getPath());
 			int column = headers.size() - 1;

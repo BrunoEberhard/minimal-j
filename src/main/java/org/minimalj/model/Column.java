@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.util.resources.Resources;
 
 public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 
@@ -41,6 +42,18 @@ public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 
 	public ColumnAlignment getAlignment() {
 		return null;
+	}
+	
+	public String getHeader() {
+		return Resources.getPropertyName(property);
+	}
+	
+	public static String evalHeader(PropertyInterface property) {
+		if (property instanceof Column) {
+			return ((Column<?, ?>) property).getHeader();
+		} else {
+			return Resources.getPropertyName(property);
+		}
 	}
 	
 	// delegation
