@@ -56,6 +56,10 @@ public class Keys {
 	public static boolean isKeyObject(Object object) {
 		return keyObjects.contains(object) || properties.containsKey(object);
 	}
+	
+	public static <T> T getKeyObject(Class<T> clazz) {
+		return (T) keyObjects.stream().filter(k -> k.getClass() == clazz).findAny().orElse(null);
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <T> T methodOf(Object keyObject, String propertyName, Object... dependencies) {
