@@ -29,12 +29,9 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private final List<Form<?>> rowForms = new ArrayList<>();
 	private final Map<T, Form<T>> formByObject = new HashMap<>();
 
-	// protected final List<Object> columns;
 	private final TableRowFormFactory<? super T> formFactory;
 	private final List<Action> actions;
 	private final List<PropertyInterface> propertyAsChain;
-
-//	private final PositionListModel model;
 
 	public TableFormElement(List<T> key, List<Object> columns, List<Action> actions, boolean editable) {
 		this(Keys.getProperty(key), columns, actions, editable);
@@ -53,7 +50,6 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this.editable = editable;
 		this.formFactory = formFactory;
 		this.actions = Collections.unmodifiableList(actions);
-//		this.model = createModel();
 		this.switchComponent = Frontend.getInstance().createSwitchComponent();
 		this.propertyAsChain = ChainedProperty.getChain(getProperty());
 	}
@@ -78,68 +74,6 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			return rowForm;
 		}
 	}
-
-//	private PositionListModel createModel() {
-//		return new BasePositionListModel();
-//	}
-//
-//	protected class BasePositionListModel implements PositionListModel {
-//
-//		public BasePositionListModel() {
-//		}
-//
-//		@Override
-//		public int getColumnCount() {
-//			return properties.size();
-//		}
-//
-//		@Override
-//		public int getWidth(int column) {
-//			return 100;
-//		}
-//
-//		@Override
-//		public int getRowCount() {
-//			return object.size();
-//		}
-//
-//		@Override
-//		public boolean canAdd() {
-//			return editable;
-//		}
-//
-//		@Override
-//		public void addRow(int beforeRow) {
-//			T newRow = CloneHelper.newInstance(clazz);
-//			if (beforeRow >= 0 && beforeRow <= object.size()) {
-//				object.add(beforeRow, newRow);
-//			} else {
-//				object.add(newRow);
-//			}
-//			handleChange();
-//		}
-//
-//		@Override
-//		public boolean canDelete() {
-//			return editable;
-//		}
-//
-//		@Override
-//		public void deleteRow(int row) {
-//			object.remove(row);
-//			handleChange();
-//		}
-//
-//		@Override
-//		public boolean canMove() {
-//			return false;
-//		}
-//
-//		@Override
-//		public void moveRow(int row, int beforeRow) {
-//			// not yet implemented
-//		}
-//	}
 
 	protected final boolean isEditable() {
 		return editable;
@@ -188,6 +122,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		for (int index = 0; index < object.size(); index++) {
 			var rowObject = object.get(index);
 			var i = index;
+			@SuppressWarnings("unchecked")
 			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
 			rowForm = checkNonNull(rowForm, rowObject);
 			rowForms.add(rowForm);
@@ -225,6 +160,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	}
 
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
+		@SuppressWarnings("unchecked")
 		ArrayList<ValidationMessage>[] validationMessagesByRow = new ArrayList[rowForms.size()];
 
 		for (ValidationMessage message : validationMessages) {
