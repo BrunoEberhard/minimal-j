@@ -531,7 +531,7 @@ public class SqlRepository implements TransactionalRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass)) {
+				if (Code.class.isAssignableFrom(fieldClass) && !isLoading((Class<? extends Code>) fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
@@ -738,7 +738,7 @@ public class SqlRepository implements TransactionalRepository {
 		return tables.containsKey(clazz);
 	}
 	
-	public <T extends Code> T getCode(Class<T> clazz, Object codeId) {
+	private <T extends Code> T getCode(Class<T> clazz, Object codeId) {
 		if (isLoading(clazz)) {
 			// this special case is needed to break a possible reference cycle
 			return getTable(clazz).read(codeId);
