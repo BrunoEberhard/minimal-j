@@ -116,6 +116,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected void createTable(SqlDialect dialect) {
+		createEnums(dialect);
 		StringBuilder s = new StringBuilder();
 		dialect.addCreateStatementBegin(s, getTableName());
 		addSpecialColumns(dialect, s);
@@ -139,6 +140,24 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
+	protected void createEnums(SqlDialect dialect) {
+		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
+			PropertyInterface property = column.getValue();
+			Class<?> propertyClass = property.getClazz();
+			if (propertyClass.isEnum()) {
+				if (!sqlRepository.dbTypes.containsKey(propertyClass)) {
+					StringBuilder s = new StringBuilder();
+					String identifier = sqlRepository.sqlIdentifier.identifier(propertyClass.getSimpleName(), sqlRepository.dbTypes.values());
+					String query = dialect.createType(propertyClass, identifier);
+					if (query != null) {
+						execute(query);
+						sqlRepository.dbTypes.put(propertyClass, identifier);
+					}
+				}
+			}
+		}
+	}
+	
 	protected abstract void addSpecialColumns(SqlDialect dialect, StringBuilder s);
 	
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
@@ -146,7 +165,11 @@ public abstract class AbstractTable<T> {
 			s.append(",\n ").append(column.getKey()).append(' '); 
 
 			PropertyInterface property = column.getValue();
-			dialect.addColumnDefinition(s, property);
+			if (sqlRepository.dbTypes.containsKey(property.getClazz())) {
+				s.append(sqlRepository.dbTypes.get(property.getClazz()));
+			} else {
+				dialect.addColumnDefinition(s, property);
+			}
 			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
 			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
 		}

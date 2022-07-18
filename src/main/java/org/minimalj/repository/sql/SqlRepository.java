@@ -9,9 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,6 +71,8 @@ public class SqlRepository implements TransactionalRepository {
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<>();
 	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
 	private final Map<Class<?>, HashMap<String, PropertyInterface>> columnsForClassUpperCase = new HashMap<>(200);
+	
+	protected final Map<Class<?>, String> dbTypes = new HashMap<>();
 	
 	private final DataSource dataSource;
 	
@@ -400,17 +399,18 @@ public class SqlRepository implements TransactionalRepository {
 	 * TODO: should be merged with the setParameter in AbstractTable.
 	 */
 	private void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
-		if (value instanceof Enum<?>) {
-			Enum<?> e = (Enum<?>) value;
-			value = e.ordinal();
-		} else if (value instanceof LocalDate) {
-			value = java.sql.Date.valueOf((LocalDate) value);
-		} else if (value instanceof LocalTime) {
-			value = java.sql.Time.valueOf((LocalTime) value);
-		} else if (value instanceof LocalDateTime) {
-			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
-		}
-		preparedStatement.setObject(param, value);
+		getSqlDialect().setParameter(preparedStatement, param, value);
+//		if (value instanceof Enum<?>) {
+//			Enum<?> e = (Enum<?>) value;
+//			value = e.ordinal();
+//		} else if (value instanceof LocalDate) {
+//			value = java.sql.Date.valueOf((LocalDate) value);
+//		} else if (value instanceof LocalTime) {
+//			value = java.sql.Time.valueOf((LocalTime) value);
+//		} else if (value instanceof LocalDateTime) {
+//			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
+//		}
+//		preparedStatement.setObject(param, value);
 	}
 
 	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {

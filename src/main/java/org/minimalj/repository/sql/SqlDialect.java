@@ -136,6 +136,10 @@ public abstract class SqlDialect {
 		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
 	}
 	
+	public String createType(Class<?> clazz, String identifier) {
+		return null;
+	}
+	
 	public static class MariaSqlDialect extends SqlDialect {
 		
 		@Override
@@ -226,6 +230,8 @@ public abstract class SqlDialect {
 		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
 			if (value instanceof Boolean) {
 				preparedStatement.setBoolean(param, (Boolean) value);
+			} else if (value instanceof Enum<?>) {
+				preparedStatement.setObject(param, value, java.sql.Types.OTHER);
 			} else {
 				super.setParameter(preparedStatement, param, value);
 			}
@@ -251,10 +257,46 @@ public abstract class SqlDialect {
 		public String limit(int rows, Integer offset) {
 			return "LIMIT " + rows + (offset != null ? " OFFSET " + offset.toString() : "");
 		}
+		
+		@Override
+		public String createType(Class<?> clazz, String identifier) {
+			StringBuilder s = new StringBuilder();
+			s.append("CREATE OR REPLACE TYPE ").append(identifier).append(" AS ENUM ('");
+			for (Object e : EnumUtils.valueList((Class<? extends Enum>) clazz)) {
+				s.append(((Enum) e).name()).append("', '");
+			}
+			s.delete(s.length() - 3, s.length());
+			s.append(")");		
+			return s.toString();
+		}
 	}
 	
 	public static class H2SqlDialect extends SqlDialect {
-	
+
+		@Override
+		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+			Class<?> clazz = property.getClazz();
+			if (Enum.class.isAssignableFrom(clazz)) {
+				// ENUM('clubs', 'diamonds', 'hearts', 'spades')
+				s.append("ENUM('");
+				for (Object e : EnumUtils.valueList((Class<? extends Enum>) clazz)) {
+					s.append(((Enum) e).name()).append("', '");
+				}
+				s.delete(s.length() - 3, s.length());
+				s.append(")");
+			} else {
+				super.addColumnDefinition(s, property);
+			}
+		}
+		
+		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
+			if (value instanceof Enum<?>) {
+				Enum<?> e = (Enum<?>) value;
+				value = e.name();
+			}
+			super.setParameter(preparedStatement, param, value);
+		}
+		
 		@Override
 		public int getMaxIdentifierLength() {
 			// h2 doesn't really have a maximum identifier length

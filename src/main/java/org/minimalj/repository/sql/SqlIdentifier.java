@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,14 +17,14 @@ public class SqlIdentifier {
 		this.maxIdentifierLength = maxIdentifierLength;
 	}
 
-	protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
+	protected String identifier(String identifier, Collection<String> alreadyUsedIdentifiers) {
 		identifier = cutToMaxLength(identifier);
 		identifier = avoidReservedSqlWords(identifier);
 		identifier = resolveIdentifierConflicts(alreadyUsedIdentifiers, identifier);
 		return identifier;
 	}
 	
-	public String table(String identifier, Set<String> alreadyUsedIdentifiers) {
+	public String table(String identifier, Collection<String> alreadyUsedIdentifiers) {
 		return identifier(identifier, alreadyUsedIdentifiers);
 	}
 
@@ -66,7 +67,7 @@ public class SqlIdentifier {
 		return identifier;
 	}
 
-	protected String resolveIdentifierConflicts(Set<String> alreadyUsedIdentifiers, String identifier) {
+	protected String resolveIdentifierConflicts(Collection<String> alreadyUsedIdentifiers, String identifier) {
 		if (alreadyUsedIdentifiers.contains(identifier)) {
 			int i = 1;
 			do {
