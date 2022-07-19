@@ -17,10 +17,12 @@ public class SearchDialog<T> implements Dialog {
 	private final SaveAction saveAction;
 	private final Action cancelAction;
 	private List<T> selection;
-
-	public SearchDialog(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener, List<Action> additionalActions) {
+	private final String title;
+	
+	public SearchDialog(Search<T> search, String title, Object[] keys, boolean multiSelect, TableActionListener<T> listener, List<Action> additionalActions) {
 		this.listener = listener;
-
+		this.title = title;
+		
 		this.saveAction = new SaveAction();
 		this.cancelAction = new CancelAction();
 
@@ -33,6 +35,11 @@ public class SearchDialog<T> implements Dialog {
 		actions.add(saveAction);
 		
 		content = Frontend.getInstance().createTable(search, keys, multiSelect, new SearchTableListener());
+	}
+	
+	@Override
+	public String getTitle() {
+		return title;
 	}
 	
 	@Override

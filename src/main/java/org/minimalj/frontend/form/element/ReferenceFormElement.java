@@ -20,6 +20,7 @@ import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
 	private final Class<T> fieldClazz;
@@ -53,8 +54,12 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 	protected void lookup() {
 		List<Action> additionalActions = createAdditionalActions();
 		additionalActions = additionalActions.stream().filter(Action::isEnabled).collect(Collectors.toList());
-		dialog = new SearchDialog<>(this, columns, false, new SearchDialogActionListener(), additionalActions);
+		dialog = new SearchDialog<>(this, getTitle(), columns, false, new SearchDialogActionListener(), additionalActions);
 		Frontend.showDialog(dialog);
+	}
+	
+	protected String getTitle() {
+		return Resources.getString(SearchDialog.class);
 	}
 
 	protected List<Action> createAdditionalActions() {
