@@ -43,7 +43,7 @@ public interface Model {
 			classes.add(clazz);
 			for (PropertyInterface property : Properties.getProperties(clazz).values()) {
 				Class<?> propertyClass = property.getClazz();
-				if (propertyClass == Selection.class) {
+				if (View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
 					continue;
 				}
 				if (Collection.class.isAssignableFrom(propertyClass)) {
