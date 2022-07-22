@@ -81,6 +81,7 @@ $ICON
 			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
 			updatePageButtons();
+			resizeNavigation();
 			saveStateInHistory();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
@@ -88,11 +89,13 @@ $ICON
 				showPage(pages[i]);
 			}
 			updatePageButtons();
+			resizeNavigation();
 		} else if ("hidePage" in dataObject) {
 			addNewStateToHistory();
 			hidePage(dataObject.hidePage);
 			saveStateInHistory();
 			updatePageButtons();
+			resizeNavigation();
 		} else if ("showUrl" in dataObject) {
 			window.location.href = dataObject.showUrl;
 		} else if (dataObject.pageId) {
@@ -328,6 +331,10 @@ $ICON
 		pageContentAndActionsElement.className = "pageContentAndActions";
 		pageElement.appendChild(pageContentAndActionsElement);
 	
+		var pageContent = document.createElement("div");
+		pageContent.className = "pageContent";
+		pageContentAndActionsElement.appendChild(pageContent);
+		
 		pageContainerElement.appendChild(pageElement);
 	
 		if (page.content) {
@@ -335,7 +342,7 @@ $ICON
 			if (page.content.type === "Html") {
 				contentElement = document.createElement("iframe");
 				// the iframe must be already attached to have the document
-				pageContentAndActionsElement.appendChild(contentElement);
+				pageContent.appendChild(contentElement);
 				if (!!("srcdoc" in contentElement)) {
 					// in chrome this works best
 					contentElement.srcdoc = page.content.htmlOrUrl;
@@ -346,9 +353,8 @@ $ICON
 				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
 			} else {
 				var contentElement = createContent(page.content);
-				pageContentAndActionsElement.appendChild(contentElement);
+				pageContent.appendChild(contentElement);
 			}
-			contentElement.classList.add("pageContent");
 			contentElement.classList.add("content" + page.content.type);
 			
 			headerElement.ondblclick = function(e) { selectAll(contentElement); }
@@ -455,12 +461,6 @@ $ICON
 	}
 	
 	function closeActionMenu(event) {
-		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
-			var page = pageContainerElement.childNodes[i];
-			if (page.actionMenu && page.actionMenu.style.display === "block") {
-				page.actionMenu.style.display = "none";
-			}
-		}
 	    var dropdowns = document.getElementsByClassName("dropdown");
 	    for (var i = 0; i < dropdowns.length; i++) {
 	      dropdowns[i].style.display = "none";
@@ -1664,6 +1664,23 @@ $ICON
 			toggleNavigation("open");
 		}
 		lastWidth = newWidth;
+		
+		var pageContentAndActionElements = document.getElementsByClassName("pageContentAndActions");
+	    for (var i = 0; i < pageContentAndActionElements.length; i++) {
+	    	var pageContentAndActionElement = pageContentAndActionElements[i];
+	    	if (pageContentAndActionElement.childNodes.length >= 2) {
+		    	var pageContent = pageContentAndActionElement.childNodes[0];
+		    	var content = pageContent.childNodes[0];
+	    		var actionMenu = pageContentAndActionElement.childNodes[1];
+		    	if ((pageContentAndActionElement.offsetWidth - parseInt(getComputedStyle(content).minWidth, 10)) > 200) {
+		    		actionMenu.classList.remove("dropdown");
+		    		actionMenu.style.display = "block";
+		    	} else {
+		    		actionMenu.classList.add("dropdown");
+		    	}
+	    	}
+
+	    }
 	
 	}
 	
