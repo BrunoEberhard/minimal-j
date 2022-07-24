@@ -172,8 +172,7 @@ public class JsonPageManager implements PageManager {
 				}
 			}
 
-			Subject subject = null;
-			if (authentication instanceof RememberMeAuthentication) {
+			if (subject == null && authentication instanceof RememberMeAuthentication) {
 				RememberMeAuthentication rememberMeAuthentication = (RememberMeAuthentication) authentication;
 				String token = (String) input.getObject("rememberMeToken");
 				if (token != null) {
