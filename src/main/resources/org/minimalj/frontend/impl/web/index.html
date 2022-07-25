@@ -324,7 +324,7 @@ $ICON
 		var headerElement = createPageHeader(page);
 		pageElement.appendChild(headerElement);
 		if (!hasActionMenu) {
-			headerElement.querySelector(".actionMenuButton").style.display = "none";
+			headerElement.querySelector(".sideBarActionButton").style.display = "none";
 		}
 	
 		var pageContentAndActionsElement = document.createElement("div");
@@ -371,15 +371,13 @@ $ICON
 		}
 	
 		// actions
-		document.getElementById("actionMenuButton").style.display = hasActionMenu ? null : "none";
+		document.getElementById("sideBarActionButton").style.display = hasActionMenu ? null : "none";
 	
 		if (hasActionMenu) {
-			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
-			actionMenuElement.className = "actionMenu";
-			actionMenuElement.style.display = "none";
+			var sideBarElement = createMenu(page.actionMenu, page.pageId);
+			sideBarElement.className = "actionSideBar";
 	
-			pageContentAndActionsElement.appendChild(actionMenuElement);
-			pageElement.actionMenu = actionMenuElement;
+			pageContentAndActionsElement.appendChild(sideBarElement);
 		}
 	
 		if (window.innerWidth < 992) toggleNavigation("close");
@@ -415,39 +413,33 @@ $ICON
 		}
 	}
 
-	function togglePageActionMenu(event) {
-		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
-			var page = pageContainerElement.childNodes[i];
-			if (page.actionMenu && page.actionMenu.style.display === "block") {
-				page.actionMenu.style.display = "none";
-				event.preventDefault();
-				return;
-			}
-		}
-	
+	function toggleActionSideBar(event) {
 		var pageElement = getPageElement(event);
-		if (pageElement && pageElement.actionMenu) {
-			var pageActionContainer = pageElement.actionMenu;
-			pageActionContainer.style.display = "block";
+		var sideBarElement = pageElement.querySelector(".actionSideBar");
+		sideBarElement.classList.toggle("hide");
+	}
 	
-			if (event.type === "contextmenu") {
-				pageActionContainer.style.left = event.x;
-				if (event.x + pageActionContainer.offsetWidth > window.innerWidth) {
-					pageActionContainer.style.left = Math.max(0, window.innerWidth - pageActionContainer.offsetWidth);
-				}
-				pageActionContainer.style.top = event.y;
-				pageActionContainer.style.maxHeight = "unset";
-				if (event.y + pageActionContainer.offsetHeight > window.innerHeight - 30) {
-					pageActionContainer.style.top = Math.max(30, window.innerHeight - pageActionContainer.offsetHeight);
-					pageActionContainer.style.maxHeight = window.innerHeight - 70;
-				}
-			} else {
-				pageActionContainer.style.left = event.target.getBoundingClientRect().right - pageActionContainer.offsetWidth;
-				pageActionContainer.style.top = event.target.getBoundingClientRect().bottom;
-			}
-			event.preventDefault();
-			event.stopPropagation();
+	function showContextMenu(event) {
+		var pageElement = getPageElement(event);
+		var pageContentAndActionsElement = pageElement.querySelector(".pageContentAndActions");
+		var sideBarElement = pageElement.querySelector(".actionSideBar");
+		var contextMenuElement = sideBarElement.cloneNode(true);
+		contextMenuElement.className = "contextMenu";
+
+		pageContentAndActionsElement.appendChild(contextMenuElement);
+
+		contextMenuElement.style.left = event.x;
+		if (event.x + contextMenuElement.offsetWidth > window.innerWidth) {
+			contextMenuElement.style.left = Math.max(0, window.innerWidth - contextMenuElement.offsetWidth);
 		}
+		contextMenuElement.style.top = event.y;
+		contextMenuElement.style.maxHeight = "unset";
+		if (event.y + contextMenuElement.offsetHeight > window.innerHeight - 30) {
+			contextMenuElement.style.top = Math.max(30, window.innerHeight - contextMenuElement.offsetHeight);
+			contextMenuElement.style.maxHeight = window.innerHeight - 70;
+		}
+		event.preventDefault();
+		event.stopPropagation();
 	}
 	
 	function getPageElement(event) {
@@ -461,9 +453,9 @@ $ICON
 	}
 	
 	function closeActionMenu(event) {
-	    var dropdowns = document.getElementsByClassName("dropdown");
+	    var dropdowns = document.getElementsByClassName("contextMenu");
 	    for (var i = 0; i < dropdowns.length; i++) {
-	      dropdowns[i].style.display = "none";
+	      dropdowns[i].parentNode.removeChild(dropdowns[i]);
 	    }
 	}
 	
@@ -1668,20 +1660,22 @@ $ICON
 		var pageContentAndActionElements = document.getElementsByClassName("pageContentAndActions");
 	    for (var i = 0; i < pageContentAndActionElements.length; i++) {
 	    	var pageContentAndActionElement = pageContentAndActionElements[i];
-	    	if (pageContentAndActionElement.childNodes.length >= 2) {
-		    	var pageContent = pageContentAndActionElement.childNodes[0];
-		    	var content = pageContent.childNodes[0];
-	    		var actionMenu = pageContentAndActionElement.childNodes[1];
-		    	if ((pageContentAndActionElement.offsetWidth - parseInt(getComputedStyle(content).minWidth, 10)) > 200) {
-		    		actionMenu.classList.remove("dropdown");
-		    		actionMenu.style.display = "block";
-		    	} else {
-		    		actionMenu.classList.add("dropdown");
+	    	var actionSideBarElement = pageContentAndActionElement.querySelector(".actionSideBar");
+	    	if (actionSideBarElement != null) {
+		    	var pageContentElement = pageContentAndActionElement.querySelector(".pageContent");
+	
+		    	var computedStyle = window.getComputedStyle(actionSideBarElement);
+				var actionSideBarWidth = parseInt(computedStyle.width, 10);
+				
+				actionSideBarElement.classList.add("hide"); // first hide to get width correct
+				computedStyle = window.getComputedStyle(pageContentElement);
+				var pageContentMaxWidth = parseInt(computedStyle.width, 10);
+				
+		    	if ((pageContentAndActionElement.offsetWidth - actionSideBarWidth) > pageContentMaxWidth) {
+		    		actionSideBarElement.classList.remove("hide");
 		    	}
 	    	}
-
 	    }
-	
 	}
 	
 	function changeLogin() {
@@ -1787,7 +1781,7 @@ $ICON
 				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:10%" />
 				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:15%" />
 			</svg>
-			<svg id="actionMenuButton" class="button headerButton" onclick="togglePageActionMenu(evt);">
+			<svg id="sideBarActionButton" class="button headerButton" onclick="toggleActionSideBar(evt);">
 				<g style="stroke-width:0px"> 		
 					<rect x="35%" y="13%" width="30%" height="17%"/>
 					<rect x="35%" y="46%" width="30%" height="17%"/>
@@ -1808,7 +1802,7 @@ $ICON
 			</div>
 		</div>
 		<noscript style="display: block; margin: 2em;">$NOSCRIPT</noscript>
-		<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
+		<div id="pageContainer" onContextmenu="showContextMenu(event);">
 		</div>	
 	</div>
 	<div id="applicationVersion">$APPLICATION-VERSION</div>
@@ -1844,7 +1838,7 @@ $ICON
 			</svg>
 		</div>		
 		<div id="pageHeaderButtons">
-			<svg style="stroke-width:0px" class="actionMenuButton pageButton button hidden-print" onclick="togglePageActionMenu(evt);">
+			<svg style="stroke-width:0px" class="sideBarActionButton pageButton button hidden-print" onclick="toggleActionSideBar(evt);">
 				<rect x="30%" y="13%" width="40%" height="17%"/>
 				<rect x="30%" y="46%" width="40%" height="17%"/>
 				<rect x="30%" y="80%" width="40%" height="17%"/>

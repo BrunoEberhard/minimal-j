@@ -103,30 +103,30 @@ body {
 
 #navigation {
 	position: relative;
-	width: calc(15em - 1px);
+	width: calc(10rem - 1px);
 	height: 100%;
 	max-height: calc(100% - 2em);
 	bottom: 0;
 	overflow: auto;
-	padding-left: 0.7em;
+	padding-left: 0.7rem;
 }
 
 #navigation ul {
-	padding-left: 0.7em;
+	padding-left: 0.6rem;
 }
 
-#navigation li {
-	margin: 0.7em 0em 0.7em 0em;
+#navigation li, .contextMenu li, .actionSideBar li {
+	margin: 0.4rem 0rem 0.4rem 0rem;
 }
 
-#navigation li, .actionMenu li {
+#navigation li, .contextMenu li, .actionSideBar li {
 	list-style: none;
 }
 
-#navigation li a, .actionMenu li a {
+#navigation li a, .contextMenu li a, .actionSideBar li a {
 	display: block;
-	border-top: 0.25em transparent solid;
-	border-bottom: 0.25em transparent solid;
+	border-top: 0.2rem transparent solid;
+	border-bottom: 0.2rem transparent solid;
 	width: 100%;
 	box-sizing: border-box;
 }
@@ -247,20 +247,27 @@ table.table thead {
 	vertical-align: middle;
 }
 
-.actionMenu {
-	width: 15em;
+.contextMenu {
+	width: 10rem;
 	background: white;
 	overflow: auto;
-	flex-grow: 0;
-	flex-basis: 15em;
-}
-
-.actionMenu.dropdown {
 	position: fixed;
 	height: unset;
 	border: 1px rgb(160,160,160) solid;
-	padding: 0.5ex 1ex 0.5ex 1ex;
+	padding: 0.2rem 0ex 0.2rem 1.2rem;
 	z-index: 20;
+}
+
+.actionSideBar {
+	width: 15rem;
+	height: 100%;
+	box-sizing: border-box;
+	border-left: 1px black solid;
+	margin: 0px;
+	padding-left: 1.5rem;
+	overflow: auto;
+	flex-grow: 0;
+	flex-basis: 15em;
 }
 
 /* dialog */
@@ -684,7 +691,7 @@ label.invisible {
 @media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
-	#actionMenuButton, #tableFilterButton { display: none; }
+	#sideBarActionButton, #tableFilterButton { display: none; }
 }
 
 @media screen and (max-width: 991px) {
@@ -698,7 +705,7 @@ label.invisible {
 	.page:last-child { display: block; border-bottom: none; top: 0em; right: 0em; min-height: unset; height: 100%; }
 	.page:last-child > .pageContentAndActions { top: 0em; height: 100%;}
 	.pageHeader { display: none; }
-	.actionMenu { min-width: 13em;}
+	.contextMenu { min-width: 13em;}
 	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 	table.form, table.form input, table.form select { margin: 0px; }
 }
