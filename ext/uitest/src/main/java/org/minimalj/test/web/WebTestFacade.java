@@ -289,7 +289,10 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public Runnable get(String text) {
 			return () -> {
-				WebElement actionMenu = divPage.findElement(By.className("actionMenu"));
+				Actions actions = new Actions(driver);
+				actions.contextClick(divPage).perform();
+				
+				WebElement actionMenu = divPage.findElement(By.className("contextMenu"));
 				WebElement item;
 				if (actionMenu.isDisplayed()) {
 					item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
