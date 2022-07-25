@@ -272,7 +272,7 @@ table.table thead {
 	width: 15rem;
 	height: 100%;
 	box-sizing: border-box;
-	border-left: 1px black solid;
+	border-left: 1px rgb(160,160,160) solid;
 	margin: 0px;
 	padding-left: 1.5rem;
 	overflow: auto;
