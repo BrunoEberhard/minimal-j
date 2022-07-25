@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.minimalj</groupId>
   <artifactId>rest</artifactId>
-  <version>0.4.0.0</version>
+  <version>0.5.0.0-SNAPSHOT</version>
   <name>Rest Server</name>
   <description>Rest server for the Minimal-j repository</description>
   
@@ -11,8 +11,8 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>1.17</source>
+					<target>1.17</target>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>metamodel</artifactId>
-			<version>[0.3.0.0,)</version>
+			<version>[0.4.0.0-SNAPSHOT,)</version>
 		</dependency>		
 		<dependency>
 			<groupId>junit</groupId>
