@@ -83,15 +83,13 @@ public class HtmlAuthenticationTest extends WebTest {
 		pageContainer.logout();
 	}
 	
-//	@Test
-//	public void testAuthenticatonModeSuggested() {
-//		WebServer.start(new TestApplication(AuthenticatonMode.SUGGESTED
-//		driver.get("http://localhost:8080");
-//		waitBlock();
-//		loginShouldBeShown();
-//		noLoginButtonShouldBeShown();
-//	}
-//
+	@Test
+	public void testAuthenticatonModeSuggested() {
+		start(new TestApplication(AuthenticatonMode.SUGGESTED));
+		
+		Assert.assertTrue(ui().getLoginTestFacade().hasSkipLogin());
+	}
+
 //	@Test
 //	public void testAuthenticatonModeOptional() {
 //		WebServer.start(new TestApplication(AuthenticatonMode.OPTIONAL));
@@ -132,11 +130,8 @@ public class HtmlAuthenticationTest extends WebTest {
 //		Assert.assertEquals(Resources.getString("Login.title"), driver.getTitle());
 //	}
 //
-//	private void noLoginButtonShouldBeShown() {
-//		Assert.assertNotNull(driver.findElement(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")));
-//	}
 //
-//	private void startWithoutLoginShouldBePossible() {
+	//	private void startWithoutLoginShouldBePossible() {
 //		Assert.assertTrue(driver.findElements(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")).isEmpty());
 //	}
 //	

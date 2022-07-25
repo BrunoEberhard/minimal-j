@@ -82,8 +82,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public boolean hasSkipLogin() {
-			// TODO Auto-generated method stub
-			return false;
+			return driver.findElement(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")) != null;
 		}
 
 		@Override
@@ -99,8 +98,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public void cancel() {
-			// TODO Auto-generated method stub
-
+			clickButton("LoginAction");
 		}
 
 		@Override
