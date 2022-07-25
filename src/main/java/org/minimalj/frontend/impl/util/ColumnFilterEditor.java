@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.util;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -66,7 +67,7 @@ public class ColumnFilterEditor extends Action implements Dialog {
 	
 	@Override
 	public List<Action> getActions() {
-		return List.of(cancelAction, saveAction);
+		return Arrays.asList(cancelAction, saveAction);
 	}
 	
 	public SaveAction getSaveAction() {

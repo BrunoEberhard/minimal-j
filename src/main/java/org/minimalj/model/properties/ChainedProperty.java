@@ -2,6 +2,7 @@ package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ChainedProperty implements PropertyInterface {
@@ -29,7 +30,7 @@ public class ChainedProperty implements PropertyInterface {
 	}
 
 	public static List<PropertyInterface> getChain(PropertyInterface property) {
-		return property instanceof ChainedProperty ? ((ChainedProperty) property).getChain() : List.of(property);
+		return property instanceof ChainedProperty ? ((ChainedProperty) property).getChain() : Collections.singletonList(property);
 	}
 
 	public static PropertyInterface buildChain(List<PropertyInterface> chain) {

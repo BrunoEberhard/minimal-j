@@ -16,6 +16,8 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
@@ -487,9 +489,9 @@ public class SwingFrontend extends Frontend {
 		SkipLoginAction skipLoginAction = new SkipLoginAction();
 		List<Action> actions;
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED && !hasContext()) {
-			actions = List.of(skipLoginAction, dialog.getSaveAction());
+			actions = Arrays.asList(skipLoginAction, dialog.getSaveAction());
 		} else {
-			actions = List.of(dialog.getSaveAction());
+			actions = Collections.singletonList(dialog.getSaveAction());
 		}
 		
 		SwingDialog swingDialog;

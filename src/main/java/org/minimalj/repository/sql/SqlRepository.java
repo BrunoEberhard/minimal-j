@@ -738,7 +738,7 @@ public class SqlRepository implements TransactionalRepository {
 		return tables.containsKey(clazz);
 	}
 	
-	private <T extends Code> T getCode(Class<T> clazz, Object codeId) {
+	protected <T extends Code> T getCode(Class<T> clazz, Object codeId) {
 		if (isLoading(clazz)) {
 			// this special case is needed to break a possible reference cycle
 			return getTable(clazz).read(codeId);
@@ -748,7 +748,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Code> boolean isLoading(Class<T> clazz) {
+	protected <T extends Code> boolean isLoading(Class<T> clazz) {
 		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
 		return cacheItem != null && cacheItem.isLoading();
 	}

@@ -176,7 +176,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass)) {
+				if (Code.class.isAssignableFrom(fieldClass) && !isLoading((Class<? extends Code>) fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value);
 				} else if (View.class.isAssignableFrom(fieldClass)) {

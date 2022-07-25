@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -290,7 +291,7 @@ public class JsonPageManager implements PageManager {
 			} else {
 				Page page = new ExpiredPage();
 				String pageId = pageStore.put(page);
-				output.add("showPages", List.of(createJson(page, pageId, null)));
+				output.add("showPages", Collections.singletonList(createJson(page, pageId, null)));
 			}
 		}
 		

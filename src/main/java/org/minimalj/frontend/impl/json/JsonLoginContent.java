@@ -1,6 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
@@ -13,7 +13,7 @@ public class JsonLoginContent  extends JsonComponent implements IContent {
 		
 		put("actions", JsonPageManager.createActions(actions));
 		
-		int loginActionIndex = List.of(actions).indexOf(loginAction);
+		int loginActionIndex = Arrays.asList(actions).indexOf(loginAction);
 		put("loginActionIndex", loginActionIndex);
 	}
 }
