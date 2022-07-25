@@ -213,8 +213,11 @@ body {
 }
 
 .pageContent iframe {
-	height: 100%;
-	padding: 0;
+	height: calc(100% + 0.5ex);
+	width: calc(100% + 1.5em);
+	margin-left: -1em;
+	margin-top: -0.5ex;
+	margin-right: -0.5em;
 	border: 0;
 	font-family: inherit;
 }
