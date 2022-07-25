@@ -1668,7 +1668,7 @@ $ICON
 				var actionSideBarWidth = parseInt(computedStyle.width, 10);
 				
 				actionSideBarElement.classList.add("hide"); // first hide to get width correct
-				computedStyle = window.getComputedStyle(pageContentElement);
+				computedStyle = window.getComputedStyle(pageContentElement.childNodes[0]);
 				var pageContentMaxWidth = parseInt(computedStyle.width, 10);
 				
 		    	if ((pageContentAndActionElement.offsetWidth - actionSideBarWidth) > pageContentMaxWidth) {
