@@ -453,9 +453,13 @@ $ICON
 	}
 	
 	function closeActionMenu(event) {
-	    var dropdowns = document.getElementsByClassName("contextMenu");
+	    var contextMenus = document.getElementsByClassName("contextMenu");
+	    for (var i = 0; i < contextMenus.length; i++) {
+	    	contextMenus[i].parentNode.removeChild(contextMenus[i]);
+	    }
+	    var dropdowns = document.getElementsByClassName("dropdown");
 	    for (var i = 0; i < dropdowns.length; i++) {
-	      dropdowns[i].parentNode.removeChild(dropdowns[i]);
+	      dropdowns[i].style.display = "none";
 	    }
 	}
 	
