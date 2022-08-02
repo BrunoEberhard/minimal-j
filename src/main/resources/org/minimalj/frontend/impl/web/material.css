@@ -112,6 +112,7 @@ label {
 	font-size: small;
 }
 
+/* TODO remove .form */
 .form input, .form select, .form textarea, .form .lookup .text {
 	font-family: inherit;
 	box-sizing: border-box;

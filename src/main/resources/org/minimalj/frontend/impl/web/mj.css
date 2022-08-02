@@ -469,11 +469,11 @@ dialog table {
 	width: 100%;
 }
 
-.form input, .form select, .form .text {
-	height: 1.8em;
+input, select, .text {
+	height: 1.35rem;
 }
 
-.form .text {
+.text {
 	padding-top: 3.5px;
 }
 
