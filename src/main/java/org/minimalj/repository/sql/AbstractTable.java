@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
@@ -117,16 +118,35 @@ public abstract class AbstractTable<T> {
 
 	protected void createTable(SqlDialect dialect) {
 		createEnums(dialect);
+		
 		StringBuilder s = new StringBuilder();
 		dialect.addCreateStatementBegin(s, getTableName());
 		addSpecialColumns(dialect, s);
 		addFieldColumns(dialect, s);
 		addPrimaryKey(dialect, s);
 		dialect.addCreateStatementEnd(s);
-		
 		execute(s.toString());
+		
+		createTableComment();
+		createColumnComments();
 	}
-	
+
+	protected void createTableComment() {
+		Comment commentAnnotation = clazz.getAnnotation(Comment.class);
+		if (commentAnnotation != null) {
+			sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS ?", commentAnnotation.value());
+		}
+	}
+
+	protected void createColumnComments() {
+		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+			Comment commentAnnotation = entry.getValue().getAnnotation(Comment.class);
+			if (commentAnnotation != null) {
+				sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", commentAnnotation.value());
+			}
+		}
+	}
+
 	protected void dropTable(SqlDialect dialect) {
 		StringBuilder s = new StringBuilder();
 		s.append("DROP TABLE ").append(getTableName());
