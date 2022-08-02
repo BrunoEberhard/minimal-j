@@ -582,7 +582,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
+			tables.put(clazz, null); // break cycle. at some point it is checked if a clazz is already in the tables map.
 			Table<U> table = createTable(clazz);
 			tables.put(table.getClazz(), table);
 		}
