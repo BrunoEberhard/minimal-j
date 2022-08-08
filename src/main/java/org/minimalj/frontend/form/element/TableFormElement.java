@@ -120,8 +120,8 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 		rowForms.clear();
 		for (int index = 0; index < object.size(); index++) {
-			var rowObject = object.get(index);
-			var i = index;
+			T rowObject = object.get(index);
+			int i = index;
 			@SuppressWarnings("unchecked")
 			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
 			rowForm = checkNonNull(rowForm, rowObject);
@@ -168,7 +168,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 
 			PropertyInterface unchained = ChainedProperty.buildChain(messagePropertyAsChain.subList(propertyAsChain.size() + 1, messagePropertyAsChain.size()));
 			IndexProperty indexProperty = (IndexProperty) messagePropertyAsChain.get(propertyAsChain.size());
-			var index = indexProperty.getIndex();
+			int index = indexProperty.getIndex();
 
 			message = new ValidationMessage(unchained, message.getFormattedText());
 			if (validationMessagesByRow[index] == null) {

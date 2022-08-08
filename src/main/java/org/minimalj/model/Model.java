@@ -38,7 +38,7 @@ public interface Model {
 		return classes;
 	}
 
-	private static void getClassesRecursive(List<Class<?>> classes, Class<?> clazz, boolean depthFirst, boolean onlyWithId) {
+	static void getClassesRecursive(List<Class<?>> classes, Class<?> clazz, boolean depthFirst, boolean onlyWithId) {
 		if (!classes.contains(clazz)) {
 			classes.add(clazz);
 			for (PropertyInterface property : Properties.getProperties(clazz).values()) {

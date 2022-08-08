@@ -53,7 +53,7 @@ public class GeneralColumnFilterTest {
 	public void testParseDate() {
 		GeneralColumnFilterTestEntity entity = new GeneralColumnFilterTestEntity();
 
-		var filter = (ValueOrRangeColumnFilter) ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.date));
+		ValueOrRangeColumnFilter filter = (ValueOrRangeColumnFilter) ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.date));
 		filter.setFilterString("1.2.2003");
 		
 		entity.date = LocalDate.of(2003, 2, 1);
@@ -112,7 +112,7 @@ public class GeneralColumnFilterTest {
 	public void testParseDateTime() {
 		GeneralColumnFilterTestEntity entity = new GeneralColumnFilterTestEntity();
 
-		var filter = (ValueOrRangeColumnFilter) ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.dateTime));
+		ValueOrRangeColumnFilter filter = (ValueOrRangeColumnFilter) ColumnFilter.createFilter(Keys.getProperty(GeneralColumnFilterTestEntity.$.dateTime));
 		filter.setFilterString("1.2.2003");
 		
 		entity.dateTime = LocalDateTime.of(2003, 2, 1, 4, 56);
