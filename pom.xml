@@ -25,7 +25,7 @@
 		<url>https://github.com/BrunoEberhard/minimal-j</url>
 		<connection>scm:git:git://github.com/BrunoEberhard/minimal-j.git</connection>
 		<developerConnection>scm:git:git@github.com:BrunoEberhard/minimal-j.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>minimalj-1.32.0.0</tag>
 	</scm>
 
 	<distributionManagement>
