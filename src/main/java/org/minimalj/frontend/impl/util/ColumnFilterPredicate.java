@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.function.Predicate;
 
 import org.minimalj.frontend.Frontend;
@@ -128,7 +127,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected void validate() {
 			if (!valid()) {
 				String name = "TODO";
-				formContent.setValidationMessages(input, List.of(MessageFormat.format(Resources.getString("ObjectValidator.message"), name)));
+				formContent.setValidationMessages(input, Collections.singletonList(MessageFormat.format(Resources.getString("ObjectValidator.message"), name)));
 			} else {
 				formContent.setValidationMessages(input, Collections.emptyList());
 			}
@@ -381,7 +380,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		protected void validate() {
 			if (!valid()) {
 				String name = "TODO";
-				formContent.setValidationMessages(input1, List.of(MessageFormat.format(Resources.getString("ColumnFilterModel.filterValue1"), name)));
+				formContent.setValidationMessages(input1, Collections.singletonList(MessageFormat.format(Resources.getString("ColumnFilterModel.filterValue1"), name)));
 			} else {
 				formContent.setValidationMessages(input1, Collections.emptyList());
 			}

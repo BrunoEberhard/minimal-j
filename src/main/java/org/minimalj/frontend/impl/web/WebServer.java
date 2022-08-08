@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.web;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -244,9 +245,24 @@ public class WebServer {
 
 	public static String convertStreamToString(InputStream is) {
 		try (InputStreamReader ir = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-			return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+			// Replace with readAllBytes of Java in higher versions
+			return new String(readAllBytes(is), StandardCharsets.UTF_8);
 		} catch (IOException x) {
 			throw new RuntimeException(x);
+		}
+	}
+	
+	
+	public static byte[] readAllBytes(InputStream inputStream) throws IOException {
+		int bufLen = 1024;
+		byte[] buf = new byte[bufLen];
+		int readLen;
+
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			while ((readLen = inputStream.read(buf, 0, bufLen)) != -1) {
+				outputStream.write(buf, 0, readLen);
+			}
+			return outputStream.toByteArray();
 		}
 	}
 

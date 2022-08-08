@@ -3,7 +3,7 @@ package org.minimalj.repository.sql.relation;
 import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,7 +91,7 @@ public class SqlCodeListTest {
 		b = Backend.save(b);
 		
 		TestEntity entity = new TestEntity();
-		entity.list = List.of(b);
+		entity.list = Collections.singletonList(b);
 		entity = Backend.save(entity);
 		
 		Backend.delete(entity);
@@ -107,7 +107,7 @@ public class SqlCodeListTest {
 		
 		TestEntity entity = new TestEntity();
 		entity.name = "testDeleteWithRelationWhereClause";
-		entity.list = List.of(b);
+		entity.list = Collections.singletonList(b);
 		entity = Backend.save(entity);
 		
 		// delete by where clause

@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.json;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -201,13 +202,16 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					Column column = (Column) property;
 					String stringValue = Rendering.toString(column.render(object, value));
 					if (column.isLink(object, value)) {
-						rowContent.add(Map.of("action", stringValue));
+						rowContent.add(Collections.singletonMap("action", stringValue));
 					} else {
 						ColorName color = column.getColor(object, value);
 						if (color == null) {
 							rowContent.add(stringValue);
 						} else {
-							rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+							Map<String, Object> map = new HashMap<>();
+							map.put("value", stringValue);
+							map.put("color", color.name().toLowerCase());
+							rowContent.add(map);
 						}
 					}
 				} else {
@@ -216,7 +220,10 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					if (color == null) {
 						rowContent.add(stringValue);
 					} else {
-						rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+						Map<String, Object> map = new HashMap<>();
+						map.put("value", stringValue);
+						map.put("color", color.name().toLowerCase());
+						rowContent.add(map);
 					}
 				}
 			}
