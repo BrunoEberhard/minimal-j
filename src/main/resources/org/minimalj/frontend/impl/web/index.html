@@ -719,6 +719,10 @@ $ICON
 		} else if (type === "Combobox") {
 			element = document.createElement("select");
 			var option = document.createElement("option");
+			if (content.nullText) {
+				option.textContent = content.nullText;
+				option.value = null;
+			}
 			element.appendChild(option);
 			if (content.options) {
 				for (var id in content.options) {

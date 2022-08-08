@@ -103,8 +103,13 @@ public class JsonFrontend extends Frontend {
 	};
 
 	@Override
+	public <T> Input<T> createComboBox(List<T> objects, String nullText, InputComponentListener changeListener) {
+		return new JsonCombobox<>(objects, nullText, changeListener);
+	}
+
+	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new JsonCombobox<>(objects, changeListener);
+		return new JsonCombobox<>(objects, null, changeListener);
 	}
 
 	@Override

@@ -126,6 +126,11 @@ public abstract class Frontend {
 	}
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
+	public <T> Input<T> createComboBox(List<T> items, String nullText, InputComponentListener changeListener) {
+		return createComboBox(items, changeListener);
+	}
+
+	
 	public abstract Input<byte[]> createImage(InputComponentListener changeListener);
 
 	public interface SwitchComponent extends IComponent {

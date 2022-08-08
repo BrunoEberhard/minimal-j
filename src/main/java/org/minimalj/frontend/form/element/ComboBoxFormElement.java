@@ -20,11 +20,19 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 	public ComboBoxFormElement(T key, List<T> values) {
 		this(Keys.getProperty(key), values);
 	}
-	
+
+	public ComboBoxFormElement(T key, List<T> values, String nullText) {
+		this(Keys.getProperty(key), values, nullText);
+	}
+
 	public ComboBoxFormElement(PropertyInterface property, List<T> values) {
+		this(property, values, null);
+	}
+	
+	public ComboBoxFormElement(PropertyInterface property, List<T> values, String nullText) {
 		super(property);
 		this.values = this instanceof CodeFormElement ? values : new ArrayList<>(values);
-		comboBox = Frontend.getInstance().createComboBox(this.values, listener());
+		comboBox = Frontend.getInstance().createComboBox(this.values, nullText, listener());
 	}
 	
 	@Override
