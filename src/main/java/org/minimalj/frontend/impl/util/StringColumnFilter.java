@@ -23,8 +23,6 @@ public class StringColumnFilter implements ColumnFilter {
 	
 	private Input<String> component;
 	
-	private boolean enabled;
-
 	public StringColumnFilter(PropertyInterface property) {
 		this.property = Objects.requireNonNull(property);
 		this.tester = null;
@@ -45,12 +43,7 @@ public class StringColumnFilter implements ColumnFilter {
 
 	@Override
 	public boolean active() {
-		return enabled && !StringUtils.isEmpty(component.getValue());
-	}
-	
-	@Override
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+		return !StringUtils.isEmpty(component.getValue());
 	}
 	
 	public ValidationMessage validate() {

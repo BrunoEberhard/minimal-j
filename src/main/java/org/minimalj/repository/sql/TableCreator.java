@@ -14,6 +14,7 @@ public class TableCreator {
 		SqlRepository repository = (SqlRepository) application.createRepository();
 		repository.createTables();
 		repository.createCodes();
+		repository.afterCreateTables();
 	}
 
 }

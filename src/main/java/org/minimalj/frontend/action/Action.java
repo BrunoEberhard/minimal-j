@@ -1,7 +1,9 @@
 package org.minimalj.frontend.action;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 
+import org.minimalj.frontend.form.Form;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -110,5 +112,21 @@ public abstract class Action implements Runnable, Rendering {
 
 	public interface ActionChangeListener {
 		public void change();
+	}
+	
+	public abstract static class ValidationAwareAction extends Action {
+		private Form<?> form;
+		
+		public void setForm(Form<?> form) {
+			this.form = Objects.requireNonNull(form);
+			fireChange();
+		}
+		
+		public Form<?> getForm() {
+			if (this.form == null) {
+				throw new IllegalStateException("Form of " + ValidationAwareAction.class.getSimpleName() +" not set");
+			}
+			return form;
+		}
 	}
 }

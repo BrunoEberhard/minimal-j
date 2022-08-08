@@ -3,9 +3,11 @@ package org.minimalj.model.validation;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -60,6 +62,29 @@ public interface Validation {
 		return new ValidationMessage(property, message);
 	}
 
+	/**
+	 * Can be used as shortcut by custom validation
+	 * @param object the object containing the values
+	 * @param messages the result list
+	 * @param keys the keys of the fields that must not be empty
+	 */
+	public static void validateNotEmpty(Object object, List<ValidationMessage> messages, Object... keys) {
+		for (Object key : keys) {
+			PropertyInterface property = Keys.getProperty(key);
+			Object value = property.getValue(object);
+			if (EmptyObjects.isEmpty(value)) {
+				messages.add(Validation.createEmptyValidationMessage(key));
+			}
+		}
+	}
+
+	public static <T> void validate(T object, T key, Predicate<T> predicate, List<ValidationMessage> messages) {
+		PropertyInterface property = Keys.getProperty(key);
+		T value = (T) property.getValue(object);
+		if (predicate.test(value)) {
+			messages.add(Validation.createInvalidValidationMessage(key));
+		}
+	}
 	
 	/**
 	 * Helper method to avoid NPE because of validate() returning null.

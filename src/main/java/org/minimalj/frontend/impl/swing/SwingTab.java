@@ -22,7 +22,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
@@ -32,8 +31,8 @@ import org.minimalj.frontend.impl.swing.toolkit.SwingProgressInternalFrame;
 import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.impl.util.PageAccess;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.frontend.page.Routing;
@@ -352,10 +351,14 @@ public class SwingTab extends EditablePanel implements PageManager {
 	}
 
 	@Override
-	public IDialog showDialog(String title, IContent content, org.minimalj.frontend.action.Action saveAction, org.minimalj.frontend.action.Action closeAction, org.minimalj.frontend.action.Action... actions) {
-		JComponent contentComponent = new SwingEditorPanel(content, actions);
-		SwingDialog dialog = new SwingDialog(frame, title, contentComponent, saveAction, closeAction);
-		return dialog;
+	public void showDialog(Dialog dialog) {
+		JComponent contentComponent = new SwingEditorPanel(dialog.getContent(), dialog.getActions());
+		new SwingDialog(frame, dialog, contentComponent, dialog.getSaveAction(), dialog.getCancelAction());
+	}
+	
+	@Override
+	public void closeDialog(Dialog dialog) {
+		// not used. 
 	}
 	
 	@Override

@@ -22,13 +22,8 @@ public class HtmlAuthenticationTest extends WebTest {
 	public void testAuthenticatonModeRequired() {
 		start(new TestApplication(AuthenticatonMode.REQUIRED));
 
-		UserPasswordLoginTestFacade userPasswordLogin = ui().getLoginTestFacade();
-
-		userPasswordLogin.setUser("test");
-		userPasswordLogin.setPassword("test");
-
-		userPasswordLogin.login();
-
+		login();
+		
 		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
 
 		PageTestFacade page = pageContainer.getPage();
@@ -37,16 +32,64 @@ public class HtmlAuthenticationTest extends WebTest {
 		
 		pageContainer.logout();
 	}
+
+	private void login() {
+		UserPasswordLoginTestFacade userPasswordLogin = ui().getLoginTestFacade();
+		userPasswordLogin.setUser("test");
+		userPasswordLogin.setPassword("test");
+		userPasswordLogin.login();
+	}
 	
-//	@Test
-//	public void testAuthenticatonModeSuggested() {
-//		WebServer.start(new TestApplication(AuthenticatonMode.SUGGESTED
-//		driver.get("http://localhost:8080");
-//		waitBlock();
-//		loginShouldBeShown();
-//		noLoginButtonShouldBeShown();
-//	}
-//
+	@Test
+	public void testRelogin() {
+		start(new TestApplication(AuthenticatonMode.REQUIRED));
+		
+		login();
+
+		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
+		Assert.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
+		pageContainer.logout();
+		
+		login();
+
+		pageContainer = ui().getCurrentPageContainerTestFacade();
+		Assert.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
+		pageContainer.logout();
+	}
+
+	@Test
+	public void testBackAfterLogout() {
+		start(new TestApplication(AuthenticatonMode.REQUIRED));
+		
+		login();
+
+		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
+		PageTestFacade page = pageContainer.getPage();
+		Assert.assertTrue(page.contains("TestPage"));
+
+		ui().getCurrentPageContainerTestFacade().getNavigation().get("Other Page").run();
+		page = pageContainer.getPage();
+		Assert.assertTrue(page.contains("Page 2"));
+
+		pageContainer.logout();
+		
+		ui().getCurrentPageContainerTestFacade().getBack().run();
+
+		login();
+
+		page = pageContainer.getPage();
+		Assert.assertTrue(page.contains("Page 2"));
+
+		pageContainer.logout();
+	}
+	
+	@Test
+	public void testAuthenticatonModeSuggested() {
+		start(new TestApplication(AuthenticatonMode.SUGGESTED));
+		
+		Assert.assertTrue(ui().getLoginTestFacade().hasSkipLogin());
+	}
+
 //	@Test
 //	public void testAuthenticatonModeOptional() {
 //		WebServer.start(new TestApplication(AuthenticatonMode.OPTIONAL));
@@ -87,11 +130,8 @@ public class HtmlAuthenticationTest extends WebTest {
 //		Assert.assertEquals(Resources.getString("Login.title"), driver.getTitle());
 //	}
 //
-//	private void noLoginButtonShouldBeShown() {
-//		Assert.assertNotNull(driver.findElement(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")));
-//	}
 //
-//	private void startWithoutLoginShouldBePossible() {
+	//	private void startWithoutLoginShouldBePossible() {
 //		Assert.assertTrue(driver.findElements(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")).isEmpty());
 //	}
 //	

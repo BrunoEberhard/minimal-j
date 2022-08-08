@@ -12,7 +12,7 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Keys;
 
-public class HelloWorldPage extends Page {
+public class HelloWorldPage implements Page {
 	private static final Logger logger = Logger.getLogger(HelloWorldPage.class.getName());
 
 	private final Form<HelloModel> form = new Form<>(false);

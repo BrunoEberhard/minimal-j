@@ -11,10 +11,13 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.backend.repository.ReadTransaction;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.repository.query.By;
+import org.minimalj.transaction.Isolation;
+import org.minimalj.transaction.Isolation.Level;
 
 public class Codes {
 
@@ -79,8 +82,22 @@ public class Codes {
 	private static <T extends Code> void updateCode(Class<T> clazz) {
 		CodeCacheItem<T> codeItem = new CodeCacheItem<>();
 		cache.put(clazz, codeItem);
-		List<T> codes = Backend.find(clazz, By.all());
+		List<T> codes = Backend.execute(new ReadCodesTransaction<T>(clazz));
 		codeItem.setCodes(codes);
+	}
+
+	@Isolation(Level.NONE)
+	public static class ReadCodesTransaction<T> extends ReadTransaction<T, List<T>> {
+		private static final long serialVersionUID = 1L;
+
+		public ReadCodesTransaction(Class<T> clazz) {
+			super(clazz);
+		}
+
+		@Override
+		public List<T> execute() {
+			return repository().find(getEntityClazz(), By.ALL);
+		}
 	}
 	
 	public static class CodeCacheItem<S extends Code> {

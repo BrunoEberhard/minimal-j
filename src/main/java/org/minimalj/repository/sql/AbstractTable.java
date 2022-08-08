@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;
+import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
@@ -116,16 +117,36 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected void createTable(SqlDialect dialect) {
+		createEnums(dialect);
+		
 		StringBuilder s = new StringBuilder();
 		dialect.addCreateStatementBegin(s, getTableName());
 		addSpecialColumns(dialect, s);
 		addFieldColumns(dialect, s);
 		addPrimaryKey(dialect, s);
 		dialect.addCreateStatementEnd(s);
-		
 		execute(s.toString());
+		
+		createTableComment();
+		createColumnComments();
 	}
-	
+
+	protected void createTableComment() {
+		Comment commentAnnotation = clazz.getAnnotation(Comment.class);
+		if (commentAnnotation != null) {
+			sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS ?", commentAnnotation.value());
+		}
+	}
+
+	protected void createColumnComments() {
+		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+			Comment commentAnnotation = entry.getValue().getAnnotation(Comment.class);
+			if (commentAnnotation != null) {
+				sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", commentAnnotation.value());
+			}
+		}
+	}
+
 	protected void dropTable(SqlDialect dialect) {
 		StringBuilder s = new StringBuilder();
 		s.append("DROP TABLE ").append(getTableName());
@@ -139,6 +160,24 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
+	protected void createEnums(SqlDialect dialect) {
+		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
+			PropertyInterface property = column.getValue();
+			Class<?> propertyClass = property.getClazz();
+			if (propertyClass.isEnum()) {
+				if (!sqlRepository.dbTypes.containsKey(propertyClass)) {
+					StringBuilder s = new StringBuilder();
+					String identifier = sqlRepository.sqlIdentifier.identifier(propertyClass.getSimpleName(), sqlRepository.dbTypes.values());
+					String query = dialect.createType(propertyClass, identifier);
+					if (query != null) {
+						execute(query);
+						sqlRepository.dbTypes.put(propertyClass, identifier);
+					}
+				}
+			}
+		}
+	}
+	
 	protected abstract void addSpecialColumns(SqlDialect dialect, StringBuilder s);
 	
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
@@ -146,7 +185,11 @@ public abstract class AbstractTable<T> {
 			s.append(",\n ").append(column.getKey()).append(' '); 
 
 			PropertyInterface property = column.getValue();
-			dialect.addColumnDefinition(s, property);
+			if (sqlRepository.dbTypes.containsKey(property.getClazz())) {
+				s.append(sqlRepository.dbTypes.get(property.getClazz()));
+			} else {
+				dialect.addColumnDefinition(s, property);
+			}
 			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
 			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
 		}
@@ -234,13 +277,6 @@ public abstract class AbstractTable<T> {
 	}
 	
 	private void findDependables() {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
-			Class<?> fieldClazz = property.getClazz();
-			if (isDependable(property) && fieldClazz != clazz) {
-				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
-			}
-		}
 		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
 			Class<?> listType = property.getGenericClass();
 			if (IdUtils.hasId(listType)) {
@@ -277,7 +313,7 @@ public abstract class AbstractTable<T> {
 				return null;
 			}
 		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
+			throw new RuntimeException(x);
 		}
 	}
 	
@@ -330,29 +366,6 @@ public abstract class AbstractTable<T> {
 					} else {
 						Table referencedTable  = sqlRepository.getTable(property.getClazz());
 						value = referencedTable.insert(value);
-					}
-				}
-			} else if (isDependable(property)) {
-				Table dependableTable = sqlRepository.getTable(property.getClazz());
-				if (insert) {
-					if (value != null) {
-						value = dependableTable.insert(value);
-					}							
-				} else {
-					// update
-					String dependableColumnName = column.getKey();
-					Object dependableId = getDependableId(id, dependableColumnName);
-					if (value != null) {
-						value = updateDependable(dependableTable, dependableId, value, mode);
-					} else {
-						if (mode == ParameterMode.UPDATE) {
-							// to delete a dependable the value where its used has to be set
-							// to null first. This problem could also be solved by setting the
-							// reference constraint to 'deferred'. But this 'deferred' is more
-							// expensive for database and doesn't work with maria db (TODO: really?)
-							setColumnToNull(id, dependableColumnName);
-							dependableTable.deleteById(dependableId);
-						}
 					}
 				}
 			} else {
@@ -500,11 +513,18 @@ public abstract class AbstractTable<T> {
 	 * @return true if property isn't a base object like String, Integer, Date, enum but a dependable
 	 */
 	public static boolean isDependable(PropertyInterface property) {
-		if (property.getClazz().getName().startsWith("java")) return false;
-		if (Enum.class.isAssignableFrom(property.getClazz())) return false;
+		if (!isDependable(property.getClazz())) return false;
 		if (property.isFinal()) return false;
-		if (property.getClazz().isArray()) return false;
 		return true;
 	}
-	
+
+	public static boolean isDependable(Class<?> clazz) {
+		if (clazz.isPrimitive()) return false;
+		if (clazz.getName().startsWith("java")) return false;
+		if (Enum.class.isAssignableFrom(clazz)) return false;
+		if (clazz.isArray()) return false;
+		if (IdUtils.hasId(clazz)) return false;
+		return true;
+	}
+
 }

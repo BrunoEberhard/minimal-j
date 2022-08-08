@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.model.Code;
@@ -32,10 +33,11 @@ public class Table<T> extends AbstractTable<T> {
 	
 	protected final PropertyInterface idProperty;
 	protected final boolean optimisticLocking;
-	protected final boolean autoIncrementId;
+	protected final boolean autoIncrement;
 
 	protected final String selectAllQuery;
 
+	protected final HashMap<PropertyInterface, DependableTable> dependables;
 	protected final HashMap<PropertyInterface, ListTable> lists;
 	
 	public Table(SqlRepository sqlRepository, Class<T> clazz) {
@@ -45,20 +47,35 @@ public class Table<T> extends AbstractTable<T> {
 	public Table(SqlRepository sqlRepository, String name, Class<T> clazz) {
 		super(sqlRepository, name, clazz);
 
-		this.idProperty = FlatProperties.getProperty(clazz, "id", true);
-		this.autoIncrementId = idProperty != null && idProperty.getAnnotation(AutoIncrement.class) != null;
+		this.idProperty = Objects.requireNonNull(FlatProperties.getProperty(clazz, "id", true));
+		this.autoIncrement = idProperty != null && isAutoIncrement(idProperty);
 
 		this.optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
 		List<PropertyInterface> lists = FlatProperties.getListProperties(clazz);
 		this.lists = createListTables(lists);
+		this.dependables = createDependableTables();
 		
 		this.selectAllQuery = selectAllQuery();
+	}
+	
+	static boolean isAutoIncrement(PropertyInterface idProperty) {
+		AutoIncrement autoIncrement = idProperty.getAnnotation(AutoIncrement.class);
+		if (autoIncrement != null) {
+			return autoIncrement.value();
+		} else {
+			Class<?> idClass = idProperty.getClazz();
+			return idClass == Integer.class || idClass == Long.class;
+		}
 	}
 	
 	@Override
 	public void createTable(SqlDialect dialect) {
 		super.createTable(dialect);
+		for (Object object : dependables.values()) {
+			DependableTable dependableTable = (DependableTable) object;
+			dependableTable.createTable(dialect);
+		}
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
 			subTable.createTable(dialect);
@@ -67,6 +84,10 @@ public class Table<T> extends AbstractTable<T> {
 
 	@Override
 	protected void dropTable(SqlDialect dialect) {
+		for (Object object : dependables.values()) {
+			DependableTable dependableTable = (DependableTable) object;
+			dependableTable.dropTable(dialect);
+		}
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
 			subTable.dropTable(dialect);
@@ -101,8 +122,8 @@ public class Table<T> extends AbstractTable<T> {
 		super.clear();
 	}
 	
-	protected Object createId() {
-		return UUID.randomUUID().toString();
+	protected UUID createId() {
+		return UUID.randomUUID();
 	}
 	
 	public Object insert(T object) {
@@ -127,27 +148,39 @@ public class Table<T> extends AbstractTable<T> {
 		Object id;
 		if (idProperty != null) {
 			id = idProperty.getValue(object);
-			if (id == null && !autoIncrementId) {
+			if (id == null && !autoIncrement) {
 				id = createId();
 				idProperty.setValue(object, id);
+				id = id.toString();
 			}
 		} else {
 			id = createId();
+			id = id.toString();
 		}
-		setParameters(insertStatement, object, autoIncrementId ? ParameterMode.INSERT_AUTO_INCREMENT : ParameterMode.INSERT, id);
+		setParameters(insertStatement, object, autoIncrement ? ParameterMode.INSERT_AUTO_INCREMENT : ParameterMode.INSERT, id);
 		insertStatement.execute();
-		if (id == null) {
+		if (id == null || autoIncrement) {
 			try (ResultSet rs = insertStatement.getGeneratedKeys()) {
 				rs.next();
-				id = rs.getInt(1);
+				id = rs.getObject(1);
 				idProperty.setValue(object, id);
 			}
 		}
+		insertDependables(id, object);
 		insertLists(object);
 		if (object instanceof Code) {
 			sqlRepository.invalidateCodeCache(object.getClass());
 		}
 		return id;
+	}
+
+	protected void insertDependables(Object objectId, T object) {
+		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
+			Object value = entry.getKey().getValue(object);
+			if (value != null) {
+				entry.getValue().insert(objectId, value);
+			}
+		}
 	}
 	
 	protected void insertLists(T object) {
@@ -165,6 +198,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void deleteById(Object id) {
+		deleteDependables(sqlRepository.read(clazz, id));
 		deleteLists(sqlRepository.read(clazz, id));
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
@@ -174,6 +208,12 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	protected void deleteDependables(Object id) {
+		for (DependableTable dependableTable : dependables.values()) {
+			dependableTable.delete(id);
+		}
+	}
+	
 	protected void deleteLists(T object) {
 		for (ListTable list : lists.values()) {
 			// TODO implement this more efficient
@@ -235,6 +275,23 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	private LinkedHashMap<PropertyInterface, DependableTable> createDependableTables() {
+		LinkedHashMap<PropertyInterface, DependableTable> dependables = new LinkedHashMap<>();
+		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+			Class<?> fieldClazz = property.getClazz();
+			if (isDependable(property) && fieldClazz != clazz) {
+				String tableName = buildSubTableName(property);
+				DependableTable dependableTable = new DependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
+				dependables.put(property, dependableTable);
+			}
+		}
+		return dependables;
+	}
+	
+	public DependableTable getDependableTable(PropertyInterface property) {
+		return dependables.get(property);
+	}	
+	
 	protected String buildSubTableName(PropertyInterface property) {
 		return getTableName() + "__" + property.getName();
 	}
@@ -256,6 +313,7 @@ public class Table<T> extends AbstractTable<T> {
 				updateStatement.execute();
 			}
 			
+			updateDependables(object, id);
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				listTableEntry.getValue().replaceList(object, list);
@@ -268,12 +326,23 @@ public class Table<T> extends AbstractTable<T> {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
 		}
 	}
+	
+	protected void updateDependables(T object, Object objectId) {
+		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
+			entry.getValue().delete(objectId);
+			Object value = entry.getKey().getValue(object);
+			if (value != null) {
+				entry.getValue().insert(objectId, value);
+			}
+		}
+	}
 
 	public T read(Object id) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (object != null) {
+				loadDependables(id, object);
 				loadLists(object);
 			}
 			return object;
@@ -412,6 +481,7 @@ public class Table<T> extends AbstractTable<T> {
 			while (resultSet.next()) {
 				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 				loadViewLists(resultObject);
+				// TODO loadDependables?
 				result.add(resultObject);
 			}
 		}
@@ -427,6 +497,14 @@ public class Table<T> extends AbstractTable<T> {
 			}
 		}
 		return result;
+	}
+	
+	protected void loadDependables(Object id, T object) throws SQLException {
+		for (Entry<PropertyInterface, DependableTable> dependableTableEntry : dependables.entrySet()) {
+			Object value = dependableTableEntry.getValue().read(id);
+			PropertyInterface dependableProperty = dependableTableEntry.getKey();
+			dependableProperty.setValue(object, value);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -467,7 +545,8 @@ public class Table<T> extends AbstractTable<T> {
 	@Override
 	protected String insertQuery() {
 		PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id", true);
-		boolean autoIncrementId = idProperty != null && idProperty.getAnnotation(AutoIncrement.class) != null;
+		// cannot use field autoIncrement because this method is called by the super constructor before initialization
+		boolean autoIncrementId = idProperty != null && isAutoIncrement(idProperty);
 
 		StringBuilder s = new StringBuilder();
 		
@@ -521,11 +600,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
-		if (idProperty != null) {
-			dialect.addIdColumn(s, idProperty);
-		} else {
-			dialect.addIdColumn(s, Object.class, 36, false);
-		}
+		dialect.addIdColumn(s, idProperty);
 		if (optimisticLocking) {
 			s.append(",\n version INTEGER DEFAULT 0");
 		}
@@ -534,5 +609,5 @@ public class Table<T> extends AbstractTable<T> {
 	@Override
 	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
 		dialect.addPrimaryKey(s, "id");
-	}	
+	}
 }

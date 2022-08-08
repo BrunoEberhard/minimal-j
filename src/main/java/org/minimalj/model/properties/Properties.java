@@ -36,15 +36,9 @@ public class Properties {
 	}
 
 	public static PropertyInterface getMethodProperty(Class<?> clazz, String propertyName) {
-		PropertyInterface property;
-		if (!methodProperties.containsKey(clazz)) {
-			methodProperties.put(clazz, new HashMap<>());
-		}
-		Map<String, PropertyInterface> methodPropertiesForClass = methodProperties.get(clazz);
-		if (!methodPropertiesForClass.containsKey(propertyName)) {
-			methodProperties.get(clazz).put(propertyName, Keys.getMethodProperty(clazz, propertyName));
-		}
-		property = methodProperties.get(clazz).get(propertyName);
+		Map<String, PropertyInterface> methodPropertiesForClass = methodProperties.computeIfAbsent(clazz, c -> new HashMap<>());
+
+		PropertyInterface property = methodPropertiesForClass.computeIfAbsent(propertyName, name -> Keys.getMethodProperty(clazz, name));
 		return property;
 	}
 

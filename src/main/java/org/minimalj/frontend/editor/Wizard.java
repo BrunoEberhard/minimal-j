@@ -9,14 +9,14 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.mock.Mocking;
 
-public abstract class Wizard<RESULT> extends Action {
+public abstract class Wizard<RESULT> extends Action implements Dialog {
 
 	private static final Logger logger = Logger.getLogger(Wizard.class.getName());
 
@@ -29,7 +29,6 @@ public abstract class Wizard<RESULT> extends Action {
 	private final NextWizardStepAction nextAction = new NextWizardStepAction();
 	private final PreviousWizardStepAction previousAction = new PreviousWizardStepAction();
 	private final CancelAction cancelAction = new CancelAction();
-	private IDialog dialog;
 	private SwitchContent switchContent;
 	private int stepIndex;
 	
@@ -53,7 +52,7 @@ public abstract class Wizard<RESULT> extends Action {
 		step = getFirstStep();
 		switchStep();
 		
-		dialog = Frontend.showDialog(getTitle(), switchContent, nextAction, cancelAction, createActions());
+		Frontend.showDialog(this);
 	}
 
 	private Action[] createActions() {
@@ -84,6 +83,7 @@ public abstract class Wizard<RESULT> extends Action {
 		form = step.createForm();
 		form.setChangeListener(changeListener);
 		form.setObject(stepObject);
+		nextAction.setForm(form);
 		
 		validate(stepObject);
 		
@@ -102,8 +102,9 @@ public abstract class Wizard<RESULT> extends Action {
 		if (step instanceof Validation) {
 			validationMessages.addAll(((Validation) step).validateNullSafe());
 		}
-		form.indicate(validationMessages);
-		nextAction.setValidationMessages(validationMessages);
+				
+		boolean relevantValidationMessage = form.indicate(validationMessages);
+		nextAction.setEnabled(!relevantValidationMessage);
 		finishAction.setValidationMessages(validationMessages);
 	}
 	
@@ -126,7 +127,7 @@ public abstract class Wizard<RESULT> extends Action {
 	private void finish() {
 		try {
 			RESULT result = save();
-			dialog.closeDialog();
+			Frontend.closeDialog(this);
 			finished(result);
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
@@ -149,17 +150,12 @@ public abstract class Wizard<RESULT> extends Action {
 		}
 	}	
 
-	protected final class NextWizardStepAction extends Action {
+	protected final class NextWizardStepAction extends ValidationAwareAction {
 		private boolean valid = false;
 		
 		@Override
 		public void run() {
 			next(stepObject);
-		}
-		
-		public void setValidationMessages(List<ValidationMessage> validationMessages) {
-			valid = validationMessages == null || validationMessages.isEmpty();
-			fireChange();
 		}
 
 		@Override
@@ -211,7 +207,7 @@ public abstract class Wizard<RESULT> extends Action {
 	}
 	
 	public void cancel() {
-		dialog.closeDialog();
+		Frontend.closeDialog(this);
 	}
 
 	private class FillWithDemoDataAction extends Action {

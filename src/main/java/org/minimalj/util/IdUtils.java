@@ -34,7 +34,7 @@ public class IdUtils {
 	}
 
 	/**
-	 * Check if a class has an <code>id</code> field
+	 * Check if a class has an <code>id</code> field. Cached.
 	 * 
 	 * @param clazz class to check. Must not be <code>null</code>
 	 * @return true if the given class has a field named <code>id</code>
@@ -43,6 +43,17 @@ public class IdUtils {
 		return getIdField(clazz) != null;
 	}
 
+	/**
+	 * Cached getter for id class of an entity.
+	 * 
+	 * @param clazz the entity class
+	 * @return the clazz of the id field. <code>null</code> if entity class has no id field.
+	 */
+	public static Class<?> getIdClass(Class<?> clazz) {
+		Field field = getIdField(clazz);
+		return field != null ?  field.getType() : null;
+	}
+	
 	/**
 	 * Get the value of the <code>id</code> field. The id is converted to
 	 * 'plain' if it is a ReadOnly id

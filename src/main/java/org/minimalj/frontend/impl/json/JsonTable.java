@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.json;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +17,7 @@ import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Column;
+import org.minimalj.model.Column.ColumnAlignment;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
@@ -23,12 +25,12 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
-import org.minimalj.util.resources.Resources;
 
 public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final Logger logger = Logger.getLogger(JsonTable.class.getName());
 
 	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjJsonTablePageSize", "1000"));
+	private static final int FILTER_LINES = Integer.parseInt(Configuration.get("MjTableFilterLines", "12"));
 
 	private final JsonPageManager pageManager;
 	private final Object[] keys;
@@ -41,6 +43,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final List<Boolean> sortDirections = new ArrayList<>();
 	private final ColumnFilter[] filters;
 	private final IComponent[] headerFilters;
+	private final String[] alignments;
 	
 	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
@@ -53,21 +56,32 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		List<String> headerPathes = new ArrayList<>();
 		filters = new ColumnFilter[keys.length];
 		headerFilters = new IComponent[keys.length];
+		alignments = new String[keys.length];
 
 		for (PropertyInterface property : properties) {
-			String header = Resources.getPropertyName(property);
+			String header = Column.evalHeader(property);
 			headers.add(header);
 			headerPathes.add(property.getPath());
 			int column = headers.size() - 1;
 			filters[column] = ColumnFilter.createFilter(property);
 			headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
+			alignments[column] = alignment(property);
 		}
 		put("headers", headers);
 		put("headerPathes", headerPathes);
 		put("headerFilters", headerFilters);
+		put("alignments", alignments);
 
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
+	}
+
+	private String alignment(PropertyInterface property) {
+		if (property instanceof Column) {
+			ColumnAlignment alignment = ((Column<?, ?>) property).getAlignment();
+			return alignment != null ? alignment.name() : null;
+		}
+		return null;
 	}
 
 	private static List<PropertyInterface> convert(Object[] keys) {
@@ -91,7 +105,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		pageManager.unregister(get("tableContent"));
 		this.objects = objects;
 
-		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, Boolean.TRUE.equals(get("filterVisible")) ? filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -108,9 +122,12 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 		
 		put("tableContent", tableContent);
-		putSilent("selectedRows", null); // allway fire this property change
+		putSilent("selectedRows", null); // always fire this property change
 		put("selectedRows", selectedRows);
 		updatePaging();
+		if (!containsKey("filterVisible")) {
+			put("filterVisible", objects.size() >= FILTER_LINES);
+		}
 		
 		selectedObjects.clear();
 		selectedObjects.addAll(newSelectedObjects);
@@ -197,13 +214,17 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					Column column = (Column) property;
 					String stringValue = Rendering.toString(column.render(object, value));
 					if (column.isLink(object, value)) {
-						rowContent.add(Map.of("action", stringValue));
+						rowContent.add(Collections.singletonMap("action", stringValue));
 					} else {
 						ColorName color = column.getColor(object, value);
 						if (color == null) {
 							rowContent.add(stringValue);
 						} else {
-							rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+							Map<String, Object> map = new HashMap<>();
+							map.put("value", stringValue);
+							map.put("color", color.name().toLowerCase());
+							rowContent.add(map);
+							// newer Java: rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
 						}
 					}
 				} else {
@@ -212,7 +233,11 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					if (color == null) {
 						rowContent.add(stringValue);
 					} else {
-						rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
+						Map<String, Object> map = new HashMap<>();
+						map.put("value", stringValue);
+						map.put("color", color.name().toLowerCase());
+						rowContent.add(map);
+						// newer Java: rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
 					}
 				}
 			}
@@ -278,14 +303,14 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		}
 	}
 
-	public void filter(boolean enabled) {
-		int column = 0;
-		for (ColumnFilter filter : filters) {
-			filter.setEnabled(enabled);
+	public void setFilterVisible(boolean visible) {
+		put("filterVisible", visible);
 
-			ValidationMessage validationMessage = filters[column].validate();
-			((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
-			column++;
+		if (visible) {
+			for (int column = 0; column < filters.length; column++) {
+				ValidationMessage validationMessage = filters[column].validate();
+				((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+			}
 		}
 
 		page = 0;

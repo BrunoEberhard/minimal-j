@@ -8,10 +8,12 @@ public class GeneratorEntity extends MjEntity {
 	public String packageName;
 
 	public GeneratorEntity() {
+		this.type = MjEntityType.ENTITY;
 	}
 
 	public GeneratorEntity(String name) {
 		this.name = name;
+		this.type = MjEntityType.ENTITY;
 	}
 
 	public GeneratorEntity(MjEntityType type) {
@@ -27,5 +29,10 @@ public class GeneratorEntity extends MjEntity {
 	public String getPackageName() {
 		return packageName;
 	}
-
+	
+	@Override
+	public boolean isPrimitiv() {
+		return false;
+	}
+	
 }

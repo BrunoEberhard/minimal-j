@@ -46,8 +46,11 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 				input = Frontend.getInstance().createTextField(((LookupParser) this).getAllowedSize(),
 						((LookupParser) this).getAllowedCharacters(), getSearch(),
 						this::inputChanged);
-				if (input instanceof JsonTextField && changeOnFocus()) {
-					((JsonTextField) input).put("changeOnFocus", true);
+				if (input instanceof JsonTextField) {
+					if (changeOnFocus()) {
+						((JsonTextField) input).put("changeOnFocus", true);
+					}
+					((JsonTextField) input).setPlaceholder(getPlaceholer());
 				}
 			} else {
 				input = Frontend.getInstance().createReadOnlyTextField();
@@ -57,7 +60,11 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		}
 		return lookup;
 	}
-
+	
+	protected String getPlaceholer() {
+		return null;
+	}
+	
 	private Input<String> getReadOnlyInput() {
 		if (readOnlyInput == null) {
 			readOnlyInput = Frontend.getInstance().createReadOnlyTextField();

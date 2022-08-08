@@ -43,7 +43,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.resources.Resources;
 
 public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private static final long serialVersionUID = 1L;
@@ -235,7 +234,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@Override
 		public String getColumnName(int column) {
 			PropertyInterface property = properties.get(column)
-;			return Resources.getPropertyName(property);
+;			return Column.evalHeader(property);
 		}
 
 		@Override

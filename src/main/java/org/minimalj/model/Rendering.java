@@ -1,11 +1,14 @@
 package org.minimalj.model;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 
 import org.minimalj.frontend.impl.util.HtmlString;
+import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
@@ -84,6 +87,14 @@ public interface Rendering {
 			@SuppressWarnings("rawtypes")
 			Enum enumElement = (Enum) o;
 			return EnumUtils.getText(enumElement);
+		} else if (o instanceof BigDecimal) {
+			int decimalPlaces = AnnotationUtil.getDecimal(property);
+			int minDecimalPlaces = Math.min(decimalPlaces, AnnotationUtil.getMinDecimals(property));
+			// TODO DecimalFormat is not thread safe. But create an instance for each call is expensive
+			DecimalFormat format = new DecimalFormat();
+			format.setMaximumFractionDigits(decimalPlaces);
+			format.setMinimumFractionDigits(minDecimalPlaces);
+			return format.format(o);
 		} else if (o instanceof LocalDate) {
 			return DateUtils.format((LocalDate) o); 
 		} else if (o instanceof LocalTime) {

@@ -122,11 +122,12 @@ public class GenericUtils {
 	 *         is not generic.
 	 */
 	public static Class<?> getGenericClass(Field field) {
-		 Type type = field.getGenericType();
-		 if (type instanceof ParameterizedType) {
-			 ParameterizedType parameterizedType = (ParameterizedType) type;
-			 return (Class<?>) parameterizedType.getActualTypeArguments()[0];
-		 }
-		 return null;
+		Type type = field.getGenericType();
+		if (type instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
+			return actualTypeArgument instanceof Class ? (Class<?>) actualTypeArgument : null;
+		}
+		return null;
 	}
 }

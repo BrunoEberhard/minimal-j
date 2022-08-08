@@ -2,7 +2,6 @@ package org.minimalj.test.swing;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -54,12 +53,8 @@ public class SwingAuthenticationTest {
 		
 		NavigationTestFacade navigation = pageContainer.getNavigation();
 		
-		List<PageTestFacade> pages = pageContainer.getPages();
-		Assert.assertEquals(1, pages.size());
-		
-		PageTestFacade textPage = pages.get(0);
+		PageTestFacade textPage = pageContainer.page();
 		Assert.assertTrue(textPage.contains("Subject: test"));
-		
 		
 //		Assert.assertNotNull(SwingTestUtils.getComponent(frame, Resources.getString("ReloginAction")));
 //		Assert.assertNull(SwingTestUtils.getComponent(frame, Resources.getString("LogoutAction")));
@@ -77,13 +72,14 @@ public class SwingAuthenticationTest {
 	public void testAuthenticatonModeSuggested() throws InterruptedException, InvocationTargetException {
 		Swing.start(new TestApplication(AuthenticatonMode.SUGGESTED));
 
-		JDialog dialog = getDialog();
-		Assert.assertEquals("Anmeldung", dialog.getTitle());
+		UiTestFacade ui = new SwingTestFacade();
+		
+		UserPasswordLoginTestFacade userPasswordLogin = ui.getLoginTestFacade();
 
-		SwingTestUtils.setText(dialog, "UserPassword.user", "test");
-		SwingTestUtils.setText(dialog, "UserPassword.password", "test");
+		userPasswordLogin.setUser("test");
+		userPasswordLogin.setPassword("test");
 
-		SwingTestUtils.click(dialog, "LoginAction");
+		userPasswordLogin.login();
 
 		SwingFrame frame = getFrame();
 		Assert.assertEquals("test", frame.getSubject().getName());
@@ -120,13 +116,6 @@ public class SwingAuthenticationTest {
 		} catch (InterruptedException | ExecutionException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private JDialog getDialog() {
-		return swing(() -> {
-			Assert.assertEquals("There should be 1 open dialog", 1, Arrays.stream(JDialog.getWindows()).filter(w -> w instanceof JDialog).filter(w -> w.isVisible()).count());
-			return (JDialog) Arrays.stream(JDialog.getWindows()).filter(w -> w instanceof JDialog).filter(w -> w.isVisible()).findFirst().get();
-		});
 	}
 
 	private SwingFrame getFrame() {

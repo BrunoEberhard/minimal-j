@@ -43,12 +43,12 @@ public class ValidationMessage {
 		return "ValidationMessage [key=" + key + ", formattedText=" + formattedText + "]";
 	}
 
-	public static List<String> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
-		List<String> filteredMessages = new ArrayList<>();
+	public static List<ValidationMessage> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
+		List<ValidationMessage> filteredMessages = new ArrayList<>();
 		if (validationMessages != null) {
 			for (ValidationMessage validationMessage : validationMessages) {
 				if (equalsOrParent(property, validationMessage.getProperty())) {
-					filteredMessages.add(validationMessage.getFormattedText());
+					filteredMessages.add(validationMessage);
 				}
 			}
 		}

@@ -1,9 +1,10 @@
 package org.minimalj.util;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -29,10 +30,10 @@ public class EqualsHelperTest {
 		Assert.assertTrue("Equals same String", EqualsHelper.equals("ab", new String("ab")));
 		Assert.assertFalse("Not equals String", EqualsHelper.equals("ac", "ab"));
 
-		Assert.assertTrue("Equals same EnumSet", EqualsHelper.equals(Set.of(EqualsHelperEnum.A), Set.of(EqualsHelperEnum.A)));
-		Assert.assertFalse("Not equals EnumSet", EqualsHelper.equals(Set.of(EqualsHelperEnum.A), Set.of(EqualsHelperEnum.B)));
-		Assert.assertFalse("Not equals EnumSet", EqualsHelper.equals(Set.of(EqualsHelperEnum.A), null));
-		Assert.assertFalse("Not equals EnumSet", EqualsHelper.equals(Set.of(EqualsHelperEnum.A), new HashSet<>()));
+		Assert.assertTrue("Equals same EnumSet", EqualsHelper.equals(Collections.singleton(EqualsHelperEnum.A), Collections.singleton(EqualsHelperEnum.A)));
+		Assert.assertFalse("Not equals EnumSet", EqualsHelper.equals(Collections.singleton(EqualsHelperEnum.A), Collections.singleton(EqualsHelperEnum.B)));
+		Assert.assertFalse("Not equals EnumSet", EqualsHelper.equals(Collections.singleton(EqualsHelperEnum.A), null));
+		Assert.assertFalse("Not equals EnumSet", EqualsHelper.equals(Collections.singleton(EqualsHelperEnum.A), new HashSet<>()));
 
 		UUID id = UUID.randomUUID();
 		Assert.assertTrue("Equals same UUID", EqualsHelper.equals(id, UUID.fromString(id.toString())));
@@ -100,14 +101,14 @@ public class EqualsHelperTest {
 		b1.b = "a";
 		b2.b = "a";
 		
-		a1.c = List.of(b1);
-		a2.c = List.of(b2);
+		a1.c = Collections.singletonList(b1);
+		a2.c = Collections.singletonList(b2);
 		Assert.assertTrue("Equals same list", EqualsHelper.equals(a1, a2));
 
-		a2.c = List.of(b1, b1);
+		a2.c = Arrays.asList(b1, b1);
 		Assert.assertFalse("Not equals list", EqualsHelper.equals(a1, a2));
 
-		a2.c = List.of(b1, b2);
+		a2.c = Arrays.asList(b1, b2);
 		Assert.assertFalse("Not equals list", EqualsHelper.equals(a1, a2));
 	}
 	

@@ -9,10 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,6 +72,8 @@ public class SqlRepository implements TransactionalRepository {
 	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
 	private final Map<Class<?>, HashMap<String, PropertyInterface>> columnsForClassUpperCase = new HashMap<>(200);
 	
+	protected final Map<Class<?>, String> dbTypes = new HashMap<>();
+	
 	private final DataSource dataSource;
 	
 	private Connection autoCommitConnection;
@@ -87,18 +88,18 @@ public class SqlRepository implements TransactionalRepository {
 	
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
 		this.dataSource = dataSource;
-		
-		Connection connection = getAutoCommitConnection();
-		try {
+
+		try (Connection connection = getAutoCommitConnection()) {
 			sqlDialect = findDialect(connection);
 			sqlIdentifier = createSqlIdentifier();
-			for (Class<?> clazz : classes) {
+			for (Class<?> clazz : Model.getEntityClassesRecursive(classes)) {
 				addClass(clazz);
 			}
 			new ModelTest(classes).assertValid();
 			if (createTablesOnInitialize(dataSource)) {
 				createTables();
 				createCodes();
+				afterCreateTables();
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
@@ -353,6 +354,7 @@ public class SqlRepository implements TransactionalRepository {
 			String fieldName = field.getName();
 			if (StringUtils.equals(fieldName, "id", "version", "historized")) continue;
 			if (FieldUtils.isList(field)) continue;
+			if (!FieldUtils.isFinal(field) && AbstractTable.isDependable(field.getType())) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
 				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field) && !FlatProperties.hasCollidingFields(clazz, field.getType(), field.getName());
@@ -397,17 +399,18 @@ public class SqlRepository implements TransactionalRepository {
 	 * TODO: should be merged with the setParameter in AbstractTable.
 	 */
 	private void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
-		if (value instanceof Enum<?>) {
-			Enum<?> e = (Enum<?>) value;
-			value = e.ordinal();
-		} else if (value instanceof LocalDate) {
-			value = java.sql.Date.valueOf((LocalDate) value);
-		} else if (value instanceof LocalTime) {
-			value = java.sql.Time.valueOf((LocalTime) value);
-		} else if (value instanceof LocalDateTime) {
-			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
-		}
-		preparedStatement.setObject(param, value);
+		getSqlDialect().setParameter(preparedStatement, param, value);
+//		if (value instanceof Enum<?>) {
+//			Enum<?> e = (Enum<?>) value;
+//			value = e.ordinal();
+//		} else if (value instanceof LocalDate) {
+//			value = java.sql.Date.valueOf((LocalDate) value);
+//		} else if (value instanceof LocalTime) {
+//			value = java.sql.Time.valueOf((LocalTime) value);
+//		} else if (value instanceof LocalDateTime) {
+//			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
+//		}
+//		preparedStatement.setObject(param, value);
 	}
 
 	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {
@@ -476,7 +479,7 @@ public class SqlRepository implements TransactionalRepository {
 		
 		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
-			String columnName = resultSet.getMetaData().getColumnName(columnIndex).toUpperCase();
+			String columnName = resultSet.getMetaData().getColumnLabel(columnIndex).toUpperCase();
 			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
 				IdUtils.setId(result, id);
@@ -490,7 +493,10 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			
 			PropertyInterface property = columns.get(columnName);
-			if (property == null) continue;
+			if (property == null) {
+				logger.log(Level.FINE, "Column not found: " + columnName);
+				continue;
+			}
 			
 			Class<?> fieldClass = property.getClazz();
 			boolean isByteArray = fieldClass.isArray() && fieldClass.getComponentType() == Byte.TYPE;
@@ -525,7 +531,7 @@ public class SqlRepository implements TransactionalRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass)) {
+				if (Code.class.isAssignableFrom(fieldClass) && !isLoading((Class<? extends Code>) fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
@@ -551,7 +557,7 @@ public class SqlRepository implements TransactionalRepository {
 						value = referencedValue;
 					}
 				} else if (AbstractTable.isDependable(property)) {
-					value = getTable(fieldClass).read(value);
+					continue;
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = property.getGenericClass();
@@ -576,7 +582,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	<U> void addClass(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			tables.put(clazz, null); // break recursion. at some point it is checked if a clazz is already in the tables map.
+			tables.put(clazz, null); // break cycle. at some point it is checked if a clazz is already in the tables map.
 			Table<U> table = createTable(clazz);
 			tables.put(table.getClazz(), table);
 		}
@@ -587,26 +593,38 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	void createTables() {
-		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
-		for (AbstractTable<?> table : tableList) {
+		for (AbstractTable<?> table : tables.values()) {
 			table.createTable(sqlDialect);
 		}
-		for (AbstractTable<?> table : tableList) {
+		for (AbstractTable<?> table : tables.values()) {
 			table.createIndexes(sqlDialect);
 		}
-		for (AbstractTable<?> table : tableList) {
+		for (AbstractTable<?> table : tables.values()) {
 			table.createConstraints(sqlDialect);
 		}
 	}
 
+	void afterCreateTables() {
+		afterCreateTables(Collections.unmodifiableCollection(tables.values()));
+	}
+	
+	protected void afterCreateTables(Collection<AbstractTable<?>> tables) {
+		// for extensions
+	}
+
 	void dropTables() {
-		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
-		for (AbstractTable<?> table : tableList) {
+		Collection<AbstractTable<?>> tables = Collections.unmodifiableCollection(this.tables.values());
+		beforeDropTables(tables);
+		for (AbstractTable<?> table : tables) {
 			table.dropConstraints(sqlDialect);
 		}
-		for (AbstractTable<?> table : tableList) {
+		for (AbstractTable<?> table : tables) {
 			table.dropTable(sqlDialect);
 		}
+	}
+
+	protected void beforeDropTables(Collection<AbstractTable<?>> tables) {
+		// for extensions
 	}
 
 	// TODO move someplace where it's available for all kind of repositories (Memory DB for example)
@@ -695,7 +713,13 @@ public class SqlRepository implements TransactionalRepository {
 	
 	public String column(Object key) {
 		PropertyInterface property = Keys.getProperty(key);
-		Class<?> declaringClass = property.getDeclaringClass();
+		Class<?> declaringClass;
+		if (property instanceof ChainedProperty) {
+			ChainedProperty chainedProperty = (ChainedProperty) property;
+			declaringClass = chainedProperty.getChain().get(0).getDeclaringClass();
+		} else {
+			declaringClass = property.getDeclaringClass();
+		}
 		if (tables.containsKey(declaringClass)) {
 			AbstractTable<?> table = getAbstractTable(declaringClass);
 			return table.column(property);
@@ -714,7 +738,7 @@ public class SqlRepository implements TransactionalRepository {
 		return tables.containsKey(clazz);
 	}
 	
-	public <T extends Code> T getCode(Class<T> clazz, Object codeId) {
+	protected <T extends Code> T getCode(Class<T> clazz, Object codeId) {
 		if (isLoading(clazz)) {
 			// this special case is needed to break a possible reference cycle
 			return getTable(clazz).read(codeId);
@@ -724,7 +748,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Code> boolean isLoading(Class<T> clazz) {
+	protected <T extends Code> boolean isLoading(Class<T> clazz) {
 		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
 		return cacheItem != null && cacheItem.isLoading();
 	}

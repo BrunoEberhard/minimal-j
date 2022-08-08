@@ -13,5 +13,7 @@ import java.lang.annotation.Target;
 public @interface Decimal {
 
 	int value();
+	
+	int minDecimals() default Integer.MAX_VALUE;
 
 }

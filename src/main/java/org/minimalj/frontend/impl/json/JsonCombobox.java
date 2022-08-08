@@ -15,7 +15,7 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 
 	private final Map<String, T> objectById = new LinkedHashMap<>();
 
-	public JsonCombobox(List<T> objects, InputComponentListener changeListener) {
+	public JsonCombobox(List<T> objects, String nullText, InputComponentListener changeListener) {
 		super("Combobox", changeListener);
 
 		Map<String, Object> options = new LinkedHashMap<>();
@@ -31,6 +31,9 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 			objectById.put(id, object);
 		}
 		put("options", options);
+		if (!StringUtils.isEmpty(nullText)) {
+			put("nullText", nullText);
+		}
 	}
 
 	@Override

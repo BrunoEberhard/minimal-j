@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
@@ -80,6 +81,10 @@ public class Resources {
 		return getAccess().getResourceName(clazz);
 	}
 
+	public static String getPageTitle(Page page) {
+		return getString(page.getClass());
+	}
+	
 	//
 
 	/* test */ static class ResourceBundleAccess {
@@ -204,6 +209,12 @@ public class Resources {
 			// unqualifiedKey example: "nationality"
 			if (resourceBundle.containsKey(fieldName)) {
 				return resourceBundle.getString(fieldName);
+			}
+			
+			// class of same name
+			String className = getStringOrNull(fieldClass);
+			if (className != null) {
+				return className;
 			}
 
 			if (!optional) {

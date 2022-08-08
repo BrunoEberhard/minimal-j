@@ -55,6 +55,11 @@ public class DataSourceFactory {
 	 * Convenience method for prototyping and testing. The tables will be
 	 * created automatically.
 	 * 
+	 * To make this db inspectable call: 
+	 * org.h2.tools.Server.createTcpServer().start(); 
+	 * and connect to
+	 * jdbc:h2:tcp://localhost:9092/mem:TempDB1
+	 * 
 	 * @return a DataSource representing a in memory database
 	 */
 	public static DataSource embeddedDataSource() {

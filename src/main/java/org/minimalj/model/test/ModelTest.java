@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
@@ -31,7 +32,6 @@ import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
-import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -118,10 +118,10 @@ public class ModelTest {
 		if (!modelClasses.contains(clazz)) {
 			modelClasses.add(clazz);
 			testName(clazz);
-			if (!clazz.isEnum()) { // it's neither pretty for enum but it should work
+			if (!clazz.isEnum()) { // it's not pretty to have several enum classes with same name but it works
 				testNoDuplicateName(clazz);
 			}
-			testNoSuperclass(clazz);
+			testNoOrAbstractSuperclass(clazz);
 			if (!testNoSelfMixins(clazz)) {
 				return; // further tests could create a StackOverflowException
 			}
@@ -138,12 +138,13 @@ public class ModelTest {
 			if (Configuration.isDevModeActive()) {
 				testResources(clazz);
 			}
+			// testNoDuplicateFieldsInSuperClass(clazz)
 		}
 	}
 
 	private void testInlineClass(Class<?> clazz) {
 		testName(clazz);
-		testNoSuperclass(clazz);
+		testNoOrAbstractSuperclass(clazz);
 		testFields(clazz);
 		// TODO testNoInlineRecursion(clazz);
 	}
@@ -172,9 +173,12 @@ public class ModelTest {
 		return mainClasses.contains(clazz);
 	}
 	
-	private void testNoSuperclass(Class<?> clazz) {
-		if (clazz.getSuperclass() != Object.class && (clazz.getSuperclass() != Enum.class || isMain(clazz))) {
-			problems.add(clazz.getName() + ": Domain classes must not extends other classes");
+	private void testNoOrAbstractSuperclass(Class<?> clazz) {
+		Class<?> superclass = clazz.getSuperclass();
+		if (superclass != null && superclass != Object.class && superclass != Enum.class) {
+			if (!Modifier.isAbstract(superclass.getModifiers())) {
+				problems.add(clazz.getName() + ": Domain super classes must be abstract");
+			}
 		}
 	}
 	
@@ -204,23 +208,16 @@ public class ModelTest {
 	}
 	
 	private void testId(Class<?> clazz) {
+		if (!isMain(clazz)) {
+			return;
+		}
 		try {
 			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
-			if (Codes.isCode(clazz)) {
-				if (!FieldUtils.isAllowedCodeId(property.getClazz())) {
-					problems.add(clazz.getName() + ": Code id must be of Integer, String or Object");
-				}
-			} else {
-				if (property.getClazz() != Object.class) {
-					problems.add(clazz.getName() + ": Id must be Object");
-				}				
+			if (!FieldUtils.isAllowedId(property.getClazz())) {
+				problems.add(clazz.getName() + ": id must be of Integer, Long, String, Object");
 			}
 		} catch (IllegalArgumentException e) {
-			if (Codes.isCode(clazz)) {
-				problems.add(clazz.getName() + ": Code classes must have an id field of Integer, String or Object");
-			} else if (isMain(clazz)) {
-				problems.add(clazz.getName() + ": Domain classes must have an id field of type object");
-			}
+			problems.add(clazz.getName() + ": Class missing id field");
 		}
 	}
 
@@ -379,6 +376,9 @@ public class ModelTest {
 	private void testTypeOfListField(Field field, String messagePrefix) {
 		Class<?> listType = GenericUtils.getGenericClass(field);
 		if (listType != null) {
+			if (Modifier.isAbstract(listType.getModifiers())) {
+				problems.add(messagePrefix + " must not be of an abstract Type");
+			}
 			testTypeOfListField(listType, "Generic of " + messagePrefix);
 			if (IdUtils.hasId(listType) && FieldUtils.isFinal(field)) {
 				problems.add("List of identifiables must not be final: " + messagePrefix);
@@ -500,7 +500,7 @@ public class ModelTest {
 		for (Field field : fields) {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
 				Class<?> fieldType = field.getType();
-				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class) {
+				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class && !Code.class.isAssignableFrom(fieldType)) {
 					if (forbiddenClasses.contains(fieldType)) {
 						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
 					} else {

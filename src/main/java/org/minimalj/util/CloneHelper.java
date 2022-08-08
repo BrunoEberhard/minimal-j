@@ -73,8 +73,8 @@ public class CloneHelper {
 	}
 	
 	private static void _deepCopy(Object from, Object to, List originals, List copies) throws IllegalArgumentException, IllegalAccessException {
-		for (Field field : from.getClass().getDeclaredFields()) {
-			if (FieldUtils.isStatic(field) || !FieldUtils.isPublic(field)) continue;
+		for (Field field : from.getClass().getFields()) {
+			if (FieldUtils.isStatic(field)) continue;
 			Object fromValue = field.get(from);
 			Object toValue = field.get(to);
 			if (fromValue instanceof List) {

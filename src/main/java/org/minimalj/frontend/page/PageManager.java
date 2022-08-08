@@ -1,7 +1,6 @@
 package org.minimalj.frontend.page;
 
-import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.security.Subject;
 
 public interface PageManager {
@@ -26,7 +25,9 @@ public interface PageManager {
 
 	//
 
-	public abstract IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions);
+	public abstract void showDialog(Dialog dialog);
+
+	public abstract void closeDialog(Dialog dialog);
 
 	//
 	

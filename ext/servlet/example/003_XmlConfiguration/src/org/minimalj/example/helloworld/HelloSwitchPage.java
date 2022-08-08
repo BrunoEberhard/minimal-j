@@ -12,7 +12,7 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.page.Page;
 
-public class HelloSwitchPage extends Page {
+public class HelloSwitchPage implements Page {
 	private static final Logger logger = Logger.getLogger(HelloWorldPage.class.getName());
 
 	private SwitchContent content = Frontend.getInstance().createSwitchContent();

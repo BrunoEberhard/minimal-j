@@ -82,8 +82,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public boolean hasSkipLogin() {
-			// TODO Auto-generated method stub
-			return false;
+			return driver.findElement(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")) != null;
 		}
 
 		@Override
@@ -99,8 +98,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public void cancel() {
-			// TODO Auto-generated method stub
-
+			clickButton("LoginAction");
 		}
 
 		@Override
@@ -291,7 +289,10 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public Runnable get(String text) {
 			return () -> {
-				WebElement actionMenu = divPage.findElement(By.className("actionMenu"));
+				Actions actions = new Actions(driver);
+				actions.contextClick(divPage).perform();
+				
+				WebElement actionMenu = divPage.findElement(By.className("contextMenu"));
 				WebElement item;
 				if (actionMenu.isDisplayed()) {
 					item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
@@ -426,13 +427,9 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public String getValidation() {
 			String id = formElement.getAttribute("id");
-			WebElement validationElement = driver.findElementById(id + "-validation");
-			if (validationElement.isDisplayed()) {
-				String validation = validationElement.getAttribute("title");
-				return StringUtils.isEmpty(validation) ? null : validation;
-			} else {
-				return null;
-			}
+			WebElement formElement = driver.findElementById(id);
+			String validation = formElement.getAttribute("title");
+			return StringUtils.isEmpty(validation) ? null : validation;
 		}
 
 		@Override
@@ -558,14 +555,15 @@ public class WebTestFacade implements UiTestFacade {
 			return new HtmlFormTestFacade(form);
 		}
 		
-		public boolean isFilterActive() {
+		@Override
+		public boolean isFilterVisible() {
 			WebElement filter = table.findElement(By.cssSelector(".columnFilters"));
 			return filter.isDisplayed();
 		}
 		
 		@Override
-		public void setFilterActive(boolean active) {
-			if (active != isFilterActive()) {
+		public void setFilterVisible(boolean visible) {
+			if (visible != isFilterVisible()) {
 				WebElement filterButton = page.findElement(By.cssSelector(".filterButton"));
 				if (!filterButton.isDisplayed()) {
 					filterButton = driver.findElement(By.id("tableFilterButton"));

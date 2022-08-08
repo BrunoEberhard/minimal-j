@@ -11,8 +11,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,26 +32,30 @@ public class Keys {
 	private static final Map<Object, PropertyInterface> properties = new IdentityHashMap<>();
 	private static final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
 
-	private static final List<Object> keyObjects = new ArrayList<>();
+	private static final HashSet<Object> keyObjects = new HashSet<>();
+	private static final Map<Class<?>, Object> keyObjectByClass = new HashMap<>();
 	private static final Map<Object, Map<String, Object>> methodKeys = new IdentityHashMap<>();
 	
 	/**
-	 * Warning: Should only be called once per class
 	 * 
 	 * @param clazz The class the $ constant should be created and filled
 	 * @param <T> Type of clazz itself (caller of this method doesn't need to care about this)
 	 * @return the $ constant to be declared in business entities
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T of (Class<T> clazz) {
-		T object;
-		try {
-			object = clazz.getConstructor().newInstance();
-			keyObjects.add(object);
-			fillFields(object, null, 0);
-			return object;
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
+		T object = (T) keyObjectByClass.get(clazz); 
+		if (object == null) {
+			try {
+				object = clazz.getConstructor().newInstance();
+				keyObjects.add(object);
+				keyObjectByClass.put(clazz, object);
+				fillFields(object, null, 0);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				throw new RuntimeException(e);
+			}
 		}
+		return object;
 	}
 	
 	public static boolean isKeyObject(Object object) {
@@ -206,7 +212,13 @@ public class Keys {
 	public static MethodProperty getMethodProperty(Class<?> clazz, String methodName) {
 		Method[] methods = clazz.getMethods();
 		for (Method method: methods) {
-			if (isStatic(method) || !isPublic(method) || method.getDeclaringClass() != clazz) continue;
+			// TODO the last condition should not be based on super method returns abstract class
+			// somehow the method in the extension class should win
+			// the array check is because of char[]  . char[] is reported as abstract
+			if (isStatic(method) || !isPublic(method) || Modifier.isAbstract(method.getModifiers()) || //
+					Modifier.isAbstract(method.getReturnType().getModifiers()) && //
+					!method.getReturnType().isArray() && //
+					!Collection.class.isAssignableFrom(method.getReturnType())) continue;
 			String name = method.getName();
 			if (!name.startsWith("get") || name.length() <= 3) continue; // TODO check
 			if (!StringUtils.lowerFirstChar(name.substring(3)).equals(methodName)) continue;
@@ -219,7 +231,7 @@ public class Keys {
 					break;
 				}
 			}
-			return new MethodProperty(clazz, methodName, method, setterMethod);
+			return new MethodProperty(method.getDeclaringClass(), methodName, method, setterMethod);
 		}
 		return null;
 	}

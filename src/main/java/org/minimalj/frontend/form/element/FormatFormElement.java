@@ -79,6 +79,9 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				if (placeholder != null) {
 					((JsonTextField) textField).setPlaceholder(placeholder);
 				}
+				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
+					((JsonTextField) textField).setCssClass("textAlignRight");
+				}
 			}
 
 		}

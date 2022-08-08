@@ -12,7 +12,6 @@ public class JsonOutput {
 	private static final String PROPERTY_CHANGES = "propertyChanges";
 	private static final String CONTENT_CHANGES = "contentChanges";
 	
-	private final JsonWriter writer = new JsonWriter();
 	private final Map<String, Object> output = new LinkedHashMap<>();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -71,7 +70,7 @@ public class JsonOutput {
 
 	@Override
 	public String toString() {
-		return writer.write(output);
+		return new JsonWriter().write(output);
 	}
 	
 }

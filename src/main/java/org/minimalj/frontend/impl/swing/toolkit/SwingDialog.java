@@ -12,26 +12,28 @@ import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.SwingFrame;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 
-public class SwingDialog extends JDialog implements IDialog {
+public class SwingDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 	
+	private final Dialog dialog;
 	private final Component focusAfterClose;
 	private final Action saveAction;
 	
-	public SwingDialog(SwingFrame frame, String title, Component content, Action saveAction, Action closeAction) {
-		this(frame, title, content, saveAction, closeAction, null);
+	public SwingDialog(SwingFrame frame, Dialog dialog, Component content, Action saveAction, Action closeAction) {
+		this(frame, dialog, content, saveAction, closeAction, null);
 	}
 
-	public SwingDialog(SwingFrame frame, String title, Component content, Action saveAction, Action closeAction, Component focusAfterClose) {
+	public SwingDialog(SwingFrame frame, Dialog dialog, Component content, Action saveAction, Action closeAction, Component focusAfterClose) {
 		super(frame);
 		setModalityType(ModalityType.DOCUMENT_MODAL);
 
+		this.dialog = dialog;
 		this.focusAfterClose = focusAfterClose;
 		this.saveAction = saveAction;
 		
-		setTitle(title);
+		setTitle(dialog.getTitle());
 		setResizable(true);
 		
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -65,6 +67,10 @@ public class SwingDialog extends JDialog implements IDialog {
 		});
 	}
 
+	public Dialog getDialog() {
+		return dialog;
+	}
+	
 	@Override
 	public void setResizable(boolean resizable) {
 		super.setResizable(resizable);
@@ -81,7 +87,6 @@ public class SwingDialog extends JDialog implements IDialog {
 		}
 	}
 
-	@Override
 	public void closeDialog() {
 		setVisible(false);
 		focusAfterCloseComponent();

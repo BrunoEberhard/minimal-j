@@ -176,7 +176,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass)) {
+				if (Code.class.isAssignableFrom(fieldClass) && !isLoading((Class<? extends Code>) fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = getCode(codeClass, value);
 				} else if (View.class.isAssignableFrom(fieldClass)) {
@@ -194,7 +194,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 						value = referenceTable.read(value, loadedReferences);
 					}
 				} else if (AbstractTable.isDependable(property)) {
-					value = getTable(fieldClass).read(value);
+					// TODO load dependables
 				} else if (fieldClass == Set.class) {
 					Set<?> set = (Set<?>) property.getValue(result);
 					Class<?> enumClass = property.getGenericClass();

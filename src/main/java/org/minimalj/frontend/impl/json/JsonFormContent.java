@@ -10,6 +10,7 @@ import org.minimalj.frontend.form.element.FormElementConstraint;
 public class JsonFormContent extends JsonComponent implements FormContent {
 
 	public static final String CAPTION = "caption";
+	public static final String REQUIRED = "required";
 	public static final String VALIDATION_MESSAGE = "validationMessage";
 	public static final String SPAN = "span";
 	public static final String MIN_HEIGHT = "minHeight";
@@ -34,17 +35,30 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		createNewRow();
 	}
 
+	public JsonFormContent(List<Integer> columnConstraints) {
+		this(columnConstraints.size(), 100);
+		
+		put("columnWidths", columnConstraints);
+	}
+
 	private void createNewRow() {
 		actualRow = new ArrayList<>();
 		rows.add(actualRow);
 		actualColumn = 0;
 	}
 
-	@Override
 	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
+		throw new IllegalArgumentException("Migrate");
+	}
+	
+	@Override
+	public void add(String caption, boolean required, IComponent component, FormElementConstraint constraint, int span) {
 		JsonComponent jsonComponent = (JsonComponent) component;
 		if (caption != null) {
 			jsonComponent.put(CAPTION, caption);
+		}
+		if (required) {
+			jsonComponent.put(REQUIRED, required);
 		}
 		if (actualColumn >= columns) {
 			createNewRow();
@@ -84,4 +98,9 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		}
 	}
 
+	@Override
+	public void setVisible(IComponent component, boolean visible) {
+		((JsonComponent) component).setFormElementVisible(visible);
+	}
+	
 }

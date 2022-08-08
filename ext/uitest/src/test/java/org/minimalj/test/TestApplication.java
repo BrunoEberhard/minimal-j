@@ -4,18 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.PageAction;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
+import org.minimalj.transaction.Role;
 import org.minimalj.util.resources.Resources;
 
 public class TestApplication extends Application {
 	private final AuthenticatonMode authenticatonMode;
 
+	public static final String TEST_PAGE_TITLE = "Title Test Page";
+	
 	public TestApplication(AuthenticatonMode authenticatonMode) {
 		this.authenticatonMode = authenticatonMode;
 	}
@@ -32,7 +36,11 @@ public class TestApplication extends Application {
 	
 	@Override
 	public Page createDefaultPage() {
-		return new TestPage("TestPage");
+		if (Subject.currentHasRole(TestAuthentication.ROLE_TEST)) {
+			return new TestPage("TestPage");
+		} else {
+			return new EmptyPage();
+		}
 	}
 
 	@Override
@@ -51,10 +59,12 @@ public class TestApplication extends Application {
 				}
 			});
 		}
+		actions.add(new PageAction(new TestPage("Page 2"), "Other Page"));
 		return actions;
 	}
 	
-	public static class TestPage extends Page {
+	@Role(TestAuthentication.ROLE_TEST)
+	public static class TestPage implements Page {
 		private final String text;
 
 		public TestPage(String text) {
@@ -63,7 +73,7 @@ public class TestApplication extends Application {
 
 		@Override
 		public String getTitle() {
-			return "Title Test Page";
+			return TEST_PAGE_TITLE;
 		}
 
 		@Override

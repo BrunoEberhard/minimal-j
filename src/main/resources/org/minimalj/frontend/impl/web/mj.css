@@ -103,29 +103,30 @@ body {
 
 #navigation {
 	position: relative;
-	width: calc(15em - 1px);
+	width: calc(10rem - 1px);
+	height: 100%;
 	max-height: calc(100% - 2em);
 	bottom: 0;
 	overflow: auto;
-	padding-left: 0.7em;
+	padding-left: 0.7rem;
 }
 
 #navigation ul {
-	padding-left: 0.7em;
+	padding-left: 0.6rem;
 }
 
-#navigation li {
-	margin: 0.7em 0em 0.7em 0em;
+#navigation li, .contextMenu li, .actionSideBar li {
+	margin: 0.4rem 0rem 0.4rem 0rem;
 }
 
-#navigation li, .actionMenu li {
+#navigation li, .contextMenu li, .actionSideBar li {
 	list-style: none;
 }
 
-#navigation li a, .actionMenu li a {
+#navigation li a, .contextMenu li a, .actionSideBar li a {
 	display: block;
-	border-top: 0.25em transparent solid;
-	border-bottom: 0.25em transparent solid;
+	border-top: 0.2rem transparent solid;
+	border-bottom: 0.2rem transparent solid;
 	width: 100%;
 	box-sizing: border-box;
 }
@@ -173,7 +174,8 @@ body {
 	width: 100%;
 	flex-grow: 1;
 	flex-basis: 2em;
-	overflow: hidden;
+	overflow-y: hidden;
+	overflow-x: auto;
 	box-sizing: border-box;
 }
 
@@ -188,14 +190,21 @@ body {
 
 .pageContentAndActions {
 	height: calc(100% - 2em);
+	max-height: calc(100% - 2em);
 	overflow-y: auto;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
 }
 
 .pageContent {
-	width: 100%;
+	height: 100%;
+	max-height: 100%;
+	flex-grow: 1;
 	box-sizing: border-box;
 	padding-left: 1em;
 	padding-top: 0.5ex;
+	padding-right: 0.5em;
 	overflow: auto;
 }
 
@@ -203,11 +212,18 @@ body {
 	padding-right: 1em;
 }
 
-iframe.pageContent {
-	height: 100%;
-	padding: 0;
+.pageContent iframe {
+	height: calc(100% + 0.5ex);
+	width: calc(100% + 1.5em);
+	margin-left: -1em;
+	margin-top: -0.5ex;
+	margin-right: -0.5em;
 	border: 0;
 	font-family: inherit;
+}
+
+.pageContent .contentLogin {
+	width: 90%;
 }
 
 table.table tr td {
@@ -217,7 +233,8 @@ table.table tr td {
 
 table.table thead {
 	position: sticky;
-	top: 0;
+	top: -0.5ex;
+	padding-top: 0.5ex;
 	background: white;
 }
 
@@ -240,13 +257,27 @@ table.table thead {
 	vertical-align: middle;
 }
 
-.actionMenu {
-	position: fixed;
-	z-index: 20;
-	padding: 0.5ex 1ex 0.5ex 1ex;
-	border: 1px rgb(160,160,160) solid;
+.contextMenu {
+	width: 10rem;
 	background: white;
 	overflow: auto;
+	position: fixed;
+	height: unset;
+	border: 1px rgb(160,160,160) solid;
+	padding: 0.2rem 0ex 0.2rem 1.2rem;
+	z-index: 20;
+}
+
+.actionSideBar {
+	width: 15rem;
+	height: 100%;
+	box-sizing: border-box;
+	border-left: 1px rgb(160,160,160) solid;
+	margin: 0px;
+	padding-left: 1.5rem;
+	overflow: auto;
+	flex-grow: 0;
+	flex-basis: 15em;
 }
 
 /* dialog */
@@ -313,11 +344,11 @@ dialog:nth-child(3n+2) {
 }
 
 .dialogFooter button {
-	margin-right: 0.8em;
+	margin-right: 1rem;
 }
 
 .fullscreen .dialogFooter button {
-	margin-right: 0.2em;
+	margin-right: 0.2rem;
 }
 
 .dialogResize {
@@ -412,7 +443,11 @@ dialog table {
 }
 
 .form > div > div, .dialogButtons {
-	padding-right: 1em;
+	padding-right: 0.7rem;
+}
+
+.form > div > div:last-child {
+	padding-right: 0em;
 }
 
 .form > div > div {
@@ -434,25 +469,25 @@ dialog table {
 	width: 100%;
 }
 
-.form input, .form select {
-	height: 1.8em;
+input, select, .text {
+	height: 1.35rem;
 }
 
-.form .text {
+.text {
 	padding-top: 3.5px;
 }
 
-.form .lookup .text, .form .lookup input {
+.lookup .text, .lookup input {
 	width: 100%;
 	min-height: 1.8em;
 	box-sizing: border-box;
 }
 
-.form .lookup input {
+.lookup input {
 	width: 100%;
 }
 
-.form .lookup .text {
+.lookup .text {
 	padding: 3.5px;
 	border: lightgray solid 1px;
 	margin: 0em 2em 0em 0em;
@@ -461,8 +496,30 @@ dialog table {
     overflow: hidden;
 }
 
+.textAlignRight {
+	text-align: right;
+}
+
+.changed[title],
+.form.showValidations *[title],
+.form.showValidations div[title] *
+{
+	border-color: red;
+}
+
+.asterisk {
+	position: relative;
+	top: -1px;
+	color: red;
+	padding-left: 0.2ex;
+}
+
 th .form {
 	font-weight: normal;
+}
+
+input[disabled]::placeholder, textarea[disabled]::placeholder {
+	color: transparent;
 }
 
 .dropdownButton {
@@ -493,8 +550,8 @@ th .form {
 	z-index: 1;
 }
 
-.form .lookup .dropdown div {
-	padding: 0.2em;
+.dropdown * {
+	margin: 6px;
 }
 
 .form .groupItem:first-child .lookup .text {
@@ -550,10 +607,27 @@ textarea {
 	resize: vertical;
 }
 
+textarea[disabled] {
+	resize: none;
+}
+
 hr {
 	margin: 0px;
 	border: 0px;
 	border-top: 1px rgb(160,160,160) solid;
+}
+
+fieldset {
+	border: none;
+	padding: 0px;
+}
+
+fieldset label {
+	display: inline;
+	font-size: unset;
+	font-weight: normal;
+	padding-right: 2em;
+	vertical-align: bottom;
 }
 
 label {
@@ -561,8 +635,17 @@ label {
 	align-items: center;
 	white-space: nowrap;
 	overflow: hidden;
-	font-size: x-smaller;
+	font-size: smaller;
 	font-weight: bolder;
+}
+
+label.help {
+	font-size: x-small;
+	visibility: hidden;	
+}
+
+label.invisible {
+	color: transparent;
 }
 
 .title {
@@ -606,7 +689,7 @@ label {
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:15%25'%3E%3Cline x1='7%25' y1='40%25' x2='50%25' y2='80%25'/%3E%3Cline x1='93%25' y1='40%25' x2='50%25' y2='80%25'/%3E%3C/svg%3E");
 }
 
-.hide {
+.hide, .hideFormElement {
 	display: none;
 }
 
@@ -618,7 +701,7 @@ label {
 @media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }
-	#actionMenuButton, #tableFilterButton { display: none; }
+	#sideBarActionButton, #tableFilterButton { display: none; }
 }
 
 @media screen and (max-width: 991px) {
@@ -632,7 +715,7 @@ label {
 	.page:last-child { display: block; border-bottom: none; top: 0em; right: 0em; min-height: unset; height: 100%; }
 	.page:last-child > .pageContentAndActions { top: 0em; height: 100%;}
 	.pageHeader { display: none; }
-	.actionMenu { min-width: 13em;}
+	.contextMenu { min-width: 13em;}
 	table.form > tbody > tr > td:first-child, table.form > tbody > tr > td:last-child, table.form th { padding: 1ex; }
 	table.form, table.form input, table.form select { margin: 0px; }
 }

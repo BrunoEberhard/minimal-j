@@ -87,10 +87,11 @@ public class FieldUtils {
 		return false;
 	}
 
-	public static boolean isAllowedCodeId(Class<?> classOfId) {
-		if (Object.class == classOfId) return true;
-		if (String.class == classOfId) return true;
+	public static boolean isAllowedId(Class<?> classOfId) {
 		if (Integer.class == classOfId) return true;
+		if (String.class == classOfId) return true;
+		if (Object.class == classOfId) return true;
+		if (Long.class == classOfId) return true;
 		return false;
 	}
 	

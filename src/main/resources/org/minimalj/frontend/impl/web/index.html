@@ -32,7 +32,6 @@ $ICON
 	
 	var blockStyle = document.createElement('style');
 	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
-	var blockCount = 0;
 	var pendingRequests = 0;
 	
 	function onMessage(data) {
@@ -43,10 +42,11 @@ $ICON
 				"retry": dataObject.wait
 			};
 			document.getElementById("wait").style.width = (1 + (dataObject.wait - 1) % 3) + "em";
-			send(data, true);
+			send0(data);
 			return;
 		} else {
 			document.getElementById("wait").style.width = 0;
+			unblockUi();
 		}
 	
 		session = dataObject["session"];
@@ -81,6 +81,7 @@ $ICON
 			addNewStateToHistory(dataObject.showPage.route);
 			showPage(dataObject.showPage);
 			updatePageButtons();
+			resizeNavigation();
 			saveStateInHistory();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
@@ -88,11 +89,13 @@ $ICON
 				showPage(pages[i]);
 			}
 			updatePageButtons();
+			resizeNavigation();
 		} else if ("hidePage" in dataObject) {
 			addNewStateToHistory();
 			hidePage(dataObject.hidePage);
 			saveStateInHistory();
 			updatePageButtons();
+			resizeNavigation();
 		} else if ("showUrl" in dataObject) {
 			window.location.href = dataObject.showUrl;
 		} else if (dataObject.pageId) {
@@ -148,12 +151,11 @@ $ICON
 							removeChildren(tfoot);
 							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
-							var validationElement = document.getElementById(id + "-validation");
-							if (value == undefined || value == "") {
-								validationElement.className = "hide";
+							var element = document.getElementById(id);
+							if (value) {
+								element.title = value;
 							} else {
-								validationElement.className = "";
-								validationElement.title = value;
+								element.removeAttribute("title");
 							}
 						} else if (property === "enabled" && element.className === "list") {
 							element.style.display = value ? "block" : "none";
@@ -171,6 +173,13 @@ $ICON
 								if (label.length > 0) {
 									label[0].setAttribute("disabled", true);
 								}
+							}
+						} else if (property === "hideFormElement") {
+							var formElement = document.getElementById(id + "-element");
+							if (value) {
+								formElement.setAttribute("hide", true);
+							} else {
+								formElement.removeAttribute("hide");
 							}
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
 							element.checked = value ? "checked" : "";
@@ -303,9 +312,9 @@ $ICON
 	
 		var pageElement = document.createElement("div");
 		pageElement.classList.add("page");
-		if (page.pageClass) {
+		if (page.className) {
 		    // undefined for login page, see JsonPageManager.showLogin
-			pageElement.classList.add(page.pageClass);
+			pageElement.classList.add(page.className);
 		}
 		pageElement.id = page.pageId;
 	
@@ -315,13 +324,17 @@ $ICON
 		var headerElement = createPageHeader(page);
 		pageElement.appendChild(headerElement);
 		if (!hasActionMenu) {
-			headerElement.querySelector(".actionMenuButton").style.display = "none";
+			headerElement.querySelector(".sideBarActionButton").style.display = "none";
 		}
 	
 		var pageContentAndActionsElement = document.createElement("div");
 		pageContentAndActionsElement.className = "pageContentAndActions";
 		pageElement.appendChild(pageContentAndActionsElement);
 	
+		var pageContent = document.createElement("div");
+		pageContent.className = "pageContent";
+		pageContentAndActionsElement.appendChild(pageContent);
+		
 		pageContainerElement.appendChild(pageElement);
 	
 		if (page.content) {
@@ -329,7 +342,7 @@ $ICON
 			if (page.content.type === "Html") {
 				contentElement = document.createElement("iframe");
 				// the iframe must be already attached to have the document
-				pageContentAndActionsElement.appendChild(contentElement);
+				pageContent.appendChild(contentElement);
 				if (!!("srcdoc" in contentElement)) {
 					// in chrome this works best
 					contentElement.srcdoc = page.content.htmlOrUrl;
@@ -340,9 +353,8 @@ $ICON
 				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
 			} else {
 				var contentElement = createContent(page.content);
-				pageContentAndActionsElement.appendChild(contentElement);
+				pageContent.appendChild(contentElement);
 			}
-			contentElement.classList.add("pageContent");
 			contentElement.classList.add("content" + page.content.type);
 			
 			headerElement.ondblclick = function(e) { selectAll(contentElement); }
@@ -351,20 +363,21 @@ $ICON
 			if (inputs.length > 0) {
 				inputs[0].focus();
 			}
+
+			contentElement.style.minWidth = page.minWidth;
+			contentElement.style.maxWidth = page.maxWidth;
 		} else {
 			pageElement.style.borderBottom = "none";
 		}
 	
 		// actions
-		document.getElementById("actionMenuButton").style.display = hasActionMenu ? null : "none";
+		document.getElementById("sideBarActionButton").style.display = hasActionMenu ? null : "none";
 	
 		if (hasActionMenu) {
-			var actionMenuElement = createMenu(page.actionMenu, page.pageId);
-			actionMenuElement.className = "actionMenu";
-			actionMenuElement.style.display = "none";
+			var sideBarElement = createMenu(page.actionMenu, page.pageId);
+			sideBarElement.className = "actionSideBar";
 	
-			pageContentAndActionsElement.appendChild(actionMenuElement);
-			pageElement.actionMenu = actionMenuElement;
+			pageContentAndActionsElement.appendChild(sideBarElement);
 		}
 	
 		if (window.innerWidth < 992) toggleNavigation("close");
@@ -400,39 +413,33 @@ $ICON
 		}
 	}
 
-	function togglePageActionMenu(event) {
-		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
-			var page = pageContainerElement.childNodes[i];
-			if (page.actionMenu && page.actionMenu.style.display === "block") {
-				page.actionMenu.style.display = "none";
-				event.preventDefault();
-				return;
-			}
-		}
-	
+	function toggleActionSideBar(event) {
 		var pageElement = getPageElement(event);
-		if (pageElement && pageElement.actionMenu) {
-			var pageActionContainer = pageElement.actionMenu;
-			pageActionContainer.style.display = "block";
+		var sideBarElement = pageElement.querySelector(".actionSideBar");
+		sideBarElement.classList.toggle("hide");
+	}
 	
-			if (event.type === "contextmenu") {
-				pageActionContainer.style.left = event.x;
-				if (event.x + pageActionContainer.offsetWidth > window.innerWidth) {
-					pageActionContainer.style.left = Math.max(0, window.innerWidth - pageActionContainer.offsetWidth);
-				}
-				pageActionContainer.style.top = event.y;
-				pageActionContainer.style.maxHeight = "unset";
-				if (event.y + pageActionContainer.offsetHeight > window.innerHeight - 30) {
-					pageActionContainer.style.top = Math.max(30, window.innerHeight - pageActionContainer.offsetHeight);
-					pageActionContainer.style.maxHeight = window.innerHeight - 70;
-				}
-			} else {
-				pageActionContainer.style.left = event.target.getBoundingClientRect().right - pageActionContainer.offsetWidth;
-				pageActionContainer.style.top = event.target.getBoundingClientRect().bottom;
-			}
-			event.preventDefault();
-			event.stopPropagation();
+	function showContextMenu(event) {
+		var pageElement = getPageElement(event);
+		var pageContentAndActionsElement = pageElement.querySelector(".pageContentAndActions");
+		var sideBarElement = pageElement.querySelector(".actionSideBar");
+		var contextMenuElement = sideBarElement.cloneNode(true);
+		contextMenuElement.className = "contextMenu";
+
+		pageContentAndActionsElement.appendChild(contextMenuElement);
+
+		contextMenuElement.style.left = event.x;
+		if (event.x + contextMenuElement.offsetWidth > window.innerWidth) {
+			contextMenuElement.style.left = Math.max(0, window.innerWidth - contextMenuElement.offsetWidth);
 		}
+		contextMenuElement.style.top = event.y;
+		contextMenuElement.style.maxHeight = "unset";
+		if (event.y + contextMenuElement.offsetHeight > window.innerHeight - 30) {
+			contextMenuElement.style.top = Math.max(30, window.innerHeight - contextMenuElement.offsetHeight);
+			contextMenuElement.style.maxHeight = window.innerHeight - 70;
+		}
+		event.preventDefault();
+		event.stopPropagation();
 	}
 	
 	function getPageElement(event) {
@@ -446,12 +453,10 @@ $ICON
 	}
 	
 	function closeActionMenu(event) {
-		for (var i = 0; i < pageContainerElement.childNodes.length; i++) {
-			var page = pageContainerElement.childNodes[i];
-			if (page.actionMenu && page.actionMenu.style.display === "block") {
-				page.actionMenu.style.display = "none";
-			}
-		}
+	    var contextMenus = document.getElementsByClassName("contextMenu");
+	    for (var i = 0; i < contextMenus.length; i++) {
+	    	contextMenus[i].parentNode.removeChild(contextMenus[i]);
+	    }
 	    var dropdowns = document.getElementsByClassName("dropdown");
 	    for (var i = 0; i < dropdowns.length; i++) {
 	      dropdowns[i].style.display = "none";
@@ -561,7 +566,7 @@ $ICON
 			element.dataset.columnWidth = content.columnWidth;
 			var rows = content.rows;
 			for (var i = 0; i < rows.length; i++) {
-				element.appendChild(createFormRow(rows[i], content.columnWidth));
+				element.appendChild(createFormRow(rows[i], content.columnWidth, content.columnWidths));
 			}
 		} else if (type === "Query") {
 			element = document.getElementById("queryCaption");
@@ -572,7 +577,7 @@ $ICON
 			element = document.createElement("div");
 			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
 			var formAndActions = document.createElement("div");
-			formAndActions.style = "width: 30em;";
+			formAndActions.style = "width: 25em;";
 			element.appendChild(formAndActions);
 			var contentElement = createContent(content.content);
 			formAndActions.appendChild(contentElement);
@@ -602,6 +607,7 @@ $ICON
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
 			thead.appendChild(createTableColumns(content.headers, content.headerPathes));
+			element.appendChild(createTableColumnStyles(content.alignments));
 			if (content.overview) {
 				var tr = document.createElement("tr");
 				thead.appendChild(tr);
@@ -611,7 +617,7 @@ $ICON
 				tr.appendChild(th);
 			}
 			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes, content.headerFilters));
-			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters));
+			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters, content.filterVisible));
 			var tbody = document.createElement("tbody");
 			element.appendChild(tbody);
 			addTableRows(content.id, tbody, content.tableContent);
@@ -679,11 +685,11 @@ $ICON
 				element.setAttribute("placeholder", content.placeholder);
 			}
 			if (content.suggestions) {
+				var datalist = document.createElement("datalist");
+				datalist.id = content.id + "-list";
+				element.appendChild(datalist);
 				element.setAttribute("list", content.id + "-list");
-				element.setAttribute("onkeydown", "clearSuggestions(this);");
-				element.setAttribute("onkeyup", "loadSuggestions(this);");
-				element.setAttribute("onfocus", "loadSuggestions(this);");
-				element.setAttribute("onblur", "clearSuggestions(this);");
+				element.setAttribute("onkeyup", "loadSuggestions(event);");
 			}
 			element.changeOnFocus = content.changeOnFocus;
 		} else if (type === "AreaField") {
@@ -713,6 +719,10 @@ $ICON
 		} else if (type === "Combobox") {
 			element = document.createElement("select");
 			var option = document.createElement("option");
+			if (content.nullText) {
+				option.textContent = content.nullText;
+				option.value = null;
+			}
 			element.appendChild(option);
 			if (content.options) {
 				for (var id in content.options) {
@@ -743,6 +753,27 @@ $ICON
 			label.appendChild(element);
 			label.appendChild(document.createTextNode(content.text));
 			return label; /* ! */
+		} else if (type === "RadioButtons") {
+			element = document.createElement("fieldset");
+			element.value = content.value;
+			for (var id in content.options) {
+				var button = document.createElement("input");
+				button.type = "radio";
+				button.value = id;
+				button.id = id;
+				button.name = content.id + "-name";
+				if (element.value == button.id) {
+				 	button.setAttribute("checked", "checked");
+				 }
+				button.setAttribute("onchange", "sendchange(this);");
+				element.appendChild(button);
+				var label = document.createElement("label");
+				label.setAttribute("for", id);
+				label.appendChild(document.createTextNode(content.options[id].text));
+				var description = content.options[id].description;
+				if (description) label.title = description;
+				element.appendChild(label);
+			}
 		} else if (type === "Lookup") {
 			element = document.createElement("div");
 			element.className = "lookup";
@@ -823,15 +854,21 @@ $ICON
 		if (content.id) {
 			element.id = content.id;
 		}
+		if (content.cssClass) {
+			element.classList.add(content.cssClass);
+		}
+		if (content.validationMessage != undefined && content.validationMessage.length > 0) {
+			element.title = content.validationMessage;
+		}
 		return element;
 	}
 	
-	function createFormRow(row, columnWidth) {
+	function createFormRow(row, columnWidth, columnWidths) {
 		var element = document.createElement("div");
 		for (var i = 0; i < row.length; i++) {
 			var span = row[i].span;
 			span = span ? span : 1;
-			var cellElement = createFormCell(row[i], span, columnWidth);
+			var cellElement = createFormCell(row[i], span, columnWidths ? columnWidths[i] : columnWidth);
 			element.appendChild(cellElement);
 		}
 		return element;
@@ -839,37 +876,45 @@ $ICON
 	
 	function createFormCell(cell, span, width) {
 		var cellContent = createContent(cell);
-
+		
 		var cellElement = document.createElement("div");
+		cellElement.classList.add("formElement");
+		cellElement.id = cell.id + "-element";
+		if (cell.hideFormElement) {
+			cellElement.setAttribute("hide", "true");
+		}
+		cellElement.appendChild(cellContent);
+		setWidths(cellElement, cellContent, span, width);
+
 		var isTitle = cell.type === "Title";
-		if (!isTitle && cell.caption) {
+		if (isTitle) {
+			cellElement.style.display = "flex";
+			return cellElement;
+		}
+		
+		if (cell.caption) {
 			var caption = document.createElement("label");
 			caption.setAttribute("for", cell.firstId ? cell.firstId : cell.id);
 			if (cellContent.hasAttribute("disabled")) {
 				caption.setAttribute("disabled", "true");
 			}
 			caption.appendChild(document.createTextNode(cell.caption));
-			var tooltipTemplate = document.getElementById("tooltip");
-			var tooltip = tooltipTemplate.cloneNode(true);
-			tooltip.id = cell.id + "-validation";
-			if (cell.validationMessage && cell.validationMessage.length > 0) {
-				tooltip.setAttribute("title", cell.validationMessage);
-				caption.setAttribute("title", cell.validationMessage);
-			} else {
-				tooltip.className = "hide";
-			}
-			caption.appendChild(tooltip);
-			cellElement.appendChild(caption);
-		} else {
-			cellElement.style.display = "flex";
+
+			if (cell.required) {
+				var asterisk = document.createElement("span");
+				asterisk.appendChild(document.createTextNode("*"));
+				asterisk.className = "asterisk";
+				caption.appendChild(asterisk);			
+			}			
+			
+			cellElement.insertBefore(caption, cellContent);
 		}
-		setWidths(cellElement, cellContent, span, width);
-		cellElement.appendChild(cellContent);
+			
 		return cellElement;
 	}
 	
 	function setWidths(cellElement, cellContent, span, width) {
-		cellElement.style.width = (width * span / 6 + (span - 1)) + "em";
+		cellElement.style.width = (width * span / 8 + (span - 1)) + "rem";
 		cellElement.style.flexGrow = span;
 	}
 
@@ -883,6 +928,19 @@ $ICON
 		return element;
 	}
 	
+	function createTableColumnStyles(alignments) {
+		var tableStyle = document.createElement("style");
+		tableStyle.type = "text/css";
+		var style = "";
+		for (var i = 0; i < alignments.length; i++) {
+			if (alignments[i] != undefined) {		
+				style = style + "td:nth-child(" + (i+1) + ") { text-align: " + alignments[i] + "; }\n";
+			}
+		}
+		tableStyle.appendChild(document.createTextNode(style));
+		return tableStyle;
+	}
+	
 	function createTableHeaders(tableId, headers, headerNames, headerFilters) {
 		var element = document.createElement("tr");
 		element.className = "headers"; 
@@ -890,26 +948,26 @@ $ICON
 			var th = document.createElement("th");
 			th.appendChild(document.createTextNode(headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
-			var tooltipTemplate = document.getElementById("tooltip");
-			var tooltip = tooltipTemplate.cloneNode(true);
-			tooltip.id = headerFilters[i].id + "-validation";
-			tooltip.className = "hide";
-			th.appendChild(tooltip);
 			element.appendChild(th);
 		}
 		return element;
 	}
 
-	function createTableFilters(tableId, headers, headerNames, headerFilterLookups) {
+	function createTableFilters(tableId, headers, headerNames, headerFilterLookups, filterVisible) {
 		var element = document.createElement("tr");
 		element.classList.add("columnFilters");
-		element.classList.add("hide");
+		if (!filterVisible) {
+			element.classList.add("hide");
+		}		
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
-			th.className = "columnFilter " + headerNames[i]; 
+			th.classList.add("formElement");
+			th.classList.add("columnFilter");
+			th.classList.add(headerNames[i]);
 			
 			var input = createContent(headerFilterLookups[i]);
 			th.appendChild(input);
+			th.id = headerFilterLookups[i].id + "-element";
 			
 			element.appendChild(th);
 		}
@@ -1033,6 +1091,7 @@ $ICON
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
 		dialog.id = json.id;
+		dialog.classList.add(json.className);
 	
 		var block = document.createElement("div");
 		block.classList.add("is-blocked");
@@ -1066,7 +1125,11 @@ $ICON
 				var button = document.createElement("button");
 				button.id = action.id;
 				button.appendChild(document.createTextNode(action.name));
-				button.setAttribute("onclick", "action(\"" + action.id + "\");");
+				if (action.form) {
+					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.form + "\");");
+				} else {
+					button.setAttribute("onclick", "action(\"" + action.id + "\");");
+				}
 				if (!action.enabled)
 					button.setAttribute("disabled", "true");
 				footer.appendChild(button);
@@ -1093,24 +1156,27 @@ $ICON
 
 		dialog.showModal();
 
-		if (json.type === "SearchDialog") {
-			dialog.style.width = Math.max(500, Math.min(1000, window.innerWidth - 200));
-		}
-
-		var computedStyle = window.getComputedStyle(dialog);
 		if (window.innerWidth < 600) {
 			dialog.classList.add("fullscreen");
 		} else {
-			header.addEventListener("mousedown", addMoveListener);
-			header.addEventListener("dblclick", dialogClickListener);
+			var computedStyle = window.getComputedStyle(dialog);
+	
+			var initialWidth = json.width;
+			if (initialWidth <= 0) {
+				initialWidth = parseInt(computedStyle.width, 10);
+			}
+			dialog.style.width = Math.min(initialWidth, window.innerWidth - 200);
+			dialog.style.left = Math.max((window.innerWidth - initialWidth) / 3 , 0);
 
-			// plus 1 or firefox in uhd and material-design will scroll
-			var intialHeight = parseInt(computedStyle.height, 10) + 1;
-			if (json.type === "SearchDialog") {
-			 	intialHeight = Math.min(600, window.innerHeight - 50);
+			var intialHeight = json.height;
+			if (intialHeight <= 0) {
+				// plus 1 or firefox in uhd and material-design will scroll
+				var intialHeight = parseInt(computedStyle.height, 10) + 1;
 			}
 			dialog.style.height = Math.min(intialHeight, window.innerHeight - 40);
-			dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width, 10)) / 3 , 0);
+
+			header.addEventListener("mousedown", addMoveListener);
+			header.addEventListener("dblclick", dialogClickListener);
 		}
 	}
 
@@ -1232,11 +1298,14 @@ $ICON
 	}
 	
 	function sendchange(source, saveAction) {
+		source.classList.add("changed");
 		var data = {};
 		var changedValue = {};
 		if (source.type == "checkbox") {
 			/* for checkboxes value is always true */
 			changedValue[source.id] = source.checked;
+		} else if (source.type == "radio") {
+			changedValue[source.name.substring(0, source.name.length - 5)] = source.id;
 		} else if (source.type == "password") {
 			changedValue[source.id] = source.value.split("");
 		} else if (source.type == "file") {
@@ -1264,34 +1333,32 @@ $ICON
 			send(data, false);
 		}
 	}
-	
-	function loadSuggestions(source) {
-		var data = {
-			"loadSuggestions": source.id,
-			"searchText": source.value
-		};
-		send(data, false);
-	}
-	
-	function clearSuggestions(source) {
-		var input = document.getElementById(source.id);
-		while (input.firstChild) {
-			input.removeChild(input.firstChild);
+
+	function loadSuggestions(event) {
+		var source = event.target;
+		if (event.keyCode == 13) {
+			source.currentSuggestions = source.value;
+			return;
+		}
+		var currentSuggestions = source.currentSuggestions;
+		if (currentSuggestions == undefined || currentSuggestions != source.value) {
+			source.currentSuggestions = source.value;
+			var data = {
+				"loadSuggestions": source.id,
+				"searchText": source.value
+			};
+			send(data, false);
 		}
 	}
 	
 	function createSuggestions(id, suggestions) {
-		var datalist = document.createElement("datalist");
-		datalist.id = id + "-list";
+		var datalist = document.getElementById(id + "-list");
+		removeChildren(datalist);
 		for (var i = 0; i < suggestions.length; i++) {
 			var option = document.createElement("option");
 			option.setAttribute("value", suggestions[i]);
 			datalist.appendChild(option);
 		}
-	
-		var input = document.getElementById(id);
-		clearSuggestions(input);
-		input.appendChild(datalist);
 	}
 
 	function logout() {
@@ -1301,8 +1368,12 @@ $ICON
 	function login() {
 		send({"login": "login"}, true);
 	}
-	
-	function action(actionId) {
+
+	function action(actionId, formId) {
+		if (formId) {
+			var formElement = document.getElementById(formId);
+			formElement.classList.add("showValidations");
+		}
 		closeActionMenu();
 		var data = {
 			"activatedAction": actionId
@@ -1463,33 +1534,43 @@ $ICON
 	}
 	
 	function send(data, block) {
-		data.inputTypes = isMobile && checkInput("date");
-		data.session = session;
+		if (isUiBlocked()) {
+			return;
+		}
+		if (block) {
+			blockUi();
+		}
 	
+		data.inputTypes = isMobile && checkInput("date");
+
 		var dialogElements = document.getElementsByTagName("dialog");
 		data.dialogVisible = dialogElements && dialogElements.length > 0;
 	
-		$SEND(data, block);
+		send0(data);
+	}
+
+	function send0(data) {
+		data.session = session;
+		$SEND(data);
+	}
+	
+	function isUiBlocked() {
+		return blockStyle.parentNode != undefined;
 	}
 	
 	function blockUi() {
-		blockCount++;
-		if (!blockStyle.parentNode) {
-			document.body.appendChild(blockStyle);
-		}
+		document.body.appendChild(blockStyle);
 	}
 	
 	function unblockUi() {
-		blockCount--;
-		if (blockCount < 1 && blockStyle.parentNode) {
+		if (isUiBlocked()) {
 			blockStyle.parentNode.removeChild(blockStyle);
-			blockCount = 0;
 		}
 	}
 	
 	var heartbeatTimer;
 	
-	function sendAjax(data, block) {
+	function sendAjax(data) {
 		if (heartbeatTimer) {
 			clearInterval(heartbeatTimer);
 		}
@@ -1499,25 +1580,25 @@ $ICON
 		xmlhttp.open("POST", "ajax_request.json", true);
         xmlhttp.overrideMimeType('application/json');
 	
-		if (block) blockUi();
-		pendingRequests++;
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
-				unblockUi();
-				pendingRequests--;
+				pendingRequests--;			
 				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
 			}
 		}
+		pendingRequests++;
 		xmlhttp.send(JSON.stringify(data));
 	}
 	
 	function heartbeat() {
-		send({}, false);
+		if (!isUiBlocked()) {
+			send0({});
+		}
 	}
 	
-	function sendWebSocket(data, block) {
+	function sendWebSocket(data) {
 		if (websocket == null || websocket.readyState > 1) {
 			var pathname = location.pathname;
 			var index = pathname.lastIndexOf("/");
@@ -1529,20 +1610,18 @@ $ICON
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
 				pendingRequests--;
-				unblockUi();
 				onMessage(evt.data)
 			};
 			websocket.onopen = function(evt) {
-				send(data, block);
+				send(data);
 			}
 		} else {
-			if (block) blockUi();
 			pendingRequests++;
 			websocket.send(JSON.stringify(data));
 		}
 	}
 	
-	function sendCheerpj(data, block) {
+	function sendCheerpj(data) {
 		var sendStr = JSON.stringify(data);
 		console.log("send");
 		console.log(sendStr);
@@ -1585,7 +1664,26 @@ $ICON
 			toggleNavigation("open");
 		}
 		lastWidth = newWidth;
+		
+		var pageContentAndActionElements = document.getElementsByClassName("pageContentAndActions");
+	    for (var i = 0; i < pageContentAndActionElements.length; i++) {
+	    	var pageContentAndActionElement = pageContentAndActionElements[i];
+	    	var actionSideBarElement = pageContentAndActionElement.querySelector(".actionSideBar");
+	    	if (actionSideBarElement != null) {
+		    	var pageContentElement = pageContentAndActionElement.querySelector(".pageContent");
 	
+		    	var computedStyle = window.getComputedStyle(actionSideBarElement);
+				var actionSideBarWidth = parseInt(computedStyle.width, 10);
+				
+				actionSideBarElement.classList.add("hide"); // first hide to get width correct
+				computedStyle = window.getComputedStyle(pageContentElement.childNodes[0]);
+				var pageContentMaxWidth = parseInt(computedStyle.width, 10);
+				
+		    	if ((pageContentAndActionElement.offsetWidth - actionSideBarWidth) > pageContentMaxWidth) {
+		    		actionSideBarElement.classList.remove("hide");
+		    	}
+	    	}
+	    }
 	}
 	
 	function changeLogin() {
@@ -1639,7 +1737,7 @@ $ICON
 </script>
 <meta name="viewport" content="width=device-width" />
 </head>
-<body onload="init();" id="body">
+<body onload="init();" id="body" class="no-contrast">
 	<div id="header" class="hidden-print">
 		<svg id="navigationToggle" class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
               <g style="stroke-width:0px"> 		
@@ -1691,7 +1789,7 @@ $ICON
 				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:10%" />
 				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:15%" />
 			</svg>
-			<svg id="actionMenuButton" class="button headerButton" onclick="togglePageActionMenu(evt);">
+			<svg id="sideBarActionButton" class="button headerButton" onclick="toggleActionSideBar(evt);">
 				<g style="stroke-width:0px"> 		
 					<rect x="35%" y="13%" width="30%" height="17%"/>
 					<rect x="35%" y="46%" width="30%" height="17%"/>
@@ -1712,7 +1810,7 @@ $ICON
 			</div>
 		</div>
 		<noscript style="display: block; margin: 2em;">$NOSCRIPT</noscript>
-		<div id="pageContainer" onContextmenu="togglePageActionMenu(event);">
+		<div id="pageContainer" onContextmenu="showContextMenu(event);">
 		</div>	
 	</div>
 	<div id="applicationVersion">$APPLICATION-VERSION</div>
@@ -1748,7 +1846,7 @@ $ICON
 			</svg>
 		</div>		
 		<div id="pageHeaderButtons">
-			<svg style="stroke-width:0px" class="actionMenuButton pageButton button hidden-print" onclick="togglePageActionMenu(evt);">
+			<svg style="stroke-width:0px" class="sideBarActionButton pageButton button hidden-print" onclick="toggleActionSideBar(evt);">
 				<rect x="30%" y="13%" width="40%" height="17%"/>
 				<rect x="30%" y="46%" width="40%" height="17%"/>
 				<rect x="30%" y="80%" width="40%" height="17%"/>
@@ -1777,13 +1875,6 @@ $ICON
 			  <line x1="70%" y1="90%" x2="90%" y2="70%" style="stroke-width:10%" />
 			</svg>
 		</div>		
-		<span id="tooltip">
-			<svg width="0.75em" height="0.75em" style="padding-left: 0.3em">
-	  		  <circle cx="50%" cy="50%" r="49%" stroke-width="1%" fill="red" />
-	  		  <rect x="38%" y="15%" width="24%" height="37%" style="fill:white;" />
-	  		  <rect x="38%" y="65%" width="24%" height="20%" style="fill:white;" />
-			</svg>		
-		</span>
 		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
 			<div style="flex-grow: 2;"></div>
 			<div id="queryCaption" style="text-align: center;"></div>

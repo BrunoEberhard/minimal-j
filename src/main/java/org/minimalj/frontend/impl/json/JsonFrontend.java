@@ -20,7 +20,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
@@ -103,10 +103,20 @@ public class JsonFrontend extends Frontend {
 	};
 
 	@Override
-	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new JsonCombobox<>(objects, changeListener);
+	public <T> Input<T> createComboBox(List<T> objects, String nullText, InputComponentListener changeListener) {
+		return new JsonCombobox<>(objects, nullText, changeListener);
 	}
 
+	@Override
+	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
+		return new JsonCombobox<>(objects, null, changeListener);
+	}
+
+	@Override
+	public <T> Input<T> createRadioButtons(List<T> items, InputComponentListener changeListener) {
+		return new JsonRadioButtons<>(items, changeListener);
+	}
+	
 	@Override
 	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		return new JsonCheckBox(text, changeListener);
@@ -162,6 +172,11 @@ public class JsonFrontend extends Frontend {
 	public FormContent createFormContent(int columns, int columnWidth) {
 		return new JsonFormContent(columns, columnWidth);
 	}
+	
+	@Override
+	public FormContent createFormContent(List<Integer> columnWidths) {
+		return new JsonFormContent(columnWidths);
+	}
 
 	@Override
 	public SwitchContent createSwitchContent() {
@@ -195,8 +210,9 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... actions) {
-		return getClientSession().showLogin(content, loginAction, actions);
+	public boolean showLogin(Dialog dialog) {
+		getClientSession().showLogin(dialog);
+		return false;
 	}
 	
 	//

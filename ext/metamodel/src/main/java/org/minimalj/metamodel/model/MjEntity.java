@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
+import org.minimalj.model.View;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.validation.Validation;
@@ -26,7 +27,7 @@ import org.minimalj.util.StringUtils;
 public class MjEntity {
 
 	public enum MjEntityType {
-		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE,
+		ENTITY, HISTORIZED_ENTITY, DEPENDING_ENTITY, CODE, VIEW,
 		
 		// primitives
 		String(String.class), Integer(Integer.class), Long(Long.class), Boolean(Boolean.class), //
@@ -64,6 +65,8 @@ public class MjEntity {
 	public MjEntityType type;
 
 	private final Class<?> clazz;
+
+	public MjEntity viewedEntity;
 
 	public Boolean validatable;
 	public final List<MjProperty> properties = new ArrayList<>();
@@ -111,6 +114,8 @@ public class MjEntity {
 
 		} else if (Code.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.CODE;
+		} else if (View.class.isAssignableFrom(clazz)) {
+			type = MjEntityType.VIEW;
 		} else if (IdUtils.hasId(clazz)) {
 			type = MjEntityType.ENTITY;
 		} else {
@@ -146,7 +151,7 @@ public class MjEntity {
 
 	public boolean isPrimitiv() {
         if (type == null) {
-            System.out.println("Null type: " + clazz.getName());
+            System.out.println("Null type: " + getClassName());
         }
 		return type.isPrimitiv();
 	}

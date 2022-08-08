@@ -1,5 +1,8 @@
 package org.minimalj.frontend.form.element;
 
+import java.lang.annotation.Annotation;
+
+import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.VirtualProperty;
 
 /**
@@ -15,7 +18,12 @@ public class EmptyFormElement extends TextFormElement {
 		super(EMPTY_PROPERTY);
 	}
 	
-	private static class EmptyProperty extends VirtualProperty {
+	@Override
+	public String getCaption() {
+		return null;
+	}
+	
+	private static class EmptyProperty extends VirtualProperty implements Size {
 		
 		@Override
 		public String getName() {
@@ -35,6 +43,24 @@ public class EmptyFormElement extends TextFormElement {
 		@Override
 		public void setValue(Object object, Object value) {
 			// ignored
+		}
+		
+		@Override
+		public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+			if (annotationClass == Size.class) {
+				return (T) this;
+			}
+			return super.getAnnotation(annotationClass);
+		}
+
+		@Override
+		public Class<? extends Annotation> annotationType() {
+			return null;
+		}
+
+		@Override
+		public int value() {
+			return 0;
 		}
 	}
 }

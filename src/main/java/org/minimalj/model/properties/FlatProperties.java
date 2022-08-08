@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
 public class FlatProperties {
@@ -118,10 +119,10 @@ public class FlatProperties {
 	public static boolean hasCollidingFields(Class<?> clazz, Class<?> clazz2, String ignore) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field) || field.getName().equals(ignore)) continue;
+			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field) || IdUtils.hasId(field.getType()) || field.getName().equals(ignore)) continue;
 			Field[] fields2 = clazz2.getFields();
 			for (Field field2 : fields2) {
-				if (FieldUtils.isTransient(field2) || FieldUtils.isStatic(field2)) continue;
+				if (FieldUtils.isTransient(field2) || FieldUtils.isStatic(field2) || IdUtils.hasId(field.getType())) continue;
 				if (field.getName().equals(field2.getName())) {
 					return true;
 				}

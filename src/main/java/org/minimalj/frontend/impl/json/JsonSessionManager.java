@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.json;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,11 +79,12 @@ public class JsonSessionManager extends TimerTask {
 	public String handle(Map<String, Object> data) {
 		JsonPageManager session = getSession(data);
 		JsonInput input = new JsonInput(data);
-		JsonOutput output;
+		String output;
 		synchronized (session) {
-			output = session.handle(input);
+			JsonOutput jsonOutput = session.handle(input);
+			output = jsonOutput.toString();
 		}
-		return output.toString();
+		return output;
 	}
 
 	public static class JsonSessionInfo {
@@ -127,7 +129,7 @@ public class JsonSessionManager extends TimerTask {
 
 		@Override
 		public List<Action> getTableActions() {
-			return List.of(new JsonSessionRemoveAction());
+			return Collections.singletonList(new JsonSessionRemoveAction());
 		}
 		
 		private class JsonSessionRemoveAction extends BaseTableSelectionAction<JsonSessionInfo> {

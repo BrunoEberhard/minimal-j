@@ -5,11 +5,11 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -30,8 +30,8 @@ import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.util.PageList;
 import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.ExpiredPage;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication;
@@ -39,7 +39,6 @@ import org.minimalj.security.Authorization;
 import org.minimalj.security.RememberMeAuthentication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
 public class JsonPageManager implements PageManager {
 	private static final Logger logger = Logger.getLogger(JsonPageManager.class.getName());
@@ -55,6 +54,7 @@ public class JsonPageManager implements PageManager {
 	private List<Object> navigation;
 	private final PageList visiblePageAndDetailsList = new PageList();
 	private final Set<String> horizontalPageIds = new HashSet<>();
+	private final Map<Dialog, JsonDialog> visibleDialogs = new HashMap<>();
 	// this makes this class not thread safe. Caller of handle have to synchronize.
 	private JsonOutput output;
 	private final JsonPropertyListener propertyListener = new JsonSessionPropertyChangeListener();
@@ -173,8 +173,7 @@ public class JsonPageManager implements PageManager {
 				}
 			}
 
-			Subject subject = null;
-			if (authentication instanceof RememberMeAuthentication) {
+			if (subject == null && authentication instanceof RememberMeAuthentication) {
 				RememberMeAuthentication rememberMeAuthentication = (RememberMeAuthentication) authentication;
 				String token = (String) input.getObject("rememberMeToken");
 				if (token != null) {
@@ -237,11 +236,11 @@ public class JsonPageManager implements PageManager {
 			table.page(direction);
 		}
 
-		String tableFilter = (String) input.getObject("tableFilter");
-		if (tableFilter != null) {
-			JsonTable<?> table = (JsonTable<?>) getComponentById(tableFilter);
+		String tableFilterVisible = (String) input.getObject("tableFilter");
+		if (tableFilterVisible != null) {
+			JsonTable<?> table = (JsonTable<?>) getComponentById(tableFilterVisible);
 			boolean filter = Boolean.TRUE.equals(input.getObject("filter"));
-			table.filter(filter);
+			table.setFilterVisible(filter);
 		}
 		
 		Map<String, Object> cellAction = input.get("cellAction");
@@ -292,7 +291,7 @@ public class JsonPageManager implements PageManager {
 			} else {
 				Page page = new ExpiredPage();
 				String pageId = pageStore.put(page);
-				output.add("showPages", List.of(createJson(page, pageId, null)));
+				output.add("showPages", Collections.singletonList(createJson(page, pageId, null)));
 			}
 		}
 		
@@ -426,7 +425,7 @@ public class JsonPageManager implements PageManager {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
-		json.put("pageClass", page.getClass().getSimpleName());
+		json.put("className", page.getClass().getSimpleName());
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
 			json.put("route", route);
@@ -437,6 +436,9 @@ public class JsonPageManager implements PageManager {
 
 		List<Object> actionMenu = createActionMenu(page);
 		json.put("actionMenu", actionMenu);
+
+		json.put("minWidth", page.getMinWidth());
+		json.put("maxWidth", page.getMaxWidth());
 
 		return json;
 	}
@@ -455,33 +457,43 @@ public class JsonPageManager implements PageManager {
 	}
 
 	@Override
-	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		JsonDialog dialog = new JsonDialog(title, content, saveAction, closeAction, actions);
-		openDialog(dialog);
-		return dialog;
+	public void showDialog(Dialog dialog) {
+		JsonDialog jsonDialog = new JsonDialog(dialog.getTitle(), dialog.getContent(), dialog.getSaveAction(), dialog.getCancelAction(), dialog.getActions());
+		jsonDialog.put("className", dialog.getClass().getSimpleName());
+		jsonDialog.put("height", dialog.getHeight());
+		jsonDialog.put("width", dialog.getWidth());
+		output.add("dialog", jsonDialog);
+		visibleDialogs.put(dialog, jsonDialog);
 	}
 	
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+
+	public void showLogin(Dialog dialog) {
 		Action[] actions;
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
 			SkipLoginAction skipLoginAction = new SkipLoginAction();
-			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
+			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, dialog.getSaveAction()};
 		} else {
-			actions = new org.minimalj.frontend.action.Action[] {loginAction};
+			actions = new org.minimalj.frontend.action.Action[] {dialog.getSaveAction()};
 		}
 		Page page = new Page() {
 			@Override
 			public IContent getContent() {
-				return new JsonLoginContent(content, loginAction, actions);
+				return new JsonLoginContent(dialog.getContent(), dialog.getSaveAction(), actions);
 			}
 			
 			@Override
 			public String getTitle() {
-				return Resources.getString("Login.title");
+				return dialog.getTitle();
 			}
 		};
-		show(page);
-		return Optional.empty();
+
+		// don't use normal show(page) because login page should get part of history
+		visiblePageAndDetailsList.clear();
+		componentById.clear();
+		// At login there should be no application actions but maybe some help links in the navigation
+		register(navigation);
+		output.add("showPage", createJson(page, null, null));
+		updateTitle(page);
 	}
 	
 	private class SkipLoginAction extends Action {
@@ -581,14 +593,19 @@ public class JsonPageManager implements PageManager {
 			Arrays.stream((Object[]) o).forEach(v -> travers(v, c));
 		}
 	}
-
-	public void openDialog(JsonDialog jsonDialog) {
-		output.add("dialog", jsonDialog);
+	
+	@Override
+	public void closeDialog(Dialog dialog) {
+		JsonDialog jsonDialog = visibleDialogs.get(dialog);
+		if (jsonDialog != null) {
+			closeDialog(jsonDialog);
+		}
+		visibleDialogs.remove(dialog);
 	}
 
-	public void closeDialog(JsonDialog dialog) {
-		unregister(dialog);
-		output.addElement("closeDialog", dialog.getId());
+	public void closeDialog(JsonDialog jsonDialog) {
+		unregister(jsonDialog);
+		output.addElement("closeDialog", jsonDialog.getId());
 	}
 
 	public void replaceContent(JsonSwitch jsonSwitch, JsonComponent content) {

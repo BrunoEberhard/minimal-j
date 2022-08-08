@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
@@ -37,32 +36,12 @@ public abstract class SqlDialect {
 	} 
 
 	protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
-		Class<?> fieldClazz = idProperty.getClazz();
-		int size = fieldClazz == String.class ? AnnotationUtil.getSize(idProperty) : 0;
-		addIdColumn(s, fieldClazz, size, idProperty.getAnnotation(AutoIncrement.class) != null);
-	}
-	
-	public void addIdColumn(StringBuilder s, Class<?> idClass, int size, boolean autoIncrement) {
 		s.append(" id ");
-		if (idClass == Integer.class) {
-			s.append("INT ");
-			if (autoIncrement) {
-				addAutoIncrement(s);
-			}
-		} else if (idClass == String.class) {
-			s.append("VARCHAR(");
-			s.append(size);
-			s.append(')');
-		} else if (idClass == Object.class) {
-			s.append("CHAR(36)");
-		} else {
-			throw new IllegalArgumentException();
+		addColumnDefinition(s, idProperty);
+		if (Table.isAutoIncrement(idProperty)) {
+			s.append(" AUTO_INCREMENT");
 		}
 		s.append(" NOT NULL");
-	}
-	
-	protected void addAutoIncrement(StringBuilder s) {
-		s.append("AUTO_INCREMENT");
 	}
 
 	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
@@ -76,6 +55,11 @@ public abstract class SqlDialect {
 			s.append("VARCHAR");
 			int size = AnnotationUtil.getSize(property);
 			s.append(" (").append(size).append(')');
+		} else if (clazz == Object.class) {
+			if (!property.getName().equals("id")) {
+				throw new IllegalArgumentException("Only id can be of class object. Field: " + property);
+			}
+			s.append("VARCHAR (36)");
 		} else if (clazz == LocalDate.class) {
 			s.append("DATE");
 		} else if (clazz == LocalTime.class) {
@@ -108,7 +92,8 @@ public abstract class SqlDialect {
 				PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id");
 				addColumnDefinition(s, idProperty);
 			} else {
-				s.append("CHAR(36)");
+				PropertyInterface idProperty = FlatProperties.getProperty(property.getDeclaringClass(), "id");
+				addColumnDefinition(s, idProperty);
 			}
 		}
 	}
@@ -149,6 +134,10 @@ public abstract class SqlDialect {
 	
 	public String limit(int rows, Integer offset) {
 		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
+	}
+	
+	public String createType(Class<?> clazz, String identifier) {
+		return null;
 	}
 	
 	public static class MariaSqlDialect extends SqlDialect {
@@ -202,7 +191,22 @@ public abstract class SqlDialect {
 			}
 			return true;
 		}
-
+		
+		protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+			Class<?> clazz = idProperty.getClazz();
+			if (Table.isAutoIncrement(idProperty)) {
+				if (clazz == Integer.class) {
+					s.append(" id SERIAL");
+				} else if (clazz == Long.class) {
+					s.append(" id BIGSERIAL");
+				} else {
+					throw new IllegalArgumentException("Postgresql auto increment only possible for Integer and Long: " + idProperty);
+				}
+			} else {
+				super.addIdColumn(s, idProperty);
+			}
+		}
+		
 		@Override
 		protected void addCreateStatementEnd(StringBuilder s) {
 			s.append("\n)");
@@ -226,6 +230,8 @@ public abstract class SqlDialect {
 		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
 			if (value instanceof Boolean) {
 				preparedStatement.setBoolean(param, (Boolean) value);
+			} else if (value instanceof Enum<?>) {
+				preparedStatement.setObject(param, value, java.sql.Types.OTHER);
 			} else {
 				super.setParameter(preparedStatement, param, value);
 			}
@@ -251,10 +257,46 @@ public abstract class SqlDialect {
 		public String limit(int rows, Integer offset) {
 			return "LIMIT " + rows + (offset != null ? " OFFSET " + offset.toString() : "");
 		}
+		
+		@Override
+		public String createType(Class<?> clazz, String identifier) {
+			StringBuilder s = new StringBuilder();
+			s.append("CREATE OR REPLACE TYPE ").append(identifier).append(" AS ENUM ('");
+			for (Object e : EnumUtils.valueList((Class<? extends Enum>) clazz)) {
+				s.append(((Enum) e).name()).append("', '");
+			}
+			s.delete(s.length() - 3, s.length());
+			s.append(")");		
+			return s.toString();
+		}
 	}
 	
 	public static class H2SqlDialect extends SqlDialect {
-	
+
+		@Override
+		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+			Class<?> clazz = property.getClazz();
+			if (Enum.class.isAssignableFrom(clazz)) {
+				// ENUM('clubs', 'diamonds', 'hearts', 'spades')
+				s.append("ENUM('");
+				for (Object e : EnumUtils.valueList((Class<? extends Enum>) clazz)) {
+					s.append(((Enum) e).name()).append("', '");
+				}
+				s.delete(s.length() - 3, s.length());
+				s.append(")");
+			} else {
+				super.addColumnDefinition(s, property);
+			}
+		}
+		
+		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
+			if (value instanceof Enum<?>) {
+				Enum<?> e = (Enum<?>) value;
+				value = e.name();
+			}
+			super.setParameter(preparedStatement, param, value);
+		}
+		
 		@Override
 		public int getMaxIdentifierLength() {
 			// h2 doesn't really have a maximum identifier length
@@ -280,9 +322,13 @@ public abstract class SqlDialect {
 			}
 		}
 
-		@Override
-		protected void addAutoIncrement(StringBuilder s) {
-			s.append("IDENTITY(1,1)");
+		protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+			s.append(" id ");
+			addColumnDefinition(s, idProperty);
+			if (Table.isAutoIncrement(idProperty)) {
+				s.append(" IDENTITY(1,1)");
+			}
+			s.append(" NOT NULL");
 		}
 
 		@Override

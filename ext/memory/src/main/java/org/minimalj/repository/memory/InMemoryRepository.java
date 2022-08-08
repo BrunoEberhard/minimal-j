@@ -410,8 +410,8 @@ public class InMemoryRepository implements Repository {
 				return true;
 			}
 		}
-		for (Field field : e.getClass().getDeclaredFields()) {
-			if (FieldUtils.isStatic(field) || !FieldUtils.isPublic(field)) continue;
+		for (Field field : e.getClass().getFields()) {
+			if (FieldUtils.isStatic(field)) continue;
 			try {
 				Object value = field.get(e);
 				if (isReferenced(id, value)) {

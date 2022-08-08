@@ -77,6 +77,6 @@ public class TextFormElement implements FormElement<Object> {
 
 	@Override
 	public void setValue(Object object) {
-		textField.setValue(Rendering.toString(object));
+		textField.setValue(object != null ? Rendering.toString(object, property) : null);
 	}
 }

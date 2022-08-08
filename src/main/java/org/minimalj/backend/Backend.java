@@ -22,6 +22,7 @@ import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.Isolation;
+import org.minimalj.transaction.Isolation.Level;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.Codes;
 
@@ -213,15 +214,19 @@ public class Backend {
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
 		Isolation.Level isolationLevel = transaction.getIsolation();
-		T result;
-		boolean commit = false;
-		try {
-			transactionalRepository.startTransaction(isolationLevel.getLevel());
-			result = transaction.execute();
-			commit = true;
-		} finally {
-			transactionalRepository.endTransaction(commit);
+		if (isolationLevel != Level.NONE) {
+			T result;
+			boolean commit = false;
+			try {
+				transactionalRepository.startTransaction(isolationLevel.getLevel());
+				result = transaction.execute();
+				commit = true;
+			} finally {
+				transactionalRepository.endTransaction(commit);
+			}
+			return result;
+		} else {
+			return transaction.execute();
 		}
-		return result;
 	}
 }
