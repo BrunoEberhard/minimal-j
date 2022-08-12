@@ -180,10 +180,6 @@ public abstract class Frontend {
 	
 	public abstract FormContent createFormContent(int columns, int columnWidth);
 
-	public FormContent createFormContent(List<Integer> columnWidths) {
-		throw new RuntimeException("Not implemented");
-	}
-	
 	public interface SwitchContent extends IContent {
 		public void show(IContent content);
 	}

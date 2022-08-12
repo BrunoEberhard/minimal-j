@@ -174,11 +174,6 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public FormContent createFormContent(List<Integer> columnWidths) {
-		return new JsonFormContent(columnWidths);
-	}
-
-	@Override
 	public SwitchContent createSwitchContent() {
 		return new JsonSwitch(getClientSession());
 	}

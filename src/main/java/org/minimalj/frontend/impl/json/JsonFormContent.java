@@ -35,12 +35,6 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		createNewRow();
 	}
 
-	public JsonFormContent(List<Integer> columnConstraints) {
-		this(columnConstraints.size(), 100);
-		
-		put("columnWidths", columnConstraints);
-	}
-
 	private void createNewRow() {
 		actualRow = new ArrayList<>();
 		rows.add(actualRow);

@@ -114,12 +114,6 @@ public class Form<T> {
 		this.formContent = Frontend.getInstance().createFormContent(columns, columnWidth);
 	}
 
-	public Form(boolean editable, List<Integer> columnWidths) {
-		this.editable = editable;
-		this.columns = columnWidths.size();
-		this.formContent = Frontend.getInstance().createFormContent(columnWidths);
-	}
-
 	// Methods to create the form
 
 	public FormContent getContent() {
