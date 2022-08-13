@@ -257,6 +257,22 @@ table.table thead {
 	vertical-align: middle;
 }
 
+.table .col.smallest {
+	width: 3rem;
+}
+.table .col.smaller {
+	width: 4.5rem;
+}
+.table .col.normal {
+	width: 6rem;
+}
+.table .col.larger {
+	width: 9rem;
+}
+.table .col.largest {
+	width: 15rem;
+}
+
 .contextMenu {
 	width: 10rem;
 	background: white;

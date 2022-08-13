@@ -18,9 +18,11 @@ import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Column;
 import org.minimalj.model.Column.ColumnAlignment;
+import org.minimalj.model.Column.ColumnWidth;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
+import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.EqualsHelper;
@@ -44,6 +46,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private final ColumnFilter[] filters;
 	private final IComponent[] headerFilters;
 	private final String[] alignments;
+	private final String[] widths;
 	
 	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
@@ -57,6 +60,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		filters = new ColumnFilter[keys.length];
 		headerFilters = new IComponent[keys.length];
 		alignments = new String[keys.length];
+		widths = new String[keys.length];
 
 		for (PropertyInterface property : properties) {
 			String header = Column.evalHeader(property);
@@ -66,11 +70,13 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			filters[column] = ColumnFilter.createFilter(property);
 			headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
 			alignments[column] = alignment(property);
+			widths[column] = width(property);
 		}
 		put("headers", headers);
 		put("headerPathes", headerPathes);
 		put("headerFilters", headerFilters);
 		put("alignments", alignments);
+		put("widths", widths);
 
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
@@ -84,6 +90,24 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return null;
 	}
 
+	private String width(PropertyInterface property) {
+		if (property instanceof Column) {
+			ColumnWidth columnWidth = ((Column<?, ?>) property).getWidth();
+			if (columnWidth != null) {
+				return columnWidth.name().toLowerCase();
+			}
+		}
+		Width width = property.getAnnotation(Width.class);
+		if (width != null) {
+			return width.value().name().toLowerCase();
+		}
+		width = property.getClazz().getAnnotation(Width.class);
+		if (width != null) {
+			return width.value().name().toLowerCase();
+		}
+		return ColumnWidth.NORMAL.name().toLowerCase();
+	}
+	
 	private static List<PropertyInterface> convert(Object[] keys) {
 		List<PropertyInterface> properties = new ArrayList<>(keys.length);
 		for (Object key : keys) {

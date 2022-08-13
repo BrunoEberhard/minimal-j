@@ -39,6 +39,10 @@ public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 	public ColumnFilter getFilter() {
 		return null;
 	}
+	
+	public ColumnWidth getWidth() {
+		return null;
+	}
 
 	public ColumnAlignment getAlignment() {
 		return null;
@@ -95,4 +99,13 @@ public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 	public final boolean isFinal() {
 		return property.isFinal();
 	}
+	
+	public enum ColumnWidth {
+		SMALLEST,
+		SMALLER,
+		NORMAL,
+		LARGER,
+		LARGEST;
+	}
+	
 }
