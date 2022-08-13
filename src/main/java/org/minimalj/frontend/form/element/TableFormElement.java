@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.SwitchComponent;
@@ -110,30 +109,27 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	}
 	
 	private void update() {
-		int rowCount = object.size();
-		if (!actions.isEmpty()) {
-			rowCount = rowCount + 1;
-		}
-		IComponent[] rows = new IComponent[rowCount];
-		if (!actions.isEmpty()) {
-			rows[rowCount - 1] = createActions(actions);
-		}
+		List<IComponent> rows = new ArrayList<>();
 		rowForms.clear();
 		for (int index = 0; index < object.size(); index++) {
 			T rowObject = object.get(index);
 			int i = index;
 			@SuppressWarnings("unchecked")
 			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
-			rowForm = checkNonNull(rowForm, rowObject);
 			rowForms.add(rowForm);
-			rowForm.setChangeListener(form -> super.fireChange());
-			rowForm.setObject(rowObject);
-			rows[index] = rowForm.getContent();
+			if (rowForm != null) {
+				rowForm.setChangeListener(form -> super.fireChange());
+				rowForm.setObject(rowObject);
+				rows.add(rowForm.getContent());
+			}
 		}
 		List<T> unsedForms = formByObject.entrySet().stream().filter(e -> !rowForms.contains(e.getValue())).map(e -> e.getKey()).collect(Collectors.toList());
 		unsedForms.forEach(formByObject::remove);
 
-		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows);
+		if (!actions.isEmpty()) {
+			rows.add(createActions(actions));
+		}
+		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows.toArray(new IComponent[rows.size()]));
 		switchComponent.show(vertical);
 	}
 
@@ -143,20 +139,6 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			components[i] = Frontend.getInstance().createText(actions.get(i));
 		}
 		return Frontend.getInstance().createHorizontalGroup(components);
-	}
-
-	private Form<T> checkNonNull(Form<T> rowForm, T rowObject) {
-		if (rowForm == null) {
-			rowForm = new Form<>();
-			String message = formFactory + " should not return null for " + rowObject;
-			if (Configuration.isDevModeActive()) {
-				rowForm.addTitle("No form for " + rowObject);
-				logger.severe(message);
-			} else {
-				logger.warning(message);
-			}
-		}
-		return rowForm;
 	}
 
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
@@ -178,7 +160,9 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 
 		for (int i = 0; i < rowForms.size(); i++) {
-			rowForms.get(i).indicate(validationMessagesByRow[i] != null ? validationMessagesByRow[i] : Collections.emptyList());
+			if (rowForms.get(i) != null) {
+				rowForms.get(i).indicate(validationMessagesByRow[i] != null ? validationMessagesByRow[i] : Collections.emptyList());
+			}
 		}
 	}
 
