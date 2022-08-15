@@ -190,6 +190,10 @@ public class Form<T> {
 
 	//
 
+	public void group(String caption) {
+		formContent.group(caption);
+	}
+	
 	public void line(Object... keys) {
 		if (keys[0] == GROW_FIRST_ELEMENT) {
 			assertColumnCount(keys.length - 1);

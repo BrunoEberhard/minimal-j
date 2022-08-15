@@ -564,7 +564,11 @@ $ICON
 			element.classList.add("form")
 			var rows = content.rows;
 			for (var i = 0; i < rows.length; i++) {
-				element.appendChild(createFormRow(rows[i], content.columnWidth));
+				var formRow = createFormRow(rows[i], content.columnWidth);
+				if (content.rowCss != undefined && content.rowCss[i] != "") {
+					formRow.classList.add(content.rowCss[i]);
+				}
+				element.appendChild(formRow);
 			}
 		} else if (type === "Query") {
 			element = document.getElementById("queryCaption");

@@ -6,6 +6,7 @@ import java.util.List;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.FormElementConstraint;
+import org.minimalj.util.StringUtils;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 
@@ -18,8 +19,10 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 
 	private final List<List<JsonComponent>> rows = new ArrayList<>();
 	private final int columns;
+	private final List<String> rowCss = new ArrayList<>();
 	
 	private List<JsonComponent> actualRow = new ArrayList<>();
+	private boolean startGroup, group;
 	private int actualColumn;
 	
 	public JsonFormContent(int columns, int columnWidth) {
@@ -31,14 +34,34 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		put("columnWidth", columnWidth);
 		
 		put("rows", rows);
-		
-		createNewRow();
 	}
 
 	private void createNewRow() {
 		actualRow = new ArrayList<>();
 		rows.add(actualRow);
 		actualColumn = 0;
+		
+		if (startGroup) {
+			group = true;
+			rowCss.add("singleGroup");
+			startGroup = false;
+		} else if (group) {
+			String previousRowCss = rowCss.get(rowCss.size() - 1);
+			if (previousRowCss.equals("singleGroup")) {
+				rowCss.set(rowCss.size() - 1, "startGroup");
+			} else if (previousRowCss.equals("endGroup")) {
+				rowCss.set(rowCss.size() - 1, "group");
+			}
+			rowCss.add("endGroup");
+		} else {
+			rowCss.add("");
+		}
+	}
+	
+	@Override
+	public void group(String caption) {
+		startGroup = !StringUtils.isEmpty(caption);
+		put("rowCss", rowCss);
 	}
 
 	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
@@ -47,6 +70,10 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	
 	@Override
 	public void add(String caption, boolean required, IComponent component, FormElementConstraint constraint, int span) {
+		if (rows.isEmpty()) {
+			createNewRow();
+		}
+		
 		JsonComponent jsonComponent = (JsonComponent) component;
 		if (caption != null) {
 			jsonComponent.put(CAPTION, caption);
