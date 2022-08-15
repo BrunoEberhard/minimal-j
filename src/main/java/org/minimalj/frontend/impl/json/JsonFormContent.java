@@ -6,7 +6,6 @@ import java.util.List;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.FormElementConstraint;
-import org.minimalj.util.StringUtils;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 
@@ -17,12 +16,18 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public static final String MIN_HEIGHT = "minHeight";
 	public static final String MAX_HEIGHT = "maxHeight";
 
+	public static final String CSS_GROUP_SINGLE_ROW = "groupSingleRow";
+	public static final String CSS_GROUP_START = "groupStart";
+	public static final String CSS_GROUP_END = "groupEnd";
+	public static final String CSS_GROUP = "group";
+	
+	
 	private final List<List<JsonComponent>> rows = new ArrayList<>();
 	private final int columns;
 	private final List<String> rowCss = new ArrayList<>();
 	
 	private List<JsonComponent> actualRow = new ArrayList<>();
-	private boolean startGroup, group;
+	private boolean startGroup = true;
 	private int actualColumn;
 	
 	public JsonFormContent(int columns, int columnWidth) {
@@ -34,6 +39,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		put("columnWidth", columnWidth);
 		
 		put("rows", rows);
+		put("rowCss", rowCss);
 	}
 
 	private void createNewRow() {
@@ -42,26 +48,22 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		actualColumn = 0;
 		
 		if (startGroup) {
-			group = true;
-			rowCss.add("singleGroup");
+			rowCss.add(CSS_GROUP_SINGLE_ROW);
 			startGroup = false;
-		} else if (group) {
-			String previousRowCss = rowCss.get(rowCss.size() - 1);
-			if (previousRowCss.equals("singleGroup")) {
-				rowCss.set(rowCss.size() - 1, "startGroup");
-			} else if (previousRowCss.equals("endGroup")) {
-				rowCss.set(rowCss.size() - 1, "group");
-			}
-			rowCss.add("endGroup");
 		} else {
-			rowCss.add("");
+			String previousRowCss = rowCss.get(rowCss.size() - 1);
+			if (previousRowCss.equals(CSS_GROUP_SINGLE_ROW)) {
+				rowCss.set(rowCss.size() - 1, CSS_GROUP_START);
+			} else if (previousRowCss.equals(CSS_GROUP_END)) {
+				rowCss.set(rowCss.size() - 1, CSS_GROUP);
+			}
+			rowCss.add(CSS_GROUP_END);
 		}
 	}
 	
 	@Override
 	public void group(String caption) {
-		startGroup = !StringUtils.isEmpty(caption);
-		put("rowCss", rowCss);
+		startGroup = true;
 	}
 
 	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
