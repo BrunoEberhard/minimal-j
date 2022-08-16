@@ -25,6 +25,7 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
@@ -142,7 +143,12 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			Comment commentAnnotation = entry.getValue().getAnnotation(Comment.class);
 			if (commentAnnotation != null) {
-				sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", commentAnnotation.value());
+				if (sqlRepository.getSqlDialect() instanceof PostgresqlDialect) {
+					// Postgresql cannot handle the parameter. Don't know why.
+					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS '" + commentAnnotation.value() + "'");
+				} else {
+					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", commentAnnotation.value());
+				}
 			}
 		}
 	}
