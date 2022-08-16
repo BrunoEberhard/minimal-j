@@ -261,7 +261,7 @@ public abstract class SqlDialect {
 		@Override
 		public String createType(Class<?> clazz, String identifier) {
 			StringBuilder s = new StringBuilder();
-			s.append("CREATE OR REPLACE TYPE ").append(identifier).append(" AS ENUM ('");
+			s.append("CREATE TYPE ").append(identifier).append(" AS ENUM ('");
 			for (Object e : EnumUtils.valueList((Class<? extends Enum>) clazz)) {
 				s.append(((Enum) e).name()).append("', '");
 			}
