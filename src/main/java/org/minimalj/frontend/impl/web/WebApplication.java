@@ -11,7 +11,9 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.impl.web.MjHttpExchange.LoggingHttpExchange;
 import org.minimalj.frontend.page.Routing;
+import org.minimalj.util.StringUtils;
 
 /**
  * You only need to extend from WebApplication if you want to serve custom html
@@ -100,6 +102,21 @@ public abstract class WebApplication extends Application {
 	}
 
 	public static final boolean callHandlers(MjHttpExchange exchange) {
+		if (MjHttpExchange.LOG_WEB.isLoggable(Level.FINER)) {
+			MjHttpExchange.LOG_WEB.log(Level.FINER, exchange.getPath());
+			long start = System.nanoTime();
+			if (MjHttpExchange.LOG_WEB.isLoggable(Level.FINEST)) {
+				exchange = new LoggingHttpExchange(exchange);
+			}
+			boolean result = doCallHandlers(exchange);
+			MjHttpExchange.LOG_WEB.log(Level.FINER, StringUtils.padLeft("" + ((System.nanoTime() - start) / 1000 / 1000), 5, ' ') + "ms " + exchange.getPath());
+			return result;
+		} else {
+			return doCallHandlers(exchange);
+		}
+	}
+	
+	private static final boolean doCallHandlers(MjHttpExchange exchange) {
 		for (MjHttpHandler handler : getHandlers()) {
 			try {
 				handler.handle(exchange);
