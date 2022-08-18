@@ -570,6 +570,14 @@ input[disabled]::placeholder, textarea[disabled]::placeholder {
 	margin: 6px;
 }
 
+.dropdown div {
+	color: blue;
+}
+
+.dropdown div:hover {
+	text-decoration: underline;
+}
+
 .form .groupItem:first-child .lookup .text {
 	border-top: lightgray solid 1px;
 }
