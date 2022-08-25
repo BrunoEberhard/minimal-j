@@ -112,7 +112,7 @@ body {
 }
 
 #navigation ul {
-	padding-left: 0.6rem;
+	padding-left: 0.2rem;
 }
 
 #navigation li, .contextMenu li, .actionSideBar li {
@@ -271,6 +271,18 @@ table.table thead {
 }
 .table .col.largest {
 	width: 15rem;
+}
+
+@media screen and (min-width: 1600px) {
+	.table .col.normal {
+		width: 7rem;
+	}
+	.table .col.larger {
+		width: 11rem;
+	}
+	.table .col.largest {
+		width: 18rem;
+	}
 }
 
 .contextMenu {
