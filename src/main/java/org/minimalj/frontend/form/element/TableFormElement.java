@@ -153,6 +153,11 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			int index = indexProperty.getIndex();
 
 			message = new ValidationMessage(unchained, message.getFormattedText());
+			if (index >= validationMessagesByRow.length) {
+				logger.severe("No row for : " + message);
+				continue;
+			}
+			
 			if (validationMessagesByRow[index] == null) {
 				validationMessagesByRow[index] = new ArrayList<>();
 			}
