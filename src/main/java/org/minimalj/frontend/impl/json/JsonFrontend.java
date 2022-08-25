@@ -22,6 +22,7 @@ import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.DateUtils;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
@@ -243,7 +244,7 @@ public class JsonFrontend extends Frontend {
 		
 		APPLICATION_VERSION = Application.getInstance().getClass().getPackage().getImplementationVersion();
 		if (APPLICATION_VERSION == null) {
-			APPLICATION_VERSION = "Development " + LocalDateTime.now();
+			APPLICATION_VERSION = "Development " + DateUtils.format(LocalDateTime.now(), null);
 		}
 	}
 	
