@@ -364,6 +364,15 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	public T readDontLoadReferences(Object id) {
+		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+			selectByIdStatement.setObject(1, id);
+			return executeSelect(selectByIdStatement, SqlRepository.DONT_LOAD_REFERENCES);
+		} catch (SQLException x) {
+			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
+		}
+	}
+	
 	protected List<String> getColumns(Object[] keys) {
 		List<String> result = new ArrayList<>();
 		PropertyInterface[] properties = Keys.getProperties(keys);
