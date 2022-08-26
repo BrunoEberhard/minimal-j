@@ -3,7 +3,7 @@ package org.minimalj.backend.repository;
 public class ReadEntityTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTITY> {
 	private static final long serialVersionUID = 1L;
 
-	private final Object id;
+	protected final Object id;
 
 	public ReadEntityTransaction(Class<ENTITY> clazz, Object id) {
 		super(clazz);
