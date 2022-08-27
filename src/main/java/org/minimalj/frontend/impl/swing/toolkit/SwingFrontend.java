@@ -140,6 +140,11 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
+	public <T> Input<T> createRadioButtons(List<T> items, InputComponentListener changeListener) {
+		return new SwingRadioButtons<>(items, changeListener);
+	}
+	
+	@Override
 	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		return new SwingCheckBox(changeListener, text);
 	}
