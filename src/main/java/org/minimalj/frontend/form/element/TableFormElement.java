@@ -86,7 +86,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	@Override
 	public void setValue(List<T> object) {
 		this.object = object;
-		handleChange();
+		update();
 	}
 
 	@Override
@@ -97,11 +97,6 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	@Override
 	public String getCaption() {
 		return null;
-	}
-
-	protected void handleChange() {
-		update();
-		super.fireChange();
 	}
 
 	public void clearFormCache() {
