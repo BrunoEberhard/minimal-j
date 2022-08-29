@@ -143,11 +143,13 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
 			Comment commentAnnotation = entry.getValue().getAnnotation(Comment.class);
 			if (commentAnnotation != null) {
+				String comment = commentAnnotation.value();
 				if (sqlRepository.getSqlDialect() instanceof PostgresqlDialect) {
 					// Postgresql cannot handle the parameter. Don't know why.
-					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS '" + commentAnnotation.value() + "'");
+					comment = comment.replace("'", "''");
+					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS '" + comment + "'");
 				} else {
-					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", commentAnnotation.value());
+					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", comment);
 				}
 			}
 		}
