@@ -25,7 +25,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private final SwitchComponent switchComponent;
 	private final boolean editable;
 	private List<T> object;
-	private final List<Form<?>> rowForms = new ArrayList<>();
+	private final List<Form<T>> rowForms = new ArrayList<>();
 	private final Map<T, Form<T>> formByObject = new HashMap<>();
 
 	private final TableRowFormFactory<? super T> formFactory;
@@ -113,7 +113,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
 			rowForms.add(rowForm);
 			if (rowForm != null) {
-				rowForm.setChangeListener(form -> super.fireChange());
+				rowForm.setChangeListener(form -> fireChange(i, rowObject, rowForm));
 				rowForm.setObject(rowObject);
 				rows.add(rowForm.getContent());
 			}
@@ -126,6 +126,22 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows.toArray(new IComponent[rows.size()]));
 		switchComponent.show(vertical);
+	}
+	
+	protected void fireChange(int index, T object, Form<T> form) {
+		super.fireChange();
+	}
+	
+	protected void updateValues() {
+		for (int index = 0; index < object.size(); index++) {
+			updateValues(index);
+		}
+	}
+
+	protected void updateValues(int index) {
+		Form<T> rowForm = rowForms.get(index);
+		T rowObject = object.get(index);
+		rowForm.setObject(rowObject);
 	}
 
 	private IComponent createActions(List<Action> actions) {
