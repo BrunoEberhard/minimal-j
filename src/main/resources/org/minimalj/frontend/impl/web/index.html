@@ -382,7 +382,20 @@ $ICON
 	
 		if (window.innerWidth < 992) toggleNavigation("close");
 	
-		pageElement.scrollIntoView();
+		pageElement.scrollIntoView();;
+		
+		var wheelListener = function(event) {
+			if (event.deltaY != 0) {
+				if (!event.shiftKey) {
+					var data = { page: page.pageId, wheel: (event.deltaY < 0 ? -1 : 1)};
+					send(data, true);
+					event.preventDefault();
+				} else {
+					event.shiftKey = false;
+				}
+			}
+		}
+		pageElement.addEventListener("wheel", wheelListener);
 	}
 	
 	function hidePage(page) {

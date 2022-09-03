@@ -32,6 +32,7 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.ExpiredPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.frontend.page.Page.WheelPage;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication;
@@ -270,6 +271,15 @@ public class JsonPageManager implements PageManager {
 		if (openLookupDialog != null) {
 			JsonLookup lookup = (JsonLookup) getComponentById(openLookupDialog);
 			lookup.showLookupDialog();
+		}
+		
+		Long wheel = (Long) input.getObject("wheel");
+		if (wheel != null) {
+			String pageId = (String) input.getObject("page");
+			Page page = pageStore.get(pageId);
+			if (page instanceof WheelPage) {
+				((WheelPage) page).wheel(wheel.intValue());
+			}
 		}
 		
 		if (input.containsObject("logout")) {
