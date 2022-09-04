@@ -83,6 +83,12 @@ $ICON
 			updatePageButtons();
 			resizeNavigation();
 			saveStateInHistory();
+		} else if ("updatePage" in dataObject) {
+			closeDialogs();
+			dataObject.closeDialog = undefined;
+			showPage(dataObject.updatePage);
+			updatePageButtons();
+			resizeNavigation();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
 			for (var i = 0; i < pages.length; i++) {

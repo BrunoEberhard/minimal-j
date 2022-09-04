@@ -353,8 +353,13 @@ public class JsonPageManager implements PageManager {
 			visiblePageAndDetailsList.removeAllAfter(masterPageId);
 		}
 
-		String pageId = pageStore.put(page);
-		output.add("showPage", createJson(page, pageId, masterPageId));
+		String pageId = pageStore.getId(page);
+		if (pageId != null) {
+			output.add("updatePage", createJson(page, pageId, masterPageId));
+		} else {
+			pageId = pageStore.put(page);
+			output.add("showPage", createJson(page, pageId, masterPageId));
+		}
 		visiblePageAndDetailsList.put(pageId, page);
 		return pageId;
 	}
