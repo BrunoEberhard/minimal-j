@@ -450,6 +450,8 @@ public class JsonPageManager implements PageManager {
 		json.put("minWidth", page.getMinWidth());
 		json.put("maxWidth", page.getMaxWidth());
 
+		json.put("wheel", page instanceof WheelPage);
+
 		return json;
 	}
 

@@ -127,9 +127,7 @@ public interface Page extends AccessControl {
 		}
 	}
 	
-	public interface WheelPage extends Page {
-		
-		public void wheel(int amount);
+	public interface WheelPage extends Page, WheelListener {
 		
 	}
 }
