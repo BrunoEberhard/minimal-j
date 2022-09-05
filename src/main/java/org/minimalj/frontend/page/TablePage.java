@@ -124,6 +124,11 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 			table.setObjects(load());
 		}
 	}
+	
+	public void resetPage() {
+		this.table = null;
+		this.actions = null;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
