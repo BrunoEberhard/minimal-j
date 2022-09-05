@@ -459,9 +459,11 @@ public class Form<T> {
 	}
 
 	private void logDependencies() {
-		logger.fine("Dependencies in " + this.getClass().getSimpleName());
-		for (Map.Entry<String, List<PropertyInterface>> entry : dependencies.entrySet()) {
-			logger.fine(entry.getKey() + " -> " + entry.getValue().stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
+		if (editable) {
+			logger.fine("Dependencies in " + this.getClass().getSimpleName());
+			for (Map.Entry<String, List<PropertyInterface>> entry : dependencies.entrySet()) {
+				logger.fine(entry.getKey() + " -> " + entry.getValue().stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
+			}
 		}
 	}
 
