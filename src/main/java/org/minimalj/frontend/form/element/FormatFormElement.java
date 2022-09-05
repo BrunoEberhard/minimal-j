@@ -9,6 +9,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.validation.InvalidValues;
@@ -79,8 +80,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				if (placeholder != null) {
 					((JsonTextField) textField).setPlaceholder(placeholder);
 				}
+			}
+			if (textField instanceof JsonComponent) {
 				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
-					((JsonTextField) textField).setCssClass("textAlignRight");
+					((JsonComponent) textField).setCssClass("textAlignRight");
 				}
 			}
 
