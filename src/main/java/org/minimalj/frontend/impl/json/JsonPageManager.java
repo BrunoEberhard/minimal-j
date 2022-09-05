@@ -354,7 +354,7 @@ public class JsonPageManager implements PageManager {
 		}
 
 		String pageId = pageStore.getId(page);
-		if (pageId != null) {
+		if (pageId != null && page instanceof WheelPage) {
 			output.add("updatePage", createJson(page, pageId, masterPageId));
 		} else {
 			pageId = pageStore.put(page);
