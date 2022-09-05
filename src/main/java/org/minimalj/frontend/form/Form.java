@@ -243,7 +243,7 @@ public class Form<T> {
 	}
 
 	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
-		boolean required = forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null && element.getProperty().getClazz() != Boolean.class && !(element instanceof TextFormElement);
+		boolean required = editable && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null && element.getProperty().getClazz() != Boolean.class && !(element instanceof TextFormElement));
 		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
