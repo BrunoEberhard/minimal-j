@@ -45,7 +45,7 @@ public class WhereClause<T> {
 			whereStatement(fieldCriteria.getPath(), fieldCriteria.getOperator(), value);
 		} else if (query instanceof SearchCriteria) {
 			SearchCriteria searchCriteria = (SearchCriteria) query;
-			String search = convertUserSearch(searchCriteria.getQuery());
+			String searchLowerCase = convertUserSearch(searchCriteria.getQuery()).toLowerCase();
 			clause = "(";
 			List<String> searchColumns = searchCriteria.getKeys() != null ? table.getColumns(searchCriteria.getKeys()) : findSearchColumns();
 			boolean first = true;
@@ -56,7 +56,7 @@ public class WhereClause<T> {
 					first = false;
 				}
 				clause += "LOWER(" + column + ")" + (searchCriteria.isNotEqual() ? " NOT" : "") + " LIKE ?";
-				values.add(search.toLowerCase());
+				values.add(searchLowerCase);
 			}
 			clause += ")";
 			if (table.isHistorized()) {
