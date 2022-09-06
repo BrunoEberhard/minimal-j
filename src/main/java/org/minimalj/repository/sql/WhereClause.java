@@ -55,8 +55,8 @@ public class WhereClause<T> {
 				} else {
 					first = false;
 				}
-				clause += column + (searchCriteria.isNotEqual() ? " NOT" : "") + " LIKE ?";
-				values.add(search);
+				clause += "LOWER(" + column + ")" + (searchCriteria.isNotEqual() ? " NOT" : "") + " LIKE ?";
+				values.add(search.toLowerCase());
 			}
 			clause += ")";
 			if (table.isHistorized()) {
