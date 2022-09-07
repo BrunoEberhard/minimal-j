@@ -88,6 +88,20 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this.object = object;
 		update();
 	}
+	
+	/**
+	 * If an action removes an object the validation message of that object should
+	 * be removed. For this a change must be fired to let the editor do a
+	 * validation. To always fire a change in setValue is not a solution. setValue
+	 * is mainly used by the Editor
+	 * 
+	 * @param object the updated list. Could be the same as before. The FormElement
+	 *               is updated anyway.
+	 */
+	public void setValueAndFireChange(List<T> object) {
+		setValue(object);
+		fireChange();
+	}
 
 	@Override
 	public IComponent getComponent() {
