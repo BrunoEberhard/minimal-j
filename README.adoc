@@ -42,4 +42,4 @@ link:http://www.youtube.com/watch?v=0VHz7gv6TpA[How to implement Hello World in 
 
 === Contact
 
-* Bruno Eberhard, mailto:minimalj@hispeed.ch[minimalj@hispeed.ch] 
+* Bruno Eberhard, mailto:bruno.eberhard@pop.ch[bruno.eberhard@pop.ch] 
