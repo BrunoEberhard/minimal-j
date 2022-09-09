@@ -69,7 +69,6 @@ public class Form<T> {
 	public static final boolean READ_ONLY = false;
 
 	public static final int DEFAULT_COLUMN_WIDTH = 100;
-	public static final Object GROW_FIRST_ELEMENT = new Object();
 
 	protected final boolean editable;
 
@@ -195,17 +194,10 @@ public class Form<T> {
 	}
 	
 	public void line(Object... keys) {
-		if (keys[0] == GROW_FIRST_ELEMENT) {
-			assertColumnCount(keys.length - 1);
-			for (int i = 1; i < keys.length; i++) {
-				int elementSpan = i == 1 ? columns - keys.length + 2 : 1;
-				add(keys[i], elementSpan);
-			}
-		} else {
-			assertColumnCount(keys.length);
-			int span = columns / keys.length;
-			int rest = columns;
-			for (int i = 0; i < keys.length; i++) {
+		int span = columns / keys.length;
+		int rest = columns;
+		for (int i = 0; i < keys.length; i++) {
+			if (assertColumnCount(i, keys.length)) {
 				int elementSpan = span;
 				while (i < keys.length - 1 && keys[i + 1] == keys[i]) {
 					elementSpan += span;
@@ -220,12 +212,16 @@ public class Form<T> {
 		}
 	}
 
-	private void assertColumnCount(int elementCount) {
-		if (elementCount > columns) {
+	private boolean assertColumnCount(int index, int elementCount) {
+		if (index >= columns) {
 			logger.severe("This form was constructed for " + columns + " column(s) but should be filled with " + elementCount + " form elements");
 			logger.fine("The solution is most probably to add/set the correct number of columns when calling the Form constructor");
-			throw new IllegalArgumentException("Not enough columns (" + columns + ") for form elements (" + elementCount + ")");
+			if (Configuration.isDevModeActive()) {
+				throw new IllegalArgumentException("Not enough columns (" + columns + ") for form elements (" + elementCount + ")");
+			}
+			return false;
 		}
+		return true;
 	}
 
 	private void add(Object key, int elementSpan) {
