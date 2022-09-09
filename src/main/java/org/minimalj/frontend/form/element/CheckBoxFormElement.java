@@ -10,7 +10,7 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.properties.VirtualProperty;
 import org.minimalj.util.resources.Resources;
 
-public class CheckBoxFormElement extends AbstractFormElement<Boolean> {
+public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements Enable {
 	private final Input<Boolean> checkBox;
 	private final boolean caption;
 	
@@ -57,6 +57,11 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> {
 		checkBox.setValue(Boolean.TRUE.equals(value));
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		checkBox.setEditable(enabled);
+	}
+	
 	public static abstract class CheckBoxProperty extends VirtualProperty {
 
 		@Override
