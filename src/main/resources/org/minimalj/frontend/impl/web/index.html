@@ -9,9 +9,7 @@ $META
 $BASE
 
 $IMPORT
-<script src="dialog-polyfill.js"></script>
 
-<link rel="stylesheet" type="text/css" href="dialog-polyfill.css" />
 <link rel="stylesheet" type="text/css" href="mj.css" />
 $THEME
 
@@ -33,6 +31,15 @@ $ICON
 	var blockStyle = document.createElement('style');
 	blockStyle.innerHTML = ".is-blocked {display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 90;}";
 	var pendingRequests = 0;
+	
+	if (typeof HTMLDialogElement !== 'function') {
+		// some old safari browser still need this. Maybe remove it in 2024
+		import('./dialog-polyfill.js');
+	    var head = document.getElementsByTagName('head')[0];
+	    var style = document.createElement('link');
+	    style.href = 'dialog-polyfill.css'; style.type = 'text/css'; style.rel = 'stylesheet';
+	    head.append(style);
+	}
 	
 	function onMessage(data) {
 		var dataObject = JSON.parse(data);
