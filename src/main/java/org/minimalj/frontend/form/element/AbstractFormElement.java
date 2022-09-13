@@ -1,5 +1,7 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.Objects;
+
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Keys;
@@ -21,9 +23,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 	
 	protected AbstractFormElement(PropertyInterface property) {
-		if (property == null) throw new IllegalArgumentException();
-		
-		this.property = property;
+		this.property = Objects.requireNonNull(property);
 	}
 
 	@Override
