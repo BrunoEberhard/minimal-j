@@ -746,12 +746,12 @@ $ICON
 			return div; /* ! */
 		} else if (type === "Combobox") {
 			element = document.createElement("select");
-			var option = document.createElement("option");
-			if (content.nullText) {
+			if (content.nullText != undefined) {
+				var option = document.createElement("option");
 				option.textContent = content.nullText;
 				option.value = null;
+				element.appendChild(option);
 			}
-			element.appendChild(option);
 			if (content.options) {
 				for (var id in content.options) {
 					var option = document.createElement("option");

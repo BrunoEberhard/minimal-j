@@ -14,6 +14,9 @@ import org.minimalj.util.mock.Mocking;
 
 public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
 
+	public static final String NO_NULL_STRING = null;
+	public static final String EMPTY_NULL_STRING = "";
+	
 	private final List<T> values;
 	private final Input<T> comboBox;
 
@@ -26,7 +29,7 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 	}
 
 	public ComboBoxFormElement(PropertyInterface property, List<T> values) {
-		this(property, values, null);
+		this(property, values, EMPTY_NULL_STRING);
 	}
 	
 	public ComboBoxFormElement(PropertyInterface property, List<T> values, String nullText) {

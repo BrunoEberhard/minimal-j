@@ -126,6 +126,7 @@ public abstract class Frontend {
 	}
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
+	// if nullText != null then an additional item above the items should be shown. Otherwise not.
 	public <T> Input<T> createComboBox(List<T> items, String nullText, InputComponentListener changeListener) {
 		return createComboBox(items, changeListener);
 	}

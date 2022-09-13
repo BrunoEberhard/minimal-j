@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.form.element.ComboBoxFormElement;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.StringUtils;
 
@@ -31,7 +32,7 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 			objectById.put(id, object);
 		}
 		put("options", options);
-		if (!StringUtils.isEmpty(nullText)) {
+		if (nullText != ComboBoxFormElement.NO_NULL_STRING) {
 			put("nullText", nullText);
 		}
 	}

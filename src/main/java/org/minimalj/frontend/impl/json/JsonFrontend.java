@@ -18,6 +18,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.form.element.ComboBoxFormElement;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.Page.Dialog;
@@ -110,7 +111,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new JsonCombobox<>(objects, null, changeListener);
+		return new JsonCombobox<>(objects, ComboBoxFormElement.EMPTY_NULL_STRING, changeListener);
 	}
 
 	@Override
