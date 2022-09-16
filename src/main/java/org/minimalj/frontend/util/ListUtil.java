@@ -2,6 +2,7 @@ package org.minimalj.frontend.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class ListUtil {
 	public static <T> List<T> get(List<T> list, ColumnFilter[] filters, Object[] sortKeys, boolean[] sortDirections, int offset, int pageSize) {
 		if (list instanceof LazyLoadingList) {
 			return ((LazyLoadingList<T>) list).get(filters, sortKeys, sortDirections, offset, pageSize);
-		} else {
+		} else if (list != null) {
 			List<T> filteredList;
 			boolean hasActiveFilters = Arrays.stream(filters).anyMatch(ColumnFilter::active);
 			if (hasActiveFilters) {
@@ -34,13 +35,15 @@ public class ListUtil {
 			int fromIndex = Math.min(offset, filteredList.size());
 			int toIndex = Math.min(offset + pageSize, filteredList.size());
 			return filteredList.subList(fromIndex, toIndex);
+		} else {
+			return Collections.emptyList();
 		}
 	}
 
 	public static <T> int count(List<T> list, ColumnFilter[] filters) {
 		if (list instanceof LazyLoadingList) {
 			return ((LazyLoadingList<T>) list).count(filters);
-		} else {
+		} else if (list != null) {
 			boolean hasFilters = Arrays.stream(filters).anyMatch(f -> f != null);
 			if (hasFilters) {
 				List<T> filteredList = new ArrayList<T>(list);
@@ -53,6 +56,8 @@ public class ListUtil {
 			} else {
 				return list.size();
 			}
+		} else {
+			return 0;
 		}
 	}
 
