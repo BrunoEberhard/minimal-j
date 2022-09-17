@@ -38,6 +38,11 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	}
 	
 	@Override
+	protected void createColumnComments() {
+		// the columns don't exist in the CrossTable
+	}
+	
+	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
