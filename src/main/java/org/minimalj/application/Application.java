@@ -134,23 +134,26 @@ public abstract class Application implements Model {
 	 *      ResourceBundle
 	 */
 	public ResourceBundle getResourceBundle(Locale locale) {
+		return new MultiResourceBundle(loadResourceBundles(locale, getClass()));
+	}
+	
+	public static List<ResourceBundle> loadResourceBundles(Locale locale, Class<?> clazz) {
 		List<ResourceBundle> resourceBundles = new ArrayList<>();
-		Class<?> applicationClass = getClass();
 		do {
 			try {
-				String resourceBundleName = applicationClass.getName();
+				String resourceBundleName = clazz.getName();
 				resourceBundles.add(ResourceBundle.getBundle(resourceBundleName, locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
 			} catch (MissingResourceException x) {
-				if (applicationClass == getInstance().getClass()) {
+				if (clazz == getInstance().getClass()) {
 					Logger logger = Logger.getLogger(Application.class.getName());
-					logger.warning("Missing the default ResourceBundle for " + this.getClass().getName());
+					logger.warning("Missing the default ResourceBundle for " + clazz.getName());
 					logger.fine("The default ResourceBundle has the same name as the Application that is launched.");
 					logger.fine("See the MjExampleApplication.java and MjExampleApplication.properties");
 				}
 			}
-			applicationClass = applicationClass.getSuperclass();
-		} while (applicationClass != Application.class);
-		return new MultiResourceBundle(resourceBundles);
+			clazz = clazz.getSuperclass();
+		} while (clazz != null && clazz != Application.class);
+		return resourceBundles;
 	}
 
 	@Override
