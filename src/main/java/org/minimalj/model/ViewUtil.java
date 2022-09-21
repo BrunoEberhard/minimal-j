@@ -74,14 +74,17 @@ public class ViewUtil {
 	}
 	
 	public static Class<?> getViewedClass(Class<?> clazz) {
-		for (Type type : clazz.getGenericInterfaces()) {
-			if (type instanceof ParameterizedType) {
-				ParameterizedType parameterizedType = (ParameterizedType) type;
-				Type rawType = parameterizedType.getRawType();
-				if (rawType.equals(View.class)) {
-					return GenericUtils.getGenericClass(parameterizedType);
+		while (clazz != null) {
+			for (Type type : clazz.getGenericInterfaces()) {
+				if (type instanceof ParameterizedType) {
+					ParameterizedType parameterizedType = (ParameterizedType) type;
+					Type rawType = parameterizedType.getRawType();
+					if (rawType.equals(View.class)) {
+						return GenericUtils.getGenericClass(parameterizedType);
+					}
 				}
 			}
+			clazz = clazz.getSuperclass();
 		}
 		return null;
 	}

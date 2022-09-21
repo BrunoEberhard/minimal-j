@@ -121,7 +121,9 @@ public class ModelTest {
 			if (!clazz.isEnum()) { // it's not pretty to have several enum classes with same name but it works
 				testNoDuplicateName(clazz);
 			}
-			testNoOrAbstractSuperclass(clazz);
+			if (!View.class.isAssignableFrom(clazz)) {
+				testNoOrAbstractSuperclass(clazz);
+			}
 			if (!testNoSelfMixins(clazz)) {
 				return; // further tests could create a StackOverflowException
 			}
