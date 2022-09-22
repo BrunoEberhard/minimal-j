@@ -634,6 +634,9 @@ public class Form<T> {
 	}
 
 	static boolean evaluateCondition(Object object, PropertyInterface property, String methodName) {
+		if (Enabled.FALSE.equals(methodName)) {
+			return false;
+		}
 		boolean invert = methodName.startsWith("!");
 		if (invert)
 			methodName = methodName.substring(1);

@@ -11,4 +11,5 @@ public @interface Enabled {
 
 	String value();
 
+	public static final String FALSE = Boolean.FALSE.toString();
 }
