@@ -13,6 +13,7 @@ import org.minimalj.util.resources.Resources;
 public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements Enable {
 	private final Input<Boolean> checkBox;
 	private final boolean caption;
+	private final boolean editable;
 	
 	public CheckBoxFormElement(PropertyInterface property, boolean editable) {
 		 this(property, getPropertyName(property), editable);
@@ -32,6 +33,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 
 	public CheckBoxFormElement(PropertyInterface property, String text, boolean editable, boolean caption) {
 		super(property);
+		this.editable = editable;
 		this.caption = caption;
 		checkBox = Frontend.getInstance().createCheckBox(listener(), text);
 		checkBox.setEditable(editable);
@@ -59,7 +61,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		checkBox.setEditable(enabled);
+		checkBox.setEditable(editable && enabled);
 	}
 	
 	public static abstract class CheckBoxProperty extends VirtualProperty {

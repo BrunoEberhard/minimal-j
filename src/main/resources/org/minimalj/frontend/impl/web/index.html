@@ -768,9 +768,8 @@ $ICON
 		} else if (type === "CheckBox") {
 			element = document.createElement("input");
 			element.type = "checkbox";
-			if (editable) {
-				element.setAttribute("onchange", "sendchange(this);");
-			} else {
+			element.setAttribute("onchange", "sendchange(this);");
+			if (!editable) {
 				element.setAttribute("disabled", "true");
 			}
 			element.id = content.id;
