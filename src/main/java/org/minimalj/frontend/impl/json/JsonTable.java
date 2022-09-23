@@ -132,9 +132,9 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	@Override
 	public void setObjects(List<T> objects) {
 		pageManager.unregister(get("tableContent"));
-		this.objects = objects;
+		this.objects = objects != null ? objects : Collections.emptyList();
 
-		visibleObjects = ListUtil.get(objects, Boolean.TRUE.equals(get("filterVisible")) ? filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(this.objects, Boolean.TRUE.equals(get("filterVisible")) ? filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -155,7 +155,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		put("selectedRows", selectedRows);
 		updatePaging();
 		if (!containsKey("filterVisible")) {
-			put("filterVisible", objects.size() >= FILTER_LINES);
+			put("filterVisible", this.objects.size() >= FILTER_LINES);
 		}
 		
 		selectedObjects.clear();
