@@ -76,7 +76,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 			createNewRow();
 		}
 		
-		JsonComponent jsonComponent = (JsonComponent) component;
+		JsonComponent jsonComponent = component != null ? (JsonComponent) component : new JsonComponent("Empty");
 		if (caption != null) {
 			jsonComponent.put(CAPTION, caption);
 		}

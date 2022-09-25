@@ -37,7 +37,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 	@Override
 	public void add(String caption, IComponent c, FormElementConstraint constraint, int span) {
-		Component component = (Component) c;
+		Component component = c != null ? (Component) c : new JPanel();
 		if (caption != null) {
 			SwingCaption swingCaption = new SwingCaption(component, caption);
 			captionByComponent.put(c, swingCaption);

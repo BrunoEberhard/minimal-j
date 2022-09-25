@@ -230,11 +230,15 @@ public class Form<T> {
 			forcedNotEmpty = true;
 			key = ((NotEmptyWrapper) key).key;
 		}
-		FormElement<?> element = createElement(key);
-		if (element != null) {
-			add(element, elementSpan, forcedNotEmpty);
+		if (key instanceof String && ((String) key).length() == 0) {
+			formContent.add(null, false, null, null, elementSpan);
 		} else {
-			formContent.add(null, false, Frontend.getInstance().createText("" + key), null, elementSpan);
+			FormElement<?> element = createElement(key);
+			if (element != null) {
+				add(element, elementSpan, forcedNotEmpty);
+			} else {
+				formContent.add(null, false, Frontend.getInstance().createText("" + key), null, elementSpan);
+			}
 		}
 	}
 

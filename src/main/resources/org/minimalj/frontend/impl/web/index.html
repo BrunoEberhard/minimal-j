@@ -198,7 +198,6 @@ $ICON
 							element.checked = value ? "checked" : "";
 						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
 							element.innerHTML = value != null ? escapeText(value) : "";
-							element.style.maxHeight = value != null ? undefined : 0;
 						} else if (property === "value" && element.tagName === "IMG") {
 							element.style.display = value ? "block" : "none";
 							element.src = "data:image;base64, " + value;
@@ -654,13 +653,11 @@ $ICON
 			tfoot.columnCount = content.headers.length;
 			element.appendChild(tfoot);
 			addTableFooter(tfoot, content.paging);
-		} else if (type === "Text" || type === "Title") {
+		} else if (type === "Text" || type === "Title" || type === "Empty") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());
 			if (content.value) {
 				element.innerHTML = escapeText(content.value);
-			} else {
-				element.style.maxHeight = 0;
 			}
 		} else if (type === "groupHorizontal" || type === "groupVertical") {
 			element = document.createElement("div");
