@@ -11,7 +11,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.mock.Mocking;
 
-// TODO: Typisierung bringt hier so was von nichts
 public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> implements Enable, Mocking {
 	private final Class<E> enumClass;
 	
@@ -23,6 +22,11 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 
 	public EnumFormElement(E key, List<E> allowedValues) {
 		this(Keys.getProperty(key), allowedValues);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public EnumFormElement(E key) {
+		this(Keys.getProperty(key), (List<E>) EnumUtils.valueList(key.getClass()));
 	}
 		
 	@SuppressWarnings("unchecked")
