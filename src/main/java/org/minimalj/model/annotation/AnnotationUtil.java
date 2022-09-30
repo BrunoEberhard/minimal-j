@@ -91,11 +91,11 @@ public class AnnotationUtil {
 	}
 
 	/**
-	 * @param clazz inspected class
+	 * @param clazz           inspected class
 	 * @param annotationClass the annotation to get
-	 * @param <A> type
-	 * @return the annotation on the class itself or if not available the
-	 *         annotation for the (direct) package of the class
+	 * @param <A>             type
+	 * @return the annotation on the class itself or if not available the annotation
+	 *         for the (direct) package of the class
 	 */
 	public static <A extends Annotation> A getAnnotationOfClassOrPackage(Class<?> clazz, Class<A> annotationClass) {
 		A annotation = clazz.getAnnotation(annotationClass);
@@ -106,5 +106,26 @@ public class AnnotationUtil {
 		}
 	}
 	
-
+	/**
+	 * @param clazz           inspected class
+	 * @param annotationClass the annotation to find
+	 * @return true if the annotation is present on the class, on one of its superclasses or on one of its implemented interfaces
+	 */
+	public static boolean isAnnotationPresentOrInherited(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+		if (clazz.isAnnotationPresent(annotationClass)) {
+			return true;
+		}
+		if (clazz.getSuperclass() != null) {
+			if (isAnnotationPresentOrInherited(clazz.getSuperclass(), annotationClass)) {
+				return true;
+			}
+		} 
+		for (Class<?> interfce : clazz.getInterfaces()) {
+			if (isAnnotationPresentOrInherited(interfce, annotationClass)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 }

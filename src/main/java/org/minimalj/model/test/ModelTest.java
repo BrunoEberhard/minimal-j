@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
@@ -26,6 +25,7 @@ import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
+import org.minimalj.model.annotation.SelfReferenceAllowed;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
@@ -502,7 +502,8 @@ public class ModelTest {
 		for (Field field : fields) {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
 				Class<?> fieldType = field.getType();
-				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class && !Code.class.isAssignableFrom(fieldType)) {
+				boolean selfReferenceAllowed = AnnotationUtil.isAnnotationPresentOrInherited(fieldType, SelfReferenceAllowed.class);
+				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class && !selfReferenceAllowed) {
 					if (forbiddenClasses.contains(fieldType)) {
 						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
 					} else {
