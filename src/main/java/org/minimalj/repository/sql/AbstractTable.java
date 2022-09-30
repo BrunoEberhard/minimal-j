@@ -135,7 +135,16 @@ public abstract class AbstractTable<T> {
 	protected void createTableComment() {
 		Comment commentAnnotation = clazz.getAnnotation(Comment.class);
 		if (commentAnnotation != null) {
-			sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS ?", commentAnnotation.value());
+			if (commentAnnotation != null) {
+				String comment = commentAnnotation.value();
+				if (sqlRepository.getSqlDialect() instanceof PostgresqlDialect) {
+					// Postgresql cannot handle the parameter. Don't know why.
+					comment = comment.replace("'", "''");
+					sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS '" + comment + "'");
+				} else {
+					sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS ?", comment);
+				}
+			}
 		}
 	}
 
