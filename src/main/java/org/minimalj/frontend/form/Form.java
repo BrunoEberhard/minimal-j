@@ -46,6 +46,7 @@ import org.minimalj.frontend.form.element.TextFormElement;
 import org.minimalj.frontend.form.element.UnknownFormElement;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
+import org.minimalj.model.Rendering;
 import org.minimalj.model.Selection;
 import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.NotEmpty;
@@ -178,6 +179,8 @@ public class Form<T> {
 			return new PasswordFormElement(new ChainedProperty(property, Keys.getProperty(Password.$.getPassword())));
 		} else if (fieldClass == Selection.class) {
 			return new SelectionFormElement(property);
+		} else if (Rendering.class.isAssignableFrom(fieldClass)) {
+			return new TextFormElement(property);
 		}
 		logger.severe("No FormElement could be created for: " + property.getName() + " of class " + fieldClass.getName());
 		return new UnknownFormElement(property);
