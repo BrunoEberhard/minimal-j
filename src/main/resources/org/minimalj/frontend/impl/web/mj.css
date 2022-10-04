@@ -765,4 +765,20 @@ label.invisible {
   .hidden-print {
     display: none !important;
   }
+ 
+  html, body, #container, .pageContentAndActions {
+	position: unset;
+	height: unset;
+	overflow-y: unset;
+	max-height: unset;
+	flex-shrink: 0;
+  }
+  
+  #pageContainer {
+  	display: unset;
+  }
+  
+  table.table thead tr:nth-last-child(3), .columnFilters {
+  	display: none;
+  }
 }

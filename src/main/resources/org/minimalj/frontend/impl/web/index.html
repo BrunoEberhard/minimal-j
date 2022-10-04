@@ -388,7 +388,8 @@ $ICON
 	
 		if (hasActionMenu) {
 			var sideBarElement = createMenu(page.actionMenu, page.pageId);
-			sideBarElement.className = "actionSideBar";
+			sideBarElement.classList.add("actionSideBar");
+			sideBarElement.classList.add("hidden-print");
 	
 			pageContentAndActionsElement.appendChild(sideBarElement);
 		}
@@ -1840,7 +1841,7 @@ $ICON
 		<div id="pageContainer" onContextmenu="showContextMenu(event);">
 		</div>	
 	</div>
-	<div id="applicationVersion">$APPLICATION-VERSION</div>
+	<div id="applicationVersion" class="hidden-print">$APPLICATION-VERSION</div>
 
 	<div id="templates" style="display: none">
 		<div id="tablePageHeaderButtons">
