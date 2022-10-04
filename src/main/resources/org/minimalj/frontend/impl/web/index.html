@@ -635,7 +635,7 @@ $ICON
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
 			thead.appendChild(createTableColumns(content.headers, content.headerPathes, content.widths));
-			element.appendChild(createTableColumnStyles(content.alignments));
+			element.appendChild(createTableColumnStyles(content.id, content.alignments));
 			if (content.overview) {
 				var tr = document.createElement("tr");
 				thead.appendChild(tr);
@@ -953,13 +953,13 @@ $ICON
 		return element;
 	}
 	
-	function createTableColumnStyles(alignments) {
+	function createTableColumnStyles(elementId, alignments) {
 		var tableStyle = document.createElement("style");
 		tableStyle.type = "text/css";
 		var style = "";
 		for (var i = 0; i < alignments.length; i++) {
 			if (alignments[i] != undefined) {		
-				style = style + "td:nth-child(" + (i+1) + ") { text-align: " + alignments[i] + "; }\n";
+				style = style + "#" + CSS.escape(elementId) + " td:nth-child(" + (i+1) + ") { text-align: " + alignments[i] + "; }\n";
 			}
 		}
 		tableStyle.appendChild(document.createTextNode(style));
