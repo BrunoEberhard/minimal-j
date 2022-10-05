@@ -70,7 +70,9 @@ public interface Rendering {
 	}
 	
 	public static CharSequence render(Object o, PropertyInterface property) {
-		if (o instanceof Rendering) {
+		if (o == null) {
+			return "";
+		} else if (o instanceof Rendering) {
 			return ((Rendering) o).render();
 		} else if (o instanceof Collection) {
 			Collection<?> collection = (Collection<?>) o;
@@ -103,10 +105,8 @@ public interface Rendering {
 			return DateUtils.format((LocalDateTime) o, property);
 		} else if (InvalidValues.isInvalid(o)) {
 			return InvalidValues.getInvalidValue(o);
-		} else if (o != null) {
-			return o.toString();
 		} else {
-			return "";
+			return o.toString();
 		}
 	}
 
