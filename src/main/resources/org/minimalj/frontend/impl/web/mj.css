@@ -229,6 +229,15 @@ body {
 table.table tr td {
 	height: 1.7em;
 	line-height: 1.6em;
+	padding-right: 1.5em;
+}
+
+table.table tr th {
+	padding-right: 0.5em;
+}
+
+table.table tr th:last-child {
+	padding-right: 0em;
 }
 
 table.table thead {
