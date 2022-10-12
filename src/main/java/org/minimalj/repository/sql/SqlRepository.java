@@ -256,7 +256,7 @@ public class SqlRepository implements TransactionalRepository {
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
 			}
-			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, null, null, new String[] {"TABLE"})) {
+			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
 				return !tableDescriptions.next();
 			}
 		}
