@@ -81,7 +81,7 @@ public class FlatProperties {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
 			if (!FieldUtils.isFinal(field) || FieldUtils.isSet(field.getType()) || FieldUtils.isList(field.getType())) {
-				properties.put(field.getName(), new FieldProperty(field));
+				properties.put(field.getName(), new FieldProperty(field, clazz));
 			} else {
 				Map<String, PropertyInterface> inlinePropertys = properties(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field) && !hasCollidingFields(clazz, field.getType(), field.getName());
@@ -90,7 +90,7 @@ public class FlatProperties {
 					if (!hasClassName) {
 						key = field.getName() + StringUtils.upperFirstChar(inlineKey);
 					}
-					properties.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
+					properties.put(key, new ChainedProperty(new FieldProperty(field, clazz), inlinePropertys.get(inlineKey)));
 				}
 			}
 		}
@@ -105,11 +105,11 @@ public class FlatProperties {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
 			if (FieldUtils.isList(field)) {
-				properties.add(new FieldProperty(field));
+				properties.add(new FieldProperty(field, clazz));
 			} else if (FieldUtils.isFinal(field)) {
 				List<PropertyInterface> inlineProperties = getListProperties(field.getType());
 				for (PropertyInterface inlineProperty : inlineProperties) {
-					properties.add(new ChainedProperty(new FieldProperty(field), inlineProperty));
+					properties.add(new ChainedProperty(new FieldProperty(field, clazz), inlineProperty));
 				}
 			}
 		}

@@ -70,7 +70,7 @@ public class Properties {
 
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isStatic(field)) {
-				properties.put(field.getName(), new FieldProperty(field));
+				properties.put(field.getName(), new FieldProperty(field, clazz));
 			}
 		}
 		return properties;

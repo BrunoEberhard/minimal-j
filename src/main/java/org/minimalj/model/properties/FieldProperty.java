@@ -19,18 +19,20 @@ public class FieldProperty implements PropertyInterface {
 	private static Logger logger = Logger.getLogger(FieldProperty.class.getName());
 
 	private final Field field;
+	private final Class<?> declaringClass;
 	private final boolean isFinal;
 	private final Class<?> type;
 
-	public FieldProperty(Field field) {
+	public FieldProperty(Field field, Class<?> declaringClass) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
 		this.type = field.getType();
+		this.declaringClass = declaringClass;
 	}
 
 	@Override
 	public Class<?> getDeclaringClass() {
-		return field.getDeclaringClass();
+		return declaringClass;
 	}
 
 	@Override

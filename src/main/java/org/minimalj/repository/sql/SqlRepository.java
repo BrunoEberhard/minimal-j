@@ -364,11 +364,11 @@ public class SqlRepository implements TransactionalRepository {
 						key = fieldName + "_" + inlineKey;
 					}
 					key = sqlIdentifier.column(key, columns.keySet(), field.getType());
-					columns.put(key, new ChainedProperty(new FieldProperty(field), inlinePropertys.get(inlineKey)));
+					columns.put(key, new ChainedProperty(new FieldProperty(field, clazz), inlinePropertys.get(inlineKey)));
 				}
 			} else {
 				fieldName = sqlIdentifier.column(fieldName, columns.keySet(), field.getType());
-				columns.put(fieldName, new FieldProperty(field));
+				columns.put(fieldName, new FieldProperty(field, clazz));
 			}
 		}
 		for (Method method: clazz.getMethods()) {
