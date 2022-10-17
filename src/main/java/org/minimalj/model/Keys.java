@@ -146,7 +146,7 @@ public class Keys {
 		}
 	}
 	
-	@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object createKey(Class<?> clazz, String fieldName, Class<?> declaringClass) {
 		if (clazz == String.class) {
 			return new String(fieldName);
