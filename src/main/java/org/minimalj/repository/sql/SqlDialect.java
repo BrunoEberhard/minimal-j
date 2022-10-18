@@ -236,18 +236,7 @@ public abstract class SqlDialect {
 				super.setParameter(preparedStatement, param, value);
 			}
 		}
-		
-		@Override
-		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
-			if (clazz.isArray()) {
-				preparedStatement.setNull(param, Types.ARRAY);			
-			} else if (clazz == Boolean.class) {
-				preparedStatement.setNull(param, Types.BOOLEAN);
-			} else {
-				super.setParameterNull(preparedStatement, param, clazz);
-			}
-		}
-		
+
 		@Override
 		public int getMaxIdentifierLength() {
 			return 63;
@@ -349,6 +338,7 @@ public abstract class SqlDialect {
 		
 		@Override
 		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
+			// TODO check if this is really necessary anymore
 			if (clazz == LocalTime.class || clazz == LocalDate.class || clazz == LocalDateTime.class) {
 				preparedStatement.setNull(param, Types.CHAR);
 			} else {
@@ -409,33 +399,7 @@ public abstract class SqlDialect {
 	}
 	
 	public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
-		if (clazz == String.class) {
-			preparedStatement.setNull(param, Types.VARCHAR);
-		} else if (clazz == UUID.class) {
-			preparedStatement.setNull(param, Types.CHAR);
-		} else if (clazz == Integer.class) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == Boolean.class) {
-			// TODO should this be BIT or BOOLEAN?
-			// if change, adjust PostgresqlDialect and check for all dialects
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == BigDecimal.class || clazz == Long.class) {
-			preparedStatement.setNull(param, Types.DECIMAL);
-		} else if (Enum.class.isAssignableFrom(clazz)) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == LocalDate.class) {
-			preparedStatement.setNull(param, Types.DATE);
-		} else if (clazz == LocalTime.class) {
-			preparedStatement.setNull(param, Types.TIME);
-		} else if (clazz == LocalDateTime.class) {
-			preparedStatement.setNull(param, Types.DATE);
-		} else if (IdUtils.hasId(clazz)) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz.isArray()) {
-			preparedStatement.setNull(param, Types.BLOB);			
-		} else {
-			preparedStatement.setNull(param, Types.INTEGER);
-		}
+		preparedStatement.setNull(param, Types.NULL);
 	}
 	
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {
