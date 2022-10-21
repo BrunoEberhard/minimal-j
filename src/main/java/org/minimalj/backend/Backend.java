@@ -207,8 +207,8 @@ public class Backend {
 	protected <T> void handleCodeCache(Transaction<T> transaction) {
 		if (transaction instanceof WriteTransaction || transaction instanceof DeleteEntityTransaction) {
 			// we could check if the transaction is about a code class. But the
-			// removeFromCache method is probably faster than to call 'isCode'
-			Codes.removeFromCache(((EntityTransaction<?, ?>) transaction).getEntityClazz());
+			// invalidateCodeCache method is probably faster than to call 'isCode'
+			Codes.invalidateCodeCache(((EntityTransaction<?, ?>) transaction).getEntityClazz());
 		}
 	}
 

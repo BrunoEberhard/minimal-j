@@ -24,6 +24,7 @@ import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
+import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -169,7 +170,7 @@ public class Table<T> extends AbstractTable<T> {
 		insertDependables(id, object);
 		insertLists(object);
 		if (object instanceof Code) {
-			sqlRepository.invalidateCodeCache(object.getClass());
+			Codes.invalidateCodeCache(object.getClass());
 		}
 		return id;
 	}
@@ -281,11 +282,15 @@ public class Table<T> extends AbstractTable<T> {
 			Class<?> fieldClazz = property.getClazz();
 			if (isDependable(property) && fieldClazz != clazz) {
 				String tableName = buildSubTableName(property);
-				DependableTable dependableTable = new DependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
+				DependableTable dependableTable = createDependableTable(property, tableName);
 				dependables.put(property, dependableTable);
 			}
 		}
 		return dependables;
+	}
+
+	protected DependableTable createDependableTable(PropertyInterface property, String tableName) {
+		return new DependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
 	}
 	
 	public DependableTable getDependableTable(PropertyInterface property) {
@@ -320,7 +325,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			
 			if (object instanceof Code) {
-				sqlRepository.invalidateCodeCache(object.getClass());
+				Codes.invalidateCodeCache(object.getClass());
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);

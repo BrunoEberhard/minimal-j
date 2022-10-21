@@ -45,12 +45,10 @@ import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.TransactionalRepository;
-import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
-import org.minimalj.util.Codes.CodeCacheItem;
 import org.minimalj.util.CsvReader;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
@@ -80,8 +78,6 @@ public class SqlRepository implements TransactionalRepository {
 	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private final ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
 
-	private final HashMap<Class<? extends Code>, CodeCacheItem<? extends Code>> codeCache = new HashMap<>();
-	
 	public SqlRepository(Model model) {
 		this(DataSourceFactory.create(), model.getEntityClasses());
 	}
@@ -471,8 +467,8 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		
 		Object id = null;
+		Integer version = null;
 		Integer position = 0;
-		R result = CloneHelper.newInstance(clazz);
 		
 		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
 		
@@ -484,10 +480,9 @@ public class SqlRepository implements TransactionalRepository {
 			String columnName = resultSet.getMetaData().getColumnLabel(columnIndex).toUpperCase();
 			if ("ID".equals(columnName)) {
 				id = resultSet.getObject(columnIndex);
-				IdUtils.setId(result, id);
 				continue;
 			} else if ("VERSION".equals(columnName)) {
-				IdUtils.setVersion(result, resultSet.getInt(columnIndex));
+				version = resultSet.getInt(columnIndex);
 				continue;
 			} else if ("POSITION".equals(columnName)) {
 				position = resultSet.getInt(columnIndex);
@@ -516,6 +511,18 @@ public class SqlRepository implements TransactionalRepository {
 			values.put(property, value);
 		}
 		
+		R result;
+		if (!Codes.isCode(clazz)) {
+			result = CloneHelper.newInstance(clazz);
+			IdUtils.setId(result, id);
+		} else {
+			// Self reference is allowed for Codes. Use a previously referenced instance.
+			result = (R) Codes.getOrInstantiate((Class<? extends Code>) clazz, id);
+		}
+		if (version != null) {
+			IdUtils.setVersion(result, version);
+		}
+
 		if (id != null && loadedReferences != DONT_LOAD_REFERENCES) {
 			if (!loadedReferences.containsKey(clazz)) {
 				loadedReferences.put(clazz, new HashMap<>());
@@ -533,9 +540,9 @@ public class SqlRepository implements TransactionalRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass) && !isLoading((Class<? extends Code>) fieldClass)) {
+				if (Codes.isCode(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = getCode(codeClass, value);
+					value = Codes.getOrInstantiate(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
 					if (loadedReferences != DONT_LOAD_REFERENCES) {
 						Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());
@@ -545,9 +552,9 @@ public class SqlRepository implements TransactionalRepository {
 							Object referencedValue;
 							if (View.class.isAssignableFrom(fieldClass)) {
 								Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
-								if (Code.class.isAssignableFrom(viewedClass)) {
+								if (Codes.isCode(viewedClass)) {
 									Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-									referencedValue = ViewUtil.view(getCode(codeClass, value), CloneHelper.newInstance(fieldClass));
+									referencedValue = ViewUtil.view(Codes.getOrInstantiate(codeClass, value), CloneHelper.newInstance(fieldClass));
 								} else {
 									Table<?> referenceTable = getTable(viewedClass);
 									referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
@@ -746,45 +753,6 @@ public class SqlRepository implements TransactionalRepository {
 		return tables.containsKey(clazz);
 	}
 	
-	protected <T extends Code> T getCode(Class<T> clazz, Object codeId) {
-		if (isLoading(clazz)) {
-			// this special case is needed to break a possible reference cycle
-			return getTable(clazz).read(codeId);
-		}
-		List<T> codes = getCodes(clazz);
-		return Codes.findCode(codes, codeId);
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected <T extends Code> boolean isLoading(Class<T> clazz) {
-		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
-		return cacheItem != null && cacheItem.isLoading();
-	}
-
-	@SuppressWarnings("unchecked")
-	<T extends Code> List<T> getCodes(Class<T> clazz) {
-		synchronized (clazz) {
-			CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
-			if (cacheItem == null || !cacheItem.isValid()) {
-				updateCode(clazz);
-			}
-			cacheItem = (CodeCacheItem<T>) codeCache.get(clazz);
-			List<T> codes = cacheItem.getCodes();
-			return codes;
-		}
-	}
-
-	private <T extends Code> void updateCode(Class<T> clazz) {
-		CodeCacheItem<T> codeCacheItem = new CodeCacheItem<>();
-		codeCache.put(clazz, codeCacheItem);
-		List<T> codes = find(clazz, By.all());
-		codeCacheItem.setCodes(codes);
-	}
-
-	public void invalidateCodeCache(Class<?> clazz) {
-		codeCache.remove(clazz);
-	}
-
 	public int getMaxIdentifierLength() {
 		return sqlDialect.getMaxIdentifierLength();
 	}

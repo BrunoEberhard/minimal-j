@@ -374,7 +374,7 @@ public abstract class AbstractTable<T> {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
 			if (value instanceof Code) {
-				value = findId((Code) value);
+				value = IdUtils.getId(value);
 			} else if (IdUtils.hasId(property.getClazz())) {
 				if (value != null) {
 					Object referencedId = IdUtils.getId(value);
@@ -458,20 +458,6 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	private Object findId(Code code) {
-		Object id = IdUtils.getId(code);
-		if (id != null) {
-			return id;
-		}
-		List<?> codes = sqlRepository.getCodes(code.getClass());
-		for (Object c : codes) {
-			if (code.equals(c)) {
-				return IdUtils.getId(c);
-			}
-		}
-		return null;
-	}
-			
 	protected abstract String insertQuery();
 
 	protected abstract String updateQuery();
