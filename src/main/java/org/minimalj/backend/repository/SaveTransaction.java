@@ -1,6 +1,8 @@
 package org.minimalj.backend.repository;
 
+import org.minimalj.model.properties.Properties;
 import org.minimalj.repository.Repository;
+import org.minimalj.repository.query.By;
 import org.minimalj.util.Codes;
 import org.minimalj.util.IdUtils;
 
@@ -20,8 +22,8 @@ public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 			id = repository.insert(unwrapped);
 		} else {
 			if (Codes.isCode(getEntityClazz())) {
-				Object existing = repository.read(getEntityClazz(), id);
-				if (existing == null) {
+				boolean existing = repository.count(getEntityClazz(), By.field(Properties.getProperty(getEntityClazz(), "id"), id)) > 0;
+				if (!existing) {
 					repository.insert(unwrapped);
 				} else {
 					repository.update(unwrapped);
