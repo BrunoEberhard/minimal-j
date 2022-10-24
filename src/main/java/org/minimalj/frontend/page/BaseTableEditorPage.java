@@ -54,7 +54,9 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 	protected abstract VIEW view(T object);
 	
 	protected void openEditor(VIEW selectedObject) {
-		new TableEditor(selectedObject).run();
+		TableEditor editor = new TableEditor();
+		editor.selectionChanged(selectedObject);
+		editor.run(result -> refresh());
 	}
 	
 	@Override
@@ -143,8 +145,6 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 		@Override
 		protected void finished(T result) {
 			BaseTableEditorPage.this.refresh();
-			VIEW view = view(result);
-			BaseTableEditorPage.this.selectionChanged(Arrays.asList(view));
 		}
 
 		@Override
@@ -166,19 +166,14 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 		return FIT_CONTENT;
 	}
 
-	public class TableEditor extends AbstractTableEditor implements TableSelectionAction<VIEW> {
+	public class TableEditor extends AbstractTableEditor implements ObjectAction<VIEW> {
 		private VIEW selection;
 		private T viewed;
 
 		public TableEditor() {
-			selectionChanged(null);
+			setEnabled(false);
 		}
 		
-		public TableEditor(VIEW selectedView) {
-			this.selection = selectedView;
-			setEnabled(selection != null);
-		}
-
 		@Override
 		protected Object[] getNameArguments() {
 			return BaseTableEditorPage.this.getNameArguments();
@@ -200,8 +195,8 @@ abstract class BaseTableEditorPage<VIEW, T> extends TableDetailPage<VIEW> {
 		}
 		
 		@Override
-		public void selectionChanged(List<VIEW> selectedObjects) {
-			this.selection = selectedObjects != null && !selectedObjects.isEmpty() ? selectedObjects.get(0) : null;
+		public void selectionChanged(VIEW selectedObject) {
+			this.selection = selectedObject;
 			setEnabled(selection != null);
 		}
 	}	

@@ -13,6 +13,7 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.editor.Result;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -110,6 +111,11 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		if (actions == null) {
 			actions = getTableActions();
 			this.actions = new SoftReference<>(actions);
+			actions.forEach(a -> {
+				if (a instanceof Result) {
+					((Result<?>) a).setFinishedListener(result -> refresh());
+				}
+			});
 		}
 		return actions;
 	}
@@ -135,9 +141,12 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	public void selectionChanged(List<T> selectedObjects) {
 		List<Action> actions = this.actions != null ? this.actions.get() : null;
 		if (actions != null) {
+			T selectedObject = selectedObjects.isEmpty() ? null : selectedObjects.get(0);
 			for (Action action : actions) {
-				if (action instanceof TableSelectionAction) {
-					((TableSelectionAction<T>) action).selectionChanged(selectedObjects);
+				if (action instanceof ObjectsAction) {
+					((ObjectsAction<T>) action).selectionChanged(selectedObjects);
+				} else if (action instanceof ObjectAction) {
+					((ObjectAction<T>) action).selectionChanged(selectedObject);
 				}
 			}
 		}
@@ -145,19 +154,20 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	
 	//
 
-	public interface TableSelectionAction<T> {
+	public interface ObjectsAction<T> {
 		
 		public abstract void selectionChanged(List<T> selectedObjects);
-		
-		public default void setObject(T selectedObject) {
-			selectionChanged(selectedObject != null ? Arrays.asList(selectedObject) : Collections.emptyList());
-		}
 	}
-	
-	public static abstract class BaseTableSelectionAction<U> extends Action implements TableSelectionAction<U> {
+
+	public interface ObjectAction<T> {
+		
+		public abstract void selectionChanged(T selectedObject);
+	}
+
+	public static abstract class AbstractObjectsAction<U> extends Action implements ObjectsAction<U> {
 		private List<U> selectedObjects;
 		
-		public BaseTableSelectionAction() {
+		public AbstractObjectsAction() {
 			selectionChanged(Collections.emptyList());
 		}
 		
@@ -166,17 +176,31 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		}
 		
 		@Override
+		public final boolean isEnabled() {
+			return super.isEnabled();
+		}
+		
+		@Override
+		public final void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+		}
+		
+		@Override
 		public void selectionChanged(List<U> selectedObjects) {
 			this.selectedObjects = selectedObjects;
-			setEnabled(!selectedObjects.isEmpty());
+			setEnabled(accept(selectedObjects));
+		}
+
+		protected boolean accept(List<U> selectedObjectss) {
+			return !selectedObjectss.isEmpty();
 		}
 	}
 	
-	public static abstract class ObjectTableSelectionAction<U> extends Action implements TableSelectionAction<U> {
+	public static abstract class AbstractObjectAction<U> extends Action implements ObjectAction<U> {
 		private U selectedObject;
 		
-		public ObjectTableSelectionAction() {
-			selectionChanged(Collections.emptyList());
+		public AbstractObjectAction() {
+			setEnabled(false);
 		}
 		
 		public U getSelectedObject() {
@@ -184,13 +208,25 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		}
 		
 		@Override
-		public void selectionChanged(List<U> selectedObjects) {
-			if (selectedObjects.size() == 1) {
-				this.selectedObject = selectedObjects.get(0);
-			} else {
-				this.selectedObject = null;
+		public final boolean isEnabled() {
+			return super.isEnabled();
+		}
+		
+		@Override
+		public final void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+		}
+		
+		@Override
+		public void selectionChanged(U selectedObject) {
+			if (this.selectedObject != selectedObject) {
+				this.selectedObject = selectedObject;
+				setEnabled(accept(selectedObject));
 			}
-			setEnabled(selectedObject != null);
+		}
+
+		protected boolean accept(U selectedObject) {
+			return selectedObject != null;
 		}
 	}
 	
@@ -200,7 +236,7 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		}
 	}
 
-	public class DeleteDetailAction extends BaseTableSelectionAction<T> {
+	public class DeleteDetailAction extends AbstractObjectsAction<T> {
 		
 		@Override
 		protected Object[] getNameArguments() {

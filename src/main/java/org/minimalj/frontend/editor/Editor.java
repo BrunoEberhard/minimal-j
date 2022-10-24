@@ -11,6 +11,7 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.frontend.page.TablePage.ObjectAction;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.ExceptionUtils;
@@ -25,7 +26,7 @@ import org.minimalj.util.resources.Resources;
  * of the edited object. Then you could use the {@link SimpleEditor}. In more complex situations the
  * backend called in the save method will do some business logic resulting in a different output object.
  */
-public abstract class Editor<T, RESULT> extends Action implements Dialog {
+public abstract class Editor<T, RESULT> extends Action implements Dialog, Result<RESULT> {
 	private static final Logger logger = Logger.getLogger(Editor.class.getName());
 
 	private T object;
@@ -82,8 +83,12 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog {
 		Frontend.showDialog(this);
 	}
 	
+	public void setFinishedListener(Consumer<RESULT> finishedListener) {
+		this.finishedListener = finishedListener;
+	}
+	
 	public void run(Consumer<RESULT> finishedListenr) {
-		this.finishedListener = finishedListenr;
+		setFinishedListener(finishedListenr);
 		run();
 	}
 	
@@ -199,7 +204,7 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog {
 		}
 	}
 
-	public static abstract class SimpleEditor<T> extends Editor<T, T> {
+	public static abstract class SimpleEditor<T> extends Editor<T, T> implements Result<T> {
 
 		public SimpleEditor() {
 		}
@@ -207,6 +212,45 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog {
 		public SimpleEditor(String actionName) {
 			super(actionName);
 		}	
+	}
+
+	public static abstract class ObjectEditor<T> extends Editor<T, T> implements ObjectAction<T> {
+		private T selectedObject;
+		
+		public ObjectEditor() {
+			this(null);
+		}
+
+		public ObjectEditor(String actionName) {
+			super(actionName);
+			setEnabled(false);
+		}
+		
+		public T getSelectedObject() {
+			return selectedObject;
+		}
+		
+		@Override
+		public final boolean isEnabled() {
+			return super.isEnabled();
+		}
+		
+		@Override
+		public final void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+		}
+		
+		@Override
+		public void selectionChanged(T selectedObject) {
+			if (this.selectedObject != selectedObject) {
+				this.selectedObject = selectedObject;
+				setEnabled(accept(selectedObject));
+			}
+		}
+
+		protected boolean accept(T selectedObject) {
+			return selectedObject != null;
+		}
 	}
 
 	public static abstract class NewObjectEditor<T> extends SimpleEditor<T> {

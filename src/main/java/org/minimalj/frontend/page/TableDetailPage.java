@@ -79,7 +79,7 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		public void setObjects(List<T> objects);
 	}
 	
-	protected class DetailAction extends ObjectTableSelectionAction<T> {
+	protected class DetailAction extends AbstractObjectAction<T> {
 		private final String resourceName;
 
 		public DetailAction(String resourceName) {
@@ -98,7 +98,7 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		}
 	}
 	
-	protected class DetailPageAction extends BaseTableSelectionAction<T> {
+	protected class DetailPageAction extends AbstractObjectsAction<T> {
 		private final String resourceName;
 		private final ChangeableDetailPage<T> page;
 

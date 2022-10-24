@@ -126,7 +126,7 @@ public class JsonSessionManager extends TimerTask {
 			return Collections.singletonList(new JsonSessionRemoveAction());
 		}
 		
-		private class JsonSessionRemoveAction extends BaseTableSelectionAction<JsonSessionInfo> {
+		private class JsonSessionRemoveAction extends AbstractObjectsAction<JsonSessionInfo> {
 			
 			@Override
 			public void run() {
