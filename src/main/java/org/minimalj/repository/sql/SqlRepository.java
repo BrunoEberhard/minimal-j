@@ -542,7 +542,7 @@ public class SqlRepository implements TransactionalRepository {
 				Class<?> fieldClass = property.getClazz();
 				if (Codes.isCode(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = Codes.getOrInstantiate(codeClass, value);
+					value = Codes.findCode(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
 					if (loadedReferences != DONT_LOAD_REFERENCES) {
 						Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());
@@ -554,7 +554,7 @@ public class SqlRepository implements TransactionalRepository {
 								Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
 								if (Codes.isCode(viewedClass)) {
 									Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-									referencedValue = ViewUtil.view(Codes.getOrInstantiate(codeClass, value), CloneHelper.newInstance(fieldClass));
+									referencedValue = ViewUtil.view(Codes.findCode(codeClass, value), CloneHelper.newInstance(fieldClass));
 								} else {
 									Table<?> referenceTable = getTable(viewedClass);
 									referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
