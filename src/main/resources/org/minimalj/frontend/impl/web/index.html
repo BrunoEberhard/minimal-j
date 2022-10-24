@@ -602,6 +602,13 @@ $ICON
 			removeChildren(element);
 			element.appendChild(document.createTextNode(content.caption));
 			element = document.getElementById("query").cloneNode(true);
+			var actions = content.actions;
+			for (var i = 0; i < actions.length; i++) {
+				var action = actions[i];
+				var actionElement = document.createElement("div");
+				createAction(actionElement, action);
+				element.children[3].appendChild(actionElement);
+			}
 		} else if (type === "Login") {
 			element = document.createElement("div");
 			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
@@ -1907,7 +1914,7 @@ $ICON
 			<div style="flex-grow: 2;"></div>
 			<div id="queryCaption" style="text-align: center;"></div>
 			<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
-			<div style="flex-grow: 3;"></div>
+			<div id="queryBottom" style="flex-grow: 3;"></div>
 		</div>
 	</div>
 
