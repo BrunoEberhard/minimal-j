@@ -87,8 +87,8 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog, Result
 		this.finishedListener = finishedListener;
 	}
 	
-	public void run(Consumer<RESULT> finishedListenr) {
-		setFinishedListener(finishedListenr);
+	public void run(Consumer<RESULT> finishedListener) {
+		setFinishedListener(finishedListener);
 		run();
 	}
 	
