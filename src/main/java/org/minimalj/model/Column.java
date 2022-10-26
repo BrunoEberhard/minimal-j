@@ -40,7 +40,11 @@ public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 		return null;
 	}
 	
-	public ColumnWidth getWidth() {
+	public Integer getWidth() {
+		return null;
+	}
+	
+	public Integer getMaxWidth() {
 		return null;
 	}
 
@@ -99,13 +103,4 @@ public abstract class Column<ROW, COLUMN> implements PropertyInterface {
 	public final boolean isFinal() {
 		return property.isFinal();
 	}
-	
-	public enum ColumnWidth {
-		SMALLEST,
-		SMALLER,
-		NORMAL,
-		LARGER,
-		LARGEST;
-	}
-	
 }

@@ -222,6 +222,10 @@ body {
 	font-family: inherit;
 }
 
+.pageContent > table {
+	width: 100%;
+}
+
 .pageContent .contentLogin {
 	width: 90%;
 }
@@ -229,7 +233,7 @@ body {
 table.table tr td {
 	height: 1.7em;
 	line-height: 1.6em;
-	padding-right: 1.5em;
+	text-overflow: ellipsis;
 }
 
 table.table tr th {
@@ -264,22 +268,6 @@ table.table thead {
 .table tfoot tr td * {
 	padding: 0.5em;
 	vertical-align: middle;
-}
-
-.table .col.smallest {
-	width: 3rem;
-}
-.table .col.smaller {
-	width: 4.5rem;
-}
-.table .col.normal {
-	width: 6rem;
-}
-.table .col.larger {
-	width: 9rem;
-}
-.table .col.largest {
-	width: 15rem;
 }
 
 @media screen and (min-width: 1600px) {

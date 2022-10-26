@@ -1,5 +1,6 @@
 package org.minimalj.frontend.util;
 
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,8 +8,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.minimalj.frontend.impl.util.ColumnFilter;
+import org.minimalj.model.Column;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.PropertyInterface;
 
 public class ListUtil {
@@ -85,7 +88,7 @@ public class ListUtil {
 				} else {
 					value1 = convert(value1);
 					value2 = convert(value2);
-					
+
 					try {
 						return ((Comparable) value1).compareTo(value2) * factor;
 					} catch (Exception x) {
@@ -98,14 +101,58 @@ public class ListUtil {
 			}
 			return 0;
 		}
-		
+
 		private Comparable convert(Object value) {
 			if (value instanceof Comparable) {
 				return (Comparable) value;
-			} else { 
+			} else {
 				return Rendering.render(value).toString();
 			}
 		}
-		
 	}
+
+	public static Width getWidthAnnotation(PropertyInterface property) {
+		Width width = property.getAnnotation(Width.class);
+		if (width != null) {
+			return width;
+		}
+		width = property.getClazz().getAnnotation(Width.class);
+		if (width != null) {
+			return width;
+		}
+		return null;
+	}
+
+	public static int width(PropertyInterface property) {
+		if (property instanceof Column) {
+			Integer width = ((Column<?, ?>) property).getWidth();
+			if (width != null) {
+				return width;
+			}
+		}
+		Width width = getWidthAnnotation(property);
+		return width != null ? width.width() : Width.DEFAULT;
+	}
+
+	public static int maxWidth(PropertyInterface property) {
+		if (property instanceof Column) {
+			Integer width = ((Column<?, ?>) property).getMaxWidth();
+			if (width != null) {
+				return width;
+			}
+		}
+		Width width = getWidthAnnotation(property);
+		if (width != null && width.maxWidth() > 0) {
+			return width.maxWidth();
+		} else {
+			int w = width(property);
+			Class<?> clazz = property.getClazz();
+			if (Number.class.isAssignableFrom(clazz) || Temporal.class.isAssignableFrom(clazz) || clazz == Boolean.class) {
+				return w;
+			} else {
+				return w * 3 / 2;
+			}
+		}
+	}
+
 }

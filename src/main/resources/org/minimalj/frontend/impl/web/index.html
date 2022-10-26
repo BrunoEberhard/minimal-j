@@ -642,7 +642,7 @@ $ICON
 			}
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
-			thead.appendChild(createTableColumns(content.headers, content.headerPathes, content.widths));
+			thead.appendChild(createTableColumns(content.headers, content.headerPathes, content.widths, content.maxWidths));
 			element.appendChild(createTableColumnStyles(content.id, content.alignments));
 			if (content.overview) {
 				var tr = document.createElement("tr");
@@ -951,11 +951,13 @@ $ICON
 		cellElement.style.flexGrow = span;
 	}
 
-	function createTableColumns(headers, headerNames, widths) {
+	function createTableColumns(headers, headerNames, widths, maxWidths) {
 		var element = document.createElement("tr");
 		for (var i = 0; i < headers.length; i++) {
 			var th = document.createElement("th");
-			th.className = "col " + headerNames[i] + " " + widths[i]; 
+			th.className = "col " + headerNames[i];
+			th.setAttribute("width", widths[i]);
+			th.style.maxWidth = maxWidths[i];			
 			element.appendChild(th);
 		}
 		return element;
@@ -966,8 +968,12 @@ $ICON
 		tableStyle.type = "text/css";
 		var style = "";
 		for (var i = 0; i < alignments.length; i++) {
-			if (alignments[i] != undefined) {		
-				style = style + "#" + CSS.escape(elementId) + " td:nth-child(" + (i+1) + ") { text-align: " + alignments[i] + "; }\n";
+			if (alignments[i] != undefined) {
+				var columnStyle = "text-align: " + alignments[i] + ";";
+				if (alignments[i] == "end") {
+					columnStyle = columnStyle + "padding-right: 1em;"
+				}
+				style = style + "#" + CSS.escape(elementId) + " td:nth-child(" + (i+1) + ") {" + columnStyle + "}\n";
 			}
 		}
 		tableStyle.appendChild(document.createTextNode(style));
