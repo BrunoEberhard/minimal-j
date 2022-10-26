@@ -656,6 +656,9 @@ $ICON
 			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters, content.filterVisible));
 			var tbody = document.createElement("tbody");
 			element.appendChild(tbody);
+			tbody.setAttribute("onclick", "tableSelection(event);");
+			tbody.setAttribute("ondblclick", "tableAction(event);");
+			tbody.setAttribute("onkeydown", "tableKeyHandler(event);");
 			addTableRows(content.id, tbody, content.tableContent);
 			var tfoot = document.createElement("tfoot");
 			tfoot.columnCount = content.headers.length;
@@ -1025,10 +1028,6 @@ $ICON
 		for (var i = 0; i < row.length; i++) {
 			element.appendChild(createTableCell(tableId, rowIndex, i, row[i]));
 		}
-		element.setAttribute("onclick", "tableSelection(event);");
-		element.setAttribute("ondblclick", "tableAction(event);");
-		element.setAttribute("tabindex", "0");
-		element.setAttribute("onkeydown", "tableKeyHandler(event);");
 		return element;
 	}
 	
@@ -1513,6 +1512,7 @@ $ICON
 		send(data, true);
 	
 		event.preventDefault();
+		window.getSelection().empty(); // avoid ... menu in Chrome
 	}
 
 	
