@@ -81,6 +81,15 @@ public class JsonSessionManager extends TimerTask {
 		return output;
 	}
 
+	public String export(String sessionId, String id) {
+		JsonPageManager session = sessions.get(sessionId);
+		if (session != null) {
+			return session.export(id);
+		} else {
+			return null;
+		}
+	}
+	
 	public static class JsonSessionInfo {
 		public static final JsonSessionInfo $ = Keys.of(JsonSessionInfo.class);
 		

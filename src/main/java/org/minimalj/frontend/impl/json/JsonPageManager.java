@@ -140,6 +140,16 @@ public class JsonPageManager implements PageManager {
 			return output;
 		}
 	}
+	
+	public String export(String id) {
+		Object content = componentById.get(id);
+		if (content instanceof JsonTable) {
+			JsonTable<?> table = (JsonTable<?>) content;
+			return table.export();
+		} else {
+			return null;
+		}
+	}
 
 	private static class ComponentUnknowException extends Exception {
 		private static final long serialVersionUID = 1L;

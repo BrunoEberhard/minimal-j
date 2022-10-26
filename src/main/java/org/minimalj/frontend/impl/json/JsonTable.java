@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.json;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -328,4 +329,49 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		setObjects(objects);
 	}
 
+	public String export() {
+		StringBuilder s = new StringBuilder(1000);
+		List<String> headers = (List<String>) get("headers");
+		for (String header : headers) {
+			s.append(header).append(";");
+		}
+		s.delete(s.length() - 1, s.length());
+		s.append("\n");
+		
+		for (T object : objects) {
+			for (PropertyInterface property : properties) {
+				Object value = property.getValue(object);
+				if (value instanceof BigDecimal) {
+					s.append(((BigDecimal) value).toPlainString());
+				} else if (property instanceof Column) {
+					Column column = (Column) property;
+					append(s, column.render(object, value));
+				} else {
+					append(s, Rendering.render(value, property));
+				}
+				s.append(";");
+			}
+			s.delete(s.length() - 1, s.length());
+			s.append("\n");
+		}
+		
+		return s.toString();
+	}
+	
+	private void append(StringBuilder s, CharSequence sequence) {
+		s.append("\"");
+		if (sequence != null) {
+			for (int i = 0; i<sequence.length(); i++) {
+				char c = sequence.charAt(i);
+				if (c == '"') {
+					s.append('"').append('"');
+				} else if (Character.isWhitespace(c)) {
+					s.append(' ');
+				} else {
+					s.append(c);
+				}
+			}
+		}
+		s.append("\"");
+	}
 }

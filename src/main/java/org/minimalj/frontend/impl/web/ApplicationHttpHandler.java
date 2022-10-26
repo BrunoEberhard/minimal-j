@@ -53,6 +53,15 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			exchange.sendResponse(200, ResourcesHttpHandler.read(Application.getInstance().getIcon()), "image/png");
 			break;
 		default:
+			if (path.startsWith("/download")) {
+				response = JsonSessionManager.getInstance().export(exchange.getParameter("session"), exchange.getParameter("component"));
+				if (response != null) {
+					exchange.sendResponse(200, response, "application/csv;charset=UTF-8");
+				} else {
+					exchange.sendNotfound();
+				}
+				break;
+			}
 			resourcesHttpHandler.handle(exchange, path);
 		}
 	}
