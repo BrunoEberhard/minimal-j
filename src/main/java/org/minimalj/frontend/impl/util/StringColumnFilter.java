@@ -80,6 +80,8 @@ public class StringColumnFilter implements ColumnFilter {
 				value = Rendering.toString(column.render(object, value));
 			} else if (value instanceof Rendering) {
 				value = ((Rendering) value).render();
+			} else if (value instanceof Enum) {
+				value = Rendering.toString((Enum<?>) value);
 			}
 			return value != null ? predicate.test(value.toString()) : false;
 		} else if (tester != null) {
