@@ -131,7 +131,7 @@ public class ListUtil {
 			}
 		}
 		Width width = getWidthAnnotation(property);
-		return width != null ? width.width() : Width.DEFAULT;
+		return width != null ? width.value() : Width.DEFAULT;
 	}
 
 	public static int maxWidth(PropertyInterface property) {

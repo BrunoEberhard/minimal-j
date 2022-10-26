@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD })
 public @interface Width {
 
-	int width();
+	int value();
 
 	int maxWidth() default -1;
 
