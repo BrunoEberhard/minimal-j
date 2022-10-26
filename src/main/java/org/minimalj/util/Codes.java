@@ -150,7 +150,9 @@ public class Codes {
 	}
 
 	public static void invalidateCodeCache(Class<? extends Object> clazz) {
-		cache.remove(clazz);
+		synchronized (clazz) {
+			cache.remove(clazz);
+		}
 	}
 
 	
