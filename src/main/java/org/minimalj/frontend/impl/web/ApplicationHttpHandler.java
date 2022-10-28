@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.web;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 import org.minimalj.application.Application;
@@ -56,7 +57,8 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			if (path.startsWith("/download")) {
 				response = JsonSessionManager.getInstance().export(exchange.getParameter("session"), exchange.getParameter("component"));
 				if (response != null) {
-					exchange.sendResponse(200, response, "application/csv;charset=UTF-8");
+					// ms office can better handle iso-8859-1 than utf-8
+					exchange.sendResponse(200, response.getBytes(Charset.forName("ISO-8859-1")), "application/csv;charset=ISO-8859-1");
 				} else {
 					exchange.sendNotfound();
 				}
