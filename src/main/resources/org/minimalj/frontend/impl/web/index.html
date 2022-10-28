@@ -405,8 +405,6 @@ $ICON
 						var data = { page: page.pageId, wheel: (event.deltaY < 0 ? -1 : 1)};
 						send(data, true);
 						event.preventDefault();
-					} else {
-						event.shiftKey = false;
 					}
 				}
 			}
