@@ -230,7 +230,7 @@ public class JsonFrontend extends Frontend {
 		String[] customCss = Configuration.get("MjCss", "").split(",");
 		StringBuilder s = new StringBuilder(100);
 		Arrays.stream(customCss).forEach(css -> {
-			s.append("<link rel=\"stylesheet\" href=\"" + css + "\" />\n");
+			s.append("<link rel=\"stylesheet\" href=\"" + css.trim() + "\" />\n");
 		});
 		return s.toString();
 	}
