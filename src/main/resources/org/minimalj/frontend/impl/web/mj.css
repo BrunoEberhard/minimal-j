@@ -1,3 +1,7 @@
+:root {
+	--headerHeight: 2.6em;
+}
+
 html {
 	/* needed for android browser because else overflow hidden is not respected */
 	position: fixed;
@@ -11,6 +15,8 @@ body {
 	margin: 0px;
 	height: 100%;
 	overflow: hidden;
+	display: grid;
+	grid-template-rows: var(--headerHeight) auto;
 }
 
 ::selection {
@@ -20,11 +26,6 @@ body {
 /* header with search */
 
 #header {
-	position: fixed;
-	margin: 0px;
-	left: 0px;
-	right: 0px;
-	height: 2.6em;
 	box-sizing: border-box;
 	line-height: 2.45em;
 	text-align: left;
@@ -61,13 +62,7 @@ body {
 /* content */
 
 #container {
-	position: fixed;
 	display: flex;
-	top: 2.6em;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	margin: 0px;
 }
 
 #navigationContainer {
