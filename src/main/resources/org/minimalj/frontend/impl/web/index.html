@@ -245,10 +245,10 @@ $ICON
 			createSuggestions(id, dataObject.suggestions);
 		}
 		if (dataObject.canLogin != undefined) {
-			document.getElementById("login").style.display = dataObject.canLogin ? "inline-block" : "none";
+			document.getElementById("login").style.display = dataObject.canLogin ? "inline" : "none";
 		}
 		if (dataObject.canLogout != undefined) {
-			document.getElementById("logout").style.display = dataObject.canLogout ? "inline-block" : "none";
+			document.getElementById("logout").style.display = dataObject.canLogout ? "inline" : "none";
 		}
 	}
 	
@@ -1120,7 +1120,7 @@ $ICON
 		var navigationElement = document.getElementById("navigationContainer");
 		var isClosed = navigationElement.style.display === "none";
 		if (isClosed && (openOrClose == undefined || openOrClose === "open")) {
-			navigationElement.style.display = "block";
+			navigationElement.style.display = "flex";
 			closeActionMenu();
 		} else if (!isClosed && (openOrClose == undefined || openOrClose == "close")) {
 			navigationElement.style.display = "none";
@@ -1781,43 +1781,47 @@ $ICON
 </head>
 <body onload="init();" id="body" class="no-contrast">
 	<div id="header" class="hidden-print">
-		<svg id="navigationToggle" class="button headerButton" style="margin-left: 1.0em;" onclick="toggleNavigation()">
-              <g style="stroke-width:0px"> 		
-  				<title>Show or hide navigation</title>
-				<rect x="0" y="5%" width="100%" height="0.25em"/>
-				<rect x="0" y="40%" width="100%" height="0.25em"/>
-				<rect x="0" y="75%" width="100%" height="0.25em"/>
-			</g>
-		</svg>
-		<svg id="logout" class="button headerButton" style="margin-left: 1.0em; display: none;" onclick="logout()">
-              <g style="stroke-width:13%;stroke-linecap:square"> 		
-  				<title>Logout</title>
-				<line x1="5%" y1="5%" x2="50%" y2="5%" />
-				<line x1="5%" y1="5%" x2="5%" y2="95%" />
-				<line x1="5%" y1="95%" x2="50%" y2="95%" />
-				<line x1="40%" y1="50%" x2="95%" y2="50%" />
-				<line x1="75%" y1="30%" x2="95%" y2="50%" />
-				<line x1="75%" y1="70%" x2="95%" y2="50%" />
-			</g>
-		</svg>		
-		<svg id="login" class="button headerButton" style="margin-left: 1.0em; display: none;" onclick="login()">
-              <g style="stroke-width:13%;stroke-linecap:square"> 		
-  				<title>Logout</title>
-				<line x1="95%" y1="5%" x2="50%" y2="5%" />
-				<line x1="95%" y1="5%" x2="95%" y2="95%" />
-				<line x1="95%" y1="95%" x2="50%" y2="95%" />
-				<line x1="5%" y1="50%" x2="60%" y2="50%" />
-				<line x1="40%" y1="30%" x2="60%" y2="50%" />
-				<line x1="40%" y1="70%" x2="60%" y2="50%" />
-			</g>
-		</svg>		
-		<svg id="wait" class="button headerButton" style="width: 0em;">
-			<g style="stroke-width:3px;stroke-linecap:square"> 	
-				<line x1="6%" y1="93%" x2="93%" y2="93%" />
-			</g>
-		</svg>
-		<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
-		<div id="searchSpan">
+		<div id="headerStart">
+			<svg id="navigationToggle" class="button headerButton" onclick="toggleNavigation()">
+	              <g style="stroke-width:0px"> 		
+	  				<title>Show or hide navigation</title>
+					<rect x="0" y="5%" width="100%" height="0.25em"/>
+					<rect x="0" y="40%" width="100%" height="0.25em"/>
+					<rect x="0" y="75%" width="100%" height="0.25em"/>
+				</g>
+			</svg>
+			<svg id="logout" class="button headerButton" style="display: none;" onclick="logout()">
+	              <g style="stroke-width:13%;stroke-linecap:square"> 		
+	  				<title>Logout</title>
+					<line x1="5%" y1="10%" x2="50%" y2="10%" />
+					<line x1="5%" y1="10%" x2="5%" y2="90%" />
+					<line x1="5%" y1="90%" x2="50%" y2="90%" />
+					<line x1="40%" y1="50%" x2="95%" y2="50%" />
+					<line x1="75%" y1="30%" x2="95%" y2="50%" />
+					<line x1="75%" y1="70%" x2="95%" y2="50%" />
+				</g>
+			</svg>		
+			<svg id="login" class="button headerButton" style="display: none;" onclick="login()">
+	              <g style="stroke-width:13%;stroke-linecap:square"> 		
+	  				<title>Logout</title>
+					<line x1="95%" y1="5%" x2="50%" y2="5%" />
+					<line x1="95%" y1="5%" x2="95%" y2="95%" />
+					<line x1="95%" y1="95%" x2="50%" y2="95%" />
+					<line x1="5%" y1="50%" x2="60%" y2="50%" />
+					<line x1="40%" y1="30%" x2="60%" y2="50%" />
+					<line x1="40%" y1="70%" x2="60%" y2="50%" />
+				</g>
+			</svg>		
+			<svg id="wait" class="button headerButton" style="width: 0em;">
+				<g style="stroke-width:3px;stroke-linecap:square"> 	
+					<line x1="6%" y1="93%" x2="93%" y2="93%" />
+				</g>
+			</svg>
+		</div>
+		<div id="headerBody">
+			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
+		</div>
+		<div id="headerEnd">
 			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" />
 			<svg id="searchButton" class="button headerButton" onclick="searchButtonAction();">
 				<g style="stroke-width:16%;stroke-linecap:square"> 		

@@ -1,5 +1,19 @@
 :root {
-	--headerHeight: 2.6em;
+	--bodyGapWidth: 1px;
+	--borderColor: rgb(160,160,160);
+	
+	--headerHeight: 1.7rem;
+	--headerButtonSize: calc(var(--headerHeight) * 0.58);
+	
+	--secondHeaderHeight: 1.3rem;
+	--secondHeaderButtonSize: calc(var(--secondHeaderHeight) * 0.5);
+	
+	--navigationWidth: 10rem;
+	
+	--headerBackground: #d0d0d0;
+	--pageHeaderBackground: #f0f0f0;
+	--navigationBackground: #f8f8f8;
+	--contentBackground: white;
 }
 
 html {
@@ -16,43 +30,47 @@ body {
 	height: 100%;
 	overflow: hidden;
 	display: grid;
-	grid-template-rows: var(--headerHeight) auto;
+	grid-template-rows: var(--headerHeight) 1fr;
+	gap: var(--bodyGapWidth);
+	background: var(--borderColor);
 }
 
 ::selection {
 	background: rgba(0,0,0,.05);
 }
 
-/* header with search */
-
 #header {
+	display: grid;
+	grid-template-columns: var(--navigationWidth) auto min-content;
 	box-sizing: border-box;
-	line-height: 2.45em;
 	text-align: left;
-	background: rgb(0, 0, 0, 0.125);
+	background: var(--headerBackground);;
 	padding-left: 0ex;
-	border-bottom: 1px rgb(160,160,160) solid;
+}
+
+#headerStart {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
 }
 
 .headerButton {
-	margin-top: 0.6em;
-	margin-left: 0.4em;
-	width: 1.52em;
-	height: 1.52em;
+	padding: calc(var(--headerButtonSize) / 5);
+	margin-left: calc(var(--headerButtonSize) / 1.5);
+	width: var(--headerButtonSize);
+	height: var(--headerButtonSize);
 }
 
-#searchSpan {
-	position: absolute;
-	top: 0;
-	right: 1em;
-	overflow: none;
+#headerEnd {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
 }
 
 #search {
-	vertical-align: top;
 	border: solid 1px #888;
-	margin-top: 0.53em;
-	height: 1.55em
+	height: 1.55em;
+	margin-right: 2em;
 }
 
 #search input:focus {
@@ -63,15 +81,18 @@ body {
 
 #container {
 	display: flex;
+	gap: var(--bodyGapWidth);
 }
 
 #navigationContainer {
-	margin: 0px;
-	border-right: 1px rgb(160,160,160) solid;
+	width: var(--navigationWidth);
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: var(--bodyGapWidth);
 }
 
 .secondHeader {
-	border-bottom: 1px rgb(160,160,160) solid;
 	display: flex;
 	align-items: center;
 }
@@ -81,29 +102,27 @@ body {
 }
 
 .pageButton {
-	width: 1.1em;
-	height: 1.1em;
+	padding: calc(var(--secondHeaderButtonSize) / 5);
+	margin-right: calc(var(--secondHeaderButtonSize) / 1.7);
+	width: var(--secondHeaderButtonSize);
+	height: var(--secondHeaderButtonSize);
 }
 
 #navigationHeader {
+	height: var(--secondHeaderHeight);
 	position: relative;
-	height: 2em;
 	box-sizing: border-box;
 	display: flex;
 	align-items: center;
 	flex-direction: row-reverse;
-	padding-right: 1em;
-	background: rgb(240,240,240);
+	background: var(--pageHeaderBackground);
 }
 
 #navigation {
-	position: relative;
-	width: calc(10rem - 1px);
-	height: 100%;
-	max-height: calc(100% - 2em);
-	bottom: 0;
+	flex-grow: 1;
 	overflow: auto;
 	padding-left: 0.7rem;
+	background: var(--navigationBackground);
 }
 
 #navigation ul {
@@ -146,8 +165,6 @@ body {
 .button {
 	stroke: #555;
 	fill: #555;
-	display: inline-block;
-	margin-left: 1em;
 }
 
 .button:hover {
@@ -172,27 +189,28 @@ body {
 	overflow-y: hidden;
 	overflow-x: auto;
 	box-sizing: border-box;
+	display: grid;
+	grid-template-rows: var(--secondHeaderHeight) auto;
+	gap: var(--bodyGapWidth);
 }
 
 .pageHeader {
-	height: 2em;
 	box-sizing: border-box;
-	line-height: 2.1em;
-	background: rgb(240,240,240);
+	background: var(--pageHeaderBackground);;
 	padding-right: 1em;
 	padding-left: 1em;
 }
 
 .pageContentAndActions {
-	height: calc(100% - 2em);
-	max-height: calc(100% - 2em);
 	overflow-y: auto;
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
+	gap: var(--bodyGapWidth);
 }
 
 .pageContent {
+	background: var(--contentBackground);
 	height: 100%;
 	max-height: 100%;
 	flex-grow: 1;
@@ -265,34 +283,22 @@ table.table thead {
 	vertical-align: middle;
 }
 
-@media screen and (min-width: 1600px) {
-	.table .col.normal {
-		width: 7rem;
-	}
-	.table .col.larger {
-		width: 11rem;
-	}
-	.table .col.largest {
-		width: 18rem;
-	}
-}
-
 .contextMenu {
 	width: 10rem;
 	background: white;
 	overflow: auto;
 	position: fixed;
 	height: unset;
-	border: 1px rgb(160,160,160) solid;
+	border: 1px var(--borderColor) solid;
 	padding: 0.2rem 0ex 0.2rem 1.2rem;
 	z-index: 20;
 }
 
 .actionSideBar {
+	background: var(--navigationBackground);
 	width: 15rem;
 	height: 100%;
 	box-sizing: border-box;
-	border-left: 1px rgb(160,160,160) solid;
 	margin: 0px;
 	padding-left: 1.5rem;
 	overflow: auto;
@@ -303,7 +309,7 @@ table.table thead {
 /* dialog */
 
 dialog {
-	border: 1px rgb(160,160,160) solid;
+	border: 1px var(--borderColor) solid;
 	padding: 0em;
 	width: auto;
 	top: 1em;
@@ -324,7 +330,7 @@ dialog:nth-child(3n+2) {
 }
 
 .dialogHeader {
-	border-bottom: 1px rgb(160,160,160) solid;
+	border-bottom: 1px var(--borderColor) solid;
 	background: rgb(240,240,240);
 	overflow: hidden;
 	cursor: move;
@@ -357,7 +363,7 @@ dialog:nth-child(3n+2) {
 .dialogFooter {
 	text-align: right;
 	background: rgb(240,240,240);
-	border-top: 1px rgb(160,160,160) solid;
+	border-top: 1px var(--borderColor) solid;
 	padding-top: 0.2em;
 	padding-bottom: 0.2em;
 	height: fit-content;
@@ -642,7 +648,7 @@ textarea[disabled] {
 hr {
 	margin: 0px;
 	border: 0px;
-	border-top: 1px rgb(160,160,160) solid;
+	border-top: 1px var(--borderColor) solid;
 }
 
 fieldset {
@@ -739,12 +745,10 @@ label.invisible {
 
 @media screen and (max-width: 991px) {
 	#search { display: none; }
-	#navigationContainer { left: 1ex; top: 1ex; bottom: 1ex; z-index: 1; border-right: 1px rgb(160,160,160) solid;}
 	#navigationHeader { display: none; }
 	#navigation { max-height: 100%}
 	#pageContainer { height: 100%}
-	/* not working with ie: #pageContainer .page:not(:last-child) { display: none; } */
-	.page { display: none; }
+	/* not working with ie: #pageContainer .page:not(:last-child) { display: none; } */	.page { display: none; }
 	.page:last-child { display: block; border-bottom: none; top: 0em; right: 0em; min-height: unset; height: 100%; }
 	.page:last-child > .pageContentAndActions { top: 0em; height: 100%;}
 	.pageHeader { display: none; }

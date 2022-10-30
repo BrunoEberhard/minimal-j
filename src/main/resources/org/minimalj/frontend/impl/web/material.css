@@ -19,12 +19,10 @@ body {
 #navigationContainer {
 	background: rgb(250, 250, 250);
 	z-index: 1;
-	border: none;
 }
 
 .secondHeader {
 	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
-	border: none;
 }
 
 .pageButton {
