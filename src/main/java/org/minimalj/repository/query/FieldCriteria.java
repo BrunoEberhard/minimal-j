@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.time.temporal.Temporal;
 
 import org.minimalj.model.Keys;
+import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.repository.sql.EmptyObjects;
@@ -59,7 +60,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 
 	private void assertValidValueClass(PropertyInterface property, Object value) {
 		if (value != null) {
-			if (!property.getClazz().isAssignableFrom(value.getClass())) {
+			if (!ViewUtil.resolve(property.getClazz()).isAssignableFrom(ViewUtil.resolve(value.getClass()))) {
 				throw new IllegalArgumentException("Value is " + value.getClass().getName() + " but must be " + property.getClazz().getSimpleName());
 			}
 		}
