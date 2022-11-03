@@ -179,7 +179,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
 			Object value = entry.getKey().getValue(object);
 			if (value != null) {
-				entry.getValue().insert(objectId, value);
+				entry.getValue().insert(objectId, value, null);
 			}
 		}
 	}
@@ -199,7 +199,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void deleteById(Object id) {
-		deleteDependables(sqlRepository.read(clazz, id));
+		deleteDependables(id);
 		deleteLists(sqlRepository.read(clazz, id));
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
@@ -211,7 +211,7 @@ public class Table<T> extends AbstractTable<T> {
 
 	protected void deleteDependables(Object id) {
 		for (DependableTable dependableTable : dependables.values()) {
-			dependableTable.delete(id);
+			dependableTable.delete(id, null);
 		}
 	}
 	
@@ -318,7 +318,7 @@ public class Table<T> extends AbstractTable<T> {
 				updateStatement.execute();
 			}
 			
-			updateDependables(object, id);
+			updateDependables(object, id, null);
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				listTableEntry.getValue().replaceList(object, list);
@@ -332,13 +332,10 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	protected void updateDependables(T object, Object objectId) {
+	protected void updateDependables(T object, Object objectId, Integer time) {
 		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
-			entry.getValue().delete(objectId);
 			Object value = entry.getKey().getValue(object);
-			if (value != null) {
-				entry.getValue().insert(objectId, value);
-			}
+			entry.getValue().update(objectId, value, time);
 		}
 	}
 
@@ -347,7 +344,7 @@ public class Table<T> extends AbstractTable<T> {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement);
 			if (object != null) {
-				loadDependables(id, object);
+				loadDependables(id, object, null);
 				loadLists(object);
 			}
 			return object;
@@ -513,9 +510,9 @@ public class Table<T> extends AbstractTable<T> {
 		return result;
 	}
 	
-	protected void loadDependables(Object id, T object) throws SQLException {
+	protected void loadDependables(Object id, T object, Integer time) throws SQLException {
 		for (Entry<PropertyInterface, DependableTable> dependableTableEntry : dependables.entrySet()) {
-			Object value = dependableTableEntry.getValue().read(id);
+			Object value = dependableTableEntry.getValue().read(id, time);
 			PropertyInterface dependableProperty = dependableTableEntry.getKey();
 			dependableProperty.setValue(object, value);
 		}
