@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
@@ -70,6 +71,11 @@ class HistorizedTable<T> extends Table<T> {
 	}
 	
 	@Override
+	protected DependableTable createDependableTable(PropertyInterface property, String tableName) {
+		return new HistorizedDependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
+	}
+	
+	@Override
 	public void update(T object) {
 		Object id = IdUtils.getId(object);
 		update(id, object);
@@ -94,6 +100,7 @@ class HistorizedTable<T> extends Table<T> {
 				updateStatement.execute();
 			}
 			
+			updateDependables(object, id, newVersion);
 			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				((HistorizedListTable) listTableEntry.getValue()).replaceList(object, list, newVersion);
@@ -118,25 +125,12 @@ class HistorizedTable<T> extends Table<T> {
 		}
 	}
 	
-	@Override
-	public T read(Object id) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, id);
-			T object = executeSelect(selectByIdStatement);
-			if (object != null) {
-				loadLists(object, null);
-			}
-			return object;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
-		}
-	}
-
 	public T read(Object id, int time) {
 		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, id);
 			selectByIdAndTimeStatement.setInt(2, time);
 			T object = executeSelect(selectByIdAndTimeStatement);
+			loadDependables(id, object, time);
 			loadLists(object, time);
 			return object;
 		} catch (SQLException x) {
@@ -150,6 +144,7 @@ class HistorizedTable<T> extends Table<T> {
 			selectByIdAndTimeStatement.setInt(2, time);
 			T object = executeSelect(selectByIdAndTimeStatement, loadedReferences);
 			if (object != null) {
+				loadDependables(id, object, time);
 				loadLists(object);
 			}
 			return object;
@@ -202,16 +197,20 @@ class HistorizedTable<T> extends Table<T> {
 		return query.toString();
 	}
 	
-	private String insertQuery(boolean withVersion) {
+	private String insertQuery(boolean forUpdate) {
 		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 
+		PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id", true);
+		boolean autoIncrementId = idProperty != null && isAutoIncrement(idProperty);
+
 		StringBuilder s = new StringBuilder();
-		
 		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (String columnName : getColumns().keySet()) {
 			s.append(columnName).append(", ");
 		}
-		s.append("id, ");
+		if (forUpdate || !autoIncrementId) {
+			s.append("id, ");
+		}
 		for (String columnName : columnsWithVersion.keySet()) {
 			s.append(columnName).append(", ");
 		}
@@ -219,7 +218,10 @@ class HistorizedTable<T> extends Table<T> {
 		for (int i = 0; i < getColumns().size() + columnsWithVersion.size(); i++) {
 			s.append("?, ");
 		}
-		s.append(withVersion ? "?, ?, 0)" : "?, 0, 0)");
+		if (!forUpdate && autoIncrementId) {
+			s.delete(s.length() - 3, s.length());
+		}
+		s.append(forUpdate ? "?, ?, 0)" : "?, 0, 0)");
 
 		return s.toString();
 	}

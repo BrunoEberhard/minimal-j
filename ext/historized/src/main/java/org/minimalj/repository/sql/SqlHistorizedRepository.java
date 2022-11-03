@@ -21,6 +21,7 @@ import org.minimalj.model.View;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.properties.PropertyInterface;
 import org.minimalj.util.CloneHelper;
+import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
@@ -176,9 +177,9 @@ public class SqlHistorizedRepository extends SqlRepository {
 			PropertyInterface property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass) && !isLoading((Class<? extends Code>) fieldClass)) {
+				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = getCode(codeClass, value);
+					value = Codes.getOrInstantiate(codeClass, value);
 				} else if (View.class.isAssignableFrom(fieldClass)) {
 					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
 					Table<?> referenceTable = getTable(viewedClass);

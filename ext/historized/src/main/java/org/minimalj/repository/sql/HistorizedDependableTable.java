@@ -12,14 +12,14 @@ import org.minimalj.util.LoggingRuntimeException;
  * - In this tables the parentId is used as id 
  * - has no sub tables
  */
-public class HistorizedDependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
+public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<PARENT, ELEMENT> {
 
-	protected final PropertyInterface parentIdProperty;
-
+	protected final String selectByIdAndTimeQuery;
+	
+	
 	public HistorizedDependableTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
-		super(sqlRepository, name, clazz);
-
-		this.parentIdProperty = parentIdProperty;
+		super(sqlRepository, name, clazz, parentIdProperty);
+		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 	}
 
 	@Override
@@ -34,37 +34,51 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends AbstractTable<EL
 		createConstraint(dialect, "ID", parentTable);
 	}
 
-	public ELEMENT read(Object parentId) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, parentId);
-			ELEMENT object = executeSelect(selectByIdStatement);
-			return object;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + parentId);
+	@Override
+	public ELEMENT read(Object parentId, Integer version) {
+		if (version == null) {
+			try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+				selectByIdStatement.setObject(1, parentId);
+				ELEMENT object = executeSelect(selectByIdStatement);
+				return object;
+			} catch (SQLException x) {
+				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + parentId);
+			}
+		} else {
+			try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
+				selectByIdStatement.setObject(1, parentId);
+				selectByIdStatement.setObject(2, version);
+				selectByIdStatement.setObject(3, version);
+				ELEMENT object = executeSelect(selectByIdStatement);
+				return object;
+			} catch (SQLException x) {
+				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + parentId);
+			}
 		}
 	}
 
-	protected void update(Object parentId, ELEMENT object) {
-		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
-			setParameters(updateStatement, object, ParameterMode.UPDATE, parentId);
-			updateStatement.execute();
-		} catch (Exception x) {
-			throw new RuntimeException(x);
-		}
+	@Override
+	protected void doUpdate(Object parentId, ELEMENT object, Integer version) {
+		delete(parentId, version);
+		insert(parentId, object, version);
 	}
-
-	protected void insert(Object parentId, ELEMENT object) {
+	
+	@Override
+	protected void insert(Object parentId, ELEMENT object, Integer version) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
-			setParameters(insertStatement, object, ParameterMode.INSERT, parentId);
+			int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, parentId);
+			insertStatement.setInt(parameterPos, version);
 			insertStatement.execute();
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}
 	}
 
-	protected void delete(Object parentId) {
+	@Override
+	protected void delete(Object parentId, Integer version) {
 		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
-			deleteStatement.setObject(1, parentId);
+			deleteStatement.setObject(1, version);
+			deleteStatement.setObject(2, parentId);
 			deleteStatement.execute();
 		} catch (Exception x) {
 			throw new RuntimeException(x);
@@ -75,7 +89,11 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends AbstractTable<EL
 
 	@Override
 	protected String selectByIdQuery() {
-		return "SELECT * FROM " + getTableName() + " WHERE id = ?, version = ?";
+		return "SELECT * FROM " + getTableName() + " WHERE id = ? AND endVersion IS NULL";
+	}
+
+	protected String selectByIdAndTimeQuery() {
+		return "SELECT * FROM " + getTableName() + " WHERE id = ? AND startVersion <= ? AND (endVersion > ? OR endVersion IS NULL)";
 	}
 
 	@Override
@@ -88,7 +106,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends AbstractTable<EL
 			String columnName = (String) columnNameObject;
 			s.append(columnName).append(", ");
 		}
-		s.append("id, version) VALUES (");
+		s.append("id, startVersion) VALUES (");
 		for (int i = 0; i < getColumns().size(); i++) {
 			s.append("?, ");
 		}
@@ -99,21 +117,12 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends AbstractTable<EL
 
 	@Override
 	protected String updateQuery() {
-		StringBuilder s = new StringBuilder();
-
-		s.append("UPDATE ").append(getTableName()).append(" SET ");
-		for (Object columnNameObject : getColumns().keySet()) {
-			s.append((String) columnNameObject).append("= ?, ");
-		}
-		s.delete(s.length() - 2, s.length());
-		s.append(" WHERE id = ?");
-
-		return s.toString();
+		return null;
 	}
 
 	@Override
 	protected String deleteQuery() {
-		return "DELETE FROM " + getTableName() + " WHERE id = ?";
+		return "UPDATE " + getTableName() + " SET endVersion = ? WHERE id = ? AND endVersion IS NULL";
 	}
 
 	@Override
@@ -121,7 +130,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends AbstractTable<EL
 		s.append(" id ");
 		dialect.addColumnDefinition(s, parentIdProperty);
 		s.append(",\n startVersion INTEGER NOT NULL");
-		s.append(",\n endVersion INTEGER NOT NULL");
+		s.append(",\n endVersion INTEGER");
 	}
 
 }
