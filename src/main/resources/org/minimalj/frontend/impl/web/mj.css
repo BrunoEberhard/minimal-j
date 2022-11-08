@@ -384,6 +384,11 @@ dialog:nth-child(3n+2) {
 	cursor: se-resize;
 }
 
+.dialogResize .button {
+	width: var(--secondHeaderButtonSize);
+	height: var(--secondHeaderButtonSize);
+}
+
 dialog.fullscreen {
 	position: absolute;
 	top: 0em !important;
