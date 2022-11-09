@@ -559,6 +559,7 @@ input[disabled]::placeholder, textarea[disabled]::placeholder {
 	bottom: 0px;
 	top: 0px;
 	width: 2em;
+	height: 2em;
 	background-size: 0.8em 0.5em;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' style='stroke: black; stroke-width:20%25'%3E%3Cline x1='7%25' y1='7%25' x2='51%25' y2='93%25'/%3E%3Cline x1='93%25' y1='7%25' x2='49%25' y2='93%25'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -578,7 +579,7 @@ input[disabled]::placeholder, textarea[disabled]::placeholder {
 	width: fit-content;
 	border: black solid 1px;
 	background: white;
-	z-index: 1;
+	z-index: 4;
 }
 
 .dropdown * {
