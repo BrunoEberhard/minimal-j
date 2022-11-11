@@ -312,9 +312,7 @@ dialog {
 	border: 1px var(--borderColor) solid;
 	padding: 0em;
 	width: auto;
-	top: 1em;
 	bottom: auto;
-	left: 1em;
 	right: auto;
 	color: unset;
 	display: flex;

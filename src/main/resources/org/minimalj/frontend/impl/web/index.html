@@ -1219,6 +1219,8 @@ $ICON
 			header.addEventListener("mousedown", addMoveListener);
 			header.addEventListener("dblclick", dialogClickListener);
 		}
+		
+		resizeDialogs(null);
 	}
 
 	function addEnterAction(enterAction, form, isLogin) {
@@ -1683,14 +1685,9 @@ $ICON
 			for (var i = 0; i < dialogs.length; i++) {
 				var dialog = dialogs[i];
 				var computedStyle = window.getComputedStyle(dialog);
-				var left = parseInt(computedStyle.left)
-				if (left > window.innerWidth - 80) {
-					dialog.style.left = window.innerWidth - 80;
-				}
-				var top = parseInt(computedStyle.top);
-				if (top > window.innerHeight - 40) {
-					dialog.style.top = window.innerHeight - 40;
-				}
+				
+				dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width)) / 2.5, 0);
+				dialog.style.top = Math.max((window.innerHeight - parseInt(computedStyle.height)) / 3, 0);
 			}
 		}
 	}
