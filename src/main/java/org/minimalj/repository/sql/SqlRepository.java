@@ -544,33 +544,7 @@ public class SqlRepository implements TransactionalRepository {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = Codes.findCode(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
-					if (loadedReferences != DONT_LOAD_REFERENCES) {
-						Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());
-						if (loadedReferencesOfClass.containsKey(value)) {
-							value = loadedReferencesOfClass.get(value);
-						} else {
-							Object referencedValue;
-							if (View.class.isAssignableFrom(fieldClass)) {
-								Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
-								if (Codes.isCode(viewedClass)) {
-									Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-									referencedValue = ViewUtil.view(Codes.findCode(codeClass, value), CloneHelper.newInstance(fieldClass));
-								} else {
-									Table<?> referenceTable = getTable(viewedClass);
-									referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
-								}
-							} else {
-								Table<?> referenceTable = getTable(fieldClass);
-								referencedValue = referenceTable.read(value, loadedReferences);
-							}
-							loadedReferencesOfClass.put(value, referencedValue);
-							value = referencedValue;
-						}
-					} else {
-						Object shallowObject = CloneHelper.newInstance(fieldClass);
-						IdUtils.setId(shallowObject, value);
-						value = shallowObject;
-					}
+					value = loadReference(value, fieldClass, loadedReferences);
 				} else if (AbstractTable.isDependable(property)) {
 					continue;
 				} else if (fieldClass == Set.class) {
@@ -585,6 +559,37 @@ public class SqlRepository implements TransactionalRepository {
 			}
 		}
 		return result;
+	}
+
+	protected <C> C loadReference(Object value, Class<C> fieldClass, Map<Class<?>, Map<Object, Object>> loadedReferences) {
+		if (loadedReferences != DONT_LOAD_REFERENCES) {
+			Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());
+			if (loadedReferencesOfClass.containsKey(value)) {
+				value = loadedReferencesOfClass.get(value);
+			} else {
+				Object referencedValue;
+				if (View.class.isAssignableFrom(fieldClass)) {
+					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
+					if (Codes.isCode(viewedClass)) {
+						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
+						referencedValue = ViewUtil.view(Codes.findCode(codeClass, value), CloneHelper.newInstance(fieldClass));
+					} else {
+						Table<?> referenceTable = getTable(viewedClass);
+						referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
+					}
+				} else {
+					Table<?> referenceTable = getTable(fieldClass);
+					referencedValue = referenceTable.read(value, loadedReferences);
+				}
+				loadedReferencesOfClass.put(value, referencedValue);
+				value = referencedValue;
+			}
+		} else {
+			Object shallowObject = CloneHelper.newInstance(fieldClass);
+			IdUtils.setId(shallowObject, value);
+			value = shallowObject;
+		}
+		return (C) value;
 	}
 	
 	@SuppressWarnings("unchecked")
