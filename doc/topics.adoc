@@ -17,17 +17,17 @@
 
 These small examples are currently deployed on CloudFoundry as online demo.
 
-* link:../example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:https://minimal-examples.herokuapp.com/empty/[(online demo)]
-* link:../example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:https://minimal-examples.herokuapp.com/greeting/[(online demo)]
-* link:../example/003_Notes/doc/003.adoc[Notes] This application manages some notes link:https://minimal-examples.herokuapp.com/notes/[(online demo)]
-* link:../example/004_Library/doc/004.adoc[Library] Shows some more features of the framework link:https://minimal-examples.herokuapp.com/library/[(online demo)]
-* link:../example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used link:https://minimal-examples.herokuapp.com/numbers/[(online demo)]
+* link:../example/001_EmptyApplication/doc/001.adoc[Empty Application] The smallest application link:https://mjdemo.example.minimal-j.org/empty/[(online demo)]
+* link:../example/002_HelloWorld/doc/002.adoc[Hello World] The hello world and the greeting application link:https://mjdemo.example.minimal-j.org/greeting/[(online demo)]
+* link:../example/003_Notes/doc/003.adoc[Notes] This application manages some notes link:https://mjdemo.example.minimal-j.org/notes/[(online demo)]
+* link:../example/004_Library/doc/004.adoc[Library] Shows some more features of the framework link:https://mjdemo.example.minimal-j.org/library/[(online demo)]
+* link:../example/005_Numbers/doc/005.adoc[Numbers] How integers and BigDecimals are used link:https://mjdemo.example.minimal-j.org/numbers/[(online demo)]
 * link:../example/007_PetClinic/doc/007.adoc[PetClinic] Cover version of the Spring PetClinic application
 
 == API
 * link:http://javadoc.io/doc/org.minimalj/minimalj/[Browse API]
 
 == Real applications (german)
-* http://www.openech.ch/[Open-eCH]. Source Code available on https://github.com/BrunoEberhard/open-ech[github].
-* https://paartanz.herokuapp.com/[Paartanz Eventliste]. Source Code available on https://github.com/BrunoEberhard/dancer[github].
-* https://openech-taxstatement.herokuapp.com/[eCH 0196 implementation]. Source Code on https://github.com/BrunoEberhard/open-ech-taxstatement[github].
+* link:https://flotte-sohle.ch/[Flotte Sohle] - List of social dance events. Source Code available on https://github.com/BrunoEberhard/flotte-sohle[github].
+* Communal person register - Open-eCH (discontinued). Source Code available on https://github.com/BrunoEberhard/open-ech[github].
+* Electronic tax statement - eCH 0196 implementation (discontinued). Source Code on https://github.com/BrunoEberhard/open-ech-taxstatement[github].
