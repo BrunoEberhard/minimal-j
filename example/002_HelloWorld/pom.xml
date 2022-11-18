@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
 	<artifactId>helloWorld</artifactId>
-	<version>1.0.2.0</version>
+	<version>2.0.0.0</version>
 	<name>Example_002_HelloWorld</name>
 	<description>The hello world application shows how a simple page can be displayed</description>
 	<build>
