@@ -1,1 +1,0 @@
-web:    java -cp target/classes:target/dependency/* HerokuHttpdApplication org.minimalj.example.numbers.NumbersApplication
