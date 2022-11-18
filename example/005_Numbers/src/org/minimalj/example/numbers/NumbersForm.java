@@ -7,6 +7,7 @@ import org.minimalj.model.properties.PropertyInterface;
 public class NumbersForm extends Form<Numbers> {
 
 	public NumbersForm() {
+		super(2);
 		for (PropertyInterface property : Properties.getProperties(Numbers.class).values()) {
 			Object key = property.getValue(Numbers.$);
 			line(key);

@@ -15,4 +15,9 @@ public class NumbersEditor extends NewObjectEditor<Numbers> {
 		return object;
 	}
 	
+	@Override
+	public int getMinWidth() {
+		return 600;
+	}
+	
 }
