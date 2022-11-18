@@ -498,7 +498,7 @@ dialog table {
 	width: 100%;
 }
 
-input, select, .form .text {
+input, select {
 	height: 1.35rem;
 }
 
