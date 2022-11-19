@@ -618,11 +618,9 @@ $ICON
 			element.appendChild(formAndActions);
 			var contentElement = createContent(content.content);
 			formAndActions.appendChild(contentElement);
-			var actions = content.actions;
 			var footer = document.createElement("div");
 			footer.style="float: right;"
-			for (var i = 0; i < actions.length; i++) {
-				var action = actions[i];
+			content.actions.forEach(action => {
 				var button = document.createElement("button");
 				button.id = action.id;
 				button.style="margin-right: 1em;"
@@ -631,9 +629,9 @@ $ICON
 				if (!action.enabled)
 					button.setAttribute("disabled", "true");
 				footer.appendChild(button);
-			}
+			});
 			formAndActions.appendChild(footer);
-			addEnterAction(actions[content.loginActionIndex], contentElement, true);
+			addEnterAction(content.actions[content.loginActionIndex], contentElement, true);
 		} else if (type === "Table") {
 			element = document.createElement("table");
 			element.name = content.id;
@@ -674,13 +672,12 @@ $ICON
 		} else if (type === "groupHorizontal" || type === "groupVertical") {
 			element = document.createElement("div");
 			element.classList.add(type);
-			var components = content.components;
-			for (var i = 0; i < components.length; i++) {
+			content.components.forEach(component => {
 				var item = document.createElement("div");
 				item.classList.add("groupItem");
-				item.appendChild(createContent(components[i]));
+				item.appendChild(createContent(component));
 				element.appendChild(item);
-			}
+			});
 		} else if (type === "Switch") {
 			element = document.createElement("div");
 			if (content.component != undefined) {
@@ -902,12 +899,11 @@ $ICON
 	
 	function createFormRow(row, columnWidth) {
 		var element = document.createElement("div");
-		for (var i = 0; i < row.length; i++) {
-			var span = row[i].span;
-			span = span ? span : 1;
-			var cellElement = createFormCell(row[i], span, columnWidth);
+		row.forEach(column => {
+			var span = column.span ? column.span : 1;
+			var cellElement = createFormCell(column, span, columnWidth);
 			element.appendChild(cellElement);
-		}
+		});
 		return element;
 	}
 	
@@ -1273,7 +1269,7 @@ $ICON
 	
 	function closeDialogs() {
 		var dialogs = document.getElementsByTagName("dialog");
-		Array.from(dialogs).forEach((dialog) => document.getElementById("body").removeChild(dialog));
+		Array.from(dialogs).forEach(dialog => document.getElementById("body").removeChild(dialog));
 	}
 	
 	var dialogElement;
@@ -1676,15 +1672,12 @@ $ICON
 	
 	function resizeDialogs(event) {
 		var dialogs = document.getElementsByTagName("dialog");
-		if (dialogs && dialogs.length > 0) {
-			for (var i = 0; i < dialogs.length; i++) {
-				var dialog = dialogs[i];
-				var computedStyle = window.getComputedStyle(dialog);
-				
-				dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width)) / 2.5, 0);
-				dialog.style.top = Math.max((window.innerHeight - parseInt(computedStyle.height)) / 3, 0);
-			}
-		}
+		Array.from(dialogs).forEach(dialog => {
+			var computedStyle = window.getComputedStyle(dialog);
+			
+			dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width)) / 2.5, 0);
+			dialog.style.top = Math.max((window.innerHeight - parseInt(computedStyle.height)) / 3, 0);
+		});
 	}
 	
 	var lastWidth = 10000;
