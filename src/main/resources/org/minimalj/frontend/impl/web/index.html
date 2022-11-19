@@ -1273,12 +1273,7 @@ $ICON
 	
 	function closeDialogs() {
 		var dialogs = document.getElementsByTagName("dialog");
-		if (dialogs) {
-			for (var i = 0; i < dialogs.length; i++) {
-				var dialog = dialogs[i];
-				document.getElementById("body").removeChild(dialog);
-			}
-		}
+		Array.from(dialogs).forEach((dialog) => {document.getElementById("body").removeChild(dialog);});
 	}
 	
 	var dialogElement;
