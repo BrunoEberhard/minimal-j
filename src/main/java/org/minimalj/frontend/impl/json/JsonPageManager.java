@@ -371,6 +371,7 @@ public class JsonPageManager implements PageManager {
 			output.add("showPage", createJson(page, pageId, masterPageId));
 		}
 		visiblePageAndDetailsList.put(pageId, page);
+		visibleDialogs.clear();
 		return pageId;
 	}
 
@@ -388,6 +389,7 @@ public class JsonPageManager implements PageManager {
 			Page page = pageStore.get(pageId);
 			if (Authorization.hasAccess(Subject.getCurrent(), page)) {
 				visiblePageAndDetailsList.put(pageId, page);
+				visibleDialogs.clear();
 				jsonList.add(createJson(page, pageId, previousId));
 				if (previousId == null) {
 					firstPage = page;
