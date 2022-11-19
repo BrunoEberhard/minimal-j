@@ -66,7 +66,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 			throw new IllegalArgumentException("ChangeListener must not be null");
 		}
 		if (this.changeListener != null) {
-			throw new IllegalStateException("ChangeListener can only be set once");
+			throw new IllegalStateException("ChangeListener can only be set once on " + getProperty().toString());
 		}
 		this.changeListener = changeListener;
 	}
