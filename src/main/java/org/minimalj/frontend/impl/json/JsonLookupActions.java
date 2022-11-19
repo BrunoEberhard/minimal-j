@@ -22,9 +22,7 @@ public class JsonLookupActions extends JsonComponent implements Input<String> {
 		for (Action action : actions.getItems()) {
 			actionLabels.add(new JsonAction(action));
 		}
-		if (!actionLabels.isEmpty()) {
-			put("actions", actionLabels);
-		}
+		put("actions", actionLabels);
 	}
 
 	@Override
