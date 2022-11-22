@@ -84,7 +84,7 @@ public class FieldProperty implements PropertyInterface {
 
 	@Override
 	public Class<?> getGenericClass() {
-		return GenericUtils.getGenericClass(field);
+		return GenericUtils.getGenericClass(declaringClass, field);
 	}
 
 	@Override

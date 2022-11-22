@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.minimalj.model.Code;
+import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.annotation.AutoIncrement;
@@ -79,7 +80,9 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createTable(dialect);
+			if (!Dependable.class.isAssignableFrom(subTable.clazz)) {
+				subTable.createTable(dialect);
+			}
 		}
 	}
 
@@ -91,7 +94,9 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.dropTable(dialect);
+			if (!Dependable.class.isAssignableFrom(subTable.clazz)) {
+				subTable.dropTable(dialect);
+			}
 		}
 		super.dropTable(dialect);
 	}
@@ -101,7 +106,9 @@ public class Table<T> extends AbstractTable<T> {
 		super.createIndexes(dialect);
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createIndexes(dialect);
+			if (!Dependable.class.isAssignableFrom(subTable.clazz)) {
+				subTable.createIndexes(dialect);
+			}
 		}
 	}
 
@@ -270,9 +277,13 @@ public class Table<T> extends AbstractTable<T> {
 		Class<?> elementClass = property.getGenericClass();
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
-			return new CrossTable<>(sqlRepository, subTableName, elementClass, idProperty);
+			if (!Dependable.class.isAssignableFrom(elementClass)) {
+				return new CrossTable<>(sqlRepository, subTableName, elementClass, idProperty);
+			} else {
+				return new ContainedSubTable<>(sqlRepository, (Class<? extends Dependable>) elementClass);
+			}
 		} else {
-			return new SubTable(sqlRepository, subTableName, elementClass, idProperty);
+			return new SubTable<>(sqlRepository, subTableName, elementClass, idProperty);
 		}
 	}
 	
@@ -430,7 +441,7 @@ public class Table<T> extends AbstractTable<T> {
 		return query;
 	}
 	
-	public <S> List<S> find(Query query, Class<S> resultClass) {
+	public <S> List<S> find(Query query, Class<S> resultClass, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		WhereClause<T> whereClause = new WhereClause<>(this, query);
 		String select = getCriteria(query) instanceof RelationCriteria ? select(resultClass, (RelationCriteria) getCriteria(query)) : select(resultClass);
 		String queryString = select + whereClause.getClause();
@@ -438,7 +449,7 @@ public class Table<T> extends AbstractTable<T> {
 			for (int i = 0; i < whereClause.getValueCount(); i++) {
 				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 			}
-			return resultClass == getClazz() ? (List<S>) executeSelectAll(statement) : executeSelectViewAll(resultClass, statement);
+			return resultClass == getClazz() ? (List<S>) executeSelectAll(statement, loadedReferences) : executeSelectViewAll(resultClass, statement);
 		} catch (SQLException e) {
 			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}

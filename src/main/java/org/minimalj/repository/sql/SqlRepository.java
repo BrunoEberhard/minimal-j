@@ -274,7 +274,7 @@ public class SqlRepository implements TransactionalRepository {
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		@SuppressWarnings("unchecked")
 		Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
-		return table.find(query, resultClass);
+		return table.find(query, resultClass, new HashMap<>());
 	}
 		
 	@SuppressWarnings("unchecked")
@@ -536,8 +536,8 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		
 		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
-			Object value = entry.getValue();
 			PropertyInterface property = entry.getKey();
+			Object value = entry.getValue();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
 				if (Codes.isCode(fieldClass)) {

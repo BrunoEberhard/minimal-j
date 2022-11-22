@@ -266,14 +266,14 @@ public class ModelTest {
 	private void testFields(Class<?> clazz) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			testField(field);
+			testField(clazz, field);
 		}
 	}
 
-	private void testField(Field field) {
+	private void testField(Class<?> clazz, Field field) {
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "historized")) {
 			testName(field);
-			testTypeOfField(field);
+			testTypeOfField(clazz, field);
 			testNoMethodsForPublicField(field);
 			TechnicalField technicalField = field.getAnnotation(TechnicalField.class);
 			if (technicalField != null) {
@@ -360,12 +360,12 @@ public class ModelTest {
 		}
 	}
 
-	private void testTypeOfField(Field field) {
+	private void testTypeOfField(Class<?> clazz, Field field) {
 		Class<?> fieldType = field.getType();
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
 		if (fieldType == List.class) {
-			testTypeOfListField(field, messagePrefix);
+			testTypeOfListField(clazz, field, messagePrefix);
 		} else if (fieldType == Set.class) {
 			if (!FieldUtils.isFinal(field)) {
 				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
@@ -376,8 +376,8 @@ public class ModelTest {
 		}
 	}
 
-	private void testTypeOfListField(Field field, String messagePrefix) {
-		Class<?> listType = GenericUtils.getGenericClass(field);
+	private void testTypeOfListField(Class<?> clazz, Field field, String messagePrefix) {
+		Class<?> listType = GenericUtils.getGenericClass(clazz, field);
 		if (listType != null) {
 			if (Modifier.isAbstract(listType.getModifiers())) {
 				problems.add(messagePrefix + " must not be of an abstract Type");

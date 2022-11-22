@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
+import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtil;
 import org.minimalj.model.annotation.Comment;
@@ -228,8 +229,9 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
 			PropertyInterface property = column.getValue();
 			
-			if (IdUtils.hasId(property.getClazz())) {
-				Class<?> fieldClass = property.getClazz();
+			Class<?> fieldClass = property.getClazz();
+			// TODO Contained könnte noch andere Felder enthalten
+			if (IdUtils.hasId(fieldClass) && !Dependable.class.isAssignableFrom(clazz)) {
 				fieldClass = ViewUtil.resolve(fieldClass);
 				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
 				if (referencedTable.isHistorized()) {
@@ -296,6 +298,9 @@ public abstract class AbstractTable<T> {
 	private void findDependables() {
 		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
 			Class<?> listType = property.getGenericClass();
+			if (listType == null) {
+				throw new IllegalArgumentException(getClazz().getSimpleName() + "." + property.getPath() + " has no type");
+			}
 			if (IdUtils.hasId(listType)) {
 				sqlRepository.addClass(ViewUtil.resolve(listType));
 			}
@@ -347,9 +352,12 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) {
+		return executeSelectAll(preparedStatement, new HashMap<>());
+	}
+	
+	protected List<T> executeSelectAll(PreparedStatement preparedStatement, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		List<T> result = new ArrayList<>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next()) {
 				T object = sqlRepository.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
@@ -443,16 +451,6 @@ public abstract class AbstractTable<T> {
 					return null;
 				}
 			}
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
-		}
-	}
-
-	private void setColumnToNull(Object id, String column) {
-		String update = "UPDATE " + getTableName() + " SET " + column + " = NULL WHERE ID = ?";
-		try (PreparedStatement preparedStatement = createStatement(sqlRepository.getConnection(), update, false)) {
-			preparedStatement.setObject(1, id);
-			preparedStatement.execute();
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
 		}
