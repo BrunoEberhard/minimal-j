@@ -180,9 +180,9 @@ public class Keys {
 				return keyObject;
 			} catch (Exception x) {
 				if (declaringClass != null) {
-					logger.severe("Could not instantiat " + fieldName + " in class " + declaringClass);
+					logger.severe("Could not instantiate " + fieldName + " in class " + declaringClass);
 				} else {
-					logger.severe("Could not instantiat " + fieldName);				
+					logger.severe("Could not instantiate " + fieldName);				
 				}
 				return null;
 			}
