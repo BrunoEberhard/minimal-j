@@ -286,7 +286,8 @@ public class ModelTest {
 				} else if (fieldType == LocalTime.class || fieldType == LocalDateTime.class) {
 					testTimeSize(field);
 				}
-			} 
+			}
+			testFieldNotInSuperClass(field);
 		}
 	}
 	
@@ -471,6 +472,21 @@ public class ModelTest {
 			}
 		} else {
 			problems.add("No property for " + field.getName());
+		}
+	}
+	
+	private void testFieldNotInSuperClass(Field field) {
+		PropertyInterface property = Properties.getProperty(field);
+		String propertyName = property.getName();
+		Class<?> declaringClass = property.getDeclaringClass();
+		Class<?> superClass = declaringClass.getSuperclass();
+		while (superClass != Object.class) {
+			PropertyInterface samePropertyInSuperClass = Properties.getProperty(superClass, propertyName);
+			if (samePropertyInSuperClass != null && samePropertyInSuperClass.getDeclaringClass() == superClass) {
+				problems.add("Property " + propertyName + " is declared in " + property.getDeclaringClass().getSimpleName() + " and in it's super class " + superClass.getSimpleName());
+				return;
+			}
+			superClass = superClass.getSuperclass();
 		}
 	}
 	
