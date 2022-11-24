@@ -3,6 +3,7 @@ package org.minimalj.model.validation;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.minimalj.model.Keys;
@@ -51,6 +52,7 @@ public interface Validation {
 	 * @return a ValidationMessage with formatted text
 	 */
 	public static ValidationMessage createEmptyValidationMessage(Object key) {
+		Objects.requireNonNull(key);
 		PropertyInterface property = Keys.getProperty(key);
 		String caption = Resources.getPropertyName(property);
 		String message;
