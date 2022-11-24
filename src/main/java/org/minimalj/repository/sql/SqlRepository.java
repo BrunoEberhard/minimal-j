@@ -696,7 +696,11 @@ public class SqlRepository implements TransactionalRepository {
 	@SuppressWarnings("unchecked")
 	public <U> AbstractTable<U> getAbstractTable(Class<U> clazz) {
 		if (!tables.containsKey(clazz)) {
-			throw new IllegalArgumentException("No (Sql)Table available for + " + clazz.getName() + ". May be missing in Application.getEntitiyClasses()");
+			if (View.class.isAssignableFrom(clazz)) {
+				throw new IllegalArgumentException(clazz.getName() + " is a View and cannot be inserted directly. This happens if the id in the View Object is not set.");
+			} else {
+				throw new IllegalArgumentException("No (Sql)Table available for + " + clazz.getName() + ". May be missing in Application.getEntitiyClasses()");
+			}
 		}
 		return (AbstractTable<U>) tables.get(clazz);
 	}
