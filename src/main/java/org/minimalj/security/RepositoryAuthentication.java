@@ -6,6 +6,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.By;
 import org.minimalj.security.model.User;
+import org.minimalj.security.model.UserData;
 
 /**
  * This Authentication holds user, passwords and roles in the applications
@@ -36,7 +37,7 @@ public class RepositoryAuthentication extends UserPasswordAuthentication {
 	}
 	
 	@Override
-	protected User retrieveUser(String userName) {
+	protected UserData retrieveUser(String userName) {
 		List<User> users =  getAuthenticationRepository().find(User.class, By.field(User.$.name, userName));
 		return users.isEmpty() ? null : users.get(0);
 	}

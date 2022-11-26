@@ -26,7 +26,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
 import org.minimalj.security.model.RememberMeToken;
-import org.minimalj.security.model.User;
+import org.minimalj.security.model.UserData;
 import org.minimalj.security.model.UserPassword;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.StringUtils;
@@ -150,11 +150,11 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		
 		@Override
 		public Subject execute() {
-			User user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
+			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
 			if (user == null) {
 				return null;
 			}
-			return Backend.getInstance().getAuthentication().createSubject(user, userPassword.user, user.getRoleNames());
+			return Backend.getInstance().getAuthentication().createSubject(user);
 		}
 	}
 	
@@ -170,16 +170,16 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		}
 	}
 	
-	protected User retrieveUser(String userName, char[] password) {
-		User user = retrieveUser(userName);
-		if (user != null && user.password.validatePassword(password)) {
+	protected UserData retrieveUser(String userName, char[] password) {
+		UserData user = retrieveUser(userName);
+		if (user != null && user.getPassword().validatePassword(password)) {
 			return user;
 		} else {
 			return null;
 		}
 	}
 
-	protected abstract User retrieveUser(String userName);
+	protected abstract UserData retrieveUser(String userName);
 
 	// RememberMe
 
@@ -198,9 +198,9 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			Backend.save(rememberMeToken);
 			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
 		} else {
-			User user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
+			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
 			String timestamp = String.valueOf(System.currentTimeMillis());
-			String rememberMeCookie = user.name + ":" + timestamp + ":" + sign(user, timestamp);
+			String rememberMeCookie = user.getName() + ":" + timestamp + ":" + sign(user, timestamp);
 			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeCookie);
 		}
 	}
@@ -211,10 +211,10 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		return Base64.getEncoder().encodeToString(newSeries).substring(0, RememberMeToken.TOKEN_SIZE);
 	}
 
-	private static String sign(User user, String timestamp) {
+	private static String sign(UserData user, String timestamp) {
 		String key = getRememberMeKey();
-		String passwordHash = user.password.hash != null ? Base64.getEncoder().encodeToString(user.password.hash) : "";
-		String data = user.name + ":" + timestamp + ":" + passwordHash + ":" + key;
+		String passwordHash = user.getPassword().hash != null ? Base64.getEncoder().encodeToString(user.getPassword().hash) : "";
+		String data = user.getName() + ":" + timestamp + ":" + passwordHash + ":" + key;
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			return Base64.getEncoder().encodeToString(digest.digest(data.getBytes()));
@@ -284,12 +284,12 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 					return null;
 				}
 	
-				User user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(rememberMeToken.userName);
+				UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(rememberMeToken.userName);
 				if (user == null) {
 					logger.warning("User not found for rememberMeCookie: " + rememberMeCookie);
 					return null;
 				}
-				return Backend.getInstance().getAuthentication().createSubject(user, rememberMeToken.userName, user.getRoleNames());
+				return Backend.getInstance().getAuthentication().createSubject(user);
 			} else {
 				return null;
 			}
@@ -302,7 +302,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 				return null;
 			}
 	
-			User user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(parts[0]);
+			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(parts[0]);
 			if (user == null) {
 				logger.warning("User not found for rememberMeCookie: " + rememberMeCookie);
 				return null;
@@ -320,7 +320,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 				return null;
 			}
 	
-			return Backend.getInstance().getAuthentication().createSubject(user, user.name, user.getRoleNames());
+			return Backend.getInstance().getAuthentication().createSubject(user);
 		}
 
 

@@ -542,7 +542,7 @@ public class SqlRepository implements TransactionalRepository {
 				Class<?> fieldClass = property.getClazz();
 				if (Codes.isCode(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = Codes.findCode(codeClass, value);
+					value = Codes.findCode(this, codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
 					value = loadReference(value, fieldClass, loadedReferences);
 				} else if (AbstractTable.isDependable(property)) {

@@ -1,7 +1,6 @@
 package org.minimalj.repository.sql;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,23 +9,30 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.security.Subject;
+import org.minimalj.security.model.User;
 
 public class SqlTechnicalFieldTest extends SqlTest {
 
 	@Override
 	public Class<?>[] getEntityClasses() {
-		return new Class<?>[] { TestEntity.class, TestUser.class };
+		return new Class<?>[] { TestEntity.class, User.class };
 	}
 
+	private User createTestUser(String name) {
+		User user = new User();
+		user.name = name;
+		user.id = repository.insert(user);
+		return user;
+	}
+	
 	@Test
 	public void testCreate() {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 
-		TestUser testUserA = new TestUser("A");
-		testUserA.id = (Integer) repository.insert(testUserA);
+		User testUserA = createTestUser("A");
 				
-		Subject subject = new Subject(testUserA, testUserA.login, null, Collections.emptyList());
+		Subject subject = new Subject(testUserA);
 		Subject.setCurrent(subject);
 
 		LocalDateTime before = LocalDateTime.now();
@@ -46,13 +52,11 @@ public class SqlTechnicalFieldTest extends SqlTest {
 		TestEntity entity = new TestEntity();
 		entity.string = "Testobject";
 		
-		TestUser testUserB = new TestUser("B");
-		testUserB.id = (Integer) repository.insert(testUserB);
+		User testUserB = createTestUser("B");
 		
-		TestUser testUserC = new TestUser("C");
-		testUserC.id = (Integer) repository.insert(testUserC);
+		User testUserC = createTestUser("C");
 
-		Subject subject = new Subject(testUserB, testUserB.login, null, Collections.emptyList());
+		Subject subject = new Subject(testUserB);
 		Subject.setCurrent(subject);
 
 		Object id = repository.insert(entity);
@@ -60,7 +64,7 @@ public class SqlTechnicalFieldTest extends SqlTest {
 		LocalDateTime afterInsert = LocalDateTime.now();
 		LocalDateTime createDate = entity.createDate;
 
-		subject = new Subject(testUserC, testUserC.login, null, Collections.emptyList());
+		subject = new Subject(testUserC);
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";
@@ -78,24 +82,6 @@ public class SqlTechnicalFieldTest extends SqlTest {
 		Assert.assertTrue("Date of edit " + entity.editDate + " must not be before start " + afterEdit, afterEdit.plusSeconds(1).compareTo(entity.editDate) >= 0);
 	}
 
-	public static class TestUser {
-		public static final TestUser $ = Keys.of(TestUser.class);
-
-		public TestUser() {
-			
-		}
-		
-		public TestUser(String login) {
-			this.login = login;
-		}
-
-		public Integer id;
-		
-		@Size(255)
-		public String login;
-
-	}
-	
 	public static class TestEntity {
 		public static final TestEntity $ = Keys.of(TestEntity.class);
 
@@ -113,7 +99,7 @@ public class SqlTechnicalFieldTest extends SqlTest {
 		public String createUserName;
 		
 		@TechnicalField(TechnicalFieldType.CREATE_USER)
-		public TestUser createUser;
+		public User createUser;
 
 		@TechnicalField(TechnicalFieldType.EDIT_DATE)
 		public LocalDateTime editDate;
@@ -123,7 +109,7 @@ public class SqlTechnicalFieldTest extends SqlTest {
 		public String editUserName;
 
 		@TechnicalField(TechnicalFieldType.EDIT_USER)
-		public TestUser editUser;
+		public User editUser;
 	}
 
 }

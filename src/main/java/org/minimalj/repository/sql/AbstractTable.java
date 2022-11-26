@@ -392,22 +392,20 @@ public abstract class AbstractTable<T> {
 						if (property.getClazz() == String.class) {
 							value = subject.getName();
 						} else {
-							value = subject.getUser();
+							value = subject.getId();
 						}
 					}
 				}
-			}
+			} 
 			if (value instanceof Code) {
 				value = IdUtils.getId(value);
-			} else if (IdUtils.hasId(property.getClazz())) {
-				if (value != null) {
-					Object referencedId = IdUtils.getId(value);
-					if (referencedId != null) {
-						value = referencedId;
-					} else {
-						Table referencedTable  = sqlRepository.getTable(property.getClazz());
-						value = referencedTable.insert(value);
-					}
+			} else if (value != null && IdUtils.hasId(value.getClass())) {
+				Object referencedId = IdUtils.getId(value);
+				if (referencedId != null) {
+					value = referencedId;
+				} else {
+					Table referencedTable  = sqlRepository.getTable(property.getClazz());
+					value = referencedTable.insert(value);
 				}
 			}
 			if (value != null) {

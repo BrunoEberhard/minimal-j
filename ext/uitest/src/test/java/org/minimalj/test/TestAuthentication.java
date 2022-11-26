@@ -2,6 +2,7 @@ package org.minimalj.test;
 
 import org.minimalj.security.UserPasswordAuthentication;
 import org.minimalj.security.model.User;
+import org.minimalj.security.model.UserData;
 import org.minimalj.security.model.UserRole;
 
 public class TestAuthentication extends UserPasswordAuthentication {
@@ -10,7 +11,7 @@ public class TestAuthentication extends UserPasswordAuthentication {
 	public static final String ROLE_TEST = "TestRole";
 	
 	@Override
-	protected User retrieveUser(String userName) {
+	protected UserData retrieveUser(String userName) {
 		if (userName.length() >= 2) {
 			User user = new User();
 			user.name = userName;
@@ -21,7 +22,7 @@ public class TestAuthentication extends UserPasswordAuthentication {
 		}
 	}
 
-	protected User retrieveUser(String userName, char[] password) {
+	protected UserData retrieveUser(String userName, char[] password) {
 		return retrieveUser(userName);
 	}
 }

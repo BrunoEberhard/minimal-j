@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.minimalj.security.model.User;
+import org.minimalj.security.model.UserData;
 import org.minimalj.security.model.UserRole;
 
 public class TextFileAuthentication extends UserPasswordAuthentication {
 	private static final long serialVersionUID = 1L;
 
-	private final transient Map<String, User> userByName = new HashMap<>();
+	private final transient Map<String, UserData> userByName = new HashMap<>();
 
 	public TextFileAuthentication(String userTextFile) {
 		super();
@@ -51,7 +52,7 @@ public class TextFileAuthentication extends UserPasswordAuthentication {
 	}
 	
 	@Override
-	protected User retrieveUser(String userName) {
+	protected UserData retrieveUser(String userName) {
 		return userByName.get(userName);
 	}
 
