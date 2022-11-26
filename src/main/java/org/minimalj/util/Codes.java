@@ -17,6 +17,7 @@ import org.minimalj.backend.repository.ReadTransaction;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.By;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Isolation.Level;
@@ -34,25 +35,29 @@ public class Codes {
 	}
 
 	public static <T extends Code> T findCode(Class<T> clazz, Object codeId) {
-		return getCache(clazz).getCode(codeId);
+		return findCode(null, clazz, codeId);
 	}
 
+	public static <T extends Code> T findCode(Repository repository, Class<T> clazz, Object codeId) {
+		return getCache(repository, clazz).getCode(codeId);
+	}
+	
 	public static boolean isCode(Class<?> clazz) {
 		return Code.class.isAssignableFrom(clazz);
 	}
 
 	public static <T extends Code> List<T> get(Class<T> clazz) {
-		return getCache(clazz).getCodes(LocaleContext.getCurrent());
+		return getCache(null, clazz).getCodes(LocaleContext.getCurrent());
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Code> CodeCacheItem<T> getCache(Class<T> clazz) {
+	private static <T extends Code> CodeCacheItem<T> getCache(Repository repository, Class<T> clazz) {
 		synchronized(clazz) {
 			CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
 			if (cacheItem == null || !cacheItem.isValid()) {
 				CodeCacheItem<T> codeItem = new CodeCacheItem<>();
 				cache.put(clazz, codeItem);
-				List<T> codes = Backend.execute(new ReadCodesTransaction<T>(clazz));
+				List<T> codes = repository != null ? repository.find(clazz, By.ALL) : Backend.execute(new ReadCodesTransaction<>(clazz));
 				codeItem.setCodes(codes);
 			}
 			return (CodeCacheItem<T>) cache.get(clazz);
