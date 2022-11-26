@@ -22,17 +22,17 @@ public class SecurityTest {
 
 	@Test
 	public void testEntityWithSingleRole() throws Exception {
-		Subject subject = new Subject("A", null, Collections.singletonList("RoleA"));
+		Subject subject = new Subject(null, "A", null, Collections.singletonList("RoleA"));
 		Assert.assertFalse(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityB.class, 1)));
-		subject = new Subject("B", null, Collections.singletonList("RoleB"));
+		subject = new Subject(null, "B", null, Collections.singletonList("RoleB"));
 		Assert.assertTrue(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityB.class, 1)));
 	}
 
 	@Test
 	public void testEntityView() throws Exception {
-		Subject subject = new Subject("A", null, Collections.singletonList("RoleA"));
+		Subject subject = new Subject(null, "A", null, Collections.singletonList("RoleA"));
 		Assert.assertTrue(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityBView.class, 1)));
-		subject = new Subject("B", null, Collections.singletonList("RoleB"));
+		subject = new Subject(null, "B", null, Collections.singletonList("RoleB"));
 		Assert.assertFalse(Authorization.hasAccess(subject, new ReadEntityTransaction<>(TestEntityBView.class, 1)));
 	}
 
@@ -44,7 +44,7 @@ public class SecurityTest {
 	}
 
 	private Subject subject(String role) {
-		return new Subject("A", null, Collections.singletonList(role));
+		return new Subject(null, "A", null, Collections.singletonList(role));
 	}
 
 	@Test

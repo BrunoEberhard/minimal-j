@@ -381,6 +381,22 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
 			PropertyInterface property = column.getValue();
 			Object value = property.getValue(object);
+			TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
+			if (technicalField != null) {
+				TechnicalFieldType type = technicalField.value();
+				if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && insert) {
+					value = LocalDateTime.now();
+				} else if (type == TechnicalFieldType.EDIT_USER || type == TechnicalFieldType.CREATE_USER && insert) {
+					Subject subject = Subject.getCurrent();
+					if (subject != null) {
+						if (property.getClazz() == String.class) {
+							value = subject.getName();
+						} else {
+							value = subject.getUser();
+						}
+					}
+				}
+			}
 			if (value instanceof Code) {
 				value = IdUtils.getId(value);
 			} else if (IdUtils.hasId(property.getClazz())) {
@@ -391,19 +407,6 @@ public abstract class AbstractTable<T> {
 					} else {
 						Table referencedTable  = sqlRepository.getTable(property.getClazz());
 						value = referencedTable.insert(value);
-					}
-				}
-			} else {
-				TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
-				if (technicalField != null) {
-					TechnicalFieldType type = technicalField.value();
-					if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && insert) {
-						value = LocalDateTime.now();
-					} else if (type == TechnicalFieldType.EDIT_USER || type == TechnicalFieldType.CREATE_USER && insert) {
-						Subject subject = Subject.getCurrent();
-						if (subject != null) {
-							value = subject.getName();
-						}
 					}
 				}
 			}

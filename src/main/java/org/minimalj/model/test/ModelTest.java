@@ -496,8 +496,8 @@ public class ModelTest {
 				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of LocalDateTime, not " + field.getType().getName());
 			} 
 		} else if (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.EDIT_USER) {
-			if (field.getType() != String.class) {
-				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of String, not " + field.getType().getName());
+			if (FieldUtils.isAllowedPrimitive(field.getType()) && field.getType() != String.class) {
+				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of String or (User) clazz, not " + field.getType().getName());
 			} 
 		}
 	}

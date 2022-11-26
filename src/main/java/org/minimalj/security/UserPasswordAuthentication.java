@@ -154,7 +154,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			if (user == null) {
 				return null;
 			}
-			return Backend.getInstance().getAuthentication().createSubject(userPassword.user, user.getRoleNames());
+			return Backend.getInstance().getAuthentication().createSubject(user, userPassword.user, user.getRoleNames());
 		}
 	}
 	
@@ -289,7 +289,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 					logger.warning("User not found for rememberMeCookie: " + rememberMeCookie);
 					return null;
 				}
-				return Backend.getInstance().getAuthentication().createSubject(rememberMeToken.userName, user.getRoleNames());
+				return Backend.getInstance().getAuthentication().createSubject(user, rememberMeToken.userName, user.getRoleNames());
 			} else {
 				return null;
 			}
@@ -320,7 +320,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 				return null;
 			}
 	
-			return Backend.getInstance().getAuthentication().createSubject(user.name, user.getRoleNames());
+			return Backend.getInstance().getAuthentication().createSubject(user, user.name, user.getRoleNames());
 		}
 
 

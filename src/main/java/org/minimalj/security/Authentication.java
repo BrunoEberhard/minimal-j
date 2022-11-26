@@ -49,8 +49,8 @@ public abstract class Authentication implements Serializable {
 		return subjectByToken.get(token);
 	}
 
-	public Subject createSubject(String name, List<String> roleNames) {
-		Subject subject = new Subject(name, UUID.randomUUID(), roleNames);
+	public Subject createSubject(Object user, String name, List<String> roleNames) {
+		Subject subject = new Subject(user, name, UUID.randomUUID(), roleNames);
 		subjectByToken.put(subject.getToken(), subject);
 		return subject;
 	}

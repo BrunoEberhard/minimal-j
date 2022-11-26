@@ -7,11 +7,13 @@ import java.util.Objects;
 
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.transaction.Role;
+import org.minimalj.util.CloneHelper;
 
 public class Subject implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private static final InheritableThreadLocal<Subject> subject = new InheritableThreadLocal<>();
+	private final Object user;
 	private final String name;
 	private final Serializable token;
 	private final List<String> roles;
@@ -22,16 +24,22 @@ public class Subject implements Serializable {
 	 * @param name name
 	 */
 	public Subject(String name) {
+		this.user = null;
 		this.name = name;
 		this.token = null;
 		this.roles = Collections.emptyList();
 	}
 
-	public Subject(String name, Serializable token, List<String> roles) {
+	public Subject(Object user, String name, Serializable token, List<String> roles) {
 		super();
+		this.user = CloneHelper.clone(user);
 		this.name = name;
 		this.token = token;
 		this.roles = Objects.requireNonNull(roles);
+	}
+
+	public Object getUser() {
+		return user;
 	}
 
 	public String getName() {
@@ -46,6 +54,11 @@ public class Subject implements Serializable {
 		return roles;
 	}
 	
+	public static Object user() {
+		Subject currentSubject = getCurrent();
+		return currentSubject != null ? currentSubject.getUser() : false;
+	}
+
 	public boolean hasRole(String... roleNames) {
 		for (String roleName : roleNames) {
 			if (roles.contains(roleName)) {
