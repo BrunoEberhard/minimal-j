@@ -20,6 +20,8 @@ public abstract class MjHttpExchange {
 	public static final Logger LOG_WEB = Logger.getLogger("WEB");
 
 	public abstract String getPath();
+	
+	private Cookies cookies;
 
 	public String getMethod() {
 		throw new RuntimeException(this.getClass().getSimpleName() + " does not support method");
@@ -103,6 +105,13 @@ public abstract class MjHttpExchange {
 		} catch (UnsupportedEncodingException ignored) {
 			throw new RuntimeException("Unsupported encoding");
 		}
+	}
+	
+	public Cookies getCookies() {
+		if (cookies == null) {
+			cookies = new Cookies(this);
+		}
+		return cookies;
 	}
 
 	public static class LoggingHttpExchange extends MjHttpExchange {
