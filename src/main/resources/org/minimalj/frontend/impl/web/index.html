@@ -307,7 +307,7 @@ $ICON
 	}
 	
 	function popState(event) {
-		if (event.state) {
+		if (event.state && document.getElementsByTagName("dialog").length == 0) {
 			var data = {
 				"showPages": event.state
 			};
