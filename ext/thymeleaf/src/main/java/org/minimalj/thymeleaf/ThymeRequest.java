@@ -1,5 +1,6 @@
 package org.minimalj.thymeleaf;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,11 +52,15 @@ public class ThymeRequest {
 	public String getPath() {
 		return path;
 	}
-	
-	public MjHttpExchange getExchange() {
-		return exchange;
+
+	public Map<String, ? extends Collection<String>> getParameters() {
+		return exchange.getParameters();
 	}
 
+	public String getParameter(String name) {
+		return exchange.getParameter(name);
+	}
+	
 	public void put(String key, Object value) {
 		getContext().put(key, value);
 	}
