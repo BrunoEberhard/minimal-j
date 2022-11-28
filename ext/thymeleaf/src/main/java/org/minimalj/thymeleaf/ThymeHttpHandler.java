@@ -19,7 +19,15 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 	private final ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
 	private final TemplateEngine templateEngine = new TemplateEngine();
 
+	private final MjHttpHandler next;
+	
 	public ThymeHttpHandler() {
+		this(null);
+	}
+	
+	public ThymeHttpHandler(MjHttpHandler next) {
+		this.next = next;
+		
 		templateResolver.setCacheable(!Configuration.isDevModeActive());
 		templateResolver.setPrefix(Application.getInstance().getClass().getPackage().getName().replace(".", "/") + "/web/");
 
@@ -35,6 +43,10 @@ public abstract class ThymeHttpHandler implements MjHttpHandler {
 		request.put("isApplication", exchange instanceof WebApplicationPageExchange);
 
 		handle(request);
+		
+		if (!request.isResponseSent() && next != null) {
+			next.handle(exchange);
+		}
 	}
 
 }
