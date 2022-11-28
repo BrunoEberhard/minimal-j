@@ -270,6 +270,7 @@ public class Resources {
 		mimeTypeByPostfix.put("js", "application/javascript;charset=UTF-8");
 		mimeTypeByPostfix.put("jpg", "image/jpg");
 		mimeTypeByPostfix.put("png", "image/png");
+		mimeTypeByPostfix.put("webp", "image/webp");
 		mimeTypeByPostfix.put("woff2", "font/woff2");
 	}
 
