@@ -78,13 +78,17 @@ public class ThymeRequest {
 	}
 
 	public void sendResponse(String templateName) {
+		sendResponse(200, templateName);
+	}
+	
+	public void sendResponse(int statusCode, String templateName) {
 		if (responseSent) {
 			throw new IllegalStateException("Already send response. Cannont use " + templateName);
 		}
 
 		Context context = new Context(LocaleContext.getCurrent(), getContext());
 		String response = templateEngine.process(templateName, context);
-		exchange.sendResponse(200, response, "text/html");
+		exchange.sendResponse(statusCode, response, "text/html");
 		responseSent = true;
 	}
 
