@@ -26,19 +26,19 @@ public class Codes {
 
 	private static Map<Class<?>, CodeCacheItem<?>> cache = Collections.synchronizedMap(new HashMap<>());
 	
-	public static <T extends Code> T findCode(Class<T> clazz, String codeId) {
-		return findCode(clazz, (Object) codeId);
+	public static <T extends Code> T get(Class<T> clazz, String codeId) {
+		return get(clazz, (Object) codeId);
 	}
 
-	public static <T extends Code> T findCode(Class<T> clazz, Integer codeId) {
-		return findCode(clazz, (Object) codeId);
+	public static <T extends Code> T get(Class<T> clazz, Integer codeId) {
+		return get(clazz, (Object) codeId);
 	}
 
-	public static <T extends Code> T findCode(Class<T> clazz, Object codeId) {
-		return findCode(null, clazz, codeId);
+	public static <T extends Code> T get(Class<T> clazz, Object codeId) {
+		return get(null, clazz, codeId);
 	}
 
-	public static <T extends Code> T findCode(Repository repository, Class<T> clazz, Object codeId) {
+	public static <T extends Code> T get(Repository repository, Class<T> clazz, Object codeId) {
 		return getCache(repository, clazz).getCode(codeId);
 	}
 	

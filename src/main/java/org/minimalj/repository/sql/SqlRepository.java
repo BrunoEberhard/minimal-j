@@ -538,7 +538,7 @@ public class SqlRepository implements TransactionalRepository {
 				Class<?> fieldClass = property.getClazz();
 				if (Codes.isCode(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = Codes.findCode(this, codeClass, value);
+					value = Codes.get(this, codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
 					value = loadReference(value, fieldClass, loadedReferences);
 				} else if (AbstractTable.isDependable(property)) {
@@ -568,7 +568,7 @@ public class SqlRepository implements TransactionalRepository {
 					Class<?> viewedClass = ViewUtils.getViewedClass(fieldClass);
 					if (Codes.isCode(viewedClass)) {
 						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-						referencedValue = ViewUtils.view(Codes.findCode(codeClass, value), CloneHelper.newInstance(fieldClass));
+						referencedValue = ViewUtils.view(Codes.get(codeClass, value), CloneHelper.newInstance(fieldClass));
 					} else {
 						Table<?> referenceTable = getTable(viewedClass);
 						referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);

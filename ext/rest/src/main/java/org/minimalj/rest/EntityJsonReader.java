@@ -89,7 +89,7 @@ public class EntityJsonReader {
 					Class<?> propertyClazz = property.getClazz();
 					if (propertyClazz != String.class) {
 						if (Code.class.isAssignableFrom(propertyClazz)) {
-							value = Codes.findCode((Class) propertyClazz, value);
+							value = Codes.get((Class) propertyClazz, value);
 						} else {
 							value = FieldUtils.parse(string, propertyClazz);
 						}

@@ -62,7 +62,7 @@ public class PreferencesHelper {
 					String id = preferences.get(key, null);
 					if (id != null) {
 						Class clazz2 = clazz;
-						value = Codes.findCode(clazz2, id);
+						value = Codes.get(clazz2, id);
 					} else {
 						value = presetValue;
 					}
@@ -70,7 +70,7 @@ public class PreferencesHelper {
 					Integer id = preferences.getInt(key, 0);
 					if (id != 0) {
 						Class clazz2 = clazz;
-						value = Codes.findCode(clazz2, id);
+						value = Codes.get(clazz2, id);
 					} else {
 						value = presetValue;
 					}

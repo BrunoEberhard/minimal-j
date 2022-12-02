@@ -44,8 +44,8 @@ public class SqlCodeListTest {
 		TestEntity entity = new TestEntity("aName");
 		
 		entity.codes = new ArrayList<>();
-		entity.codes.add(Codes.findCode(TestElementCode.class, 1));
-		entity.codes.add(Codes.findCode(TestElementCode.class, 3));
+		entity.codes.add(Codes.get(TestElementCode.class, 1));
+		entity.codes.add(Codes.get(TestElementCode.class, 3));
 		
 		Object id = Backend.insert(entity);
 		entity = Backend.read(TestEntity.class, id);
@@ -76,8 +76,8 @@ public class SqlCodeListTest {
 		TestEntity entity = new TestEntity("aName");
 
 		entity.codeViews = new ArrayList<>();
-		entity.codeViews.add(ViewUtils.view(Codes.findCode(TestElementCode.class, 1), new TestElementCodeView()));
-		entity.codeViews.add(ViewUtils.view(Codes.findCode(TestElementCode.class, 3), new TestElementCodeView()));
+		entity.codeViews.add(ViewUtils.view(Codes.get(TestElementCode.class, 1), new TestElementCodeView()));
+		entity.codeViews.add(ViewUtils.view(Codes.get(TestElementCode.class, 3), new TestElementCodeView()));
 
 		Object id = Backend.insert(entity);
 		entity = Backend.read(TestEntity.class, id);
