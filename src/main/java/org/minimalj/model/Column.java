@@ -1,6 +1,7 @@
 package org.minimalj.model;
 
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.model.Rendering.ColorName;
@@ -17,7 +18,7 @@ public abstract class Column<ROW, COLUMN> implements Property {
 	public enum ColumnAlignment { center, end };
 	
 	public Column(Object key) {
-		this.property = Keys.getProperty(key);
+		this.property = Objects.requireNonNull(Keys.getProperty(key));
 	}
 	
 	public CharSequence render(ROW rowObject, COLUMN value) {
