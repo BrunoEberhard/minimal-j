@@ -1,7 +1,7 @@
 package org.minimalj.frontend.page;
 
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
@@ -32,12 +32,12 @@ public abstract class TableEditorPage<VIEW extends View<T>, T> extends BaseTable
 	
 	@Override
 	protected T viewed(VIEW view) {
-		return ViewUtil.viewed(view);
+		return ViewUtils.viewed(view);
 	}
 	
 	@Override
 	protected VIEW view(T object) {
-		return ViewUtil.view(object, CloneHelper.newInstance(getClazz()));
+		return ViewUtils.view(object, CloneHelper.newInstance(getClazz()));
 	}
 	
 }

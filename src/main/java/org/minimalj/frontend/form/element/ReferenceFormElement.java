@@ -15,7 +15,7 @@ import org.minimalj.frontend.editor.SearchDialog;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
@@ -45,7 +45,7 @@ public class ReferenceFormElement<T> extends AbstractLookupFormElement<T> implem
 		}
 	}
 
-	protected List<PropertyInterface> getDefaultColumns(Class<T> clazz) {
+	protected List<Property> getDefaultColumns(Class<T> clazz) {
 		return Properties.getProperties(getProperty().getClazz()).values(). //
 				stream().filter(p -> !StringUtils.equals(p.getName(), "id", "version", "historized")).collect(Collectors.toList());
 	}

@@ -4,7 +4,7 @@ import java.util.Random;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
@@ -16,7 +16,7 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 		this(Keys.getProperty(key), editable);
 	}
 	
-	public LongFormElement(PropertyInterface property, boolean editable) {
+	public LongFormElement(Property property, boolean editable) {
 		super(property, editable);
 	}
 

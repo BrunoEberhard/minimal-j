@@ -9,19 +9,19 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.CodeItem;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 
 public class BooleanColumnFilter implements ColumnFilter {
 
-	private final PropertyInterface property;
+	private final Property property;
 	private final List<CodeItem<Boolean>> codeItems;
 	
 	private Input<CodeItem<Boolean>> component;
 	
-	private BooleanColumnFilter(PropertyInterface property, List<CodeItem<Boolean>> codeItems) {
+	private BooleanColumnFilter(Property property, List<CodeItem<Boolean>> codeItems) {
 		this.property = Objects.requireNonNull(property);
 		if (property.getClazz() != Boolean.class) {
 			throw new IllegalArgumentException(property.getClazz().getName() + " is not a Boolean");
@@ -29,11 +29,11 @@ public class BooleanColumnFilter implements ColumnFilter {
 		this.codeItems = codeItems;
 	}
 	
-	public BooleanColumnFilter(PropertyInterface property, String textTrue, String textFalse) {
+	public BooleanColumnFilter(Property property, String textTrue, String textFalse) {
 		this(property, Arrays.asList(new CodeItem<>(true, textTrue), new CodeItem<>(false, textFalse)));
 	}
 	
-	public BooleanColumnFilter(PropertyInterface property, String textTrue, String textFalse, String textNull) {
+	public BooleanColumnFilter(Property property, String textTrue, String textFalse, String textNull) {
 		this(property, Arrays.asList(new CodeItem<>(true, textTrue), new CodeItem<>(false, textFalse), new CodeItem<>(null, textNull)));
 	}
 

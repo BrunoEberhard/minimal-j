@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public class KeysTest {
 	
@@ -15,7 +15,7 @@ public class KeysTest {
 		TestClass1 object1 = new TestClass1();
 		
 		object1.s1 = "Test";
-		PropertyInterface property = Keys.getProperty(TestClass1.$.s1);
+		Property property = Keys.getProperty(TestClass1.$.s1);
 		Assert.assertEquals("Get should return the value of the public field", object1.s1, property.getValue(object1));
 	}
 
@@ -24,7 +24,7 @@ public class KeysTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.testClass1.s1 = "TestS1";
-		PropertyInterface property = Keys.getProperty(TestClass2.$.testClass1.s1);
+		Property property = Keys.getProperty(TestClass2.$.testClass1.s1);
 		Assert.assertEquals("Get should return the value of referenced Objects", testObject2.testClass1.s1, property.getValue(testObject2));
 	}
 
@@ -33,7 +33,7 @@ public class KeysTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setS3("access5");
-		PropertyInterface property = Keys.getProperty(TestClass2.$.getS3());
+		Property property = Keys.getProperty(TestClass2.$.getS3());
 		Assert.assertEquals("If private, get should use the getter method", testObject2.getS3(), property.getValue(testObject2));
 		
 		property.setValue(testObject2, "access5a");
@@ -45,7 +45,7 @@ public class KeysTest {
 		TestClass2 testObject2 = new TestClass2();
 
 		testObject2.setB1(true);
-		PropertyInterface property = Keys.getProperty(TestClass2.$.getB1());
+		Property property = Keys.getProperty(TestClass2.$.getB1());
 		Assert.assertEquals("For private boolean, get should use the isXy method", testObject2.getB1(), property.getValue(testObject2));
 		
 		property.setValue(testObject2, Boolean.FALSE);
@@ -59,10 +59,10 @@ public class KeysTest {
 		testObject2.testClass1.b2 = true;
 		testObject2.testClass1b.b2 = false;
 		
-		PropertyInterface property = Keys.getProperty(TestClass2.$.testClass1.getB2());
+		Property property = Keys.getProperty(TestClass2.$.testClass1.getB2());
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.testClass1.getB2(), property.getValue(testObject2));
 
-		PropertyInterface propertyB = Keys.getProperty(TestClass2.$.getTestClass1b().getB2());
+		Property propertyB = Keys.getProperty(TestClass2.$.getTestClass1b().getB2());
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.getTestClass1b().getB2(), propertyB.getValue(testObject2));
 		testObject2.testClass1b.b2 = true;
 		Assert.assertEquals("For private boolean, get should use the isXy method, even for related objects", testObject2.getTestClass1b().getB2(), propertyB.getValue(testObject2));
@@ -78,7 +78,7 @@ public class KeysTest {
 		list.add(new TestClass1());
 		Assert.assertEquals(1, testClass3.list.size());
 		
-		PropertyInterface property = Keys.getProperty(TestClass3.$.list);
+		Property property = Keys.getProperty(TestClass3.$.list);
 		property.setValue(testClass3, list);
 		
 		Assert.assertEquals("After set a final list field with its existing values the content must be the same", 1, testClass3.list.size());
@@ -146,7 +146,7 @@ public class KeysTest {
 		// implemented it but there are some problems: final lists (can be setAccessible),
 		// resource-names, adhoc generation of missing elements, implementation in SQL queries.
 		// last but not least, the Keys class gets very complicated.
-		PropertyInterface p = Keys.getProperty(TestClass7.$.list.get(0).value);
+		Property p = Keys.getProperty(TestClass7.$.list.get(0).value);
 		Assert.assertEquals(42, p.getValue(testClass7));
 		
 		p = Keys.getProperty(TestClass7.$.list.get(1).value);
@@ -157,8 +157,8 @@ public class KeysTest {
 	
 	@Test
 	public void testMethodPropertyDependencies() {
-		PropertyInterface propertyC = Keys.getProperty(TestClass9.$.testClass10.getC());
-		List<PropertyInterface> dependencies = Keys.getDependencies(propertyC);
+		Property propertyC = Keys.getProperty(TestClass9.$.testClass10.getC());
+		List<Property> dependencies = Keys.getDependencies(propertyC);
 		
 		TestClass9 testClass9 = new TestClass9();
 		testClass9.testClass10 = new TestClass10();
@@ -182,8 +182,8 @@ public class KeysTest {
 		TestClass11b testB = new TestClass11b();
 		testB.t.t2.setS3("Test2");
 
-		PropertyInterface pA = Keys.getProperty(TestClass11a.$.t.t2.getS3());
-		PropertyInterface pB = Keys.getProperty(TestClass11b.$.t.t2.getS3());
+		Property pA = Keys.getProperty(TestClass11a.$.t.t2.getS3());
+		Property pB = Keys.getProperty(TestClass11b.$.t.t2.getS3());
 
 		Assert.assertEquals("Test", pA.getValue(testA));
 		Assert.assertEquals("Test2", pB.getValue(testB));
@@ -196,8 +196,8 @@ public class KeysTest {
 		testObject.a = 1;
 		testObject.b = 2;
 		
-		PropertyInterface pA = Keys.getProperty(TestClass12b.$.a);
-		PropertyInterface pB = Keys.getProperty(TestClass12b.$.b);
+		Property pA = Keys.getProperty(TestClass12b.$.a);
+		Property pB = Keys.getProperty(TestClass12b.$.b);
 
 		Assert.assertEquals(1, pA.getValue(testObject));
 		Assert.assertEquals(2, pB.getValue(testObject));

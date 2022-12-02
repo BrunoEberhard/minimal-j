@@ -10,7 +10,7 @@ import java.util.prefs.Preferences;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.Codes;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -34,7 +34,7 @@ public class PreferencesHelper {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void load(Preferences preferences, Object data) {
-		for (Entry<String, PropertyInterface> entry : FlatProperties.getProperties(data.getClass()).entrySet()) {
+		for (Entry<String, Property> entry : FlatProperties.getProperties(data.getClass()).entrySet()) {
 			String key = entry.getKey();
 			Class<?> clazz = entry.getValue().getClazz();
 			Object value = null;
@@ -57,7 +57,7 @@ public class PreferencesHelper {
 				value = EnumUtils.valueList((Class<Enum>) presetValue.getClass()).get(ordinal);
 			} else if (Code.class.isAssignableFrom(clazz)) {
 				Code presetValue = (Code) FlatProperties.getValue(data, key);
-				PropertyInterface property = FlatProperties.getProperty(clazz, "id");
+				Property property = FlatProperties.getProperty(clazz, "id");
 				if (property.getClazz() == String.class) {
 					String id = preferences.get(key, null);
 					if (id != null) {
@@ -90,7 +90,7 @@ public class PreferencesHelper {
 	}
 
 	public static void save(Preferences preferences, Object object) {
-		for (Entry<String, PropertyInterface> entry : FlatProperties.getProperties(object.getClass()).entrySet()) {
+		for (Entry<String, Property> entry : FlatProperties.getProperties(object.getClass()).entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue(object);
 			if (value == null) {

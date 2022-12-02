@@ -13,7 +13,7 @@ import java.lang.annotation.Annotation;
  * of the chain is used for ChainedProperties.
  * 
  */
-public interface PropertyInterface {
+public interface Property {
 
 	public Class<?> getDeclaringClass();
 	

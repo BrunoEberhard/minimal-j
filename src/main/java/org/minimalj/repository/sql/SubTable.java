@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -17,10 +17,10 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
-	protected final PropertyInterface parentIdProperty;
+	protected final Property parentIdProperty;
 	private final boolean hasId;
 	
-	public SubTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public SubTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, name, clazz);
 		
 		this.parentIdProperty = parentIdProperty;

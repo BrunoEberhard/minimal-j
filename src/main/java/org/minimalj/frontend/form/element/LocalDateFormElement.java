@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 import org.minimalj.frontend.Frontend.InputType;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.mock.MockDate;
@@ -13,17 +13,17 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 
 	private static final boolean german = DateUtils.germanDateStyle();
 	
-	public LocalDateFormElement(PropertyInterface property, boolean editable) {
+	public LocalDateFormElement(Property property, boolean editable) {
 		super(property, editable);
 	}
 	
 	@Override
-	protected String getAllowedCharacters(PropertyInterface property) {
+	protected String getAllowedCharacters(Property property) {
 		return german ? "01234567890." : null;
 	} 
 
 	@Override
-	protected int getAllowedSize(PropertyInterface property) {
+	protected int getAllowedSize(Property property) {
 		return german ? 10 : 255;
 	}
 	

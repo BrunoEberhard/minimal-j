@@ -15,9 +15,9 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.model.Code;
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.properties.ChainedProperty;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.LocaleContext;
 
 public class Resources {
@@ -69,11 +69,11 @@ public class Resources {
 		return getAccess().getStringOrNull(clazz);
 	}
 
-	public static String getPropertyName(PropertyInterface property) {
+	public static String getPropertyName(Property property) {
 		return getAccess().getPropertyName(property, null);
 	}
 
-	public static String getPropertyName(PropertyInterface property, String postfix) {
+	public static String getPropertyName(Property property, String postfix) {
 		return getAccess().getPropertyName(property, postfix);
 	}
 
@@ -140,7 +140,7 @@ public class Resources {
 			} else if (isAvailable(clazz.getSimpleName())) {
 				return getString(clazz.getSimpleName());
 			} else if (View.class.isAssignableFrom(clazz) && !Code.class.isAssignableFrom(clazz)) {
-				Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
+				Class<?> viewedClass = ViewUtils.getViewedClass(clazz);
 				String byViewedClass = getStringOrNull(viewedClass);
 				if (byViewedClass != null) {
 					return byViewedClass;
@@ -149,7 +149,7 @@ public class Resources {
 			return null;
 		}
 
-		String getPropertyName(PropertyInterface property, String postfix) {
+		String getPropertyName(Property property, String postfix) {
 			if (property instanceof ChainedProperty) {
 				ChainedProperty chainedProperty = (ChainedProperty) property;
 				return getProperty(chainedProperty, postfix);
@@ -165,7 +165,7 @@ public class Resources {
 		}
 
 		private String getProperty(ChainedProperty chainedProperty, String postfix) {
-			List<PropertyInterface> chain = chainedProperty.getChain();
+			List<Property> chain = chainedProperty.getChain();
 			String fieldName = chainedProperty.getPath();
 			if (postfix != null)
 				fieldName += postfix;
@@ -196,7 +196,7 @@ public class Resources {
 
 			// if declaring class is a view check to viewed class
 			if (View.class.isAssignableFrom(declaringClass) && !Code.class.isAssignableFrom(declaringClass)) {
-				Class<?> viewedClass = ViewUtil.getViewedClass(declaringClass);
+				Class<?> viewedClass = ViewUtils.getViewedClass(declaringClass);
 				return getPropertyName(fieldName, viewedClass, fieldClass, optional);
 			}
 

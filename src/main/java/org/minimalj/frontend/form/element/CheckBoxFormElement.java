@@ -6,7 +6,7 @@ import java.util.Set;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.properties.VirtualProperty;
 import org.minimalj.util.resources.Resources;
 
@@ -15,11 +15,11 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 	private final boolean caption;
 	private final boolean editable;
 	
-	public CheckBoxFormElement(PropertyInterface property, boolean editable) {
+	public CheckBoxFormElement(Property property, boolean editable) {
 		 this(property, getPropertyName(property), editable);
 	}
 	 
-	private static String getPropertyName(PropertyInterface property) {
+	private static String getPropertyName(Property property) {
 		String name = Resources.getPropertyName(property, ".checkBoxText");
 		if (name == null) {
 			name = Resources.getPropertyName(property);
@@ -27,11 +27,11 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 		return name;
 	}
 	
-	public CheckBoxFormElement(PropertyInterface property, String text, boolean editable) {
+	public CheckBoxFormElement(Property property, String text, boolean editable) {
 		this(property, text, editable, true);
 	}
 
-	public CheckBoxFormElement(PropertyInterface property, String text, boolean editable, boolean caption) {
+	public CheckBoxFormElement(Property property, String text, boolean editable, boolean caption) {
 		super(property);
 		this.editable = editable;
 		this.caption = caption;

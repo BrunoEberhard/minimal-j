@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 /**
  * This class doesn't replace a library like OpenCSV. It cannot be configured
@@ -49,7 +49,7 @@ public class CsvReader {
 
 	public <T> List<T> readValues(Class<T> clazz) {
 		List<String> fields = readRecord();
-		List<PropertyInterface> properties = new ArrayList<>(fields.size());
+		List<Property> properties = new ArrayList<>(fields.size());
 		for (String field : fields) {
 			try {
 				field = field.trim();
@@ -67,7 +67,7 @@ public class CsvReader {
 			T object = CloneHelper.newInstance(clazz);
 			for (int i = 0; i < fields.size(); i++) {
 				String stringValue = values.get(i).trim();
-				PropertyInterface property = properties.get(i);
+				Property property = properties.get(i);
 				Object value;
 				Class<?> propertyClazz = property.getClazz();
 				try {

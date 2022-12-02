@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.resources.Resources.ResourceBundleAccess;
 
 public class ResourcesTest {
@@ -89,7 +89,7 @@ public class ResourcesTest {
 	}
 	
 	private String getFieldName(Object key) throws Exception {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
 		return resourceAccess.getPropertyName(property, null);
 	}
 	

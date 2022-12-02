@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
-public class FieldProperty implements PropertyInterface {
+public class FieldProperty implements Property {
 	private static Logger logger = Logger.getLogger(FieldProperty.class.getName());
 
 	private final Field field;
@@ -103,8 +103,8 @@ public class FieldProperty implements PropertyInterface {
 	private <T extends Annotation> T _getAnnotation(Class<T> annotationClass) {
 		T annotation = field.getAnnotation(annotationClass);
 		if (annotation == null && View.class.isAssignableFrom(getDeclaringClass())) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(getDeclaringClass());
-			PropertyInterface propertyInterface = Properties.getProperty(viewedClass, getName());
+			Class<?> viewedClass = ViewUtils.getViewedClass(getDeclaringClass());
+			Property propertyInterface = Properties.getProperty(viewedClass, getName());
 			return propertyInterface != null ? propertyInterface.getAnnotation(annotationClass) : null;
 		} else {
 			return annotation;

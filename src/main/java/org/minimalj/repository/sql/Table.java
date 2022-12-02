@@ -19,7 +19,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
@@ -33,14 +33,14 @@ import org.minimalj.util.LoggingRuntimeException;
 @SuppressWarnings("rawtypes")
 public class Table<T> extends AbstractTable<T> {
 	
-	protected final PropertyInterface idProperty;
+	protected final Property idProperty;
 	protected final boolean optimisticLocking;
 	protected final boolean autoIncrement;
 
 	protected final String selectAllQuery;
 
-	protected final HashMap<PropertyInterface, DependableTable> dependables;
-	protected final HashMap<PropertyInterface, ListTable> lists;
+	protected final HashMap<Property, DependableTable> dependables;
+	protected final HashMap<Property, ListTable> lists;
 	
 	public Table(SqlRepository sqlRepository, Class<T> clazz) {
 		this(sqlRepository, null, clazz);
@@ -54,14 +54,14 @@ public class Table<T> extends AbstractTable<T> {
 
 		this.optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
-		List<PropertyInterface> lists = FlatProperties.getListProperties(clazz);
+		List<Property> lists = FlatProperties.getListProperties(clazz);
 		this.lists = createListTables(lists);
 		this.dependables = createDependableTables();
 		
 		this.selectAllQuery = selectAllQuery();
 	}
 	
-	static boolean isAutoIncrement(PropertyInterface idProperty) {
+	static boolean isAutoIncrement(Property idProperty) {
 		AutoIncrement autoIncrement = idProperty.getAnnotation(AutoIncrement.class);
 		if (autoIncrement != null) {
 			return autoIncrement.value();
@@ -183,7 +183,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	protected void insertDependables(Object objectId, T object) {
-		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
+		for (Entry<Property, DependableTable> entry : dependables.entrySet()) {
 			Object value = entry.getKey().getValue(object);
 			if (value != null) {
 				entry.getValue().insert(objectId, value, null);
@@ -192,7 +192,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	protected void insertLists(T object) {
-		for (Entry<PropertyInterface, ListTable> listEntry : lists.entrySet()) {
+		for (Entry<Property, ListTable> listEntry : lists.entrySet()) {
 			List list = (List) listEntry.getKey().getValue(object);
 			if (list != null && !list.isEmpty()) {
 				listEntry.getValue().addList(object, list);
@@ -264,16 +264,16 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	private LinkedHashMap<PropertyInterface, ListTable> createListTables(List<PropertyInterface> listProperties) {
-		LinkedHashMap<PropertyInterface, ListTable> lists = new LinkedHashMap<>();
-		for (PropertyInterface listProperty : listProperties) {
+	private LinkedHashMap<Property, ListTable> createListTables(List<Property> listProperties) {
+		LinkedHashMap<Property, ListTable> lists = new LinkedHashMap<>();
+		for (Property listProperty : listProperties) {
 			ListTable listTable = createListTable(listProperty);
 			lists.put(listProperty, listTable);
 		}
 		return lists;
 	}
 
-	protected ListTable createListTable(PropertyInterface property) {
+	protected ListTable createListTable(Property property) {
 		Class<?> elementClass = property.getGenericClass();
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
@@ -287,9 +287,9 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
-	private LinkedHashMap<PropertyInterface, DependableTable> createDependableTables() {
-		LinkedHashMap<PropertyInterface, DependableTable> dependables = new LinkedHashMap<>();
-		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+	private LinkedHashMap<Property, DependableTable> createDependableTables() {
+		LinkedHashMap<Property, DependableTable> dependables = new LinkedHashMap<>();
+		for (Property property : FlatProperties.getProperties(clazz).values()) {
 			Class<?> fieldClazz = property.getClazz();
 			if (isDependable(property) && fieldClazz != clazz) {
 				String tableName = buildSubTableName(property);
@@ -300,15 +300,15 @@ public class Table<T> extends AbstractTable<T> {
 		return dependables;
 	}
 
-	protected DependableTable createDependableTable(PropertyInterface property, String tableName) {
+	protected DependableTable createDependableTable(Property property, String tableName) {
 		return new DependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
 	}
 	
-	public DependableTable getDependableTable(PropertyInterface property) {
+	public DependableTable getDependableTable(Property property) {
 		return dependables.get(property);
 	}	
 	
-	protected String buildSubTableName(PropertyInterface property) {
+	protected String buildSubTableName(Property property) {
 		return getTableName() + "__" + property.getName();
 	}
 	
@@ -330,7 +330,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 			
 			updateDependables(object, id, null);
-			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+			for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				listTableEntry.getValue().replaceList(object, list);
 			}
@@ -344,7 +344,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	protected void updateDependables(T object, Object objectId, Integer time) {
-		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
+		for (Entry<Property, DependableTable> entry : dependables.entrySet()) {
 			Object value = entry.getKey().getValue(object);
 			entry.getValue().update(objectId, value, time);
 		}
@@ -388,16 +388,16 @@ public class Table<T> extends AbstractTable<T> {
 	
 	protected List<String> getColumns(Object[] keys) {
 		List<String> result = new ArrayList<>();
-		PropertyInterface[] properties = Keys.getProperties(keys);
-		for (PropertyInterface p : properties) {
+		Property[] properties = Keys.getProperties(keys);
+		for (Property p : properties) {
 			if (p instanceof MethodProperty) {
 				throw new IllegalArgumentException("Not possible to query for method properties");
 			} else if (p.getPath().equals("id")) {
 				result.add("id");
 				continue;
 			}
-			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-				PropertyInterface property = entry.getValue();
+			for (Map.Entry<String, Property> entry : columns.entrySet()) {
+				Property property = entry.getValue();
 				if (p.getPath().equals(property.getPath())) {
 					result.add(entry.getKey());
 				}
@@ -471,7 +471,7 @@ public class Table<T> extends AbstractTable<T> {
 			querySql += "*";
 		} else {
 			querySql += "id";
-			Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
+			Map<String, Property> propertiesByColumns = sqlRepository.findColumns(resultClass);
 			for (String column : propertiesByColumns.keySet()) {
 				querySql += ", "+ column;
 			}
@@ -487,7 +487,7 @@ public class Table<T> extends AbstractTable<T> {
 			querySql += "T.*";
 		} else {
 			querySql += "T.id";
-			Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
+			Map<String, Property> propertiesByColumns = sqlRepository.findColumns(resultClass);
 			for (String column : propertiesByColumns.keySet()) {
 				querySql += ", T." + column;
 			}
@@ -522,27 +522,27 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	protected void loadDependables(Object id, T object, Integer time) throws SQLException {
-		for (Entry<PropertyInterface, DependableTable> dependableTableEntry : dependables.entrySet()) {
+		for (Entry<Property, DependableTable> dependableTableEntry : dependables.entrySet()) {
 			Object value = dependableTableEntry.getValue().read(id, time);
-			PropertyInterface dependableProperty = dependableTableEntry.getKey();
+			Property dependableProperty = dependableTableEntry.getKey();
 			dependableProperty.setValue(object, value);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected void loadLists(T object) throws SQLException {
-		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+		for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
 			List values = listTableEntry.getValue().getList(object);
-			PropertyInterface listProperty = listTableEntry.getKey();
+			Property listProperty = listTableEntry.getKey();
 			listProperty.setValue(object, values);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected <S> void loadViewLists(S result) {
-		List<PropertyInterface> viewLists = FlatProperties.getListProperties(result.getClass());
-		for (PropertyInterface viewListProperty : viewLists) {
-			for (Entry<PropertyInterface, ListTable> listPropertyEntry : lists.entrySet()) {
+		List<Property> viewLists = FlatProperties.getListProperties(result.getClass());
+		for (Property viewListProperty : viewLists) {
+			for (Entry<Property, ListTable> listPropertyEntry : lists.entrySet()) {
 				if (viewListProperty.getPath().equals(listPropertyEntry.getKey().getPath())) {
 					List values = listPropertyEntry.getValue().getList(result);
 					viewListProperty.setValue(result, values);
@@ -566,7 +566,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected String insertQuery() {
-		PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id", true);
+		Property idProperty = FlatProperties.getProperty(clazz, "id", true);
 		// cannot use field autoIncrement because this method is called by the super constructor before initialization
 		boolean autoIncrementId = idProperty != null && isAutoIncrement(idProperty);
 

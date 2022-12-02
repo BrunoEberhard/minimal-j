@@ -3,7 +3,7 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.LoggingRuntimeException;
 
 /**
@@ -17,7 +17,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<
 	protected final String selectByIdAndTimeQuery;
 	
 	
-	public HistorizedDependableTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public HistorizedDependableTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, name, clazz, parentIdProperty);
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
 	}

@@ -10,7 +10,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Column;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
@@ -18,12 +18,12 @@ import org.minimalj.util.StringUtils;
 
 public class StringColumnFilter implements ColumnFilter {
 
-	private final PropertyInterface property;
+	private final Property property;
 	private final BiFunction<Object, Predicate<String>, Boolean> tester;
 	
 	private Input<String> component;
 	
-	public StringColumnFilter(PropertyInterface property) {
+	public StringColumnFilter(Property property) {
 		this.property = Objects.requireNonNull(property);
 		this.tester = null;
 	}

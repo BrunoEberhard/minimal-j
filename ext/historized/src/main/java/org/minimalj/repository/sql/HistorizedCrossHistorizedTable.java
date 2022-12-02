@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 
 // case: historized parent has historized elements
 class HistorizedCrossHistorizedTable<PARENT, ELEMENT> extends HistorizedCrossTable<PARENT, ELEMENT> {
 
-	public HistorizedCrossHistorizedTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public HistorizedCrossHistorizedTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, prefix, clazz, parentIdProperty);
 	}
 

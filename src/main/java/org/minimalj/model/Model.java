@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
@@ -41,7 +41,7 @@ public interface Model {
 	static void getClassesRecursive(List<Class<?>> classes, Class<?> clazz, boolean depthFirst, boolean onlyWithId) {
 		if (!classes.contains(clazz)) {
 			classes.add(clazz);
-			for (PropertyInterface property : Properties.getProperties(clazz).values()) {
+			for (Property property : Properties.getProperties(clazz).values()) {
 				Class<?> propertyClass = property.getClazz();
 				if (View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
 					continue;

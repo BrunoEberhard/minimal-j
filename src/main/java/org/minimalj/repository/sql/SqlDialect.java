@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.IdUtils;
@@ -35,7 +35,7 @@ public abstract class SqlDialect {
 		s.append("CREATE TABLE ").append(tableName).append(" (\n");
 	} 
 
-	protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+	protected void addIdColumn(StringBuilder s, Property idProperty) {
 		s.append(" id ");
 		addColumnDefinition(s, idProperty);
 		if (Table.isAutoIncrement(idProperty)) {
@@ -44,7 +44,7 @@ public abstract class SqlDialect {
 		s.append(" NOT NULL");
 	}
 
-	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+	public void addColumnDefinition(StringBuilder s, Property property) {
 		Class<?> clazz = property.getClazz();
 		
 		if (clazz == Integer.class) {
@@ -89,10 +89,10 @@ public abstract class SqlDialect {
 			}
 		} else {
 			if (IdUtils.hasId(clazz)) {
-				PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id");
+				Property idProperty = FlatProperties.getProperty(clazz, "id");
 				addColumnDefinition(s, idProperty);
 			} else {
-				PropertyInterface idProperty = FlatProperties.getProperty(property.getDeclaringClass(), "id");
+				Property idProperty = FlatProperties.getProperty(property.getDeclaringClass(), "id");
 				addColumnDefinition(s, idProperty);
 			}
 		}
@@ -148,7 +148,7 @@ public abstract class SqlDialect {
 		}
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
@@ -192,7 +192,7 @@ public abstract class SqlDialect {
 			return true;
 		}
 		
-		protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+		protected void addIdColumn(StringBuilder s, Property idProperty) {
 			Class<?> clazz = idProperty.getClazz();
 			if (Table.isAutoIncrement(idProperty)) {
 				if (clazz == Integer.class) {
@@ -213,7 +213,7 @@ public abstract class SqlDialect {
 		}
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				s.append("BYTEA");	
@@ -263,7 +263,7 @@ public abstract class SqlDialect {
 	public static class H2SqlDialect extends SqlDialect {
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (Enum.class.isAssignableFrom(clazz)) {
 				// ENUM('clubs', 'diamonds', 'hearts', 'spades')
@@ -296,7 +296,7 @@ public abstract class SqlDialect {
 	public static class MsSqlDialect extends SqlDialect {
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
@@ -311,7 +311,7 @@ public abstract class SqlDialect {
 			}
 		}
 
-		protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+		protected void addIdColumn(StringBuilder s, Property idProperty) {
 			s.append(" id ");
 			addColumnDefinition(s, idProperty);
 			if (Table.isAutoIncrement(idProperty)) {
@@ -347,7 +347,7 @@ public abstract class SqlDialect {
 		}
 		
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz == LocalDate.class) {
 				s.append("CHAR(10)");

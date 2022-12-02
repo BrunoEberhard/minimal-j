@@ -31,7 +31,7 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -214,7 +214,7 @@ public class ModelTest {
 			return;
 		}
 		try {
-			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
+			Property property = FlatProperties.getProperty(clazz, "id");
 			if (!FieldUtils.isAllowedId(property.getClazz())) {
 				problems.add(clazz.getName() + ": id must be of Integer, Long, String, Object");
 			}
@@ -317,7 +317,7 @@ public class ModelTest {
 		if (Keys.isPublic(method) && !Keys.isStatic(method) && method.getName().startsWith("get")) {
 			if (method.getReturnType() == String.class && (method.getAnnotation(Materialized.class) != null || method.getAnnotation(Searched.class) != null)) {
 				String propertyName = StringUtils.lowerFirstChar(method.getName().substring(3));
-				PropertyInterface property = new Keys.MethodProperty(method.getReturnType(), propertyName, method, null);
+				Property property = new Keys.MethodProperty(method.getReturnType(), propertyName, method, null);
 				try {
 					AnnotationUtil.getSize(property);
 				} catch (IllegalArgumentException x) {
@@ -446,7 +446,7 @@ public class ModelTest {
 	}
 	
 	private void testStringSize(Field field) {
-		PropertyInterface property = Properties.getProperty(field);
+		Property property = Properties.getProperty(field);
 		try {
 			AnnotationUtil.getSize(property);
 		} catch (IllegalArgumentException x) {
@@ -455,7 +455,7 @@ public class ModelTest {
 	}
 	
 	private void testTimeSize(Field field) {
-		PropertyInterface property = Properties.getProperty(field);
+		Property property = Properties.getProperty(field);
 		int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
 		if (size > -1) {
 			if (size != Size.TIME_HH_MM && size != Size.TIME_WITH_SECONDS && size != Size.TIME_WITH_MILLIS) {
@@ -465,7 +465,7 @@ public class ModelTest {
 	}
 		
 	private void testNoMethodsForPublicField(Field field) {
-		PropertyInterface property = Properties.getProperty(field);
+		Property property = Properties.getProperty(field);
 		if (property != null) {
 			if (property.getClass().getSimpleName().startsWith("Method")) {
 				problems.add("A public attribute must not have getter or setter methods: " + field.getDeclaringClass().getName() + "." + field.getName());
@@ -476,12 +476,12 @@ public class ModelTest {
 	}
 	
 	private void testFieldNotInSuperClass(Field field) {
-		PropertyInterface property = Properties.getProperty(field);
+		Property property = Properties.getProperty(field);
 		String propertyName = property.getName();
 		Class<?> declaringClass = property.getDeclaringClass();
 		Class<?> superClass = declaringClass.getSuperclass();
 		while (superClass != Object.class) {
-			PropertyInterface samePropertyInSuperClass = Properties.getProperty(superClass, propertyName);
+			Property samePropertyInSuperClass = Properties.getProperty(superClass, propertyName);
 			if (samePropertyInSuperClass != null && samePropertyInSuperClass.getDeclaringClass() == superClass) {
 				problems.add("Property " + propertyName + " is declared in " + property.getDeclaringClass().getSimpleName() + " and in it's super class " + superClass.getSimpleName());
 				return;
@@ -503,7 +503,7 @@ public class ModelTest {
 	}
 	
 	private void testResources(Class<?> clazz) {
-		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+		for (Property property : FlatProperties.getProperties(clazz).values()) {
 			if (StringUtils.equals(property.getName(), "id", "version")) continue;
 			Resources.getPropertyName(property);
 		}

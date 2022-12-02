@@ -3,7 +3,7 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -15,9 +15,9 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 
-	protected final PropertyInterface parentIdProperty;
+	protected final Property parentIdProperty;
 
-	public DependableTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public DependableTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, name, clazz);
 
 		this.parentIdProperty = parentIdProperty;

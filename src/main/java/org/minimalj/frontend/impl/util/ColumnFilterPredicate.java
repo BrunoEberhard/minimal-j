@@ -13,7 +13,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
@@ -83,7 +83,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 	protected abstract boolean doTest(Object t);
 
-	public abstract Criteria getCriteria(PropertyInterface property);
+	public abstract Criteria getCriteria(Property property);
 
 	protected Input<String> createStringInput() {
 		Input<String> input = Frontend.getInstance().createTextField(255, null, null, this);
@@ -181,7 +181,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public Criteria getCriteria(PropertyInterface property) {
+		public Criteria getCriteria(Property property) {
 			return By.field(property, value);
 		}
 	}
@@ -214,7 +214,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public Criteria getCriteria(PropertyInterface property) {
+		public Criteria getCriteria(Property property) {
 			return ((ComparableRange) value).getCriteria(property);
 		}
 	}
@@ -261,7 +261,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public Criteria getCriteria(PropertyInterface property) {
+		public Criteria getCriteria(Property property) {
 			return By.field(property, FieldOperator.greaterOrEqual, value);
 		}
 
@@ -319,7 +319,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public Criteria getCriteria(PropertyInterface property) {
+		public Criteria getCriteria(Property property) {
 			return By.field(property, FieldOperator.lessOrEqual, value);
 		}
 
@@ -418,7 +418,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 		}
 
 		@Override
-		public Criteria getCriteria(PropertyInterface property) {
+		public Criteria getCriteria(Property property) {
 			return range.getCriteria(property);
 		}
 

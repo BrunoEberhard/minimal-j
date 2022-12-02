@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 
@@ -24,7 +24,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
 	
-	public HistorizedSubTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public HistorizedSubTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, prefix, clazz, parentIdProperty);
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();

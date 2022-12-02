@@ -12,7 +12,7 @@ import org.minimalj.model.Column;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.Width;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public class ListUtil {
 
@@ -66,7 +66,7 @@ public class ListUtil {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static class KeyComparator<T> implements Comparator<T> {
-		private final PropertyInterface[] sortProperties;
+		private final Property[] sortProperties;
 		private final boolean[] sortDirections;
 
 		public KeyComparator(Object[] sortKeys, boolean[] sortDirections) {
@@ -77,7 +77,7 @@ public class ListUtil {
 		@Override
 		public int compare(T a, T b) {
 			int index = 0;
-			for (PropertyInterface property : sortProperties) {
+			for (Property property : sortProperties) {
 				int factor = sortDirections[index++] ? 1 : -1;
 				Object value1 = property.getValue(a);
 				Object value2 = property.getValue(b);
@@ -111,7 +111,7 @@ public class ListUtil {
 		}
 	}
 
-	public static Width getWidthAnnotation(PropertyInterface property) {
+	public static Width getWidthAnnotation(Property property) {
 		Width width = property.getAnnotation(Width.class);
 		if (width != null) {
 			return width;
@@ -123,7 +123,7 @@ public class ListUtil {
 		return null;
 	}
 
-	public static int width(PropertyInterface property) {
+	public static int width(Property property) {
 		if (property instanceof Column) {
 			Integer width = ((Column<?, ?>) property).getWidth();
 			if (width != null) {
@@ -134,7 +134,7 @@ public class ListUtil {
 		return width != null ? width.value() : Width.DEFAULT;
 	}
 
-	public static int maxWidth(PropertyInterface property) {
+	public static int maxWidth(Property property) {
 		if (property instanceof Column) {
 			Integer width = ((Column<?, ?>) property).getMaxWidth();
 			if (width != null) {

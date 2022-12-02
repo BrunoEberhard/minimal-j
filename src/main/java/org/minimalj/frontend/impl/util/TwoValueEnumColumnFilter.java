@@ -8,7 +8,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.EnumUtils;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
@@ -16,12 +16,12 @@ import org.minimalj.repository.query.Criteria;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class TwoValueEnumColumnFilter implements ColumnFilter {
 
-	private final PropertyInterface property;
+	private final Property property;
 	private final List values;
 	
 	private Input component;
 	
-	public TwoValueEnumColumnFilter(PropertyInterface property) {
+	public TwoValueEnumColumnFilter(Property property) {
 		this.property = Objects.requireNonNull(property);
 		if (!property.getClazz().isEnum()) {
 			throw new IllegalArgumentException(property.getClazz().getName() + " is not an enum");

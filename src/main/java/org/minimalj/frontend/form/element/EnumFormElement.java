@@ -8,7 +8,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.mock.Mocking;
 
 public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> implements Enable, Mocking {
@@ -16,7 +16,7 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 	
 	private final Input<CodeItem<E>> comboBox;
 
-	public EnumFormElement(PropertyInterface property) {
+	public EnumFormElement(Property property) {
 		this(property, null);
 	}
 
@@ -30,7 +30,7 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 	}
 		
 	@SuppressWarnings("unchecked")
-	public EnumFormElement(PropertyInterface property, List<E> allowedValues) {
+	public EnumFormElement(Property property, List<E> allowedValues) {
 		super(property);
 		this.enumClass = (Class<E>) property.getClazz();
 		

@@ -11,7 +11,7 @@ import org.minimalj.frontend.form.element.AbstractLookupFormElement.LookupParser
 import org.minimalj.model.Code;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.Codes;
 import org.minimalj.util.StringUtils;
@@ -29,7 +29,7 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 		renderValues();
 	}
 
-	public SmallCodeListFormElement(PropertyInterface property, boolean editable) {
+	public SmallCodeListFormElement(Property property, boolean editable) {
 		super(property, editable);
 		renderValues();
 	}

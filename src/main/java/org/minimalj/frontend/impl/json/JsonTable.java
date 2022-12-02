@@ -22,7 +22,7 @@ import org.minimalj.model.Column.ColumnAlignment;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
@@ -35,7 +35,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 	private final JsonPageManager pageManager;
 	private final Object[] keys;
-	private final List<PropertyInterface> properties;
+	private final List<Property> properties;
 	private final TableActionListener<T> listener;
 	private List<T> objects, visibleObjects;
 	private final List<T> selectedObjects = new ArrayList<>();
@@ -61,7 +61,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		Integer[] widths = new Integer[keys.length];
 		Integer[] maxWidths = new Integer[keys.length];
 
-		for (PropertyInterface property : properties) {
+		for (Property property : properties) {
 			String header = Column.evalHeader(property);
 			headers.add(header);
 			headerPathes.add(property.getPath());
@@ -83,7 +83,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		put("tableContent", Collections.emptyList());
 	}
 
-	private static String alignment(PropertyInterface property) {
+	private static String alignment(Property property) {
 		if (property instanceof Column) {
 			ColumnAlignment alignment = ((Column<?, ?>) property).getAlignment();
 			if (alignment != null) {
@@ -96,10 +96,10 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		return null;
 	}
 	
-	private static List<PropertyInterface> convert(Object[] keys) {
-		List<PropertyInterface> properties = new ArrayList<>(keys.length);
+	private static List<Property> convert(Object[] keys) {
+		List<Property> properties = new ArrayList<>(keys.length);
 		for (Object key : keys) {
-			PropertyInterface property = Keys.getProperty(key);
+			Property property = Keys.getProperty(key);
 			if (property != null) {
 				properties.add(property);
 			} else {
@@ -220,7 +220,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		List<List> tableContent = new ArrayList<>();
 		for (T object : objects) {
 			List rowContent = new ArrayList();
-			for (PropertyInterface property : properties) {
+			for (Property property : properties) {
 				Object value = property.getValue(object);
 				if (property instanceof Column) {
 					Column column = (Column) property;
@@ -259,7 +259,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 	
 	public void cellAction(int row, int columnIndex) {
-		PropertyInterface property = properties.get(columnIndex);
+		Property property = properties.get(columnIndex);
 		if (property instanceof Column) {
 			Column column = (Column) property;
 			Object object = visibleObjects.get(row);
@@ -339,7 +339,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		s.append("\n");
 		
 		for (T object : objects) {
-			for (PropertyInterface property : properties) {
+			for (Property property : properties) {
 				Object value = property.getValue(object);
 				if (value instanceof BigDecimal) {
 					s.append(((BigDecimal) value).toPlainString());

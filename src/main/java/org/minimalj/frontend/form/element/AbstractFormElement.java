@@ -5,13 +5,13 @@ import java.util.Objects;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.resources.Resources;
 
 public abstract class AbstractFormElement<T> implements FormElement<T> {
 
-	private final PropertyInterface property;
+	private final Property property;
 	
 	private InputComponentListener forwardingChangeListener;
 	private ChangeListener<FormElement<?>> changeListener;
@@ -22,12 +22,12 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 		this(Keys.getProperty(key));
 	}
 	
-	protected AbstractFormElement(PropertyInterface property) {
+	protected AbstractFormElement(Property property) {
 		this.property = Objects.requireNonNull(property);
 	}
 
 	@Override
-	public PropertyInterface getProperty() {
+	public Property getProperty() {
 		return property;
 	}
 	

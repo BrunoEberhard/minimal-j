@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 
 
@@ -273,7 +273,7 @@ public class DateUtils {
 		return xsdDateTimeFormat.parse(sb.toString());
 	}
 
-	public static int getTimeSize(PropertyInterface property) {
+	public static int getTimeSize(Property property) {
 		Size size = property.getAnnotation(Size.class);
 		if (size == null) {
 			return Size.TIME_HH_MM;
@@ -281,7 +281,7 @@ public class DateUtils {
 		return size.value();
 	}
 	
-	public static DateTimeFormatter getTimeFormatter(PropertyInterface property) {
+	public static DateTimeFormatter getTimeFormatter(Property property) {
 		if (property == null) {
 			return TIME_FORMAT;
 		}
@@ -297,7 +297,7 @@ public class DateUtils {
 		}
 	}
 	
-	public static DateTimeFormatter getTimeParser(PropertyInterface property) {
+	public static DateTimeFormatter getTimeParser(Property property) {
 		if (property == null) {
 			return TIME_PARSE;
 		}
@@ -313,7 +313,7 @@ public class DateUtils {
 		}
 	}
 	
-	public static String format(LocalDateTime localDateTime, PropertyInterface property) {
+	public static String format(LocalDateTime localDateTime, Property property) {
 		if (localDateTime != null) {
 			String date = DateUtils.format(localDateTime.toLocalDate());
 			String time = DateUtils.getTimeFormatter(property).format(localDateTime);
@@ -323,7 +323,7 @@ public class DateUtils {
 		}
 	}
 	
-	public static LocalDateTime parseDateTime(String string, PropertyInterface property) {
+	public static LocalDateTime parseDateTime(String string, Property property) {
 		if (!StringUtils.isEmpty(string)) {
 			DateTimeFormatter parser = DateUtils.getTimeParser(property);
 			String[] parts = string.split(" ");

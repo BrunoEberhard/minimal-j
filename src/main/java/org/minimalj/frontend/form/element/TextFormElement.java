@@ -6,7 +6,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.resources.Resources;
 
@@ -18,7 +18,7 @@ import org.minimalj.util.resources.Resources;
  */
 public class TextFormElement implements FormElement<Object> {
 
-	private final PropertyInterface property;
+	private final Property property;
 
 	private final int lines;
 	protected final Input<String> textField;
@@ -31,18 +31,18 @@ public class TextFormElement implements FormElement<Object> {
 		this(Keys.getProperty(key), lines);
 	}
 	
-	public TextFormElement(PropertyInterface property) {
+	public TextFormElement(Property property) {
 		this(property, AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL) < 256 ? StringFormElement.SINGLE_LINE : StringFormElement.MULTI_LINE);
 	}
 	
-	public TextFormElement(PropertyInterface property, int lines) {
+	public TextFormElement(Property property, int lines) {
 		this.property = property;
 		this.lines = lines;
 		this.textField = Frontend.getInstance().createReadOnlyTextField();
 	}
 
 	@Override
-	public PropertyInterface getProperty() {
+	public Property getProperty() {
 		return property;
 	}
 

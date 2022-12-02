@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.query.By;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -23,7 +23,7 @@ import org.minimalj.util.LoggingRuntimeException;
 public class ContainedSubTable<PARENT, ELEMENT extends Dependable<PARENT>> extends Table<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
 	private final PARENT parentKey;
-	private final PropertyInterface parentProperty;
+	private final Property parentProperty;
 	
 	public ContainedSubTable(SqlRepository sqlRepository, Class<ELEMENT> clazz) {
 		super(sqlRepository, null, clazz);

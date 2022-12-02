@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -42,9 +42,9 @@ class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
-		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, Property> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 		int parameterPos = super.setParameters(statement, object, mode, id);
-		for (Map.Entry<String, PropertyInterface> column : columnsWithVersion.entrySet()) {
+		for (Map.Entry<String, Property> column : columnsWithVersion.entrySet()) {
 			Object referencedObject = column.getValue().getValue(object);
 			if (referencedObject != null) {
 				Integer version = IdUtils.getVersion(referencedObject);
@@ -57,7 +57,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	protected SubTable createListTable(PropertyInterface property) {
+	protected SubTable createListTable(Property property) {
 		Class<?> elementClass = property.getGenericClass();
 		if (IdUtils.hasId(elementClass)) {
 			if (FieldUtils.hasValidHistorizedField(elementClass)) {
@@ -71,7 +71,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 	
 	@Override
-	protected DependableTable createDependableTable(PropertyInterface property, String tableName) {
+	protected DependableTable createDependableTable(Property property, String tableName) {
 		return new HistorizedDependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
 	}
 	
@@ -101,7 +101,7 @@ class HistorizedTable<T> extends Table<T> {
 			}
 			
 			updateDependables(object, id, newVersion);
-			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+			for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				((HistorizedListTable) listTableEntry.getValue()).replaceList(object, list, newVersion);
 			}
@@ -159,9 +159,9 @@ class HistorizedTable<T> extends Table<T> {
 	}
 	
 	private void loadLists(T object, Integer time) {
-		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+		for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
 			List values = ((HistorizedListTable) listTableEntry.getValue()).getList(object, time);
-			PropertyInterface listProperty = listTableEntry.getKey();
+			Property listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
 				List list = (List) listProperty.getValue(object);
 				list.clear();
@@ -198,9 +198,9 @@ class HistorizedTable<T> extends Table<T> {
 	}
 	
 	private String insertQuery(boolean forUpdate) {
-		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, Property> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 
-		PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id", true);
+		Property idProperty = FlatProperties.getProperty(clazz, "id", true);
 		boolean autoIncrementId = idProperty != null && isAutoIncrement(idProperty);
 
 		StringBuilder s = new StringBuilder();
@@ -262,7 +262,7 @@ class HistorizedTable<T> extends Table<T> {
 	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
 		super.addSpecialColumns(dialect, s);
 		s.append(",\n historized INTEGER NOT NULL");
-		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, Property> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 		for (String columnName : columnsWithVersion.keySet()) {
 			s.append(",\n ").append(columnName).append(" INTEGER DEFAULT 0");
 		}

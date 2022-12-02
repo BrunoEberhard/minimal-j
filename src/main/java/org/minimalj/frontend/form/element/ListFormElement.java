@@ -13,7 +13,7 @@ import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 
@@ -22,7 +22,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 	private final Input<String> text; // only used when read only
 	private List<T> object;
 
-	public ListFormElement(PropertyInterface property) {
+	public ListFormElement(Property property) {
 		this(property, Form.EDITABLE);
 	}
 
@@ -34,7 +34,7 @@ public abstract class ListFormElement<T> extends AbstractFormElement<List<T>> {
 		this(Keys.getProperty(key), editable);
 	}
 
-	public ListFormElement(PropertyInterface property, boolean editable) {
+	public ListFormElement(Property property, boolean editable) {
 		super(property);
 		component = Frontend.getInstance().createSwitchComponent();
 		text = editable ? null : Frontend.getInstance().createReadOnlyTextField();

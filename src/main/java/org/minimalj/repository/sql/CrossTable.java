@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationList;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -20,14 +20,14 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
-	public CrossTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface idProperty) {
+	public CrossTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, Property idProperty) {
 		super(sqlRepository, name, clazz, idProperty);
 	}
 	
 	@Override
 	protected void createConstraints(SqlDialect dialect) {
 		super.createIdConstraint(dialect);
-		Class<?> referencedClass = ViewUtil.resolve(getClazz());
+		Class<?> referencedClass = ViewUtils.resolve(getClazz());
 		AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(referencedClass);
 		createConstraint(dialect, "elementId", referencedTable);
 	}
@@ -132,7 +132,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	@Override
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
 		s.append(",\n elementId ");
-		PropertyInterface elementIdProperty = FlatProperties.getProperty(clazz, "id");
+		Property elementIdProperty = FlatProperties.getProperty(clazz, "id");
 		dialect.addColumnDefinition(s, elementIdProperty);
 		s.append(" NOT NULL");
 	}

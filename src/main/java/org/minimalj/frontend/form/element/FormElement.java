@@ -1,7 +1,7 @@
 package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.ChangeListener;
 
 /**
@@ -25,7 +25,7 @@ public interface FormElement<T> {
 
 	public IComponent getComponent();
 	
-	public PropertyInterface getProperty();
+	public Property getProperty();
 
 	public FormElementConstraint getConstraint();
 

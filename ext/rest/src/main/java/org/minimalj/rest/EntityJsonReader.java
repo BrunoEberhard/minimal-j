@@ -10,7 +10,7 @@ import java.util.Set;
 import org.minimalj.frontend.impl.json.JsonReader;
 import org.minimalj.model.Code;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
@@ -69,9 +69,9 @@ public class EntityJsonReader {
 	}
 	
 	private static <T> T convert(T entity, Map<String, Object> values) {
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(entity.getClass());
+		Map<String, Property> properties = FlatProperties.getProperties(entity.getClass());
 		for (Map.Entry<String, Object> entry : values.entrySet()) {
-			PropertyInterface property = properties.get(entry.getKey());
+			Property property = properties.get(entry.getKey());
 			if (property == null) {
 				continue;
 			}

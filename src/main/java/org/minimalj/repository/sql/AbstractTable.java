@@ -19,13 +19,13 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
@@ -45,7 +45,7 @@ public abstract class AbstractTable<T> {
 	
 	protected final SqlRepository sqlRepository;
 	protected final Class<T> clazz;
-	protected final LinkedHashMap<String, PropertyInterface> columns;
+	protected final LinkedHashMap<String, Property> columns;
 	
 	protected final String name;
 
@@ -93,7 +93,7 @@ public abstract class AbstractTable<T> {
 		return false;
 	}
 	
-	protected LinkedHashMap<String, PropertyInterface> getColumns() {
+	protected LinkedHashMap<String, Property> getColumns() {
 		return columns;
 	}
 
@@ -150,7 +150,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected void createColumnComments() {
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+		for (Map.Entry<String, Property> entry : columns.entrySet()) {
 			Comment commentAnnotation = entry.getValue().getAnnotation(Comment.class);
 			if (commentAnnotation != null) {
 				String comment = commentAnnotation.value();
@@ -179,8 +179,8 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected void createEnums(SqlDialect dialect) {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
 			Class<?> propertyClass = property.getClazz();
 			if (propertyClass.isEnum()) {
 				if (!sqlRepository.dbTypes.containsKey(propertyClass)) {
@@ -199,10 +199,10 @@ public abstract class AbstractTable<T> {
 	protected abstract void addSpecialColumns(SqlDialect dialect, StringBuilder s);
 	
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
 			s.append(",\n ").append(column.getKey()).append(' '); 
 
-			PropertyInterface property = column.getValue();
+			Property property = column.getValue();
 			if (sqlRepository.dbTypes.containsKey(property.getClazz())) {
 				s.append(sqlRepository.dbTypes.get(property.getClazz()));
 			} else {
@@ -226,13 +226,13 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void createConstraints(SqlDialect dialect) {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
 			
 			Class<?> fieldClass = property.getClazz();
 			// TODO Contained könnte noch andere Felder enthalten
 			if (IdUtils.hasId(fieldClass) && !Dependable.class.isAssignableFrom(clazz)) {
-				fieldClass = ViewUtil.resolve(fieldClass);
+				fieldClass = ViewUtils.resolve(fieldClass);
 				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
 				if (referencedTable.isHistorized()) {
 					continue;
@@ -261,7 +261,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected String findColumn(String fieldPath) {
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+		for (Map.Entry<String, Property> entry : columns.entrySet()) {
 			if (entry.getValue().getPath().equals(fieldPath)) {
 				return entry.getKey();
 			}
@@ -269,7 +269,7 @@ public abstract class AbstractTable<T> {
 		return null;
 	}
 
-	public String column(PropertyInterface property) {
+	public String column(Property property) {
 		return findColumn(property.getPath());
 	}
 	
@@ -286,30 +286,30 @@ public abstract class AbstractTable<T> {
 	}
 	
 	private void findCodes() {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (Code.class.isAssignableFrom(fieldClazz) && fieldClazz != clazz) {
-				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
+				sqlRepository.addClass(ViewUtils.resolve(fieldClazz));
 			}
 		}
 	}
 	
 	private void findDependables() {
-		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
+		for (Property property : FlatProperties.getListProperties(getClazz())) {
 			Class<?> listType = property.getGenericClass();
 			if (listType == null) {
 				throw new IllegalArgumentException(getClazz().getSimpleName() + "." + property.getPath() + " has no type");
 			}
 			if (IdUtils.hasId(listType)) {
-				sqlRepository.addClass(ViewUtil.resolve(listType));
+				sqlRepository.addClass(ViewUtils.resolve(listType));
 			}
 		}
 	}
 
 	protected void findIndexes() {
-		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : columns.entrySet()) {
+			Property property = column.getValue();
 			if (IdUtils.hasId(property.getClazz())) {
 				addIndex(property, property.getPath());
 			}
@@ -378,8 +378,8 @@ public abstract class AbstractTable<T> {
 	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
 		int parameterPos = 1;
 		boolean insert = mode == ParameterMode.INSERT || mode == ParameterMode.INSERT_AUTO_INCREMENT;
-		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : columns.entrySet()) {
+			Property property = column.getValue();
 			Object value = property.getValue(object);
 			TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
 			if (technicalField != null) {
@@ -479,8 +479,8 @@ public abstract class AbstractTable<T> {
 	
 	//
 
-	private void addIndex(PropertyInterface property, String fieldPath) {
-		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
+	private void addIndex(Property property, String fieldPath) {
+		Map.Entry<String, Property> entry = findX(fieldPath);
 		if (indexes.contains(entry.getKey())) {
 			return;
 		}
@@ -494,9 +494,9 @@ public abstract class AbstractTable<T> {
 		indexes.add(entry.getKey());
 	}
 	
-	private Entry<String, PropertyInterface> findX(String fieldPath) {
+	private Entry<String, Property> findX(String fieldPath) {
 		while (true) {
-			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+			for (Map.Entry<String, Property> entry : columns.entrySet()) {
 				String columnFieldPath = entry.getValue().getPath();
 				if (columnFieldPath.equals(fieldPath)) {
 					return entry;
@@ -514,7 +514,7 @@ public abstract class AbstractTable<T> {
 	 * @param property the property to check
 	 * @return true if property isn't a base object like String, Integer, Date, enum but a dependable
 	 */
-	public static boolean isDependable(PropertyInterface property) {
+	public static boolean isDependable(Property property) {
 		if (!isDependable(property.getClazz())) return false;
 		if (property.isFinal()) return false;
 		return true;

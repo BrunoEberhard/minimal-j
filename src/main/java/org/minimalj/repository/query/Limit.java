@@ -1,7 +1,7 @@
 package org.minimalj.repository.query;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public class Limit extends Query {
 	private static final long serialVersionUID = 1L;
@@ -47,7 +47,7 @@ public class Limit extends Query {
 	}
 
 	public Order order(Object key, boolean ascending) {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
 		String path = property.getPath();
 		return new Order(query, path, ascending);
 	}

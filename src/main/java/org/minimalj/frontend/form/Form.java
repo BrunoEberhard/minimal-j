@@ -52,7 +52,7 @@ import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Visible;
 import org.minimalj.model.properties.ChainedProperty;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
@@ -77,16 +77,16 @@ public class Form<T> {
 	private final FormContent formContent;
 	private boolean ignoreCaption;
 
-	private final LinkedHashMap<PropertyInterface, FormElement<?>> elements = new LinkedHashMap<>();
+	private final LinkedHashMap<Property, FormElement<?>> elements = new LinkedHashMap<>();
 
 	private final FormChangeListener formChangeListener = new FormChangeListener();
 
 	private ChangeListener<Form<?>> changeListener;
 	private boolean changeFromOutside;
 
-	private final LinkedHashMap<String, List<PropertyInterface>> dependencies = new LinkedHashMap<>();
+	private final LinkedHashMap<String, List<Property>> dependencies = new LinkedHashMap<>();
 	@SuppressWarnings("rawtypes")
-	private final LinkedHashMap<PropertyInterface, LinkedHashMap<PropertyInterface, PropertyUpdater>> propertyUpdater = new LinkedHashMap<>();
+	private final LinkedHashMap<Property, LinkedHashMap<Property, PropertyUpdater>> propertyUpdater = new LinkedHashMap<>();
 
 	private final Map<IComponent, Object[]> keysForTitle = new HashMap<>();
 
@@ -122,7 +122,7 @@ public class Form<T> {
 
 	protected FormElement<?> createElement(Object key) {
 		FormElement<?> element = null;
-		PropertyInterface property;
+		Property property;
 		boolean forcedReadonly = false;
 		if (key instanceof ReadOnlyWrapper) {
 			forcedReadonly = true;
@@ -148,7 +148,7 @@ public class Form<T> {
 	}
 
 	@SuppressWarnings("rawtypes")
-	protected FormElement<?> createElement(PropertyInterface property, boolean editable) {
+	protected FormElement<?> createElement(Property property, boolean editable) {
 		Class<?> fieldClass = property.getClazz();
 
 		if (fieldClass == String.class) {
@@ -298,19 +298,19 @@ public class Form<T> {
 	 * @param to   the field possible changed its value implicitly
 	 */
 	public void addDependecy(Object from, Object... to) {
-		PropertyInterface fromProperty = Keys.getProperty(from);
-		List<PropertyInterface> list = dependencies.computeIfAbsent(fromProperty.getPath(), p -> new ArrayList<>());
+		Property fromProperty = Keys.getProperty(from);
+		List<Property> list = dependencies.computeIfAbsent(fromProperty.getPath(), p -> new ArrayList<>());
 		for (Object key : to) {
 			list.add(Objects.requireNonNull(Keys.getProperty(key)));
 		}
 	}
 
-	private void addDependecy(PropertyInterface fromProperty, PropertyInterface to) {
+	private void addDependecy(Property fromProperty, Property to) {
 		addDependecy(fromProperty.getPath(), to);
 	}
 
-	private void addDependecy(String fromPropertyPath, PropertyInterface to) {
-		List<PropertyInterface> list = dependencies.computeIfAbsent(fromPropertyPath, p -> new ArrayList<>());
+	private void addDependecy(String fromPropertyPath, Property to) {
+		List<Property> list = dependencies.computeIfAbsent(fromPropertyPath, p -> new ArrayList<>());
 		list.add(to);
 	}
 
@@ -329,8 +329,8 @@ public class Form<T> {
 	 * @param to      the changed field by the updater
 	 */
 	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
-		PropertyInterface fromProperty = Keys.getProperty(from);
-		PropertyInterface toProperty = Keys.getProperty(to);
+		Property fromProperty = Keys.getProperty(from);
+		Property toProperty = Keys.getProperty(to);
 		propertyUpdater.computeIfAbsent(fromProperty, p -> new LinkedHashMap<>()).put(toProperty, updater);
 		addDependecy(from, to);
 	}
@@ -360,9 +360,9 @@ public class Form<T> {
 	}
 
 	private void addDependencies(FormElement<?> field) {
-		PropertyInterface property = field.getProperty();
-		List<PropertyInterface> dependencies = Keys.getDependencies(property);
-		for (PropertyInterface dependency : dependencies) {
+		Property property = field.getProperty();
+		List<Property> dependencies = Keys.getDependencies(property);
+		for (Property dependency : dependencies) {
 			addDependecy(dependency, field.getProperty());
 		}
 
@@ -389,7 +389,7 @@ public class Form<T> {
 
 	protected void fillWithDemoData(T object) {
 		for (FormElement<?> field : elements.values()) {
-			PropertyInterface property = field.getProperty();
+			Property property = field.getProperty();
 			if (field instanceof Mocking) {
 				Mocking demoEnabledElement = (Mocking) field;
 				demoEnabledElement.mock();
@@ -404,12 +404,12 @@ public class Form<T> {
 	 * 
 	 * @return Collection provided by a LinkedHashMap so it will be a ordered set
 	 */
-	public Collection<PropertyInterface> getProperties() {
+	public Collection<Property> getProperties() {
 		return elements.keySet();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void set(PropertyInterface property, Object value) {
+	private void set(Property property, Object value) {
 		FormElement element = elements.get(property);
 		try {
 			element.setValue(value);
@@ -418,7 +418,7 @@ public class Form<T> {
 		}
 	}
 
-	private void setValidationMessage(PropertyInterface property, List<ValidationMessage> validationMessages) {
+	private void setValidationMessage(Property property, List<ValidationMessage> validationMessages) {
 		FormElement<?> formElement = elements.get(property);
 		if (formElement instanceof TableFormElement) {
 			// TODO make tableFormElement to Indication
@@ -429,7 +429,7 @@ public class Form<T> {
 			List<ValidationMessage> localValidationMessages = new ArrayList<>(validationMessages.size());
 			int prefixSize = ChainedProperty.getChain(property).size();
 			for (ValidationMessage message : validationMessages) {
-				List<PropertyInterface> chain = ChainedProperty.getChain(message.getProperty());
+				List<Property> chain = ChainedProperty.getChain(message.getProperty());
 				chain = chain.subList(prefixSize, chain.size());
 				ValidationMessage localValidationMessage = new ValidationMessage(chain.size() > 0 ? ChainedProperty.buildChain(chain) : null, message.getFormattedText());
 				localValidationMessages.add(localValidationMessage);
@@ -453,7 +453,7 @@ public class Form<T> {
 	}
 
 	private void readValueFromObject() {
-		for (PropertyInterface property : getProperties()) {
+		for (Property property : getProperties()) {
 			Object propertyValue = property.getValue(object);
 			set(property, propertyValue);
 		}
@@ -464,14 +464,14 @@ public class Form<T> {
 	private void logDependencies() {
 		if (editable) {
 			logger.fine("Dependencies in " + this.getClass().getSimpleName());
-			for (Map.Entry<String, List<PropertyInterface>> entry : dependencies.entrySet()) {
-				logger.fine(entry.getKey() + " -> " + entry.getValue().stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
+			for (Map.Entry<String, List<Property>> entry : dependencies.entrySet()) {
+				logger.fine(entry.getKey() + " -> " + entry.getValue().stream().map(Property::getPath).collect(Collectors.joining(", ")));
 			}
 		}
 	}
 
 	private String getName(FormElement<?> field) {
-		PropertyInterface property = field.getProperty();
+		Property property = field.getProperty();
 		return property.getName();
 	}
 
@@ -491,14 +491,14 @@ public class Form<T> {
 				return;
 			}
 
-			PropertyInterface property = changedField.getProperty();
+			Property property = changedField.getProperty();
 			Object newValue = changedField.getValue();
 			logger.finer(() -> "ChangeEvent from element: " + getName(changedField) + ", property: " + property.getPath() + ", value: " + newValue);
 
-			HashSet<PropertyInterface> changedProperties = new HashSet<>();
+			HashSet<Property> changedProperties = new HashSet<>();
 
 			setValue(property, newValue, changedProperties);
-			logger.finer(() -> "Changed properties: " + changedProperties.stream().map(PropertyInterface::getPath).collect(Collectors.joining(", ")));
+			logger.finer(() -> "Changed properties: " + changedProperties.stream().map(Property::getPath).collect(Collectors.joining(", ")));
 
 			if (!changedProperties.isEmpty()) {
 				// propagate all possible changed values to the form elements
@@ -513,14 +513,14 @@ public class Form<T> {
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		private void updateDependingFormElements(FormElement<?> changedFormElement, HashSet<PropertyInterface> changedProperties) {
-			for (PropertyInterface changedProperty : changedProperties) {
+		private void updateDependingFormElements(FormElement<?> changedFormElement, HashSet<Property> changedProperties) {
+			for (Property changedProperty : changedProperties) {
 				for (FormElement formElement : elements.values()) {
 					if (formElement == changedFormElement) {
 						// don't need to update the FormElement where the change comes from
 						continue;
 					}
-					PropertyInterface formElementProperty = formElement.getProperty();
+					Property formElementProperty = formElement.getProperty();
 					String formElementPath = formElementProperty.getPath();
 					String changedPropertyPath = changedProperty.getPath();
 					if (formElementPath.equals(changedPropertyPath) || formElementPath.startsWith(changedPropertyPath) && formElementPath.charAt(changedPropertyPath.length()) == '.') {
@@ -532,10 +532,10 @@ public class Form<T> {
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private void executeUpdater(PropertyInterface property, Object updaterInput, Object clonedObject, HashSet<PropertyInterface> changedProperties) {
+		private void executeUpdater(Property property, Object updaterInput, Object clonedObject, HashSet<Property> changedProperties) {
 			if (propertyUpdater.containsKey(property)) {
-				Map<PropertyInterface, PropertyUpdater> updaters = propertyUpdater.get(property);
-				for (Map.Entry<PropertyInterface, PropertyUpdater> entry : updaters.entrySet()) {
+				Map<Property, PropertyUpdater> updaters = propertyUpdater.get(property);
+				for (Map.Entry<Property, PropertyUpdater> entry : updaters.entrySet()) {
 					logger.finer(() -> "Update from " + property.getPath() + " to " + entry.getKey().getPath());
 					Object updaterOutput = entry.getValue().update(updaterInput, clonedObject);
 					setValue(entry.getKey(), updaterOutput, changedProperties);
@@ -543,7 +543,7 @@ public class Form<T> {
 			}
 		}
 
-		private void setValue(PropertyInterface property, Object newValue, HashSet<PropertyInterface> changedProperties) {
+		private void setValue(Property property, Object newValue, HashSet<Property> changedProperties) {
 			Object oldValue = property.getValue(object);
 			logger.finest(() -> "Set " + property.getPath() + " to " + newValue + " (previous: " + oldValue + ")");
 			if (!EqualsHelper.equals(oldValue, newValue) || newValue instanceof Collection) {
@@ -560,23 +560,23 @@ public class Form<T> {
 			}
 		}
 
-		private void addChangedPropertyRecursive(PropertyInterface property, HashSet<PropertyInterface> changedProperties) {
+		private void addChangedPropertyRecursive(Property property, HashSet<Property> changedProperties) {
 			changedProperties.add(property);
-			HashSet<PropertyInterface> changedRoots = new HashSet<>(changedProperties);
+			HashSet<Property> changedRoots = new HashSet<>(changedProperties);
 			changedRoots.forEach(root -> changedProperties.addAll(collectDependencies(root)));
 		}
 
-		private HashSet<PropertyInterface> collectDependencies(PropertyInterface property) {
-			HashSet<PropertyInterface> collection = new HashSet<>();
+		private HashSet<Property> collectDependencies(Property property) {
+			HashSet<Property> collection = new HashSet<>();
 			collectDependencies(property, collection);
 			return collection;
 		}
 
-		private void collectDependencies(PropertyInterface property, HashSet<PropertyInterface> collection) {
+		private void collectDependencies(Property property, HashSet<Property> collection) {
 			if (!collection.contains(property)) {
 				collection.add(property);
 				if (dependencies.containsKey(property.getPath())) {
-					for (PropertyInterface dependingProperty : dependencies.get(property.getPath())) {
+					for (Property dependingProperty : dependencies.get(property.getPath())) {
 						collectDependencies(dependingProperty, collection);
 					}
 				}
@@ -585,8 +585,8 @@ public class Form<T> {
 	}
 
 	private void updateEnable() {
-		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
-			PropertyInterface property = element.getKey();
+		for (Map.Entry<Property, FormElement<?>> element : elements.entrySet()) {
+			Property property = element.getKey();
 
 			boolean enabled = !(property.isFinal() && FieldUtils.isAllowedPrimitive(property.getClazz())) && evaluate(object, property, Enabled.class);
 
@@ -603,8 +603,8 @@ public class Form<T> {
 	}
 
 	private void updateVisible() {
-		for (Map.Entry<PropertyInterface, FormElement<?>> element : elements.entrySet()) {
-			PropertyInterface property = element.getKey();
+		for (Map.Entry<Property, FormElement<?>> element : elements.entrySet()) {
+			Property property = element.getKey();
 			boolean visible = evaluate(object, property, Visible.class);
 			formContent.setVisible(element.getValue().getComponent(), visible);
 		}
@@ -621,8 +621,8 @@ public class Form<T> {
 	}
 
 	// TODO move to properties package, write tests
-	static boolean evaluate(Object object, PropertyInterface property, Class<? extends Annotation> annotationClass) {
-		for (PropertyInterface p2 : ChainedProperty.getChain(property)) {
+	static boolean evaluate(Object object, Property property, Class<? extends Annotation> annotationClass) {
+		for (Property p2 : ChainedProperty.getChain(property)) {
 			Annotation annotation = p2.getAnnotation(annotationClass);
 
 			if (annotation != null) {
@@ -640,7 +640,7 @@ public class Form<T> {
 		return true;
 	}
 
-	static boolean evaluateCondition(Object object, PropertyInterface property, String methodName) {
+	static boolean evaluateCondition(Object object, Property property, String methodName) {
 		if (Enabled.FALSE.equals(methodName)) {
 			return false;
 		}
@@ -666,7 +666,7 @@ public class Form<T> {
 	public boolean indicate(List<ValidationMessage> validationMessages) {
 		List<ValidationMessage> unused = new ArrayList<>(validationMessages);
 		boolean relevantValidationMessage = false;
-		for (PropertyInterface property : getProperties()) {
+		for (Property property : getProperties()) {
 			List<ValidationMessage> filteredValidationMessages = ValidationMessage.filterValidationMessage(validationMessages, property);
 			setValidationMessage(property, filteredValidationMessages);
 			relevantValidationMessage |= !filteredValidationMessages.isEmpty();

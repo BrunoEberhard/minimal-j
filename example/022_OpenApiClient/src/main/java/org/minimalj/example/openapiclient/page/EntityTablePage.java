@@ -9,7 +9,7 @@ import org.minimalj.frontend.page.SimpleTableEditorPage;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.query.By;
 import org.minimalj.util.Codes;
 
@@ -31,7 +31,7 @@ public class EntityTablePage<T> extends SimpleTableEditorPage<T> {
 	protected Object[] getColumns() {
 		List<Object> columnList = new ArrayList<>();
 		for (MjProperty property : entity.properties) {
-			PropertyInterface p = Properties.getProperty(clazz, property.name);
+			Property p = Properties.getProperty(clazz, property.name);
 			columnList.add(p);
 		}
 		return columnList.toArray();

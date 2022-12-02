@@ -15,7 +15,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.minimalj.example.newsfeed.model.Channel;
 import org.minimalj.example.newsfeed.model.Item;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.StringUtils;
 
 public class AtomStax {
@@ -79,7 +79,7 @@ public class AtomStax {
 	
 	public Channel channel(XMLEventReader xml) throws XMLStreamException {
 		Channel channel = new Channel();
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(Channel.class);
+		Map<String, Property> properties = FlatProperties.getProperties(Channel.class);
 		String[] fields = properties.keySet().toArray(new String[properties.size()]);
 		
 		while(true) {
@@ -103,7 +103,7 @@ public class AtomStax {
 	
 	public Item item(XMLEventReader xml) throws XMLStreamException {
 		Item item = new Item();
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(Item.class);
+		Map<String, Property> properties = FlatProperties.getProperties(Item.class);
 		String[] fields = properties.keySet().toArray(new String[properties.size()]);
 		
 		while(true) {

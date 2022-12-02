@@ -15,7 +15,7 @@ import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.properties.VirtualProperty;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
@@ -59,7 +59,7 @@ public class Validator {
 			}
 			return messages;
 		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass()) && !(object instanceof Selection)) {
-			Collection<PropertyInterface> valueProperties = Properties.getProperties(object.getClass()).values();
+			Collection<Property> valueProperties = Properties.getProperties(object.getClass()).values();
 			List<ValidationMessage> validationMessages = new ArrayList<>();
 			valueProperties.stream().filter(p -> !StringUtils.equals(p.getName(), "id", "version", "historized")).forEach(property -> {
 				Object value = property.getValue(object);
@@ -81,7 +81,7 @@ public class Validator {
 		}
 	}
 
-	private static PropertyInterface chain(PropertyInterface p1, PropertyInterface p2) {
+	private static Property chain(Property p1, Property p2) {
 		if (p2 == null) {
 			return p1;
 		} else {
@@ -125,7 +125,7 @@ public class Validator {
 	}
 	
 
-	private static void validateEmpty(List<ValidationMessage> resultList, Object value, PropertyInterface property) {
+	private static void validateEmpty(List<ValidationMessage> resultList, Object value, Property property) {
 		NotEmpty notEmpty = property.getAnnotation(NotEmpty.class);
 		if (notEmpty != null && EmptyObjects.isEmpty(value) && !(notEmpty.zeroAllowed() && isZero(value))) {
 			resultList.add(Validation.createEmptyValidationMessage(property));
@@ -144,7 +144,7 @@ public class Validator {
 		}
 	}
 
-	private static void validateSize(List<ValidationMessage> validationMessages, Object value, PropertyInterface property) {
+	private static void validateSize(List<ValidationMessage> validationMessages, Object value, Property property) {
 		if (value instanceof String) {
 			String string = (String) value;
 			int maxSize = AnnotationUtil.getSize(property, !AnnotationUtil.OPTIONAL);
@@ -155,13 +155,13 @@ public class Validator {
 		}
 	}
 
-	private static void validateInvalid(List<ValidationMessage> validationMessages, Object value, PropertyInterface property) {
+	private static void validateInvalid(List<ValidationMessage> validationMessages, Object value, Property property) {
 		if (InvalidValues.isInvalid(value)) {
 			validationMessages.add(Validation.createInvalidValidationMessage(property));
 		}
 	}
 	
-	public static boolean allUsedFieldsValid(List<ValidationMessage> validationMessages, Collection<PropertyInterface> properties,
+	public static boolean allUsedFieldsValid(List<ValidationMessage> validationMessages, Collection<Property> properties,
 			boolean showWarningIfValidationForUnsuedElement) {
 		for (ValidationMessage validationMessage : validationMessages) {
 			if (properties.contains(validationMessage.getProperty())) {

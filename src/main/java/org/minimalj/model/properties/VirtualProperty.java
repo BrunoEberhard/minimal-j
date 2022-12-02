@@ -8,11 +8,11 @@ import java.lang.annotation.Annotation;
  * This can be helpful if you want to edit a single property with
  * two form fields.<p>
  * 
- * This class could be removed by adding default methods to the PropertyInterface.
+ * This class could be removed by adding default methods to the Property.
  * This is not done on purpose as it would pollute the interface and suggest
  * 'virtual' as the default implementation of a property (which it is not).
  */
-public abstract class VirtualProperty implements PropertyInterface {
+public abstract class VirtualProperty implements Property {
 
 	@Override
 	public Class<?> getDeclaringClass() {

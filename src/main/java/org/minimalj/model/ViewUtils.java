@@ -8,13 +8,13 @@ import java.util.Map;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
-public class ViewUtil {
+public class ViewUtils {
 
 	/**
 	 * Creates a view to a complete object. Meaning all fields existing on view and
@@ -28,15 +28,15 @@ public class ViewUtil {
 	public static <T> T view(Object completeObject, T viewObject) {
 		if (completeObject == null) return null;
 		
-		Map<String, PropertyInterface> propertiesOfCompleteObject = FlatProperties.getProperties(completeObject.getClass());
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(viewObject.getClass());
+		Map<String, Property> propertiesOfCompleteObject = FlatProperties.getProperties(completeObject.getClass());
+		Map<String, Property> properties = FlatProperties.getProperties(viewObject.getClass());
 
-		for (Map.Entry<String, PropertyInterface> entry : properties.entrySet()) {
-			PropertyInterface property = propertiesOfCompleteObject.get(entry.getKey());
+		for (Map.Entry<String, Property> entry : properties.entrySet()) {
+			Property property = propertiesOfCompleteObject.get(entry.getKey());
 			Object value = property != null ? property.getValue(completeObject) : readByGetMethod(completeObject, entry.getKey());
-			PropertyInterface propertyView = entry.getValue();
+			Property propertyView = entry.getValue();
 			if (value != null && !propertyView.getClazz().isAssignableFrom(value.getClass()) && View.class.isAssignableFrom(propertyView.getClazz())) {
-				value = ViewUtil.view(value, CloneHelper.newInstance(propertyView.getClazz()));
+				value = ViewUtils.view(value, CloneHelper.newInstance(propertyView.getClazz()));
 			} 
 			propertyView.setValue(viewObject, value);
 		}

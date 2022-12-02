@@ -18,8 +18,8 @@ import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.Model;
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.ViewUtils;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
@@ -27,7 +27,7 @@ import org.minimalj.util.IdUtils;
 
 public class SqlHistorizedRepository extends SqlRepository {
 
-	private Map<Class<?>, HashMap<String, PropertyInterface>> versionColumnsForClass;
+	private Map<Class<?>, HashMap<String, Property>> versionColumnsForClass;
 
 	public SqlHistorizedRepository(DataSource dataSource, Class<?>... classes) {
 		super(dataSource, classes);
@@ -47,17 +47,17 @@ public class SqlHistorizedRepository extends SqlRepository {
 		}
 	}
 	
-	public HashMap<String, PropertyInterface> findVersionColumns(Class<?> clazz) {
+	public HashMap<String, Property> findVersionColumns(Class<?> clazz) {
 		if (versionColumnsForClass == null) {
 			versionColumnsForClass = new HashMap<>(200);
 		}
 		if (versionColumnsForClass.containsKey(clazz)) {
 			return versionColumnsForClass.get(clazz);
 		}
-		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
-		HashMap<String, PropertyInterface> versionColumns = new LinkedHashMap<>();
+		HashMap<String, Property> columns = findColumnsUpperCase(clazz);
+		HashMap<String, Property> versionColumns = new LinkedHashMap<>();
 		Set<String> alreadyUsedIdentifiers = new TreeSet<String>(columns.keySet());
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+		for (Map.Entry<String, Property> entry : columns.entrySet()) {
 			if (FieldUtils.hasValidHistorizedField(entry.getValue().getClazz())) {
 				String fieldName = sqlIdentifier.column(entry.getKey() + "_VERSION", alreadyUsedIdentifiers);
 				versionColumns.put(fieldName, entry.getValue());
@@ -87,13 +87,13 @@ public class SqlHistorizedRepository extends SqlRepository {
 
 	@SuppressWarnings("unchecked")
 	public <T> T readVersion(Class<T> clazz, Object id, int time) {
-		HistorizedTable<T> table = (HistorizedTable<T>) getTable(ViewUtil.resolve(clazz));
+		HistorizedTable<T> table = (HistorizedTable<T>) getTable(ViewUtils.resolve(clazz));
 		T result = table.read(id, time);
 		if (View.class.isAssignableFrom(clazz)) {
 			// TODO Historized views are not optimized for read by id and time.
 			// The complete object is read and reduced to view.
 			// Should not cost too much performance as it's only one entity.
-			return ViewUtil.view(result, CloneHelper.newInstance(clazz));
+			return ViewUtils.view(result, CloneHelper.newInstance(clazz));
 		} else {
 			return result;
 		}
@@ -116,14 +116,14 @@ public class SqlHistorizedRepository extends SqlRepository {
 		Integer version = 0;
 		R result = CloneHelper.newInstance(clazz);
 
-		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
-		HashMap<String, PropertyInterface> versionColumns = findVersionColumns(clazz);
+		HashMap<String, Property> columns = findColumnsUpperCase(clazz);
+		HashMap<String, Property> versionColumns = findVersionColumns(clazz);
 
 		// first read the resultSet completely then resolve references
 		// some db mixes closing of resultSets.
 
-		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
-		Map<PropertyInterface, Integer> versions = new HashMap<>();
+		Map<Property, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
+		Map<Property, Integer> versions = new HashMap<>();
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnName(columnIndex);
 			if ("ID".equalsIgnoreCase(columnName)) {
@@ -143,12 +143,12 @@ public class SqlHistorizedRepository extends SqlRepository {
 			}
 
 			if (versionColumns.containsKey(columnName)) {
-				PropertyInterface property = versionColumns.get(columnName);
+				Property property = versionColumns.get(columnName);
 				versions.put(property, resultSet.getInt(columnIndex));
 				continue;
 			}
 
-			PropertyInterface property = columns.get(columnName);
+			Property property = columns.get(columnName);
 			if (property == null)
 				continue;
 
@@ -172,16 +172,16 @@ public class SqlHistorizedRepository extends SqlRepository {
 			loadedReferences.get(clazz).put(key, result);
 		}
 
-		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
+		for (Map.Entry<Property, Object> entry : values.entrySet()) {
 			Object value = entry.getValue();
-			PropertyInterface property = entry.getKey();
+			Property property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = Codes.getOrInstantiate(codeClass, value);
 				} else if (View.class.isAssignableFrom(fieldClass)) {
-					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
+					Class<?> viewedClass = ViewUtils.getViewedClass(fieldClass);
 					Table<?> referenceTable = getTable(viewedClass);
 					value = referenceTable.readView(fieldClass, value, loadedReferences);
 				} else if (IdUtils.hasId(fieldClass)) {

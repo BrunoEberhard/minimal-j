@@ -14,7 +14,7 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -71,7 +71,7 @@ public class MjProperty {
 	
 	public MjProperty(MjModel model, Method method) {
 		name = StringUtils.lowerFirstChar(method.getName().substring(3));
-		PropertyInterface property = new Keys.MethodProperty(method.getReturnType(), name, method, null);
+		Property property = new Keys.MethodProperty(method.getReturnType(), name, method, null);
 		
 		Class<?> returnType = method.getReturnType();
 		this.propertyType = propertyType(returnType, false);

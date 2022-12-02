@@ -16,7 +16,7 @@ import org.minimalj.frontend.editor.Validator.IndexProperty;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.ChainedProperty;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 
 public class TableFormElement<T> extends AbstractFormElement<List<T>> {
@@ -30,13 +30,13 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 
 	private final TableRowFormFactory<? super T> formFactory;
 	private final List<Action> actions;
-	private final List<PropertyInterface> propertyAsChain;
+	private final List<Property> propertyAsChain;
 
 	public TableFormElement(List<T> key, List<Object> columns, List<Action> actions, boolean editable) {
 		this(Keys.getProperty(key), columns, actions, editable);
 	}
 
-	public TableFormElement(PropertyInterface property, List<Object> columns, List<Action> actions, boolean editable) {
+	public TableFormElement(Property property, List<Object> columns, List<Action> actions, boolean editable) {
 		this(property, new SimpleTableRowFormFactory<T>(columns), actions, editable);
 	}
 
@@ -44,7 +44,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this(Keys.getProperty(key), formFactory, actions, editable);
 	}
 
-	public TableFormElement(PropertyInterface property, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
+	public TableFormElement(Property property, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
 		super(property);
 		this.editable = editable;
 		this.formFactory = formFactory;
@@ -171,9 +171,9 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		ArrayList<ValidationMessage>[] validationMessagesByRow = new ArrayList[rowForms.size()];
 
 		for (ValidationMessage message : validationMessages) {
-			List<PropertyInterface> messagePropertyAsChain = ChainedProperty.getChain(message.getProperty());
+			List<Property> messagePropertyAsChain = ChainedProperty.getChain(message.getProperty());
 
-			PropertyInterface unchained = ChainedProperty.buildChain(messagePropertyAsChain.subList(propertyAsChain.size() + 1, messagePropertyAsChain.size()));
+			Property unchained = ChainedProperty.buildChain(messagePropertyAsChain.subList(propertyAsChain.size() + 1, messagePropertyAsChain.size()));
 			IndexProperty indexProperty = (IndexProperty) messagePropertyAsChain.get(propertyAsChain.size());
 			int index = indexProperty.getIndex();
 

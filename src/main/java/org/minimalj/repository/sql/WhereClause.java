@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.model.annotation.Searched;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.Criteria.AndCriteria;
@@ -146,8 +146,8 @@ public class WhereClause<T> {
 
 	private List<String> findSearchColumns() {
 		List<String> searchColumns = new ArrayList<>();
-		for (Map.Entry<String, PropertyInterface> entry : table.getColumns().entrySet()) {
-			PropertyInterface property = entry.getValue();
+		for (Map.Entry<String, Property> entry : table.getColumns().entrySet()) {
+			Property property = entry.getValue();
 			Searched searchable = property.getAnnotation(Searched.class);
 			if (searchable != null) {
 				searchColumns.add(entry.getKey());
@@ -192,7 +192,7 @@ public class WhereClause<T> {
 			if ("id".equals(restOfFieldPath)) {
 				return column + " " + criteriaString;
 			} else {
-				PropertyInterface subProperty = table.getColumns().get(column);
+				Property subProperty = table.getColumns().get(column);
 				AbstractTable<?> subTable = table.sqlRepository.getAbstractTable(subProperty.getClazz());
 				return column + " IN (SELECT id FROM " + subTable.getTableName() + " WHERE " + whereStatement(subTable, restOfFieldPath, criteriaString) + ")";
 			}

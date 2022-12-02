@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import org.minimalj.frontend.impl.util.HtmlString;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 
@@ -60,7 +60,7 @@ public interface Rendering {
 		return toString(c);
 	}
 
-	public static String toString(Object o, PropertyInterface property) {
+	public static String toString(Object o, Property property) {
 		CharSequence c = render(o, property);
 		return toString(c);
 	}
@@ -69,7 +69,7 @@ public interface Rendering {
 		return render(o, null);
 	}
 	
-	public static CharSequence render(Object o, PropertyInterface property) {
+	public static CharSequence render(Object o, Property property) {
 		if (o == null) {
 			return "";
 		} else if (o instanceof Rendering) {

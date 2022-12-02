@@ -29,19 +29,15 @@ import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.minimalj.application.Configuration;
-import org.minimalj.model.Code;
-import org.minimalj.model.EnumUtils;
-import org.minimalj.model.Keys;
+import org.minimalj.model.*;
 import org.minimalj.model.Keys.MethodProperty;
-import org.minimalj.model.Model;
-import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.TransactionalRepository;
@@ -67,8 +63,8 @@ public class SqlRepository implements TransactionalRepository {
 	
 	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<>();
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<>();
-	private final Map<Class<?>, LinkedHashMap<String, PropertyInterface>> columnsForClass = new HashMap<>(200);
-	private final Map<Class<?>, HashMap<String, PropertyInterface>> columnsForClassUpperCase = new HashMap<>(200);
+	private final Map<Class<?>, LinkedHashMap<String, Property>> columnsForClass = new HashMap<>(200);
+	private final Map<Class<?>, HashMap<String, Property>> columnsForClassUpperCase = new HashMap<>(200);
 	
 	protected final Map<Class<?>, String> dbTypes = new HashMap<>();
 	
@@ -263,7 +259,7 @@ public class SqlRepository implements TransactionalRepository {
 	public <T> T read(Class<T> clazz, Object id) {
 		if (View.class.isAssignableFrom(clazz)) {
 			@SuppressWarnings("unchecked")
-			Table<T> table = (Table<T>) getTable(ViewUtil.getViewedClass(clazz));
+			Table<T> table = (Table<T>) getTable(ViewUtils.getViewedClass(clazz));
 			return table.readView(clazz, id, new HashMap<>());
 		} else {
 			return getTable(clazz).read(id);
@@ -273,7 +269,7 @@ public class SqlRepository implements TransactionalRepository {
 	@Override
 	public <T> List<T> find(Class<T> resultClass, Query query) {
 		@SuppressWarnings("unchecked")
-		Table<T> table = (Table<T>) getTable(ViewUtil.resolve(resultClass));
+		Table<T> table = (Table<T>) getTable(ViewUtils.resolve(resultClass));
 		return table.find(query, resultClass, new HashMap<>());
 	}
 		
@@ -281,7 +277,7 @@ public class SqlRepository implements TransactionalRepository {
 	@Override
 	public <T> long count(Class<T> clazz, Criteria criteria) {
 		if (View.class.isAssignableFrom(clazz)) {
-			clazz = (Class<T>) ViewUtil.getViewedClass(clazz);
+			clazz = (Class<T>) ViewUtils.getViewedClass(clazz);
 		}
 		Table<?> table = getTable(clazz);
 		return table.count(criteria);
@@ -339,12 +335,12 @@ public class SqlRepository implements TransactionalRepository {
 		return preparedStatement;
 	}
 	
-	public LinkedHashMap<String, PropertyInterface> findColumns(Class<?> clazz) {
+	public LinkedHashMap<String, Property> findColumns(Class<?> clazz) {
 		if (columnsForClass.containsKey(clazz)) {
 			return columnsForClass.get(clazz);
 		}
 		
-		LinkedHashMap<String, PropertyInterface> columns = new LinkedHashMap<>();
+		LinkedHashMap<String, Property> columns = new LinkedHashMap<>();
 		for (Field field : clazz.getFields()) {
 			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
 			String fieldName = field.getName();
@@ -352,7 +348,7 @@ public class SqlRepository implements TransactionalRepository {
 			if (FieldUtils.isList(field)) continue;
 			if (!FieldUtils.isFinal(field) && AbstractTable.isDependable(field.getType())) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
-				Map<String, PropertyInterface> inlinePropertys = findColumns(field.getType());
+				Map<String, Property> inlinePropertys = findColumns(field.getType());
 				boolean hasClassName = FieldUtils.hasClassName(field) && !FlatProperties.hasCollidingFields(clazz, field.getType(), field.getName());
 				for (String inlineKey : inlinePropertys.keySet()) {
 					String key = inlineKey;
@@ -380,12 +376,12 @@ public class SqlRepository implements TransactionalRepository {
 		return columns;
 	}	
 	
-	protected HashMap<String, PropertyInterface> findColumnsUpperCase(Class<?> clazz) {
+	protected HashMap<String, Property> findColumnsUpperCase(Class<?> clazz) {
 		if (columnsForClassUpperCase.containsKey(clazz)) {
 			return columnsForClassUpperCase.get(clazz);
 		}
-		LinkedHashMap<String, PropertyInterface> columns = findColumns(clazz);
-		HashMap<String, PropertyInterface> columnsUpperCase = new HashMap<>(columns.size() * 3);
+		LinkedHashMap<String, Property> columns = findColumns(clazz);
+		HashMap<String, Property> columnsUpperCase = new HashMap<>(columns.size() * 3);
 		columns.forEach((key, value) -> columnsUpperCase.put(key.toUpperCase(), value));
 		columnsForClassUpperCase.put(clazz, columnsUpperCase);
 		return columnsUpperCase;
@@ -470,12 +466,12 @@ public class SqlRepository implements TransactionalRepository {
 		Integer version = null;
 		Integer position = 0;
 		
-		HashMap<String, PropertyInterface> columns = findColumnsUpperCase(clazz);
+		HashMap<String, Property> columns = findColumnsUpperCase(clazz);
 		
 		// first read the resultSet completely then resolve references
 		// some db mixes closing of resultSets.
 		
-		Map<PropertyInterface, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
+		Map<Property, Object> values = new HashMap<>(resultSet.getMetaData().getColumnCount() * 3);
 		for (int columnIndex = 1; columnIndex <= resultSet.getMetaData().getColumnCount(); columnIndex++) {
 			String columnName = resultSet.getMetaData().getColumnLabel(columnIndex).toUpperCase();
 			if ("ID".equals(columnName)) {
@@ -489,7 +485,7 @@ public class SqlRepository implements TransactionalRepository {
 				continue;				
 			}
 			
-			PropertyInterface property = columns.get(columnName);
+			Property property = columns.get(columnName);
 			if (property == null) {
 				logger.log(Level.FINE, "Column not found: " + columnName);
 				continue;
@@ -535,8 +531,8 @@ public class SqlRepository implements TransactionalRepository {
 			}
 		}
 		
-		for (Map.Entry<PropertyInterface, Object> entry : values.entrySet()) {
-			PropertyInterface property = entry.getKey();
+		for (Map.Entry<Property, Object> entry : values.entrySet()) {
+			Property property = entry.getKey();
 			Object value = entry.getValue();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
@@ -569,10 +565,10 @@ public class SqlRepository implements TransactionalRepository {
 			} else {
 				Object referencedValue;
 				if (View.class.isAssignableFrom(fieldClass)) {
-					Class<?> viewedClass = ViewUtil.getViewedClass(fieldClass);
+					Class<?> viewedClass = ViewUtils.getViewedClass(fieldClass);
 					if (Codes.isCode(viewedClass)) {
 						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-						referencedValue = ViewUtil.view(Codes.findCode(codeClass, value), CloneHelper.newInstance(fieldClass));
+						referencedValue = ViewUtils.view(Codes.findCode(codeClass, value), CloneHelper.newInstance(fieldClass));
 					} else {
 						Table<?> referenceTable = getTable(viewedClass);
 						referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
@@ -736,7 +732,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	public String column(Object key) {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
 		Class<?> declaringClass;
 		if (property instanceof ChainedProperty) {
 			ChainedProperty chainedProperty = (ChainedProperty) property;
@@ -748,8 +744,8 @@ public class SqlRepository implements TransactionalRepository {
 			AbstractTable<?> table = getAbstractTable(declaringClass);
 			return table.column(property);
 		} else {
-			LinkedHashMap<String, PropertyInterface> columns = findColumns(declaringClass);
-			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+			LinkedHashMap<String, Property> columns = findColumns(declaringClass);
+			for (Map.Entry<String, Property> entry : columns.entrySet()) {
 				if (StringUtils.equals(entry.getValue().getPath(), property.getPath())) {
 					return entry.getKey();
 				}

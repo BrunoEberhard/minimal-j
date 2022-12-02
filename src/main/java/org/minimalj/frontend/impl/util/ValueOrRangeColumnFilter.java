@@ -20,7 +20,7 @@ import org.minimalj.frontend.impl.util.ColumnFilterPredicate.MaxFilterPredicate;
 import org.minimalj.frontend.impl.util.ColumnFilterPredicate.MinFilterPredicate;
 import org.minimalj.frontend.impl.util.ColumnFilterPredicate.RangeFilterPredicate;
 import org.minimalj.frontend.impl.util.ColumnFilterPredicate.TemporalEqualsFilterPredicate;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.Criteria;
@@ -29,7 +29,7 @@ import org.minimalj.util.resources.Resources;
 
 public class ValueOrRangeColumnFilter implements ColumnFilter {
 
-	private final PropertyInterface property;
+	private final Property property;
 	private final BiFunction<Object, Predicate<Object>, Boolean> tester;
 	private final String name;
 	
@@ -41,7 +41,7 @@ public class ValueOrRangeColumnFilter implements ColumnFilter {
 
 	private ColumnFilterPredicate activeFilter;
 
-	public ValueOrRangeColumnFilter(PropertyInterface property) {
+	public ValueOrRangeColumnFilter(Property property) {
 		this.property = Objects.requireNonNull(property);
 		this.tester = null;
 		this.name = Resources.getPropertyName(property);

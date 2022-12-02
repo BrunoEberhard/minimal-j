@@ -8,7 +8,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.mock.Mocking;
 
@@ -28,11 +28,11 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 		this(Keys.getProperty(key), values, nullText);
 	}
 
-	public ComboBoxFormElement(PropertyInterface property, List<T> values) {
+	public ComboBoxFormElement(Property property, List<T> values) {
 		this(property, values, EMPTY_NULL_STRING);
 	}
 	
-	public ComboBoxFormElement(PropertyInterface property, List<T> values, String nullText) {
+	public ComboBoxFormElement(Property property, List<T> values, String nullText) {
 		super(property);
 		this.values = this instanceof CodeFormElement ? values : new ArrayList<>(values);
 		comboBox = Frontend.getInstance().createComboBox(this.values, nullText, listener());

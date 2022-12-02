@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 
@@ -17,7 +17,7 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 	protected final String selectByIdAndTimeQuery;
 	protected final String endQuery;
 
-	public HistorizedCrossTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public HistorizedCrossTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, prefix, clazz, parentIdProperty);
 
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
@@ -170,7 +170,7 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 		s.append(",\n endVersion INTEGER NOT NULL");
 		s.append(",\n position INTEGER NOT NULL");
 		s.append(",\n elementId ");
-		PropertyInterface elementIdProperty = FlatProperties.getProperty(clazz, "id");
+		Property elementIdProperty = FlatProperties.getProperty(clazz, "id");
 		dialect.addColumnDefinition(s, elementIdProperty);
 		s.append(" NOT NULL");
 	}
