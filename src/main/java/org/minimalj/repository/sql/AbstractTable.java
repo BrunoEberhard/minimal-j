@@ -361,7 +361,7 @@ public abstract class AbstractTable<T> {
 			while (resultSet.next()) {
 				T object = sqlRepository.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
-					((Table<T>) this).loadLists(object);
+					((Table<T>) this).loadLists(object, loadedReferences);
 				}
 				result.add(object);
 			}

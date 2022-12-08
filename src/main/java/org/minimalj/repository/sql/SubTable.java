@@ -3,6 +3,7 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.IdUtils;
@@ -56,7 +57,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	@Override
 	public void replaceList(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
-		List<ELEMENT> objectsInDb = getList(parent);
+		List<ELEMENT> objectsInDb = getList(parent, null);
 		int position = 0;
 		try {
 			while (position < Math.max(objects.size(), objectsInDb.size())) {
@@ -109,7 +110,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 
 	@Override
-	public List<ELEMENT> getList(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);

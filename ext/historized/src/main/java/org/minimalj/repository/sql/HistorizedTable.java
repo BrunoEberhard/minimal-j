@@ -145,7 +145,7 @@ class HistorizedTable<T> extends Table<T> {
 			T object = executeSelect(selectByIdAndTimeStatement, loadedReferences);
 			if (object != null) {
 				loadDependables(id, object, time);
-				loadLists(object);
+				loadLists(object, loadedReferences);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -154,8 +154,8 @@ class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	protected void loadLists(T object) {
-		loadLists(object, null);
+	protected void loadLists(T object, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+		loadLists(object, (Integer) null);
 	}
 	
 	private void loadLists(T object, Integer time) {

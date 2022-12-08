@@ -2,7 +2,6 @@ package org.minimalj.repository.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,13 +67,13 @@ public class ContainedSubTable<PARENT, ELEMENT extends Dependable<PARENT>> exten
 	}
 	
 	@Override
-	public List<ELEMENT> getList(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		// prepare parent as loaded reference to avoid stack overflow
 		// by reference cycle between parent and contained element
-		Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
-		Map<Object, Object> loadedReference = new HashMap<>();
-		loadedReference.put(IdUtils.getId(parent), parent);
-		loadedReferences.put(parent.getClass(), loadedReference);
+//		Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
+//		Map<Object, Object> loadedReference = new HashMap<>();
+//		loadedReference.put(IdUtils.getId(parent), parent);
+//		loadedReferences.put(parent.getClass(), loadedReference);
 		
 		return find(By.field(parentKey, parent), clazz, loadedReferences);
 	}

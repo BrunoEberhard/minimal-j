@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.minimalj.model.properties.Property;
@@ -120,7 +121,7 @@ class HistorizedCrossHistorizedTable<PARENT, ELEMENT> extends HistorizedCrossTab
 	@Override
 	public List<ELEMENT> getList(PARENT parent, Integer time) {
 		if (time == null) {
-			return getList(parent);
+			return getList(parent, (Map<Class<?>, Map<Object, Object>>) null);
 		}
 		List<ObjectWithVersion> ids = readIds(parent, time);
 		HistorizedTable<ELEMENT> tableElement = (HistorizedTable<ELEMENT>) sqlRepository.getTable(clazz);
@@ -128,7 +129,7 @@ class HistorizedCrossHistorizedTable<PARENT, ELEMENT> extends HistorizedCrossTab
 	}
 
 	@Override
-	public List<ELEMENT> getList(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			List<ObjectWithVersion> ids = executeSelectIds(selectByIdStatement);

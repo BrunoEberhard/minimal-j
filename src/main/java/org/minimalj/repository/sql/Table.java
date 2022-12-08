@@ -351,17 +351,8 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(Object id) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, id);
-			T object = executeSelect(selectByIdStatement);
-			if (object != null) {
-				loadDependables(id, object, null);
-				loadLists(object);
-			}
-			return object;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
-		}
+		Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
+		return read(id, loadedReferences);
 	}
 
 	public T read(Object id, Map<Class<?>, Map<Object, Object>> loadedReferences) {
@@ -369,7 +360,8 @@ public class Table<T> extends AbstractTable<T> {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement, loadedReferences);
 			if (object != null) {
-				loadLists(object);
+				loadDependables(id, object, null);
+				loadLists(object, loadedReferences);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -530,9 +522,9 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected void loadLists(T object) throws SQLException {
+	protected void loadLists(T object, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
-			List values = listTableEntry.getValue().getList(object);
+			List values = listTableEntry.getValue().getList(object, loadedReferences);
 			Property listProperty = listTableEntry.getKey();
 			listProperty.setValue(object, values);
 		}
@@ -544,7 +536,7 @@ public class Table<T> extends AbstractTable<T> {
 		for (Property viewListProperty : viewLists) {
 			for (Entry<Property, ListTable> listPropertyEntry : lists.entrySet()) {
 				if (viewListProperty.getPath().equals(listPropertyEntry.getKey().getPath())) {
-					List values = listPropertyEntry.getValue().getList(result);
+					List values = listPropertyEntry.getValue().getList(result, null);
 					viewListProperty.setValue(result, values);
 
 					break;
