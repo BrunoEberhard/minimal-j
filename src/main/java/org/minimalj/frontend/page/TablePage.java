@@ -92,7 +92,7 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 
 		FormContent overview = getOverview();
 		if (overview != null) {
-			return Frontend.getInstance().createFormTableContent(overview, table);
+			return Frontend.getInstance().createFilteredTable(overview, table, null);
 		} else {
 			return table;
 		}

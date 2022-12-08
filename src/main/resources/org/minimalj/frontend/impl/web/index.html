@@ -654,6 +654,19 @@ $ICON
 				th.setAttribute("colspan", content.headers.length);
 				th.appendChild(createContent(content.overview));
 				tr.appendChild(th);
+				if (content.overviewActions) {
+					for (var i = 0; i < content.overviewActions.length; i++) {
+						var action = content.overviewActions[i];
+						var button = document.createElement("button");
+						button.id = action.id;
+						button.appendChild(document.createTextNode(action.name));
+						button.setAttribute("onclick", "action(\"" + action.id + "\");");
+						if (!action.enabled) {
+							button.setAttribute("disabled", "true");
+						}
+						th.appendChild(button);
+					}
+				}
 			}
 			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes, content.headerFilters));
 			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters, content.filterVisible));

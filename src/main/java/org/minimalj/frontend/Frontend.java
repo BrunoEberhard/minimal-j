@@ -205,9 +205,7 @@ public abstract class Frontend {
 		}
 	}
 	
-	// experimental. Signature may change. Idea is to have a header or filter above
-	// a table. But the header/filter must not be a growing content
-	public abstract IContent createFormTableContent(FormContent form, ITable<?> table);
+	public abstract IContent createFilteredTable(FormContent filter, ITable<?> table, Action...actions);
 
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 

@@ -212,11 +212,11 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action... actions) {
 		SwingBorderLayoutContent content = new SwingBorderLayoutContent();
-		if (form != null) {
+		if (filter != null) {
 			JPanel northPanel = new JPanel(new BorderLayout());
-			northPanel.add((Component) form, BorderLayout.LINE_START);
+			northPanel.add((Component) filter, BorderLayout.LINE_START);
 			content.add(northPanel, BorderLayout.NORTH);
 		}
 		if (table != null) {
