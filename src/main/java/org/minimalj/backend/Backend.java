@@ -12,6 +12,7 @@ import org.minimalj.backend.repository.EntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
+import org.minimalj.backend.repository.ReadOneTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.backend.repository.WriteTransaction;
@@ -152,6 +153,14 @@ public class Backend {
 
 	public static <T> List<T> find(Class<T> clazz, Query query) {
 		return execute(new ReadCriteriaTransaction<>(clazz, query));
+	}
+	
+	public static <T> T findOne(Class<T> clazz, Query query) {
+		return execute(new ReadOneTransaction<>(clazz, query, true));
+	}
+
+	public static <T> T findFirst(Class<T> clazz, Query query) {
+		return execute(new ReadOneTransaction<>(clazz, query, false));
 	}
 
 	public static <T> long count(Class<T> clazz, Criteria criteria) {
