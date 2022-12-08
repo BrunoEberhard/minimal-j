@@ -29,8 +29,12 @@ import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
 import org.minimalj.application.Configuration;
-import org.minimalj.model.*;
+import org.minimalj.model.Code;
+import org.minimalj.model.EnumUtils;
+import org.minimalj.model.Keys;
 import org.minimalj.model.Keys.MethodProperty;
+import org.minimalj.model.Model;
+import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
@@ -464,7 +468,7 @@ public class SqlRepository implements TransactionalRepository {
 		
 		Object id = null;
 		Integer version = null;
-		Integer position = 0;
+		Integer position = null;
 		
 		HashMap<String, Property> columns = findColumnsUpperCase(clazz);
 		
