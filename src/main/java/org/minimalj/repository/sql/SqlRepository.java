@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -76,7 +77,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	private Connection autoCommitConnection;
 	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
-	private final ThreadLocal<Connection> threadLocalTransactionConnection = new ThreadLocal<>();
+	private final ThreadLocal<Stack<Connection>> threadLocalTransactionConnection = new ThreadLocal<>();
 
 	public SqlRepository(Model model) {
 		this(DataSourceFactory.create(), model.getEntityClasses());
@@ -156,15 +157,19 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public void startTransaction(int transactionIsolationLevel) {
-		if (isTransactionActive()) return;
-		
 		Connection transactionConnection = allocateConnection(transactionIsolationLevel);
-		threadLocalTransactionConnection.set(transactionConnection);
+		if (threadLocalTransactionConnection.get() == null) {
+			threadLocalTransactionConnection.set(new Stack<>());
+		}
+		if (!threadLocalTransactionConnection.get().isEmpty() && Configuration.get("MjForbidInnerTransaction", "false").equals("true")) {
+			throw new IllegalStateException("Start a new transaction while other transaction already startet is not allowed");
+		}
+		threadLocalTransactionConnection.get().push(transactionConnection);
 	}
 
 	@Override
 	public void endTransaction(boolean commit) {
-		Connection transactionConnection = threadLocalTransactionConnection.get();
+		Connection transactionConnection = isTransactionActive() ? threadLocalTransactionConnection.get().peek() : null;
 		if (transactionConnection == null) return;
 		
 		try {
@@ -178,7 +183,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		
 		releaseConnection(transactionConnection);
-		threadLocalTransactionConnection.set(null);
+		threadLocalTransactionConnection.get().pop();
 	}
 	
 	private Connection allocateConnection(int transactionIsolationLevel) {
@@ -231,17 +236,14 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public boolean isTransactionActive() {
-		Connection connection = threadLocalTransactionConnection.get();
-		return connection != null;
+		return threadLocalTransactionConnection.get() != null && threadLocalTransactionConnection.get().size() > 0;
 	}
 	
 	public Connection getConnection() {
-		Connection connection = threadLocalTransactionConnection.get();
-		if (connection != null) {
-			return connection;
+		if (isTransactionActive()) {
+			return threadLocalTransactionConnection.get().peek();
 		} else {
-			connection = getAutoCommitConnection();
-			return connection;
+			return getAutoCommitConnection();
 		}
 	}
 	
@@ -724,7 +726,8 @@ public class SqlRepository implements TransactionalRepository {
 	public String name(Object classOrKey) {
 		if (classOrKey instanceof Class) {
 			// TODO
-			return tableByName.entrySet().stream().filter(e -> e.getValue().getClazz() == classOrKey).findAny().get().getKey();
+			// CrossTable liefern die gleich Klasse wie die Parent - Klasse, was dann die Parent-Klasse manchmal überdeckt
+			return tableByName.entrySet().stream().filter(e -> !(e.getValue() instanceof CrossTable)).filter(e -> e.getValue().getClazz() == classOrKey).findAny().get().getKey();
 		} else {
 			return column(classOrKey);
 		}

@@ -52,6 +52,8 @@ public class TransactionTest {
 			Backend.execute(new TestTransactionInsertingInSeparateTransaction());
 			Assert.fail("The exception should be passed to the caller of execute");
 		} catch (Exception x) {
+			x.printStackTrace();
+			
 			Assert.assertEquals("Class of exception should stay same", RuntimeException.class, x.getClass());
 			Assert.assertEquals("Message of exception should stay same", "No wonder happend", x.getMessage());
 		}
@@ -64,6 +66,9 @@ public class TransactionTest {
 
 		@Override
 		public TestEntityA execute() {
+			// Do a separate transaction. Earlier version of SqlRepository closed the outer transaction together with the nested. So test it. 
+			Backend.count(TestEntityA.class, By.ALL);
+			
 			// insert in repository without separate transaction
 			insert(new TestEntityA());
 			if (Math.random() < 2) {
