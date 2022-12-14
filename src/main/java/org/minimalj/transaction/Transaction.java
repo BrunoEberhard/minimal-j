@@ -8,6 +8,7 @@ import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
+import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.security.AccessControl;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
@@ -37,6 +38,14 @@ public interface Transaction<RETURN> extends AccessControl, Serializable {
 	default Repository repository() {
 		return Backend.getInstance().getRepository();
 	}
+	
+	default SqlRepository sqlRepository() {
+		return (SqlRepository) repository();
+	}
+	
+	default String $(Object classOrKey) {
+		return sqlRepository().name(classOrKey);
+	}
 
 	default <T> T read(Class<T> clazz, Object id) {
 		return repository().read(clazz, id);
@@ -61,7 +70,7 @@ public interface Transaction<RETURN> extends AccessControl, Serializable {
 	default <T> void delete(Class<T> clazz, Criteria criteria) {
 		repository().delete(clazz, criteria);
 	}
-
+	
 	default Isolation.Level getIsolation() {
 		Isolation isolation = AnnotationUtil.getAnnotationOfClassOrPackage(getClass(), Isolation.class);
 		return isolation != null ? isolation.value() : Isolation.Level.SERIALIZABLE;
