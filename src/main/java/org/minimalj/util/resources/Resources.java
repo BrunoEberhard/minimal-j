@@ -251,7 +251,7 @@ public class Resources {
 	private static final Set<String> missing = new TreeSet<>();
 
 	private static void reportMissing(String resourceName, boolean reportIfMissing) {
-		if (reportIfMissing && Configuration.isDevModeActive()) {
+		if (reportIfMissing && Configuration.get("MjPrintMissingResources", "false").equals("true")) {
 			missing.add(resourceName);
 		}
 	}
