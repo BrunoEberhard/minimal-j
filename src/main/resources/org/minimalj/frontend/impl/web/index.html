@@ -154,6 +154,10 @@ $ICON
 							var tbody = element.tBodies[0];
 							removeChildren(tbody);
 							addTableRows(id, tbody, value);
+						} else if (property === "tableModel") {
+							var thead = element.tHead;
+							removeChildren(thead);
+							fillTableHead(thead, id, value, false);
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
 							for (var i = 0; i < tbody.childNodes.length; i++) {
@@ -645,31 +649,7 @@ $ICON
 			}
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
-			thead.appendChild(createTableColumns(content.headers, content.headerPathes, content.widths, content.maxWidths));
-			element.appendChild(createTableColumnStyles(content.id, content.alignments));
-			if (content.overview) {
-				var tr = document.createElement("tr");
-				thead.appendChild(tr);
-				var th = document.createElement("th");
-				th.setAttribute("colspan", content.headers.length);
-				th.appendChild(createContent(content.overview));
-				tr.appendChild(th);
-				if (content.overviewActions) {
-					for (var i = 0; i < content.overviewActions.length; i++) {
-						var action = content.overviewActions[i];
-						var button = document.createElement("button");
-						button.id = action.id;
-						button.appendChild(document.createTextNode(action.name));
-						button.setAttribute("onclick", "action(\"" + action.id + "\");");
-						if (!action.enabled) {
-							button.setAttribute("disabled", "true");
-						}
-						th.appendChild(button);
-					}
-				}
-			}
-			thead.appendChild(createTableHeaders(content.id, content.headers, content.headerPathes, content.headerFilters));
-			thead.appendChild(createTableFilters(content.id, content.headers, content.headerPathes, content.headerFilters, content.filterVisible));
+			fillTableHead(thead, content.id, content.tableModel, content.filterVisible);
 			var tbody = document.createElement("tbody");
 			element.appendChild(tbody);
 			tbody.setAttribute("onclick", "tableSelection(event);");
@@ -677,9 +657,26 @@ $ICON
 			tbody.setAttribute("onkeydown", "tableKeyHandler(event);");
 			addTableRows(content.id, tbody, content.tableContent);
 			var tfoot = document.createElement("tfoot");
-			tfoot.columnCount = content.headers.length;
+			tfoot.columnCount = content.tableModel.headers.length;
 			element.appendChild(tfoot);
 			addTableFooter(tfoot, content.paging);
+		} else if (type === "CustomFilter") {
+			var element = document.createElement("div");
+			element.appendChild(createContent(content.filter));
+			if (content.overviewActions) {
+				for (var i = 0; i < content.overviewActions.length; i++) {
+					var action = content.overviewActions[i];
+					var button = document.createElement("button");
+					button.id = action.id;
+					button.appendChild(document.createTextNode(action.name));
+					button.setAttribute("onclick", "action(\"" + action.id + "\");");
+					if (!action.enabled) {
+						button.setAttribute("disabled", "true");
+					}
+					th.appendChild(button);
+				}
+			}
+			element.appendChild(createContent(content.table));
 		} else if (type === "Text" || type === "Title" || type === "Empty") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());
@@ -968,26 +965,33 @@ $ICON
 		cellElement.style.flexGrow = span;
 	}
 
-	function createTableColumns(headers, headerNames, widths, maxWidths) {
+	function fillTableHead(thead, id, tableModel, filterVisible) {
+		thead.appendChild(createTableColumns(tableModel));
+		thead.appendChild(createTableColumnStyles(id, tableModel));
+		thead.appendChild(createTableHeaders(id, tableModel));
+		thead.appendChild(createTableFilters(id, tableModel, filterVisible));
+	}
+	
+	function createTableColumns(tableModel) {
 		var element = document.createElement("tr");
-		for (var i = 0; i < headers.length; i++) {
+		for (var i = 0; i < tableModel.headers.length; i++) {
 			var th = document.createElement("th");
-			th.className = "col " + headerNames[i];
-			th.setAttribute("width", widths[i]);
-			th.style.maxWidth = maxWidths[i];			
+			th.className = "col " + tableModel.headerPathes[i];
+			th.setAttribute("width", tableModel.widths[i]);
+			th.style.maxWidth = tableModel.maxWidths[i];			
 			element.appendChild(th);
 		}
 		return element;
 	}
 	
-	function createTableColumnStyles(elementId, alignments) {
+	function createTableColumnStyles(elementId, tableModel) {
 		var tableStyle = document.createElement("style");
 		tableStyle.type = "text/css";
 		var style = "";
-		for (var i = 0; i < alignments.length; i++) {
-			if (alignments[i] != undefined) {
-				var columnStyle = "text-align: " + alignments[i] + ";";
-				if (alignments[i] == "end") {
+		for (var i = 0; i < tableModel.alignments.length; i++) {
+			if (tableModel.alignments[i] != undefined) {
+				var columnStyle = "text-align: " + tableModel.alignments[i] + ";";
+				if (tableModel.alignments[i] == "end") {
 					columnStyle = columnStyle + "padding-right: 1em;"
 				}
 				style = style + "#" + CSS.escape(elementId) + " td:nth-child(" + (i+1) + ") {" + columnStyle + "}\n";
@@ -997,33 +1001,33 @@ $ICON
 		return tableStyle;
 	}
 	
-	function createTableHeaders(tableId, headers, headerNames, headerFilters) {
+	function createTableHeaders(tableId, tableModel) {
 		var element = document.createElement("tr");
 		element.className = "headers"; 
-		for (var i = 0; i < headers.length; i++) {
+		for (var i = 0; i < tableModel.headers.length; i++) {
 			var th = document.createElement("th");
-			th.appendChild(document.createTextNode(headers[i]));
+			th.appendChild(document.createTextNode(tableModel.headers[i]));
 			th.setAttribute("onclick", "tableSortAction(\"" + tableId + "\", " + i + " );");
 			element.appendChild(th);
 		}
 		return element;
 	}
 
-	function createTableFilters(tableId, headers, headerNames, headerFilterLookups, filterVisible) {
+	function createTableFilters(tableId, tableModel, filterVisible) {
 		var element = document.createElement("tr");
 		element.classList.add("columnFilters");
 		if (!filterVisible) {
 			element.classList.add("hide");
 		}		
-		for (var i = 0; i < headers.length; i++) {
+		for (var i = 0; i < tableModel.headers.length; i++) {
 			var th = document.createElement("th");
 			th.classList.add("formElement");
 			th.classList.add("columnFilter");
-			th.classList.add(headerNames[i]);
+			th.classList.add(tableModel.headerPathes[i]);
 			
-			var input = createContent(headerFilterLookups[i]);
+			var input = createContent(tableModel.headerFilters[i]);
 			th.appendChild(input);
-			th.id = headerFilterLookups[i].id + "-element";
+			th.id = tableModel.headerFilters[i].id + "-element";
 			
 			element.appendChild(th);
 		}

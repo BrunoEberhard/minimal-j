@@ -194,6 +194,10 @@ public abstract class Frontend {
 		
 		// must keep selection and call selectionListener
 		public void setObjects(List<T> objects);
+		
+		public default void setColumns(Object[] keys) {
+			// throw new RuntimeException("Not implemented");
+		}
 	}
 
 	public interface TableActionListener<U> {

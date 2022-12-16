@@ -34,55 +34,66 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final int FILTER_LINES = Integer.parseInt(Configuration.get("MjTableFilterLines", "12"));
 
 	private final JsonPageManager pageManager;
-	private final Object[] keys;
-	private final List<Property> properties;
 	private final TableActionListener<T> listener;
 	private List<T> objects, visibleObjects;
 	private final List<T> selectedObjects = new ArrayList<>();
 	private int page;
+	
+	private JsonTableModel tableModel;
+	
 	private final List<Object> sortColumns = new ArrayList<>();
 	private final List<Boolean> sortDirections = new ArrayList<>();
-	private final ColumnFilter[] filters;
-	private final IComponent[] headerFilters;
-	private final String[] alignments;
 	
 	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
 		this.pageManager = pageManager;
-		this.keys = keys;
-		this.properties = convert(keys);
 		this.listener = listener;
 
-		List<String> headers = new ArrayList<>();
-		List<String> headerPathes = new ArrayList<>();
-		filters = new ColumnFilter[keys.length];
-		headerFilters = new IComponent[keys.length];
-		alignments = new String[keys.length];
-		Integer[] widths = new Integer[keys.length];
-		Integer[] maxWidths = new Integer[keys.length];
-
-		for (Property property : properties) {
-			String header = Column.evalHeader(property);
-			headers.add(header);
-			headerPathes.add(property.getPath());
-			int column = headers.size() - 1;
-			filters[column] = ColumnFilter.createFilter(property);
-			headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
-			alignments[column] = alignment(property);
-			widths[column] = ListUtil.width(property);
-			maxWidths[column] = ListUtil.maxWidth(property);
-		}
-		put("headers", headers);
-		put("headerPathes", headerPathes);
-		put("headerFilters", headerFilters);
-		put("alignments", alignments);
-		put("widths", widths);
-		put("maxWidths", maxWidths);
-
+		put("tableModel", tableModel = new JsonTableModel(keys));
+		
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
 	}
 
+	public class JsonTableModel extends HashMap<String, Object> {
+		private final Object[] keys;
+		private final List<Property> properties;
+		private final ColumnFilter[] filters;
+		private final IComponent[] headerFilters;
+		private final String[] alignments;
+		
+		public JsonTableModel(Object[] keys) {
+			this.keys = keys;
+			this.properties = convert(keys);
+			List<String> headers = new ArrayList<>();
+			List<String> headerPathes = new ArrayList<>();
+			filters = new ColumnFilter[keys.length];
+			headerFilters = new IComponent[keys.length];
+			alignments = new String[keys.length];
+			Integer[] widths = new Integer[keys.length];
+			Integer[] maxWidths = new Integer[keys.length];
+
+			for (Property property : properties) {
+				String header = Column.evalHeader(property);
+				headers.add(header);
+				headerPathes.add(property.getPath());
+				int column = headers.size() - 1;
+				filters[column] = ColumnFilter.createFilter(property);
+				headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
+				alignments[column] = alignment(property);
+				widths[column] = ListUtil.width(property);
+				maxWidths[column] = ListUtil.maxWidth(property);
+			}
+
+			put("headers", headers);
+			put("headerPathes", headerPathes);
+			put("headerFilters", headerFilters);
+			put("alignments", alignments);
+			put("widths", widths);
+			put("maxWidths", maxWidths);
+		}
+	}
+	
 	private static String alignment(Property property) {
 		if (property instanceof Column) {
 			ColumnAlignment alignment = ((Column<?, ?>) property).getAlignment();
@@ -117,7 +128,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		pageManager.unregister(get("tableContent"));
 		this.objects = objects != null ? objects : Collections.emptyList();
 
-		visibleObjects = ListUtil.get(this.objects, Boolean.TRUE.equals(get("filterVisible")) ? filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(this.objects, Boolean.TRUE.equals(get("filterVisible")) ? tableModel.filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -146,9 +157,16 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		listener.selectionChanged(selectedObjects);
 	}
 	
+	@Override
+	public void setColumns(Object[] keys) {
+		tableModel = new JsonTableModel(keys);
+		put("tableModel", tableModel);
+		setObjects(objects);
+	}
+	
 	private void updatePaging() {
 		if (objects.size() > PAGE_SIZE) {
-			int count = ListUtil.count(objects, filters);
+			int count = ListUtil.count(objects, tableModel.filters);
 			put("paging", (page * PAGE_SIZE + 1) + " - " + Math.min((page + 1) * PAGE_SIZE, count) + " / " + count);
 		}
 	}
@@ -181,7 +199,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			}
 			break;
 		case "next":
-			if (page < Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE) {
+			if (page < Math.max(ListUtil.count(objects, tableModel.filters) - 1, 0) / PAGE_SIZE) {
 				page = page + 1;
 			} else {
 				return;
@@ -195,7 +213,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			}
 			break;
 		case "last":
-			int max = Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE;
+			int max = Math.max(ListUtil.count(objects, tableModel.filters) - 1, 0) / PAGE_SIZE;
 			if (page < max) {
 				page = max;
 			} else {
@@ -206,7 +224,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			throw new IllegalArgumentException(direction);
 		}
 		
-		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, tableModel.filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 		put("tableContent", tableContent);
 
@@ -220,7 +238,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		List<List> tableContent = new ArrayList<>();
 		for (T object : objects) {
 			List rowContent = new ArrayList();
-			for (Property property : properties) {
+			for (Property property : tableModel.properties) {
 				Object value = property.getValue(object);
 				if (property instanceof Column) {
 					Column column = (Column) property;
@@ -259,7 +277,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 	
 	public void cellAction(int row, int columnIndex) {
-		Property property = properties.get(columnIndex);
+		Property property = tableModel.properties.get(columnIndex);
 		if (property instanceof Column) {
 			Column column = (Column) property;
 			Object object = visibleObjects.get(row);
@@ -281,7 +299,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	public void sort(int column) {
-		Object key = keys[column];
+		Object key = tableModel.keys[column];
 		int size = sortColumns.size();
 		int pos = sortColumns.indexOf(key);
 		if (size > 0 && pos == 0) {
@@ -310,8 +328,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		public void changed(IComponent source) {
 			page = 0;
 			setObjects(objects);
-			ValidationMessage validationMessage = filters[column].validate();
-			((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+			ValidationMessage validationMessage = tableModel.filters[column].validate();
+			((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
 		}
 	}
 
@@ -319,9 +337,9 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		put("filterVisible", visible);
 
 		if (visible) {
-			for (int column = 0; column < filters.length; column++) {
-				ValidationMessage validationMessage = filters[column].validate();
-				((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+			for (int column = 0; column < tableModel.filters.length; column++) {
+				ValidationMessage validationMessage = tableModel.filters[column].validate();
+				((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
 			}
 		}
 
@@ -339,7 +357,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		s.append("\n");
 		
 		for (T object : objects) {
-			for (Property property : properties) {
+			for (Property property : tableModel.properties) {
 				Object value = property.getValue(object);
 				if (value instanceof BigDecimal) {
 					s.append(((BigDecimal) value).toPlainString());

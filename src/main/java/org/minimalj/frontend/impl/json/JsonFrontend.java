@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -137,16 +136,16 @@ public class JsonFrontend extends Frontend {
 	
 	@Override
 	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action...actions) {
-		((JsonTable<?>) table).put("overview", filter);
-		if (actions != null && actions.length > 0) {
-			List<JsonAction> jsonActions = new ArrayList<>();
-			for (Action action : actions) {
-				jsonActions.add(new JsonAction(action));
-			}
-			((JsonTable<?>) table).put("overviewActions", jsonActions);
-		}
-
-		return table;
+//		((JsonTable<?>) table).put("overview", filter);
+//		if (actions != null && actions.length > 0) {
+//			List<JsonAction> jsonActions = new ArrayList<>();
+//			for (Action action : actions) {
+//				jsonActions.add(new JsonAction(action));
+//			}
+//			((JsonTable<?>) table).put("overviewActions", jsonActions);
+//		}
+//		return table;
+		return new JsonCustomFilter(filter, table, actions);
 	}
 
 	@Override
