@@ -191,6 +191,14 @@ public class Backend {
 		return getInstance().doExecute(transaction);
 	}
 	
+	public static <T> T execute(Transaction<T> transaction, boolean propagate) {
+		if (propagate && getInstance().isInTransaction()) {
+			return transaction.execute();
+		} else {
+			return execute(transaction);
+		}
+	}
+	
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (isAuthenticationActive()) {
 			if (!transaction.hasAccess(Subject.getCurrent())) {

@@ -26,7 +26,8 @@ import org.minimalj.security.Subject;
  */
 @FunctionalInterface
 public interface Transaction<RETURN> extends AccessControl, Serializable {
-
+	public static final boolean PROPAGATE = true;
+	
 	/**
 	 * The invocation method for the backend. Application code should not need
 	 * to call this method directly.
