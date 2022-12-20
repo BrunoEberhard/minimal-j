@@ -1482,7 +1482,7 @@ $ICON
 		var pageElement = tableElement;
 		while ((pageElement = pageElement.parentNode) && pageElement.className != "page");
 	
-		var headerRowCount = tableElement.tHead.childNodes.length;
+		var headerRowCount = tableElement.tHead.rows.length;
 		var row = rowElement.rowIndex - headerRowCount;
 		var multiSelect = tableElement.classList.contains("multiSelect");
 		var rows = [];
@@ -1526,7 +1526,7 @@ $ICON
 		var tbodyElement = rowElement.parentElement;
 		var tableElement = tbodyElement.parentElement;
 		
-		var headerRowCount = tableElement.tHead.childNodes.length;
+		var headerRowCount = tableElement.tHead.rows.length;
 		var tableAction = {
 			"table": tableElement.id,
 			"row": rowElement.rowIndex - headerRowCount
