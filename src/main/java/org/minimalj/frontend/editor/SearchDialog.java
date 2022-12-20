@@ -5,10 +5,15 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
+import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Size;
+import org.minimalj.util.resources.Resources;
 
 public class SearchDialog<T> implements Dialog {
 	private IContent content;
@@ -33,9 +38,33 @@ public class SearchDialog<T> implements Dialog {
 		}
 		actions.add(cancelAction);
 		actions.add(saveAction);
+
+		ITable<T> table = Frontend.getInstance().createTable(keys, multiSelect, new SearchTableListener());
+
+		Form<SearchModel> form = new Form<>();
+		form.setIgnoreCaption(true);
+		form.line(SearchModel.$.query);
+		SearchModel model = new SearchModel();
+		form.setChangeListener(source -> {});
+		form.setObject(model);
 		
-		content = Frontend.getInstance().createTable(search, keys, multiSelect, new SearchTableListener());
+		Action searchAction = new Action(Resources.getString("SearchAction")) {
+			@Override
+			public void run() {
+				table.setObjects(search.search(model.query));
+			};
+		};
+		
+		content = Frontend.getInstance().createFilteredTable(form.getContent(), table, searchAction, null);
 	}
+	
+	public static class SearchModel {
+		public static final SearchModel $ = Keys.of(SearchModel.class);
+		
+		@Size(255)
+		public String query;
+	}
+
 	
 	@Override
 	public String getTitle() {

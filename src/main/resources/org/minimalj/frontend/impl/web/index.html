@@ -662,21 +662,31 @@ $ICON
 			addTableFooter(tfoot, content.paging);
 		} else if (type === "CustomFilter") {
 			var element = document.createElement("div");
-			element.appendChild(createContent(content.filter));
+			element.style = "display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; column-gap: 10px;"
+			var filterElement = createContent(content.filter);
+			filterElement.classList.add("customFilter");
+			filterElement.style = "grid-column: 1; grid-row: 1;"
+			element.appendChild(filterElement);
 			if (content.overviewActions) {
+				var overviewActionsElement = document.createElement("div");
+				overviewActionsElement.style = "grid-column: 2; grid-row: 1; display: flex; flex-direction: column-reverse; flex-wrap: no; justify-content: flex-start; padding-bottom: 15px;";
+				element.appendChild(overviewActionsElement);
 				for (var i = 0; i < content.overviewActions.length; i++) {
 					var action = content.overviewActions[i];
 					var button = document.createElement("button");
+					button.style="min-width: 7rem; padding: 0.1rem;" // TODO
 					button.id = action.id;
 					button.appendChild(document.createTextNode(action.name));
 					button.setAttribute("onclick", "action(\"" + action.id + "\");");
 					if (!action.enabled) {
 						button.setAttribute("disabled", "true");
 					}
-					th.appendChild(button);
+					overviewActionsElement.appendChild(button);
 				}
 			}
-			element.appendChild(createContent(content.table));
+			var tableElement = createContent(content.table);
+			tableElement.style = "grid-column: 1 / span 2; grid-row: 2; align-self: start;"
+			element.appendChild(tableElement);
 		} else if (type === "Text" || type === "Title" || type === "Empty") {
 			element = document.createElement("div");
 			element.classList.add(type.toLowerCase());

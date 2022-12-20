@@ -209,7 +209,7 @@ public abstract class Frontend {
 		}
 	}
 	
-	public abstract IContent createFilteredTable(FormContent filter, ITable<?> table, Action...actions);
+	public abstract IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset);
 
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
@@ -310,8 +310,6 @@ public abstract class Frontend {
 		getInstance().close(dialog);
 	}
 	
-	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);
-
 	public static void showMessage(String text) {
 		getInstance().doShowMessage(text);
 	}

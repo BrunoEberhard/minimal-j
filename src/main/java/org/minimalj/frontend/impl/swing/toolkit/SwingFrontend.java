@@ -212,7 +212,7 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action... actions) {
+	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
 		SwingBorderLayoutContent content = new SwingBorderLayoutContent();
 		if (filter != null) {
 			JPanel northPanel = new JPanel(new BorderLayout());
@@ -230,10 +230,10 @@ public class SwingFrontend extends Frontend {
 		return new SwingTable<>(keys, multiSelect, listener);
 	}
 
-	@Override
-	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new SwingSearchPanel<>(search, keys, multiSelect, listener);
-	}
+//	@Override
+//	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+//		return new SwingSearchPanel<>(search, keys, multiSelect, listener);
+//	}
 
 	public static final String FX_HTML_CLASS = "org.minimalj.frontend.impl.swing.component.FxHtmlContent";
 

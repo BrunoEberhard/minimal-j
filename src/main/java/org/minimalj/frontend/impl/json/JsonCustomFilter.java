@@ -10,16 +10,17 @@ import org.minimalj.frontend.action.Action;
 
 public class JsonCustomFilter extends JsonComponent implements IContent {
 
-	public JsonCustomFilter(FormContent filter, ITable<?> table, Action... actions) {
+	public JsonCustomFilter(FormContent filter, ITable<?> table, Action search, Action reset) {
 		super("CustomFilter");
 
 		put("filter", filter);
-		if (actions != null && actions.length > 0) {
+		if (search != null) {
 			List<JsonAction> jsonActions = new ArrayList<>();
-			for (Action action : actions) {
-				jsonActions.add(new JsonAction(action));
+			jsonActions.add(new JsonAction(search));
+			if (reset != null) {
+				jsonActions.add(new JsonAction(reset));
 			}
-			((JsonTable<?>) table).put("overviewActions", jsonActions);
+			put("overviewActions", jsonActions);
 		}
 
 		put("table", table);

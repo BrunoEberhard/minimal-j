@@ -130,22 +130,8 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new JsonSearchTable<>(getClientSession(), search, keys, multiSelect, listener);
-	}
-	
-	@Override
-	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action...actions) {
-//		((JsonTable<?>) table).put("overview", filter);
-//		if (actions != null && actions.length > 0) {
-//			List<JsonAction> jsonActions = new ArrayList<>();
-//			for (Action action : actions) {
-//				jsonActions.add(new JsonAction(action));
-//			}
-//			((JsonTable<?>) table).put("overviewActions", jsonActions);
-//		}
-//		return table;
-		return new JsonCustomFilter(filter, table, actions);
+	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
+		return new JsonCustomFilter(filter, table, search, reset);
 	}
 
 	@Override
