@@ -998,13 +998,17 @@ $ICON
 		var tableStyle = document.createElement("style");
 		tableStyle.type = "text/css";
 		var style = "";
+		var elementIdEscaped = CSS.escape(elementId);
 		for (var i = 0; i < tableModel.alignments.length; i++) {
 			if (tableModel.alignments[i] != undefined) {
 				var columnStyle = "text-align: " + tableModel.alignments[i] + ";";
+				var headerStyle = "text-align: " + tableModel.alignments[i] + ";";
 				if (tableModel.alignments[i] == "end") {
 					columnStyle = columnStyle + "padding-right: 1em;"
+					headerStyle = "text-align: center";
 				}
-				style = style + "#" + CSS.escape(elementId) + " td:nth-child(" + (i+1) + ") {" + columnStyle + "}\n";
+				style = style + "#" + elementIdEscaped + " td:nth-child(" + (i+1) + ") {" + columnStyle + "}\n";
+				style = style + "#" + elementIdEscaped + " th:nth-child(" + (i+1) + ") {" + headerStyle + "}\n";
 			}
 		}
 		tableStyle.appendChild(document.createTextNode(style));
