@@ -349,7 +349,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 	public String export() {
 		StringBuilder s = new StringBuilder(1000);
-		List<String> headers = (List<String>) get("headers");
+		List<String> headers = (List<String>) tableModel.get("headers");
 		for (String header : headers) {
 			s.append(header).append(";");
 		}

@@ -564,7 +564,7 @@ $ICON
 		titleElement.textContent = page.title;
 		element.appendChild(titleElement);
 	
-		var isTable = page.content != null && page.content.type === "Table";
+		var isTable = page.content != null && (page.content.type === "Table" || page.content.type === "CustomFilter");
 		if (isTable) {
 			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
 		    	element.appendChild(item.cloneNode(true));
@@ -572,7 +572,8 @@ $ICON
 			document.getElementById("tableFilterButton").classList.remove("hide");
 			
 			var download = element.querySelector('.downloadButton a');
-			download.setAttribute("href", "/download/" + page.title + ".csv?component=" + page.content.id + "&session=" + session);
+			var tableId = page.content.type === "Table" ? page.content.id : page.content.table.id;
+			download.setAttribute("href", "/download/" + page.title + ".csv?component=" + tableId + "&session=" + session);
 		} else {
 			document.getElementById("tableFilterButton").classList.add("hide");
 		}		
