@@ -68,6 +68,10 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		return null;
 	}
 
+	protected boolean immediateRefresh() {
+		return true;
+	}
+
 	@Override
 	public String getTitle() {
 		String title = Resources.getStringOrNull(getClass());
@@ -88,11 +92,20 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 			table = Frontend.getInstance().createTable(columns, multiSelect, this);
 			this.table = new SoftReference<>(table);
 		}
-		table.setObjects(load());
+		refresh();
 
 		FormContent overview = getOverview();
 		if (overview != null) {
-			return Frontend.getInstance().createFilteredTable(overview, table, null, null);
+			Action refreshAction = null;
+			if (!immediateRefresh()) {
+				refreshAction = new Action(Resources.getString("RefreshAction")) {
+					@Override
+					public void run() {
+						refresh();
+					};
+				};
+			}
+			return Frontend.getInstance().createFilteredTable(overview, table, refreshAction, null);
 		} else {
 			return table;
 		}
@@ -130,6 +143,11 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	public void refresh() {
 		ITable<T> table = this.table != null ? this.table.get() : null;
 		if (table != null) {
+			Object[] newColumns = getColumns();
+			if (!Keys.equalsIdentity(columns, newColumns)) {
+				table.setColumns(newColumns);
+				columns = newColumns;
+			}
 			table.setObjects(load());
 		}
 	}

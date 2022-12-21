@@ -322,5 +322,19 @@ public class Keys {
 	public static boolean isStatic(Method method) {
 		return Modifier.isStatic(method.getModifiers());
 	}
+	
+	// Arrays.equals doesn't work for Keys as it uses equals.
+	// Different Boolean keys would always be equals
+	public static boolean equalsIdentity(Object[] keys1, Object[] keys2) {
+		if (keys1.length != keys2.length) {
+			return false;
+		}
+		for (int i = 0; i < keys1.length; i++) {
+			if (keys1[i] != keys2[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }
