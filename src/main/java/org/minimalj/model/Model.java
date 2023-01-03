@@ -11,6 +11,10 @@ import org.minimalj.util.IdUtils;
 
 public interface Model {
 
+	public default String getName() {
+		return getClass().getSimpleName();
+	}
+	
 	/**
 	 * Defines the (root) entities. These are the classes the are used for a
 	 * repository. View classes should not be listed here.
