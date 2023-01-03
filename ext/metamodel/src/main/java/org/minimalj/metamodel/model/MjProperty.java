@@ -47,11 +47,11 @@ public class MjProperty {
 		//
 	}
 	
-	public MjProperty(MjModel model, Field field) {
+	public MjProperty(MjModel model, Class<?> clazz, Field field) {
 		name = field.getName();
 		this.propertyType = propertyType(field);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
-			this.type = model.getOrCreateEntity(GenericUtils.getGenericClass(field));
+			this.type = model.getOrCreateEntity(GenericUtils.getGenericClass(clazz, field));
 		} else if (!FieldUtils.isAllowedPrimitive(field.getType())) {
 			this.type = model.getOrCreateEntity(field.getType());
 		} else {

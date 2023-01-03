@@ -95,7 +95,7 @@ public class MjEntity {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "historized")) {
-				properties.add(new MjProperty(model, field));
+				properties.add(new MjProperty(model, clazz, field));
 			}
 		}
 		Method[] methods = clazz.getMethods();
