@@ -4,13 +4,13 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.minimalj.application.Application;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjEntity.MjEntityType;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.model.Api;
+import org.minimalj.model.Model;
 import org.minimalj.rest.EntityJsonWriter;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
@@ -47,7 +47,7 @@ public class OpenAPIFactory {
 		}
 	}
 
-	public String create(Application application) {
+	public String create(Model model) {
 		OpenAPI api = new OpenAPI();
 		if (this.api == API.OpenAPI3) {
 			api.openapi = "3.0.0";
@@ -58,15 +58,15 @@ public class OpenAPIFactory {
 		
 		api.info = new OpenAPI.Info();
 		api.info.version = "1.0.0";
-		api.info.title = application.getName();
+		api.info.title = model.getName();
 		
 		// Without specification simply "/" is used which fits perfectly.
 		// Server server = new Server();
 		// server.url = "http://localhost:8080/";
 		// api.servers.add(server);
 
-		MjModel model = new MjModel(application.getEntityClasses());
-		for (MjEntity entity : model.entities) {
+		MjModel mjModel = new MjModel(model.getEntityClasses());
+		for (MjEntity entity : mjModel.entities) {
 			String entityName = entity.getClassName();
 
 			if (IdUtils.hasId(entity.getClazz())) {
@@ -106,17 +106,17 @@ public class OpenAPIFactory {
 			addSchema(api, entity);	
 		}
 		
-		if (application instanceof Api) {
-			Api mjApi = (Api) application;
+		if (model instanceof Api) {
+			Api mjApi = (Api) model;
 			Class<?>[] transactionClasses = mjApi.getTransactionClasses();
 			for (Class<?> transactionClass : transactionClasses) {
 				
 				Constructor<?> constructor = transactionClass.getConstructors()[0];
 				Class<?> requestClass = constructor.getParameters()[0].getType();
-				addSchema(api, new MjEntity(model, requestClass));
+				addSchema(api, new MjEntity(mjModel, requestClass));
 				Class<?> responseClass = getReturnType(transactionClass);
-				new MjEntity(model, responseClass);
-				addSchema(api, new MjEntity(model, responseClass));
+				new MjEntity(mjModel, responseClass);
+				addSchema(api, new MjEntity(mjModel, responseClass));
 				
 				Map<String, Operation> operations = new HashMap<>();
 				Operation operation = operationPost(transactionClass);
