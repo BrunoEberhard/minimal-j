@@ -3,6 +3,7 @@ package org.minimalj.rest;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -79,6 +80,8 @@ public class EntityJsonWriter {
 				}
 				if (value instanceof String || value instanceof Boolean || value instanceof Number) {
 					values.put(propertyName, value);
+				} else if (value instanceof BigDecimal bd) {
+					values.put(propertyName, bd.doubleValue());
 				} else if (value instanceof byte[]) {
 					values.put(propertyName, Base64.getEncoder().encodeToString((byte[]) value));
 				} else if (FieldUtils.isAllowedPrimitive(property.getClazz())) {
