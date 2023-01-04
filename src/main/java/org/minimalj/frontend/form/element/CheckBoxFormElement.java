@@ -14,11 +14,11 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 	private final Input<Boolean> checkBox;
 	private final boolean caption;
 	private final boolean editable;
-	
+
 	public CheckBoxFormElement(Property property, boolean editable) {
-		 this(property, getPropertyName(property), editable);
+		this(property, getPropertyName(property), editable);
 	}
-	 
+
 	private static String getPropertyName(Property property) {
 		String name = Resources.getPropertyName(property, ".checkBoxText");
 		if (name == null) {
@@ -26,7 +26,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 		}
 		return name;
 	}
-	
+
 	public CheckBoxFormElement(Property property, String text, boolean editable) {
 		this(property, text, editable, true);
 	}
@@ -38,7 +38,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 		checkBox = Frontend.getInstance().createCheckBox(listener(), text);
 		checkBox.setEditable(editable);
 	}
-	
+
 	@Override
 	public String getCaption() {
 		return caption ? super.getCaption() : null;
@@ -48,12 +48,12 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 	public IComponent getComponent() {
 		return checkBox;
 	}
-	
+
 	@Override
 	public Boolean getValue() {
 		return checkBox.getValue();
-	}		
-	
+	}
+
 	@Override
 	public void setValue(Boolean value) {
 		checkBox.setValue(Boolean.TRUE.equals(value));
@@ -63,7 +63,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 	public void setEnabled(boolean enabled) {
 		checkBox.setEditable(editable && enabled);
 	}
-	
+
 	public static abstract class CheckBoxProperty extends VirtualProperty {
 
 		@Override
@@ -77,11 +77,6 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 		}
 
 		@Override
-		public String getName() {
-			return null; // should not be used
-		}
-		
-		@Override
 		public abstract Boolean getValue(Object object);
 
 		@Override
@@ -94,6 +89,11 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 
 		public SetElementFormElementProperty(Object value) {
 			this.value = Objects.requireNonNull(value);
+		}
+
+		@Override
+		public String getName() {
+			return value.toString();
 		}
 
 		@Override
