@@ -100,7 +100,7 @@ public class CloneHelper {
 				// Set can only contain enums. No need for cloning the elements.
 				toSet.clear();
 				toSet.addAll(fromSet);
-			} else if (isPrimitive(field) || field.getType() == Selection.class) {
+			} else if (isPrimitive(field) || Selection.class.isAssignableFrom(field.getType())) {
 				if (!FieldUtils.isFinal(field)) {
 					field.set(to, fromValue);
 				}
