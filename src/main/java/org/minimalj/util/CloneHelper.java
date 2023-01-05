@@ -91,7 +91,11 @@ public class CloneHelper {
 						field.set(to, toList);
 					}
 					for (Object element : fromList) {
-						toList.add(clone(element, originals, copies));
+						if (element == null || FieldUtils.isAllowedPrimitive(element.getClass())) {
+							toList.add(element);
+						} else {
+							toList.add(clone(element, originals, copies));
+						}
 					}
 				}
 			} else if (fromValue instanceof Set) {
