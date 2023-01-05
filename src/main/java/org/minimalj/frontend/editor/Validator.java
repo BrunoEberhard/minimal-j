@@ -104,11 +104,15 @@ public class Validator {
 		public String getName() {
 			return "[" + index + "]";
 		}
+		
+		@Override
+		public Class<?> getDeclaringClass() {
+			return List.class;
+		}
 
 		@Override
 		public Class<?> getClazz() {
-			// not implemented
-			return null;
+			return Integer.class;
 		}
 
 		@Override
