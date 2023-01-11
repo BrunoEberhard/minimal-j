@@ -122,7 +122,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	}
 
 	protected String render(T value) {
-		return Rendering.toString(value);
+		return Rendering.toString(value, getProperty());
 	}
 	
 	protected boolean changeOnFocus() {
