@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.minimalj.model.Selection;
 import org.minimalj.util.EqualsHelper;
 
 @SuppressWarnings("unchecked")
@@ -26,6 +27,8 @@ public class EmptyObjects {
 			return ((char[]) object).length == 0;
 		} else if (object instanceof byte[]) {
 			return ((byte[]) object).length == 0;
+		} else if (object instanceof Selection) {
+			return isEmpty(((Selection<?>) object).selectedValue);
 		} else {
 			Class<T> clazz = (Class<T>) object.getClass();
 			if (clazz.getName().startsWith("java") || Enum.class.isAssignableFrom(clazz))
