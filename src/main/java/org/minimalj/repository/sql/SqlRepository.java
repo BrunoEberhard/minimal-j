@@ -458,14 +458,8 @@ public class SqlRepository implements TransactionalRepository {
 	
 	@SuppressWarnings("unchecked")
 	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
-		if (clazz == Integer.class) {
-			return (R) Integer.valueOf(resultSet.getInt(1));
-		} else if (clazz == Long.class) {
-			return (R) Long.valueOf(resultSet.getLong(1));
-		} else if (clazz == BigDecimal.class) {
-			return (R) resultSet.getBigDecimal(1);
-		} else if (clazz == String.class) {
-			return (R) resultSet.getString(1);
+		if (FieldUtils.isAllowedPrimitive(clazz)) {
+			return (R) sqlDialect.convertToFieldClass(clazz, resultSet.getObject(1));
 		}
 		
 		Object id = null;
