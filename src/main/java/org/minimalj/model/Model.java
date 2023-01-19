@@ -47,14 +47,11 @@ public interface Model {
 			classes.add(clazz);
 			for (Property property : Properties.getProperties(clazz).values()) {
 				Class<?> propertyClass = property.getClazz();
-				if (View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
-					continue;
-				}
 				if (Collection.class.isAssignableFrom(propertyClass)) {
 					propertyClass = property.getGenericClass();
-					if (propertyClass == null) {
-						continue;
-					}
+				}
+				if (propertyClass == null || View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
+					continue;
 				}
 				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass) /* && !property.isFinal() */) {
 					getClassesRecursive(classes, propertyClass, depthFirst, onlyWithId);
