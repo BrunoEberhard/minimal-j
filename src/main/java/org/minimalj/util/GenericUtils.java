@@ -113,7 +113,11 @@ public class GenericUtils {
 			throw new IllegalArgumentException(genericSuperclass.toString() + " must be parameterized!");
 		}
 		ParameterizedType type = (ParameterizedType) genericSuperclass;
-		return (Class<?>) type.getActualTypeArguments()[0];
+		Type actualTypeArgument = type.getActualTypeArguments()[0];
+		while (actualTypeArgument instanceof ParameterizedType) {
+			actualTypeArgument = ((ParameterizedType) actualTypeArgument).getRawType();
+		}
+		return (Class<?>) actualTypeArgument;
 	}
 
 	/**
