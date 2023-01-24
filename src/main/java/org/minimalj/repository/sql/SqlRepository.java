@@ -179,7 +179,7 @@ public class SqlRepository implements TransactionalRepository {
 				transactionConnection.rollback();
 			}
 		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, logger, "Transaction failed");
+			throw new LoggingRuntimeException(x, logger, "Transaction " + (commit ? "commit" : "rollback") + " failed");
 		}
 		
 		releaseConnection(transactionConnection);
