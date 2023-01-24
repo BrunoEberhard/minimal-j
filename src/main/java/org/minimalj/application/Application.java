@@ -43,6 +43,7 @@ import org.minimalj.repository.sql.SqlRepository;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
 import org.minimalj.security.TextFileAuthentication;
+import org.minimalj.transaction.Transaction;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.MultiResourceBundle;
 import org.minimalj.util.resources.Resources;
@@ -258,6 +259,14 @@ public abstract class Application implements Model {
 	 * 
 	 */
 	public void initBackend() {
+		// application specific	
+	}
+	
+	/**
+	 * called when the backend completed a transaction
+	 * 
+	 */
+	public void transactionCompleted(Transaction<?> transaction) {
 		// application specific	
 	}
 	

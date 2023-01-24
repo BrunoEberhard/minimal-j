@@ -209,15 +209,18 @@ public class Backend {
 		Transaction<?> outerTransaction = currentTransaction.get();
 		try {
 			currentTransaction.set(transaction);
+			T result;
 			if (getRepository() instanceof TransactionalRepository) {
 				TransactionalRepository transactionalRepository = (TransactionalRepository) getRepository();
-				return doExecute(transaction, transactionalRepository);
+				result = doExecute(transaction, transactionalRepository);
 			} else {
-				return transaction.execute();
+				result = transaction.execute();
 			}
+			handleCodeCache(transaction);
+			Application.getInstance().transactionCompleted(transaction);
+			return result;
 		} finally {
 			currentTransaction.set(outerTransaction);
-			handleCodeCache(transaction);
 		}
 	}
 
