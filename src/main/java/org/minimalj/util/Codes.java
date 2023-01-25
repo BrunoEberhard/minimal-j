@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,8 +25,25 @@ import org.minimalj.transaction.Isolation.Level;
 
 public class Codes {
 
-	private static Map<Class<?>, CodeCacheItem<?>> cache = Collections.synchronizedMap(new HashMap<>());
-	
+	private static CodeCache codeCache;
+
+	public static void setCache(CodeCache codeCache) {
+		Objects.requireNonNull(codeCache);
+		if (Codes.codeCache != null) {
+			throw new IllegalStateException("Not allowed to change instance of " + CodeCache.class.getSimpleName());
+		}
+		Codes.codeCache = codeCache;
+	}
+
+	public static CodeCache getCache() {
+		if (Codes.codeCache == null) {
+			Codes.codeCache = DefaultCodeCache.instance;
+		}
+		return Codes.codeCache;
+	}
+
+	//
+
 	public static <T extends Code> T get(Class<T> clazz, String codeId) {
 		return get(clazz, (Object) codeId);
 	}
@@ -39,38 +57,77 @@ public class Codes {
 	}
 
 	public static <T extends Code> T get(Repository repository, Class<T> clazz, Object codeId) {
-		return getCache(repository, clazz).getCode(codeId);
-	}
-	
-	public static boolean isCode(Class<?> clazz) {
-		return Code.class.isAssignableFrom(clazz);
+		return getCache().getCacheItems(repository, clazz).getCode(codeId);
 	}
 
 	public static <T extends Code> List<T> get(Class<T> clazz) {
-		return getCache(null, clazz).getCodes(LocaleContext.getCurrent());
+		return getCache().getCacheItems(null, clazz).getCodes(LocaleContext.getCurrent());
 	}
 
-	@SuppressWarnings("unchecked")
-	private static <T extends Code> CodeCacheItem<T> getCache(Repository repository, Class<T> clazz) {
-		synchronized(clazz) {
-			CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
-			if (cacheItem == null || !cacheItem.isValid()) {
-				CodeCacheItem<T> codeItem = new CodeCacheItem<>();
-				cache.put(clazz, codeItem);
-				List<T> codes = repository != null ? repository.find(clazz, By.ALL) : Backend.execute(new ReadCodesTransaction<>(clazz));
-				codeItem.setCodes(codes);
+	public static <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
+		return getCache().getOrInstantiate(clazz, id);
+	}
+
+	public static void invalidateCodeCache(Class<? extends Object> clazz) {
+		getCache().invalidateCodeCache(clazz);
+	}
+
+	//
+
+	public interface CodeCache {
+
+		public <T extends Code> CodeCacheItem<T> getCacheItems(Repository repository, Class<T> clazz);
+
+		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id);
+
+		public void invalidateCodeCache(Class<? extends Object> clazz);
+
+	}
+
+	private static enum DefaultCodeCache implements CodeCache {
+		instance;
+
+		private static Map<Class<?>, CodeCacheItem<?>> cache = Collections.synchronizedMap(new HashMap<>());
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public <T extends Code> CodeCacheItem<T> getCacheItems(Repository repository, Class<T> clazz) {
+			synchronized (clazz) {
+				CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
+				if (cacheItem == null || !cacheItem.isValid()) {
+					CodeCacheItem<T> codeItem = new CodeCacheItem<>();
+					cache.put(clazz, codeItem);
+					List<T> codes = repository != null ? repository.find(clazz, By.ALL) : Backend.execute(new ReadCodesTransaction<>(clazz));
+					codeItem.setCodes(codes);
+				}
+				return (CodeCacheItem<T>) cache.get(clazz);
 			}
-			return (CodeCacheItem<T>) cache.get(clazz);
+		}
+
+		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
+			synchronized (clazz) {
+				@SuppressWarnings("unchecked")
+				CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.computeIfAbsent(clazz, newClazz -> new CodeCacheItem<>());
+				return cacheItem.getOrInstantiate(clazz, id);
+			}
+		}
+
+		public void invalidateCodeCache(Class<? extends Object> clazz) {
+			synchronized (clazz) {
+				cache.remove(clazz);
+			}
 		}
 	}
-	
+
+	//
+
 	private static class CodeComparator implements Comparator<Code> {
 		private final Collator collator;
-		
+
 		public CodeComparator(Locale locale) {
 			this.collator = Collator.getInstance(LocaleContext.getCurrent());
 		}
-		
+
 		@Override
 		public int compare(Code o1, Code o2) {
 			String string1 = Rendering.toString(o1);
@@ -78,7 +135,6 @@ public class Codes {
 			return collator.compare(string1, string2);
 		}
 	}
-	
 
 	@Isolation(Level.NONE)
 	public static class ReadCodesTransaction<T> extends ReadTransaction<T, List<T>> {
@@ -93,31 +149,23 @@ public class Codes {
 			return repository().find(getEntityClazz(), By.ALL);
 		}
 	}
-	
-	public static <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
-		synchronized(clazz) {
-			CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.computeIfAbsent(clazz, newClazz -> new CodeCacheItem<>());
-			return cacheItem.getOrInstantiate(clazz, id);
-		}
 
-	}
-	
 	public static class CodeCacheItem<S extends Code> {
 		private Long timestamp;
 		private Map<Object, S> codeMap = new HashMap<>(100);
 		private Map<Locale, List<S>> codesSortedByLocale = new HashMap<>();
-		
+
 		public boolean isValid() {
 			return timestamp == null || (System.currentTimeMillis() - timestamp) / 1000 < 10;
 		}
-		
+
 		public List<S> getCodes(Locale locale) {
 			synchronized (codesSortedByLocale) {
 				return codesSortedByLocale.computeIfAbsent(locale, newLocacle -> {
 					List<S> sortedCodes = new ArrayList<>(codeMap.values());
 					Collections.sort(sortedCodes, new CodeComparator(newLocacle));
 					return sortedCodes;
-					
+
 				});
 			}
 		}
@@ -125,7 +173,7 @@ public class Codes {
 		public S getCode(Object id) {
 			return codeMap.get(id);
 		}
-		
+
 		public S getOrInstantiate(Class<S> clazz, Object id) {
 			return codeMap.computeIfAbsent(id, newId -> {
 				S code = CloneHelper.newInstance(clazz);
@@ -133,7 +181,7 @@ public class Codes {
 				return code;
 			});
 		}
-		
+
 		public void setCodes(List<S> codes) {
 			this.codeMap = codes.stream().collect(Collectors.toMap(IdUtils::getId, Function.identity()));
 			codesSortedByLocale = new HashMap<>();
@@ -141,24 +189,26 @@ public class Codes {
 		}
 	}
 
+	// static helper methods
+
 	public static <T extends Code> List<T> getConstants(Class<T> clazz) {
 		List<T> constants = new ArrayList<>();
 		for (Field field : clazz.getDeclaredFields()) {
-			if (!FieldUtils.isStatic(field)) continue;
-			if (!FieldUtils.isFinal(field)) continue;
-			if (field.getType() != clazz) continue;
+			if (!FieldUtils.isStatic(field))
+				continue;
+			if (!FieldUtils.isFinal(field))
+				continue;
+			if (field.getType() != clazz)
+				continue;
 			T constant = FieldUtils.getStaticValue(field);
-			if (Keys.isKeyObject(constant)) continue;
+			if (Keys.isKeyObject(constant))
+				continue;
 			constants.add(constant);
 		}
 		return constants;
 	}
 
-	public static void invalidateCodeCache(Class<? extends Object> clazz) {
-		synchronized (clazz) {
-			cache.remove(clazz);
-		}
+	public static boolean isCode(Class<?> clazz) {
+		return Code.class.isAssignableFrom(clazz);
 	}
-
-	
 }

@@ -34,7 +34,8 @@ import org.minimalj.util.resources.Resources;
 
 public abstract class UserPasswordAuthentication extends Authentication implements RememberMeAuthentication {
 	private static final long serialVersionUID = 1L;
-
+	private static final Logger logger = Logger.getLogger(UserPasswordAuthentication.class.getName());
+	
 	@Override
 	public Action getLoginAction() {
 		return new UserPasswordLoginAction();
@@ -240,89 +241,70 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	 */
 	@Override
 	public Subject remember(String rememberMeCookie) {
-		RememberTransaction rememberTransaction = new RememberTransaction(rememberMeCookie);
-		return Backend.execute(rememberTransaction);
+		if (rememberMeCookie == null) {
+			throw new IllegalStateException("rememberMeCookie is null");
+		}
+		if (PERSISTENT_REMEMBER_ME) {
+			return rememberByPersistence(rememberMeCookie);
+		} else {
+			return rememberByToken(rememberMeCookie);
+		}
 	}
+	
+	private Subject rememberByPersistence(String rememberMeCookie) {
+		int index = rememberMeCookie.indexOf(':');
+		if (index <= 0 || index > rememberMeCookie.length() - 1) {
+			throw new IllegalArgumentException("rememberMeCookie has invalid format: " + rememberMeCookie);
+		}
 
-	// https://stackoverflow.com/questions/244882/what-is-the-best-way-to-implement-remember-me-for-a-website
-	public static class RememberTransaction implements Transaction<Subject> {
-		private static final Logger logger = Logger.getLogger(RememberTransaction.class.getName());
-		private static final long serialVersionUID = 1L;
-	
-		private final String rememberMeCookie;
-	
-		public RememberTransaction(String rememberMeCookie) {
-			this.rememberMeCookie = Objects.requireNonNull(rememberMeCookie);
-		}
-	
-		@Override
-		public Subject execute() {
-			if (rememberMeCookie == null) {
-				throw new IllegalStateException("rememberMeCookie is null");
-			}
-			if (PERSISTENT_REMEMBER_ME) {
-				return rememberByPersistence(rememberMeCookie);
-			} else {
-				return rememberByToken(rememberMeCookie);
-			}
-		}
-	
-		private Subject rememberByPersistence(String rememberMeCookie) {
-			int index = rememberMeCookie.indexOf(':');
-			if (index <= 0 || index > rememberMeCookie.length() - 1) {
-				throw new IllegalArgumentException("rememberMeCookie has invalid format: " + rememberMeCookie);
-			}
-	
-			String series = rememberMeCookie.substring(0, index);
-			String token = rememberMeCookie.substring(index + 1, rememberMeCookie.length());
-			
-			List<RememberMeToken> rememberMeTokens = Backend.find(RememberMeToken.class, By.field(RememberMeToken.$.series, series));
-			if (!rememberMeTokens.isEmpty()) {
-				RememberMeToken rememberMeToken = rememberMeTokens.get(0);
-				if (!StringUtils.equals(token, rememberMeToken.token)) {
-					logger.warning("Invalid rememberMeCookie: " + rememberMeCookie);
-					return null;
-				}
-	
-				UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(rememberMeToken.userName);
-				if (user == null) {
-					logger.warning("User not found for rememberMeCookie: " + rememberMeCookie);
-					return null;
-				}
-				return Backend.getInstance().getAuthentication().createSubject(user);
-			} else {
+		String series = rememberMeCookie.substring(0, index);
+		String token = rememberMeCookie.substring(index + 1, rememberMeCookie.length());
+		
+		List<RememberMeToken> rememberMeTokens = Backend.getInstance().getRepository().find(RememberMeToken.class, By.field(RememberMeToken.$.series, series));
+		if (!rememberMeTokens.isEmpty()) {
+			RememberMeToken rememberMeToken = rememberMeTokens.get(0);
+			if (!StringUtils.equals(token, rememberMeToken.token)) {
+				logger.warning("Invalid rememberMeCookie: " + rememberMeCookie);
 				return null;
 			}
-		}
-	
-		private Subject rememberByToken(String rememberMeCookie) {
-			String[] parts = rememberMeCookie.split(":");
-			if (parts.length != 3) {
-				logger.warning("rememberMeCookie has invalid format (3 parts required): " + rememberMeCookie);
-				return null;
-			}
-	
-			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(parts[0]);
+
+			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(rememberMeToken.userName);
 			if (user == null) {
 				logger.warning("User not found for rememberMeCookie: " + rememberMeCookie);
 				return null;
 			}
-	
-			long timestamp = Long.valueOf(parts[1]);
-			if (timestamp < System.currentTimeMillis() - 14 * 24 * 3600 * 1000) {
-				logger.info("RememberMeCookie has expired: " + rememberMeCookie);
-				return null;
-			}
-	
-			String expectedSignature = sign(user, parts[1]);
-			if (!StringUtils.equals(expectedSignature, parts[2])) {
-				logger.severe("Invalid RememberMeCookie: " + rememberMeCookie);
-				return null;
-			}
-	
 			return Backend.getInstance().getAuthentication().createSubject(user);
+		} else {
+			return null;
+		}
+	}
+	
+	private Subject rememberByToken(String rememberMeCookie) {
+		String[] parts = rememberMeCookie.split(":");
+		if (parts.length != 3) {
+			logger.warning("rememberMeCookie has invalid format (3 parts required): " + rememberMeCookie);
+			return null;
 		}
 
+		UserData user = retrieveUser(parts[0]);
+		if (user == null) {
+			logger.warning("User not found for rememberMeCookie: " + rememberMeCookie);
+			return null;
+		}
 
+		long timestamp = Long.valueOf(parts[1]);
+		if (timestamp < System.currentTimeMillis() - 14 * 24 * 3600 * 1000) {
+			logger.info("RememberMeCookie has expired: " + rememberMeCookie);
+			return null;
+		}
+
+		String expectedSignature = sign(user, parts[1]);
+		if (!StringUtils.equals(expectedSignature, parts[2])) {
+			logger.severe("Invalid RememberMeCookie: " + rememberMeCookie);
+			return null;
+		}
+
+		return Backend.getInstance().getAuthentication().createSubject(user);
 	}
+
 }
