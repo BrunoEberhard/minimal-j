@@ -52,8 +52,6 @@ public class TransactionTest {
 			Backend.execute(new TestTransactionInsertingInSeparateTransaction());
 			Assert.fail("The exception should be passed to the caller of execute");
 		} catch (Exception x) {
-			x.printStackTrace();
-			
 			Assert.assertEquals("Class of exception should stay same", RuntimeException.class, x.getClass());
 			Assert.assertEquals("Message of exception should stay same", "No wonder happend", x.getMessage());
 		}
