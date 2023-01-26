@@ -44,18 +44,20 @@ public class Keys {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T of (Class<T> clazz) {
-		T object = (T) keyObjectByClass.get(clazz); 
-		if (object == null) {
-			try {
-				object = clazz.getConstructor().newInstance();
-				keyObjects.add(object);
-				keyObjectByClass.put(clazz, object);
-				fillFields(object, null, 0);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				throw new RuntimeException(e);
+		synchronized(clazz) {
+			T object = (T) keyObjectByClass.get(clazz); 
+			if (object == null) {
+				try {
+					object = clazz.getConstructor().newInstance();
+					keyObjects.add(object);
+					keyObjectByClass.put(clazz, object);
+					fillFields(object, null, 0);
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+					throw new RuntimeException(e);
+				}
 			}
+			return object;
 		}
-		return object;
 	}
 	
 	public static boolean isKeyObject(Object object) {
