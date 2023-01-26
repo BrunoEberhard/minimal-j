@@ -2,26 +2,42 @@ package org.minimalj.repository.sql;
 
 import java.time.LocalDateTime;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.minimalj.application.Application;
+import org.minimalj.backend.Backend;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.security.Subject;
 import org.minimalj.security.model.User;
+import org.minimalj.test.TestUtil;
 
-public class SqlTechnicalFieldTest extends SqlTest {
+public class SqlTechnicalFieldTest {
 
-	@Override
-	public Class<?>[] getEntityClasses() {
-		return new Class<?>[] { TestEntity.class, User.class };
+	@BeforeClass
+	public static void initializeFronted() {
+		// User is a Code. Codes need an initialized Application
+		Application.setInstance(new Application() {
+			@Override
+			public Class<?>[] getEntityClasses() {
+				return new Class<?>[] { TestEntity.class, User.class };
+			}
+		});
 	}
-
+	
+	@AfterClass
+	public static void shutdown() {
+		TestUtil.shutdown();
+	}
+	
 	private User createTestUser(String name) {
 		User user = new User();
 		user.name = name;
-		user.id = repository.insert(user);
+		user.id = Backend.insert(user);
 		return user;
 	}
 	
@@ -37,8 +53,8 @@ public class SqlTechnicalFieldTest extends SqlTest {
 
 		LocalDateTime before = LocalDateTime.now();
 
-		Object id = repository.insert(entity);
-		entity = repository.read(TestEntity.class, id);
+		Object id = Backend.insert(entity);
+		entity = Backend.read(TestEntity.class, id);
 		LocalDateTime after = LocalDateTime.now();
 
 		Assert.assertEquals(testUserA.id, entity.createUser.id);
@@ -59,8 +75,8 @@ public class SqlTechnicalFieldTest extends SqlTest {
 		Subject subject = new Subject(testUserB);
 		Subject.setCurrent(subject);
 
-		Object id = repository.insert(entity);
-		entity = repository.read(TestEntity.class, id);
+		Object id = Backend.insert(entity);
+		entity = Backend.read(TestEntity.class, id);
 		LocalDateTime afterInsert = LocalDateTime.now();
 		LocalDateTime createDate = entity.createDate;
 
@@ -68,8 +84,8 @@ public class SqlTechnicalFieldTest extends SqlTest {
 		Subject.setCurrent(subject);
 
 		entity.string = "Changed";
-		repository.update(entity);
-		entity = repository.read(TestEntity.class, id);
+		Backend.update(entity);
+		entity = Backend.read(TestEntity.class, id);
 		LocalDateTime afterEdit = LocalDateTime.now();
 
 		Assert.assertEquals(testUserB.id, entity.createUser.id);
