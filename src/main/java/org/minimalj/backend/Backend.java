@@ -22,8 +22,6 @@ import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
-import org.minimalj.transaction.Isolation;
-import org.minimalj.transaction.Isolation.Level;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.Codes;
 
@@ -116,7 +114,11 @@ public class Backend {
 			throw new IllegalStateException("Repository may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
 		if (repository == null) {
-			repository = Application.getInstance().createRepository();
+			synchronized (this) {
+				if (repository == null) {
+					repository = Application.getInstance().createRepository();
+				}				
+			}
 		}
 		return repository;
 	}
@@ -233,20 +235,15 @@ public class Backend {
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
-		Isolation.Level isolationLevel = transaction.getIsolation();
-		if (isolationLevel != Level.NONE) {
-			T result;
-			boolean commit = false;
-			try {
-				transactionalRepository.startTransaction(isolationLevel.getLevel());
-				result = transaction.execute();
-				commit = true;
-			} finally {
-				transactionalRepository.endTransaction(commit);
-			}
-			return result;
-		} else {
-			return transaction.execute();
+		T result;
+		boolean commit = false;
+		try {
+			transactionalRepository.startTransaction(transaction.getIsolation().getLevel());
+			result = transaction.execute();
+			commit = true;
+		} finally {
+			transactionalRepository.endTransaction(commit);
 		}
+		return result;
 	}
 }

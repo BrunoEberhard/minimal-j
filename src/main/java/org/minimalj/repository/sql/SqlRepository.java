@@ -73,7 +73,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	protected final Map<Class<?>, String> dbTypes = new HashMap<>();
 	
-	private final DataSource dataSource;
+	protected final DataSource dataSource;
 	
 	private Connection autoCommitConnection;
 	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
@@ -173,10 +173,12 @@ public class SqlRepository implements TransactionalRepository {
 		if (transactionConnection == null) return;
 		
 		try {
-			if (commit) {
-				transactionConnection.commit();
-			} else {
-				transactionConnection.rollback();
+			if (!transactionConnection.getAutoCommit()) {
+				if (commit) {
+					transactionConnection.commit();
+				} else {
+					transactionConnection.rollback();
+				}
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Transaction " + (commit ? "commit" : "rollback") + " failed");
@@ -200,8 +202,12 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			try {
 				connection = dataSource.getConnection();
-				connection.setTransactionIsolation(transactionIsolationLevel);
-				connection.setAutoCommit(false);
+				if (transactionIsolationLevel != Connection.TRANSACTION_NONE) {
+					connection.setTransactionIsolation(transactionIsolationLevel);
+					connection.setAutoCommit(false);
+				} else {
+					connection.setAutoCommit(true);
+				}
 				return connection;
 			} catch (Exception e) {
 				// this could happen if there are already too many connections
@@ -538,7 +544,7 @@ public class SqlRepository implements TransactionalRepository {
 				Class<?> fieldClass = property.getClazz();
 				if (Codes.isCode(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = Codes.get(this, codeClass, value);
+					value = Codes.get(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
 					value = loadReference(value, fieldClass, loadedReferences);
 				} else if (AbstractTable.isDependable(property)) {
