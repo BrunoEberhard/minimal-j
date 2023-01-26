@@ -38,24 +38,33 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	
 	@Override
 	public Action getLoginAction() {
-		return new UserPasswordLoginAction();
+		return new UserPasswordLoginAction<>(new UserPassword(), createForm());
 	}
 	
-	public static class UserPasswordLoginAction extends Action implements Dialog {
-		private UserPassword userPassword;
-		private Form<UserPassword> form;
+	private Form<UserPassword> createForm() {
+		Form<UserPassword> form = new Form<UserPassword>();
+		form.line(UserPassword.$.user);
+		form.line(new PasswordFormElement(UserPassword.$.password));
+		if (REMEMBER_ME) {
+			form.line(new CheckBoxFormElement(Keys.getProperty(UserPassword.$.rememberMe), Resources.getString("UserPassword.rememberMe"), true, false));
+		}
+		return form;
+	}
+	
+	public static class UserPasswordLoginAction<T extends UserPassword> extends Action implements Dialog {
+		private final T userPassword;
+		private final Form<T> form;
 		private LoginAction loginAction;
 		
-		public UserPasswordLoginAction() {
+		public UserPasswordLoginAction(T userPassword, Form<T> form) {
 			super(Resources.getString("Login.title"));
+			this.userPassword = userPassword;
+			this.form = form;
 		}
 
 		@Override
 		public void run() {
-			userPassword = new UserPassword();
 			userPassword.rememberMe = REMEMBER_ME && Configuration.isDevModeActive();
-			
-			form = createForm();
 			
 			loginAction = new LoginAction();
 			
@@ -98,26 +107,13 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			return validationMessages.isEmpty();
 		}
 
-		protected Form<UserPassword> createForm() {
-			Form<UserPassword> form = new Form<UserPassword>();
-			form.line(UserPassword.$.user);
-			form.line(new PasswordFormElement(UserPassword.$.password));
-			if (REMEMBER_ME) {
-				form.line(new CheckBoxFormElement(Keys.getProperty(UserPassword.$.rememberMe), Resources.getString("UserPassword.rememberMe"), true, false));
-			}
-			return form;
-		}
-		
 		protected final class LoginAction extends Action {
 			
 			@Override
 			public void run() {
 				if (validate(form)) {
-					Subject subject = save(userPassword);
+					Subject subject = Backend.execute(new LoginTransaction(userPassword));
 					if (subject != null) {
-						if (userPassword.rememberMe) {
-							setRememberMeCookie(userPassword);
-						}
 						Frontend.getInstance().login(subject);
 						Frontend.closeDialog(UserPasswordLoginAction.this);
 					} else {
@@ -125,11 +121,6 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 					}
 				}
 			}
-		}
-
-		protected Subject save(UserPassword userPassword) {
-			LoginTransaction loginTransaction = new LoginTransaction(userPassword);
-			return Backend.execute(loginTransaction);
 		}
 	}
 	
@@ -145,15 +136,15 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			this.userPassword = userPassword;
 		}
 		
-		public UserPassword getLogin() {
-			return userPassword;
-		}
-		
 		@Override
 		public Subject execute() {
-			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
+			String userToRetrieve = userPassword.getUserToRetrieve();
+			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userToRetrieve, userPassword.password);
 			if (user == null) {
 				return null;
+			}
+			if (userPassword.rememberMe) {
+				setRememberMeCookie(userToRetrieve, userPassword.password);
 			}
 			return Backend.getInstance().getAuthentication().createSubject(user);
 		}
@@ -189,17 +180,17 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	private static final boolean PERSISTENT_REMEMBER_ME = Arrays.stream(Application.getInstance().getEntityClasses()).anyMatch(c -> c == RememberMeToken.class);
 	private static final SecureRandom random = new SecureRandom();
 
-	protected static void setRememberMeCookie(UserPassword userPassword) {
+	protected static void setRememberMeCookie(String userName, char[] password) {
 		if (PERSISTENT_REMEMBER_ME) {
 			RememberMeToken rememberMeToken = new RememberMeToken();
 			rememberMeToken.series = generateRandomString();
 			rememberMeToken.token = generateRandomString();
 			rememberMeToken.lastUsed = LocalDateTime.now();
-			rememberMeToken.userName = userPassword.user;
+			rememberMeToken.userName = userName;
 			Backend.save(rememberMeToken);
 			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
 		} else {
-			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
+			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userName, password);
 			String timestamp = String.valueOf(System.currentTimeMillis());
 			String rememberMeCookie = user.getName() + ":" + timestamp + ":" + sign(user, timestamp);
 			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeCookie);

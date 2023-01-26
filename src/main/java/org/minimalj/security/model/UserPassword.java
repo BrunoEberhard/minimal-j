@@ -21,4 +21,7 @@ public class UserPassword implements Serializable {
 
 	public transient Boolean rememberMe = Configuration.isDevModeActive();
 
+	public String getUserToRetrieve() {
+		return user;
+	}
 }
