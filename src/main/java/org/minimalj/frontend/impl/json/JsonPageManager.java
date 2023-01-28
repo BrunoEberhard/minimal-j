@@ -414,6 +414,7 @@ public class JsonPageManager implements PageManager {
 	@Override
 	public void login(Subject subject) {
 		setSubject(subject);
+		Subject.setCurrent(subject);
 		
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
 			output.add("canLogin", subject == null);
@@ -436,7 +437,6 @@ public class JsonPageManager implements PageManager {
 	
 	public void setSubject(Subject subject) {
 		this.subject = subject;
-		Subject.setCurrent(subject);
 	}
 
 	private void updateTitle(Page page) {
