@@ -20,6 +20,9 @@ public class ListUtil {
 		if (list instanceof LazyLoadingList) {
 			return ((LazyLoadingList<T>) list).get(filters, sortKeys, sortDirections, offset, pageSize);
 		} else if (list != null) {
+			if (list.isEmpty()) {
+				return list;
+			}
 			List<T> filteredList;
 			boolean hasActiveFilters = Arrays.stream(filters).anyMatch(ColumnFilter::active);
 			if (hasActiveFilters) {
