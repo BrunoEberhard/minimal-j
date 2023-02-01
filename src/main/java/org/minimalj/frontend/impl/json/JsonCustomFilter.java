@@ -16,7 +16,9 @@ public class JsonCustomFilter extends JsonComponent implements IContent {
 		put("filter", filter);
 		if (search != null) {
 			List<JsonAction> jsonActions = new ArrayList<>();
-			jsonActions.add(new JsonAction(search));
+			JsonAction jsonSearchAction = new JsonAction(search);
+			put("searchAction", jsonSearchAction);
+			jsonActions.add(jsonSearchAction);
 			if (reset != null) {
 				jsonActions.add(new JsonAction(reset));
 			}

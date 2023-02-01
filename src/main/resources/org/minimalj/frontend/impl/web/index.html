@@ -677,6 +677,7 @@ $ICON
 			filterElement.style = "grid-column: 1; grid-row: 1;"
 			element.appendChild(filterElement);
 			if (content.overviewActions) {
+				addEnterAction(content.searchAction, filterElement);
 				var overviewActionsElement = document.createElement("div");
 				overviewActionsElement.style = "grid-column: 2; grid-row: 1; display: flex; flex-direction: column-reverse; flex-wrap: no; justify-content: flex-start; padding-bottom: 15px;";
 				element.appendChild(overviewActionsElement);
@@ -1204,7 +1205,9 @@ $ICON
 		var resize = document.getElementById("dialogResizeTemplate").cloneNode(true);
 		dialog.appendChild(resize);
 	
-		addEnterAction(json.saveAction, content);
+		if (content.classList.contains("form")) {
+			addEnterAction(json.saveAction, content);
+		}
 
 		var parent = document.getElementById("body");
 		parent.appendChild(dialog);
