@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
@@ -256,7 +255,7 @@ public class SqlRepository implements TransactionalRepository {
 	private boolean createTablesOnInitialize(DataSource dataSource) throws SQLException {
 		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
 		if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
-			String url = ((JdbcDataSource) dataSource).getUrl();
+			String url = ((org.h2.jdbcx.JdbcDataSource) dataSource).getUrl();
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
 			}
