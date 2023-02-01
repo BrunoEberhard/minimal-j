@@ -767,23 +767,6 @@ $ICON
 			if (content.value) {
 				element.value = content.value;
 			}
-		} else if (type === "SearchTextField") {
-			element = document.createElement("input");
-			element.type = "text";
-			element.id = content.id;
-			element.setAttribute("style", "flex-grow: 1;");
-			element.setAttribute("onkeydown", "if (event.keyCode == 13) sendchange(this);");
-	
-			var button = document.createElement("button");
-			button.appendChild(document.createTextNode(content.textSearch));
-			button.setAttribute("onclick", "sendchange(this.previousSibling);");
-			button.setAttribute("style", "width: 10em;");
-	
-			var div = document.createElement("div");
-			div.setAttribute("style", "display: flex;");
-			div.appendChild(element);
-			div.appendChild(button);
-			return div; /* ! */
 		} else if (type === "Combobox") {
 			element = document.createElement("select");
 			if (content.nullText != undefined) {
