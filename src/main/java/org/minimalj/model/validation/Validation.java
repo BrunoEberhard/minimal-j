@@ -80,8 +80,13 @@ public interface Validation {
 		}
 	}
 
+	public static <T> void validateNotInvalid(T object, T key, List<ValidationMessage> messages) {
+		validate(object, key, InvalidValues::isInvalid, messages);
+	}
+	
 	public static <T> void validate(T object, T key, Predicate<T> predicate, List<ValidationMessage> messages) {
 		Property property = Keys.getProperty(key);
+		@SuppressWarnings("unchecked")
 		T value = (T) property.getValue(object);
 		if (predicate.test(value)) {
 			messages.add(Validation.createInvalidValidationMessage(key));
