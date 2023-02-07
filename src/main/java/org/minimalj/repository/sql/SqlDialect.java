@@ -128,10 +128,6 @@ public abstract class SqlDialect {
 		return s.toString();
 	}
 	
-	public String createUniqueIndex(String tableName, String column) {
-		return "ALTER TABLE " + tableName + " ADD UNIQUE INDEX " + column + " (" + column + ')';
-	}
-	
 	public String limit(int rows, Integer offset) {
 		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
 	}
@@ -364,11 +360,6 @@ public abstract class SqlDialect {
 			}
 		}
 		
-		@Override
-		public String createUniqueIndex(String tableName, String column) {
-			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
-		}
-
 		@Override
 		public int getMaxIdentifierLength() {
 			return 30;
