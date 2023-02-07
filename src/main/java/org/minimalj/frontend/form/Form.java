@@ -268,6 +268,10 @@ public class Form<T> {
 		return notEmpty ? notEmpty(key) : key;
 	}
 
+	/**
+	 * Marks this key as must be not empty. This does not activate any validation,
+	 * it only shows the red asterisk at the end of the caption.
+	 */
 	public static Object notEmpty(Object key) {
 		NotEmptyWrapper wrapper = new NotEmptyWrapper();
 		wrapper.key = key;
