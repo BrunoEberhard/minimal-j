@@ -23,10 +23,12 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 		this(Keys.getProperty(key), createCodeItems(key, resourceName));
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public RadioButtonsFormElement(Enum<?> key) {
 		this(Keys.getProperty(key), (List) EnumUtils.itemList(key.getClass()));
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static <T> List<CodeItem<T>> createCodeItems(Boolean key, String resourceNames) {
 		Property property = Keys.getProperty(key);
 		List<CodeItem<T>> codeItems = new ArrayList<>();
