@@ -184,7 +184,6 @@ public abstract class AbstractTable<T> {
 			Class<?> propertyClass = property.getClazz();
 			if (propertyClass.isEnum()) {
 				if (!sqlRepository.dbTypes.containsKey(propertyClass)) {
-					StringBuilder s = new StringBuilder();
 					String identifier = sqlRepository.sqlIdentifier.identifier(propertyClass.getSimpleName(), sqlRepository.dbTypes.values());
 					String query = dialect.createType(propertyClass, identifier);
 					if (query != null) {
