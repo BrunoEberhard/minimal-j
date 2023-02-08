@@ -163,7 +163,7 @@ $ICON
 						} else if (property === "tableModel") {
 							var thead = element.tHead;
 							removeChildren(thead);
-							fillTableHead(thead, id, value, false);
+							fillTableHead(thead, id, value);
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
 							for (var i = 0; i < tbody.childNodes.length; i++) {
@@ -658,7 +658,7 @@ $ICON
 			}
 			var thead = document.createElement("thead");
 			element.appendChild(thead);
-			fillTableHead(thead, content.id, content.tableModel, content.filterVisible);
+			fillTableHead(thead, content.id, content.tableModel);
 			var tbody = document.createElement("tbody");
 			element.appendChild(tbody);
 			tbody.setAttribute("onclick", "tableSelection(event);");
@@ -968,11 +968,11 @@ $ICON
 		cellElement.style.flexGrow = span;
 	}
 
-	function fillTableHead(thead, id, tableModel, filterVisible) {
+	function fillTableHead(thead, id, tableModel) {
 		thead.appendChild(createTableColumns(tableModel));
 		thead.appendChild(createTableColumnStyles(id, tableModel));
 		thead.appendChild(createTableHeaders(id, tableModel));
-		thead.appendChild(createTableFilters(id, tableModel, filterVisible));
+		thead.appendChild(createTableFilters(id, tableModel));
 	}
 	
 	function createTableColumns(tableModel) {
@@ -1020,10 +1020,10 @@ $ICON
 		return element;
 	}
 
-	function createTableFilters(tableId, tableModel, filterVisible) {
+	function createTableFilters(tableId, tableModel) {
 		var element = document.createElement("tr");
 		element.classList.add("columnFilters");
-		if (!filterVisible) {
+		if (!tableModel.filterVisible) {
 			element.classList.add("hide");
 		}		
 		for (var i = 0; i < tableModel.headers.length; i++) {

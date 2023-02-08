@@ -92,6 +92,10 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			put("widths", widths);
 			put("maxWidths", maxWidths);
 		}
+
+		public boolean isFilterVisible() {
+			return Boolean.TRUE.equals(get("filterVisible"));
+		}
 	}
 	
 	private static String alignment(Property property) {
@@ -128,7 +132,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		pageManager.unregister(get("tableContent"));
 		this.objects = objects != null ? objects : Collections.emptyList();
 
-		visibleObjects = ListUtil.get(this.objects, Boolean.TRUE.equals(get("filterVisible")) ? tableModel.filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(this.objects, tableModel.isFilterVisible() ? tableModel.filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -148,8 +152,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		putSilent("selectedRows", null); // always fire this property change
 		put("selectedRows", selectedRows);
 		updatePaging();
-		if (!containsKey("filterVisible")) {
-			put("filterVisible", this.objects.size() >= FILTER_LINES);
+		if (!tableModel.containsKey("filterVisible")) {
+			tableModel.put("filterVisible", this.objects.size() >= FILTER_LINES);
 		}
 		
 		selectedObjects.clear();
@@ -161,7 +165,15 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	public void setColumns(Object[] keys) {
 		tableModel = new JsonTableModel(keys);
 		put("tableModel", tableModel);
-		setObjects(objects);
+		refreshTableContent();
+	}
+	
+	private void refreshTableContent() {
+		if (visibleObjects != null) {
+			pageManager.unregister(get("tableContent"));
+			List<List> tableContent = createTableContent(visibleObjects);
+			put("tableContent", tableContent);
+		}
 	}
 	
 	private void updatePaging() {
@@ -334,7 +346,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	public void setFilterVisible(boolean visible) {
-		put("filterVisible", visible);
+		tableModel.put("filterVisible", visible);
 
 		if (visible) {
 			for (int column = 0; column < tableModel.filters.length; column++) {
