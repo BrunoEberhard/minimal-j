@@ -22,7 +22,7 @@ public abstract class Column<ROW, COLUMN> implements Property {
 	}
 	
 	public CharSequence render(ROW rowObject, COLUMN value) {
-		return Rendering.render(value);
+		return Rendering.render(value, property);
 	}
 	
 	public ColorName getColor(ROW rowObject, COLUMN value) {
