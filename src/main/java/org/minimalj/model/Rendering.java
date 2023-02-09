@@ -5,7 +5,9 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.minimalj.frontend.impl.util.HtmlString;
 import org.minimalj.model.annotation.AnnotationUtil;
@@ -42,6 +44,17 @@ public interface Rendering {
 		return null;
 	}
 	
+	public enum FontStyle {
+		BOLD, ITALIC, STRIKE;
+	}
+	
+	public static final List<FontStyle> BOLD = Arrays.asList(FontStyle.BOLD);
+	public static final List<FontStyle> ITALIC = Arrays.asList(FontStyle.ITALIC);
+	public static final List<FontStyle> STRIKE = Arrays.asList(FontStyle.STRIKE);
+	
+	public default Collection<FontStyle> getFontStyles() {
+		return null;
+	}
 
 	// helper methods (framework internal)
 
@@ -123,4 +136,12 @@ public interface Rendering {
 		return color;
 	}
 
+	public static Collection<FontStyle> getFontStyles(Object object, Object fieldValue) {				
+		Collection<FontStyle> styles = fieldValue instanceof Rendering ? ((Rendering) fieldValue).getFontStyles() : null;
+		if (styles == null && object instanceof Rendering) {
+			styles = ((Rendering) object).getFontStyles();
+		}
+		return styles;
+	}
+	
 }

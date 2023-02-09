@@ -1063,9 +1063,9 @@ $ICON
 				td.appendChild(document.createTextNode(cell.action));
 				td.className = "action";
 				td.setAttribute("onclick", "cellAction(\"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
-			} else if (cell.color) {
+			} else if (cell.value) {
 				td.appendChild(document.createTextNode(cell.value));
-				td.classList.add(cell.color);
+				td.classList.add(cell.styles);
 			} else {
 				td.appendChild(document.createTextNode(cell));
 			}

@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.json;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +23,10 @@ import org.minimalj.model.Column.ColumnAlignment;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
+import org.minimalj.model.Rendering.FontStyle;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 
@@ -259,33 +262,39 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 						rowContent.add(Collections.singletonMap("action", stringValue));
 					} else {
 						ColorName color = column.getColor(object, value);
-						if (color == null) {
-							rowContent.add(stringValue);
-						} else {
-							Map<String, Object> map = new HashMap<>();
-							map.put("value", stringValue);
-							map.put("color", color.name().toLowerCase());
-							rowContent.add(map);
-							// newer Java: rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
-						}
+						Collection<FontStyle> styles = column.getFontStyles(object, value);
+						rowContent.add(createTableCellContent(color, styles, stringValue));
 					}
 				} else {
 					String stringValue = Rendering.toString(value, property);
 					ColorName color = Rendering.getColor(object, value);
-					if (color == null) {
-						rowContent.add(stringValue);
-					} else {
-						Map<String, Object> map = new HashMap<>();
-						map.put("value", stringValue);
-						map.put("color", color.name().toLowerCase());
-						rowContent.add(map);
-						// newer Java: rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
-					}
+					Collection<FontStyle> styles = Rendering.getFontStyles(object, value);
+					rowContent.add(createTableCellContent(color, styles, stringValue));
 				}
 			}
 			tableContent.add(rowContent);
 		}
 		return tableContent;
+	}
+
+	private Object createTableCellContent(ColorName color, Collection<FontStyle> styles, String stringValue) {
+		if (EmptyObjects.isEmpty(stringValue)) {
+			return "";
+		} else if (color == null && styles == null) {
+			return stringValue;
+		} else {
+			Map<String, Object> map = new HashMap<>();
+			map.put("value", stringValue);
+			List<String> classes = new ArrayList<>();
+			if (color != null) {
+				classes.add(color.name().toLowerCase());
+			}
+			if (styles != null) {
+				styles.forEach(style -> classes.add(style.name().toLowerCase()));
+			}
+			map.put("styles", classes);
+			return map;
+		}
 	}
 	
 	public void cellAction(int row, int columnIndex) {

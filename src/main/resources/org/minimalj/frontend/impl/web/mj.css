@@ -741,6 +741,10 @@ label.invisible {
 .blue { color: blue; }
 .yellow { color: #c1aa1e; }
 
+.bold { font-weight: bold; }
+.italic { font-style: italic; }
+.strike { text-decoration: line-through; }
+
 @media screen and (min-width: 992px) {
 	#search { display: inline !important; }
 	#searchButton { display: none; }

@@ -1,10 +1,12 @@
 package org.minimalj.model;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Objects;
 
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.model.Rendering.ColorName;
+import org.minimalj.model.Rendering.FontStyle;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.resources.Resources;
 
@@ -26,6 +28,10 @@ public abstract class Column<ROW, COLUMN> implements Property {
 	}
 	
 	public ColorName getColor(ROW rowObject, COLUMN value) {
+		return null;
+	}
+	
+	public Collection<FontStyle> getFontStyles(ROW rowObject, COLUMN value) {
 		return null;
 	}
 
