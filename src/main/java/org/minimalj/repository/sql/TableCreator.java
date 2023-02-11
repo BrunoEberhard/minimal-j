@@ -12,6 +12,7 @@ public class TableCreator {
 		ModelTest.exitIfProblems();
 		
 		SqlRepository repository = (SqlRepository) application.createRepository();
+		repository.beforeCreateTables();
 		repository.createTables();
 		repository.createCodes();
 		repository.afterCreateTables();

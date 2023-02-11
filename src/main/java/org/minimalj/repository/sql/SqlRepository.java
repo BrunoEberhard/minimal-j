@@ -93,6 +93,7 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			new ModelTest(classes).assertValid();
 			if (createTablesOnInitialize(dataSource)) {
+				beforeCreateTables();
 				createTables();
 				createCodes();
 				afterCreateTables();
@@ -611,6 +612,10 @@ public class SqlRepository implements TransactionalRepository {
 	
 	protected <U> Table<U> createTable(Class<U> clazz) {
 		return new Table<>(this, clazz);
+	}
+	
+	protected void beforeCreateTables() {
+		// for extensions
 	}
 	
 	void createTables() {
