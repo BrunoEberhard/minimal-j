@@ -359,6 +359,9 @@ public class Form<T> {
 	//
 
 	private void registerNamedElement(FormElement<?> field) {
+		if (elements.containsKey(field.getProperty())) {
+			throw new IllegalArgumentException("Not allowed to add property twice: " + field.getProperty().getPath());
+		}
 		elements.put(field.getProperty(), field);
 		field.setChangeListener(formChangeListener);
 	}
