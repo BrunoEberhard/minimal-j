@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="$LANG">
 <head>
 <meta charset="utf-8">
@@ -406,7 +407,7 @@ $ICON
 	
 		if (window.innerWidth < 992) toggleNavigation("close");
 	
-		pageElement.scrollIntoView();;
+		pageElement.scrollIntoView();
 		
 		if (page.wheel) {
 			var deltaY = 0;
@@ -469,14 +470,14 @@ $ICON
 
 		pageContentAndActionsElement.appendChild(contextMenuElement);
 
-		contextMenuElement.style.left = event.x;
+		contextMenuElement.style.left = event.x + "px";
 		if (event.x + contextMenuElement.offsetWidth > window.innerWidth) {
-			contextMenuElement.style.left = Math.max(0, window.innerWidth - contextMenuElement.offsetWidth);
+			contextMenuElement.style.left = Math.max(0, window.innerWidth - contextMenuElement.offsetWidth) + "px";
 		}
-		contextMenuElement.style.top = event.y;
+		contextMenuElement.style.top = event.y + "px";
 		contextMenuElement.style.maxHeight = "unset";
 		if (event.y + contextMenuElement.offsetHeight > window.innerHeight - 30) {
-			contextMenuElement.style.top = Math.max(30, window.innerHeight - contextMenuElement.offsetHeight);
+			contextMenuElement.style.top = Math.max(30, window.innerHeight - contextMenuElement.offsetHeight) + "px";
 			contextMenuElement.style.maxHeight = window.innerHeight - 70;
 		}
 		event.preventDefault();
@@ -671,7 +672,7 @@ $ICON
 			addTableFooter(tfoot, content.paging);
 		} else if (type === "CustomFilter") {
 			var element = document.createElement("div");
-			element.style = "display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; column-gap: 10px;"
+			element.style = "display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr; column-gap: 10px; width: unset; justify-items: start;"
 			var filterElement = createContent(content.filter);
 			filterElement.classList.add("customFilter");
 			filterElement.style = "grid-column: 1; grid-row: 1;"
@@ -1220,7 +1221,7 @@ $ICON
 			dialog.addEventListener("cancel", closeDialogButton);
 		}
 		dialog.addEventListener("close", dialogClosedListener);
-
+		
 		dialog.showModal();
 
 		if (window.innerWidth < 600) {
@@ -1240,7 +1241,7 @@ $ICON
 				// plus 1 or firefox in uhd and material-design will scroll
 				var intialHeight = parseInt(computedStyle.height, 10) + 1;
 			}
-			dialog.style.height = Math.min(intialHeight, window.innerHeight - 40);
+			dialog.style.height = Math.min(intialHeight, window.innerHeight - 40) + "px";
 
 			header.addEventListener("mousedown", addMoveListener);
 			header.addEventListener("dblclick", dialogClickListener);
@@ -1348,8 +1349,8 @@ $ICON
 			var width = parseInt(style.width, 10) + event.movementX;
 			var height = parseInt(style.height, 10) + event.movementY;
 	
-			dialogElement.style.width = Math.max(350, width);
-			dialogElement.style.height = Math.max(150, height);
+			dialogElement.style.width = Math.max(350, width) + "px";
+			dialogElement.style.height = Math.max(150, height) + "px";
 			
 			event.preventDefault();
 		}
@@ -1705,8 +1706,8 @@ $ICON
 		Array.from(dialogs).forEach(dialog => {
 			var computedStyle = window.getComputedStyle(dialog);
 			
-			dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width)) / 2.5, 0);
-			dialog.style.top = Math.max((window.innerHeight - parseInt(computedStyle.height)) / 3, 0);
+			dialog.style.left = Math.max((window.innerWidth - parseInt(computedStyle.width)) / 2.5, 0) + "px";
+			dialog.style.top = Math.max((window.innerHeight - parseInt(computedStyle.height)) / 3, 0) + "px";
 		});
 	}
 	
