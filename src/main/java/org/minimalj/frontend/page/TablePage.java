@@ -14,9 +14,7 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Result;
-import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.Property;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -111,15 +109,15 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		}
 	}
 
-	@Override
-	public int getMaxWidth() {
-		int maxWidth = 0;
-		for (Object column : columns) {
-			Property property = Keys.getProperty(column);
-			maxWidth += ListUtil.maxWidth(property);
-		}
-		return maxWidth + columns.length * 6;
-	}
+//	@Override
+//	public int getMaxWidth() {
+//		int maxWidth = 0;
+//		for (Object column : columns) {
+//			Property property = Keys.getProperty(column);
+//			maxWidth += ListUtil.maxWidth(property);
+//		}
+//		return maxWidth + columns.length * 6;
+//	}
 	
 	@Override
 	public final List<Action> getActions() {

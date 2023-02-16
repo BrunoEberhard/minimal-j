@@ -44,7 +44,7 @@ body {
 	grid-template-columns: var(--navigationWidth) auto min-content;
 	box-sizing: border-box;
 	text-align: left;
-	background: var(--headerBackground);;
+	background-color: var(--headerBackground);
 	padding-left: 0ex;
 }
 
@@ -235,10 +235,6 @@ body {
 	font-family: inherit;
 }
 
-.pageContent > table {
-	width: 100%;
-}
-
 .pageContent .contentLogin {
 	width: 90%;
 }
@@ -276,6 +272,7 @@ table.table thead {
 
 .table .columnFilter input {
 	width: 100%;
+	box-sizing: border-box;
 }
 
 .table tfoot tr td * {
@@ -496,14 +493,11 @@ dialog table {
 
 .form > div > div > *, .form input[type=text], .form select {
 	width: 100%;
-}
-
-input, select {
-	height: 1.35rem;
+ 	box-sizing: border-box;
 }
 
 .form .text {
-	padding-top: 3.5px;
+	padding-top: 0.35em;
 }
 
 .lookup .text, .lookup input {
@@ -620,8 +614,8 @@ dialog .form div.list {
 /* various elements */
 
 input, .checkBoxContainer, select {
-	padding-top: 0.15em;
-	padding-bottom: 0.15em;
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
 	font-size: inherit;
 }
 
