@@ -188,6 +188,7 @@ public class Form<T> {
 
 	public void setIgnoreCaption(boolean ignoreCaption) {
 		this.ignoreCaption = ignoreCaption;
+		formContent.setIgnoreCaption(ignoreCaption);
 	}
 
 	//

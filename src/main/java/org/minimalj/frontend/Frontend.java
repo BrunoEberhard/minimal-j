@@ -167,6 +167,8 @@ public abstract class Frontend {
 	public interface FormContent extends IContent, IComponent {
 		public default void group(String caption) {
 		}
+		public default void setIgnoreCaption(boolean ignoreCaption) {
+		}
 		
 		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);

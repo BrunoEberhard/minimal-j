@@ -500,6 +500,10 @@ dialog table {
 	padding-top: 0.35em;
 }
 
+.form .noCaption {
+	padding-top: 1.2rem;
+}
+
 .lookup .text, .lookup input {
 	width: 100%;
 	min-height: 1.8em;

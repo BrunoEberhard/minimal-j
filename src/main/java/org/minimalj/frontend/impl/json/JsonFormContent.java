@@ -29,6 +29,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	private List<JsonComponent> actualRow = new ArrayList<>();
 	private boolean startGroup = true;
 	private int actualColumn;
+	private boolean ignoreCaption = false;
 	
 	public JsonFormContent(int columns, int columnWidth) {
 		super("Form");
@@ -65,6 +66,11 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public void group(String caption) {
 		startGroup = true;
 	}
+	
+	@Override
+	public void setIgnoreCaption(boolean ignoreCaption) {
+		this.ignoreCaption = ignoreCaption;
+	}
 
 	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
 		throw new IllegalArgumentException("Migrate");
@@ -79,7 +85,11 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		JsonComponent jsonComponent = component != null ? (JsonComponent) component : new JsonComponent("Empty");
 		if (caption != null) {
 			jsonComponent.put(CAPTION, caption);
-		} else if (jsonComponent instanceof JsonText) {
+		} else if (!ignoreCaption /* && jsonComponent instanceof JsonText*/ ) {
+			// if there is no caption the component needs an offset or would be
+			// displayed too high.
+			// (this is not the case if ignoreCaption is active, then all components are 
+			// on upper edge)
 			jsonComponent.setCssClass("noCaption");
 		}
 		if (required) {
