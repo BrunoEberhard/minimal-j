@@ -37,7 +37,7 @@ public interface Rendering {
 	}
 
 	public enum ColorName {
-		RED, GREEN, BLUE, YELLOW;
+		GRAY, RED, GREEN, BLUE, YELLOW;
 	}
 
 	public default ColorName getColor() {

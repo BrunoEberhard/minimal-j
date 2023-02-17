@@ -459,6 +459,7 @@ table tbody  tr:nth-child(odd).selected {
 .form > div {
 	display: flex;
 	flex-wrap: nowrap;	
+	overflow: hidden;
 }
 
 .dialogContent, .dialogHeader {
@@ -741,6 +742,7 @@ label.invisible {
 .green { color: green; }
 .blue { color: blue; }
 .yellow { color: #c1aa1e; }
+.gray { color: gray; }
 
 .bold { font-weight: bold; }
 .italic { font-style: italic; }
