@@ -380,6 +380,9 @@ dialog:nth-child(3n+2) {
 }
 
 .dialogResize .button {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
 	width: var(--secondHeaderButtonSize);
 	height: var(--secondHeaderButtonSize);
 }
