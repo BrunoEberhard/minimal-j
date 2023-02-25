@@ -30,7 +30,7 @@ body {
 	height: 100%;
 	overflow: hidden;
 	display: grid;
-	grid-template-rows: var(--headerHeight) 1fr;
+	grid-template-rows: var(--headerHeight) minmax(200px, 1fr);
 	gap: var(--bodyGapWidth);
 	background: var(--borderColor);
 }
@@ -110,6 +110,7 @@ body {
 
 #navigationHeader {
 	height: var(--secondHeaderHeight);
+	flex-shrink: 0;
 	position: relative;
 	box-sizing: border-box;
 	display: flex;
