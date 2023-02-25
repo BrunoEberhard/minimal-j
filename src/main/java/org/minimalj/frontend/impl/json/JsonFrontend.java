@@ -237,6 +237,8 @@ public class JsonFrontend extends Frontend {
 			MINIMALJ_VERSION = "Development";
 		}
 		
+		// Implementation Version has to be included in the manifest
+		// see https://stackoverflow.com/questions/921667/how-do-i-add-an-implementation-version-value-to-a-jar-manifest-using-maven
 		APPLICATION_VERSION = Application.getInstance().getClass().getPackage().getImplementationVersion();
 		if (APPLICATION_VERSION == null) {
 			APPLICATION_VERSION = "Development " + DateUtils.format(LocalDateTime.now(), null);
