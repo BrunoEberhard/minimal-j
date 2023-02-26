@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
@@ -85,7 +86,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		JsonComponent jsonComponent = component != null ? (JsonComponent) component : new JsonComponent("Empty");
 		if (caption != null) {
 			jsonComponent.put(CAPTION, caption);
-		} else if (!ignoreCaption /* && jsonComponent instanceof JsonText*/ ) {
+		} else if (!ignoreCaption && (jsonComponent instanceof JsonText || jsonComponent instanceof Input<?> || jsonComponent instanceof JsonAction)) {
 			// if there is no caption the component needs an offset or would be
 			// displayed too high.
 			// (this is not the case if ignoreCaption is active, then all components are 
