@@ -290,7 +290,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				if (column.isLink(object, value)) {
 					color = Color.BLUE;
 				} else {
-					color = getColor(column.getColor(object, value));
+					color = getColor(Column.getColor(column, object, value));
 				}
 			} else {
 				stringValue = Rendering.toString(value, property);
@@ -312,6 +312,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				case YELLOW: return Color.YELLOW;
 				case GREEN: return Color.GREEN;
 				case BLUE: return Color.BLUE;
+				case GRAY: return Color.GRAY;
 			}
 		}
 		return null;

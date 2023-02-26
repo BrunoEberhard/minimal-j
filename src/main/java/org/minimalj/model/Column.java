@@ -71,6 +71,15 @@ public abstract class Column<ROW, COLUMN> implements Property {
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static ColorName getColor(Column column, Object object, Object value) {
+		ColorName color = column.getColor(object, value);
+		if (color == null) {
+			color = Rendering.getColor(object, value);
+		}
+		return color;
+	}
+	
 	// delegation
 	
 	public final Class<?> getDeclaringClass() {

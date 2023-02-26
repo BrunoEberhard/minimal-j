@@ -261,7 +261,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					if (column.isLink(object, value)) {
 						rowContent.add(Collections.singletonMap("action", stringValue));
 					} else {
-						ColorName color = column.getColor(object, value);
+						ColorName color = Column.getColor(column, object, value);
 						Collection<FontStyle> styles = column.getFontStyles(object, value);
 						rowContent.add(createTableCellContent(color, styles, stringValue));
 					}
