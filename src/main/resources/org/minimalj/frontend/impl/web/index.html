@@ -672,7 +672,7 @@ $ICON
 			addTableFooter(tfoot, content.paging);
 		} else if (type === "CustomFilter") {
 			var element = document.createElement("div");
-			element.style = "display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr; column-gap: 10px; width: unset; justify-items: start;"
+			element.style = "display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr; column-gap: 10px; width: fit-content; justify-items: start;"
 			var filterElement = createContent(content.filter);
 			filterElement.classList.add("customFilter");
 			filterElement.style = "grid-column: 1; grid-row: 1;"
