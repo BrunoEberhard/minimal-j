@@ -1233,8 +1233,8 @@ $ICON
 			if (initialWidth <= 0) {
 				initialWidth = parseInt(computedStyle.width, 10);
 			}
-			dialog.style.width = Math.min(initialWidth, window.innerWidth - 200);
-			dialog.style.left = Math.max((window.innerWidth - initialWidth) / 3 , 0);
+			dialog.style.width = Math.min(initialWidth, window.innerWidth - 200) + "px";
+			dialog.style.left = Math.max((window.innerWidth - initialWidth) / 3 , 0) + "px";
 
 			var intialHeight = json.height;
 			if (intialHeight <= 0) {
