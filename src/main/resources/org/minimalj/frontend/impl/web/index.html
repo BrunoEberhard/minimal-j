@@ -851,8 +851,8 @@ $ICON
 				if (!isOpen) {
 					dropdownElement.style.display = "block";
 					var actionElementRect = actionElement.getBoundingClientRect();
-					dropdownElement.style.right = document.body.getBoundingClientRect().right - actionElementRect.right;
-					dropdownElement.style.top = actionElementRect.bottom + 2;			
+					dropdownElement.style.right = (document.body.getBoundingClientRect().right - actionElementRect.right) + "px";
+					dropdownElement.style.top = actionElementRect.bottom + "px";			
 				}
 				e.stopPropagation();
 			}
