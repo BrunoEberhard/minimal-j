@@ -11,7 +11,7 @@ import org.minimalj.frontend.util.LazyLoadingList;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.resources.Resources;
 
 import com.vaadin.flow.component.ComponentEventListener;
@@ -40,7 +40,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		this.keys = keys;
 		for (Object key : keys) {
-			PropertyInterface p = Keys.getProperty(key);
+			Property p = Keys.getProperty(key);
 			if (clazz == null) {
 				clazz = p.getDeclaringClass();
 			}
@@ -77,9 +77,9 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private class MinimalRenderer extends BasicRenderer<T, Object> {
 		private static final long serialVersionUID = 1L;
 
-		private final PropertyInterface property;
+		private final Property property;
 
-		protected MinimalRenderer(PropertyInterface property) {
+		protected MinimalRenderer(Property property) {
 			super(T -> property.getValue(T));
 			this.property = property;
 		}

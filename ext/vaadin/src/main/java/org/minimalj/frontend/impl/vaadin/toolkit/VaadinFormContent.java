@@ -11,11 +11,11 @@ import org.minimalj.frontend.impl.vaadin.toolkit.VaadinFrontend.HasComponent;
 import org.minimalj.util.StringUtils;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Label;
 
 public class VaadinFormContent extends FormLayout implements FormContent, VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
@@ -62,8 +62,8 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
             ((HasSize) component).setWidthFull();
         }
 
-        if (first && component instanceof HasElement && !(component instanceof VaadinReadOnlyTextField)) {
-            ((HasElement) field).getElement().setAttribute("autofocus", "true");
+        if (first && component != null && !(component instanceof VaadinReadOnlyTextField)) {
+            ((Component) component).getElement().setAttribute("autofocus", "true");
             first = false;
         }
 
@@ -77,14 +77,18 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
 
         if (field instanceof HasCaption) {
             if (!StringUtils.isEmpty(caption)) {
-                ((HasCaption) field).setLabel(caption);
+                ((HasCaption) field).setCaption(caption);
             }
         }
         
         if (constraint != null) {
         	
         }
-        super.add(component, span);
+        if (component != null) {
+        	super.add(component, span);
+        } else {
+        	super.add(new Label(), span);
+        }
 	}
 
 	public KeyNotifier getLastField() {

@@ -50,7 +50,8 @@ public class Vaadin extends SpringBootServletInitializer {
 			System.setProperty(RootMappedCondition.URL_MAPPING_PROPERTY, mjHandlerPath);
 		}
 		
-		SpringApplication.run(Vaadin.class, args);
+		var result = SpringApplication.run(Vaadin.class, args);
+		System.out.println(result);
 	}
 	
 	public static void start(Application application) {

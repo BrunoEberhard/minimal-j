@@ -8,14 +8,14 @@
 	<description>Minimimal-J Vaadin Frontend using Vaadin 21+</description>
 
 	<properties>
-		<java.version>11</java.version>
-		<vaadin.version>21.0.4</vaadin.version>
+		<java.version>17</java.version>
+		<vaadin.version>23.3.6</vaadin.version>
 	</properties>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.4</version>
+		<version>2.7.8</version>
 	</parent>
 
 	<repositories>
@@ -80,7 +80,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.26.0.1-SNAPSHOT,1.30.0.0)</version>
+			<version>[1.26.0.1-SNAPSHOT,)</version>
 		</dependency>
 
 		<dependency>
@@ -107,6 +107,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-to-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
