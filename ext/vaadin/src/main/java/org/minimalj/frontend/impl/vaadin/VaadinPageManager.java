@@ -13,6 +13,7 @@ import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinMenu;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
@@ -111,7 +112,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			if (action instanceof ActionGroup) {
 				container.add(new Label(action.getName()));
 				VerticalLayout layout = new VerticalLayout();
-				layout.setMargin(true);
+				layout.setMargin(false);
 				layout.setSpacing(false);
 				addActions(layout, ((ActionGroup)action).getItems());
 				container.add(layout);
@@ -146,10 +147,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 				if (action instanceof ActionGroup || action instanceof Separator) {
 					continue;
 				}
-				Anchor anchor = new Anchor();
-				anchor.setText(action.getName());
-				anchor.getElement().addEventListener("click", e -> {action.run(); menu.close();} );
-				menu.add(anchor);
+				VaadinMenu.adaptAction(menu, action);
 			}
 		}
 	}
