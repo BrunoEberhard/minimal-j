@@ -37,6 +37,11 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 
 	@Override
+	public boolean canBeEmpty() {
+		return true;
+	}
+
+	@Override
 	public FormElementConstraint getConstraint() {
 		return constraint;
 	}

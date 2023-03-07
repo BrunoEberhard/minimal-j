@@ -52,6 +52,11 @@ public class TextFormElement implements FormElement<Object> {
 	}
 
 	@Override
+	public boolean canBeEmpty() {
+		return false;
+	}
+
+	@Override
 	public IComponent getComponent() {
 		return textField;
 	}

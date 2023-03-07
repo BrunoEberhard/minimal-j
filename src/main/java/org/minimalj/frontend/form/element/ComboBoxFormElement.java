@@ -18,6 +18,7 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 	public static final String EMPTY_NULL_STRING = "";
 	
 	private final List<T> values;
+	private final boolean canBeEmpty;
 	private final Input<T> comboBox;
 
 	public ComboBoxFormElement(T key, List<T> values) {
@@ -36,6 +37,7 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 		super(property);
 		this.values = this instanceof CodeFormElement ? values : new ArrayList<>(values);
 		comboBox = Frontend.getInstance().createComboBox(this.values, nullText, listener());
+		canBeEmpty = nullText != null;
 	}
 	
 	@Override
@@ -63,6 +65,11 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 			value = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
 		}
 		comboBox.setValue(value);
+	}
+	
+	@Override
+	public boolean canBeEmpty() {
+		return canBeEmpty;
 	}
 
 	@Override

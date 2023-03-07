@@ -27,6 +27,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
+import org.minimalj.frontend.form.element.ComboBoxFormElement;
 import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
@@ -247,7 +248,7 @@ public class Form<T> {
 	}
 
 	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
-		boolean required = editable && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null && element.getProperty().getClazz() != Boolean.class && !(element instanceof TextFormElement));
+		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null);
 		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
@@ -281,6 +282,14 @@ public class Form<T> {
 
 	private static class NotEmptyWrapper {
 		private Object key;
+	}
+
+	public static <T extends Code> FormElement<T> noNull(T key) {
+		return new CodeFormElement<>(key, ComboBoxFormElement.NO_NULL_STRING);
+	}
+
+	public static <T extends Enum<T>> FormElement<T> noNull(T key) {
+		return new EnumFormElement<>(key, false);
 	}
 
 	public void addTitle(String text, Object... keys) {

@@ -45,6 +45,11 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 	}
 
 	@Override
+	public boolean canBeEmpty() {
+		return false;
+	}
+
+	@Override
 	public IComponent getComponent() {
 		return checkBox;
 	}
