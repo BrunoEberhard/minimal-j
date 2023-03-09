@@ -1,14 +1,11 @@
 package org.minimalj.frontend.impl.web;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.web.MjHttpExchange.LoggingHttpExchange;
@@ -124,25 +121,10 @@ public abstract class WebApplication extends Application {
 					return true;
 				}
 			} catch (Exception x) {
-				logger.log(Level.SEVERE,x.getLocalizedMessage(), x);
-				webApplication().sendError(exchange, x);
+				logger.log(Level.WARNING,x.getLocalizedMessage(), x);
 			}
 		}
 		return false;
-	}
-
-	protected void sendError(MjHttpExchange exchange, Exception x) {
-		if (Configuration.isDevModeActive()) {
-			try (StringWriter sw = new StringWriter()) {
-				try (PrintWriter pw = new PrintWriter(sw)) {
-					x.printStackTrace(pw);
-					exchange.sendResponse(500, sw.toString(), "text/plain");
-				}
-			} catch (Exception x2) {
-				logger.log(Level.SEVERE, "Could not send internal server error response", x2);
-			}
-		}
-		exchange.sendResponse(500, "Internal server error", "text/plain");
 	}
 
 	protected void sendNotFound(MjHttpExchange exchange) {

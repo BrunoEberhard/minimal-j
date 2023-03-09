@@ -1,15 +1,21 @@
 package org.minimalj.frontend.impl.web;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
 
 public class ApplicationHttpHandler implements MjHttpHandler {
+	private static final Logger logger = Logger.getLogger(ApplicationHttpHandler.class.getName());
 
 	private String path;
 
@@ -44,8 +50,14 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		}
 		switch (path) {
 		case "/ajax_request.json":
-			String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
-			exchange.sendResponse(200, response, "application/json;charset=UTF-8");
+			// hier die applikatorischen Fehler abfangen, damit sie von Verbindungsproblemen unterschieden werden?
+			try {
+				String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
+				exchange.sendResponse(200, response, "application/json;charset=UTF-8");
+			} catch (Exception x) {
+				logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
+				sendError(exchange, x);
+			}
 			break;
 		case "/":
 			handleTemplate(exchange, path);
@@ -55,7 +67,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			break;
 		default:
 			if (path.startsWith("/download")) {
-				response = JsonSessionManager.getInstance().export(exchange.getParameter("session"), exchange.getParameter("component"));
+				String response = JsonSessionManager.getInstance().export(exchange.getParameter("session"), exchange.getParameter("component"));
 				if (response != null) {
 					// ms office can better handle iso-8859-1 than utf-8
 					exchange.sendResponse(200, response.getBytes(Charset.forName("ISO-8859-1")), "application/csv;charset=ISO-8859-1");
@@ -65,6 +77,24 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 				break;
 			}
 			resourcesHttpHandler.handle(exchange, path);
+		}
+	}
+	
+	protected void sendError(MjHttpExchange exchange, Exception x) {
+		if (Configuration.isDevModeActive()) {
+			try (StringWriter sw = new StringWriter()) {
+				try (PrintWriter pw = new PrintWriter(sw)) {
+					exchange.sendResponse(500, sw.toString(), "text/plain");
+					return;
+				}
+			} catch (Exception x2) {
+				logger.log(Level.WARNING, "Could not send internal server error response", x2);
+			}
+		}
+		try {
+			exchange.sendResponse(500, "Internal server error", "text/plain");
+		} catch (Exception x2) {
+			logger.log(Level.WARNING, "Could not send internal server error response", x2);
 		}
 	}
 
