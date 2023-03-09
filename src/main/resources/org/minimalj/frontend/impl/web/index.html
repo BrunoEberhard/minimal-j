@@ -1152,6 +1152,13 @@ $ICON
 		}
 	}
 	
+	function toggleActionSideBars(openOrClose) {
+		var actionSideBars = document.getElementsByClassName("actionSideBar");
+		for (var i = 0; i < actionSideBars.length; i++) {
+			openOrClose === "open" ? actionSideBars[i].classList.remove("hide") : actionSideBars[i].classList.add("hide");
+		}
+	}
+	
 	function showDialog(json) {
 		var dialog = document.createElement("dialog");
 		dialog.id = json.id;
@@ -1715,33 +1722,22 @@ $ICON
 	
 	function resizeNavigation() {
 		var newWidth = window.innerWidth;
-		if (lastWidth > newWidth && newWidth < 800) {
-			toggleNavigation("close");
-			// document.getElementById("search").style.display = "none";      
-		} else if (lastWidth < newWidth && newWidth >= 1200) {
-			toggleNavigation("open");
+		if (lastWidth > newWidth) {
+			if (newWidth < 800) {
+				toggleNavigation("close");
+			}
+			if (newWidth < 1200) {
+				toggleActionSideBars("close");
+			}
+		} else if (lastWidth < newWidth) {
+			if (newWidth >= 1200) {
+				toggleNavigation("open");
+			}
+			if (newWidth >= 1500) {
+				toggleActionSideBars("open");
+			}
 		}
 		lastWidth = newWidth;
-		
-		var pageContentAndActionElements = document.getElementsByClassName("pageContentAndActions");
-	    for (var i = 0; i < pageContentAndActionElements.length; i++) {
-	    	var pageContentAndActionElement = pageContentAndActionElements[i];
-	    	var actionSideBarElement = pageContentAndActionElement.querySelector(".actionSideBar");
-	    	if (actionSideBarElement != null) {
-		    	var pageContentElement = pageContentAndActionElement.querySelector(".pageContent");
-	
-		    	var computedStyle = window.getComputedStyle(actionSideBarElement);
-				var actionSideBarWidth = parseInt(computedStyle.width, 10);
-				
-				actionSideBarElement.classList.add("hide"); // first hide to get width correct
-				computedStyle = window.getComputedStyle(pageContentElement.childNodes[0]);
-				var pageContentMaxWidth = parseInt(computedStyle.width, 10);
-				
-		    	if ((pageContentAndActionElement.offsetWidth - actionSideBarWidth) > pageContentMaxWidth) {
-		    		actionSideBarElement.classList.remove("hide");
-		    	}
-	    	}
-	    }
 	}
 	
 	function changeLogin() {
