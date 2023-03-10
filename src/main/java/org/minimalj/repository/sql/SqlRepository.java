@@ -732,6 +732,8 @@ public class SqlRepository implements TransactionalRepository {
 			// TODO
 			// CrossTable liefern die gleich Klasse wie die Parent - Klasse, was dann die Parent-Klasse manchmal überdeckt
 			return tableByName.entrySet().stream().filter(e -> !(e.getValue() instanceof CrossTable)).filter(e -> e.getValue().getClazz() == classOrKey).findAny().get().getKey();
+		} else if (!Keys.isKeyObject(classOrKey) && classOrKey instanceof Enum) {
+			return sqlDialect.enumSql((Enum<?>) classOrKey);
 		} else {
 			return column(classOrKey);
 		}

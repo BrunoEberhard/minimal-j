@@ -136,6 +136,10 @@ public abstract class SqlDialect {
 		return null;
 	}
 	
+	public String enumSql(Enum<?> enuum) {
+		return Integer.toString(enuum.ordinal());
+	}
+	
 	public static class MariaSqlDialect extends SqlDialect {
 		
 		@Override
@@ -254,6 +258,11 @@ public abstract class SqlDialect {
 			s.append(")");		
 			return s.toString();
 		}
+		
+		@Override
+		public String enumSql(Enum<?> enuum) {
+			return "'" + enuum.name() + "'";
+		}
 	}
 	
 	public static class H2SqlDialect extends SqlDialect {
@@ -286,6 +295,11 @@ public abstract class SqlDialect {
 		public int getMaxIdentifierLength() {
 			// h2 doesn't really have a maximum identifier length
 			return 256;
+		}
+		
+		@Override
+		public String enumSql(Enum<?> enuum) {
+			return "'" + enuum.name() + "'";
 		}
 	}
 	
