@@ -144,8 +144,12 @@ public class JsonPageManager implements PageManager {
 	public String export(String id) {
 		Object content = componentById.get(id);
 		if (content instanceof JsonTable) {
-			JsonTable<?> table = (JsonTable<?>) content;
-			return table.export();
+			try {
+				Subject.setCurrent(subject);
+				return ((JsonTable<?>) content).export();
+			} finally {
+				Subject.setCurrent(null);
+			}
 		} else {
 			return null;
 		}
