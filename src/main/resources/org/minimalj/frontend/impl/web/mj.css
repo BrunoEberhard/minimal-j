@@ -770,7 +770,7 @@ label.invisible {
 }
 
 @media print {
-  .hidden-print {
+  .hidden-print, .customFilterActions {
     display: none !important;
   }
  
@@ -782,11 +782,15 @@ label.invisible {
 	flex-shrink: 0;
   }
   
+  body {
+	grid-template-rows: minmax(200px, 1fr);
+  }
+  
   #pageContainer {
   	display: unset;
   }
   
-  table.table thead tr:nth-last-child(3), .columnFilters {
+  table.table thead tr:nth-last-child(3), .columnFilters, .customFilter {
   	display: none;
   }
 }
