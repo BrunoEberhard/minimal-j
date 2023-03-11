@@ -1,6 +1,7 @@
 package org.minimalj.frontend.form.element;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend;
@@ -26,6 +27,11 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public RadioButtonsFormElement(Enum<?> key) {
 		this(Keys.getProperty(key), (List) EnumUtils.itemList(key.getClass()));
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <E extends Enum<E>> RadioButtonsFormElement(E key, E... values) {
+		this(Keys.getProperty(key), (List) EnumUtils.itemList(Arrays.asList(values)));
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
