@@ -173,7 +173,7 @@ public class EntityReader {
 			}
 		} else {
 			Object readValue = readValue(fieldClazz);
-			if (value != null) {
+			if (value != null && !fieldClazz.isPrimitive()) {
 				CloneHelper.deepCopy(readValue, value);
 			} else {
 				value = readValue;
