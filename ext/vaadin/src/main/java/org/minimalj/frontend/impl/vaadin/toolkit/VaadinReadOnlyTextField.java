@@ -10,7 +10,7 @@ public class VaadinReadOnlyTextField extends TextArea implements Input<String>, 
 	private String value;
 	
 	public VaadinReadOnlyTextField() {
-        setReadonly(true);
+		setReadOnly(true);
 		value = getValue();
 	}
 

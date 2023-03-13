@@ -30,8 +30,8 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.HasSuffix;
 import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.component.textfield.HasPrefixAndSuffix;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
@@ -270,7 +270,7 @@ public class VaadinFrontend extends Frontend {
 			this.lookupButton = new Button("...");
 			ContextMenu menu = VaadinMenu.createMenu(lookupButton, actions);
 			menu.setOpenOnClick(true);
-			((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
+			((HasSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 
 		@Override
@@ -304,7 +304,7 @@ public class VaadinFrontend extends Frontend {
 
 			this.lookupButton = new Button("...", event -> lookup.run());
 			lookupButton.setHeight("60%");
-            ((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
+            ((HasSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 
 		@Override

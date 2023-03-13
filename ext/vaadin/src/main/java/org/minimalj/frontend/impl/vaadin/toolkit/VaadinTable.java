@@ -29,7 +29,6 @@ import com.vaadin.flow.data.selection.SelectionListener;
 public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
-	private final Object[] keys;
 	private final TableActionListener<T> listener;
 	private Class<?> clazz;
 	// private Action action_delete = new ShortcutAction("Delete",
@@ -38,7 +37,6 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	// ShortcutAction.KeyCode.DELETE, null);
 
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		this.keys = keys;
 		for (Object key : keys) {
 			Property p = Keys.getProperty(key);
 			if (clazz == null) {
@@ -117,6 +115,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void setObjects(List<T> objects) {
 		if (objects instanceof LazyLoadingList) {

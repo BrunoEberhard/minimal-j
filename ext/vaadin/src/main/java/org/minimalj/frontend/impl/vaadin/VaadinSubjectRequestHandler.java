@@ -2,7 +2,6 @@ package org.minimalj.frontend.impl.vaadin;
 
 import java.io.IOException;
 
-import org.minimalj.frontend.impl.web.ResourcesHttpHandler;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.security.Subject;
 import org.minimalj.util.LocaleContext;
