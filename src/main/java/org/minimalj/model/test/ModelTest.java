@@ -140,7 +140,6 @@ public class ModelTest {
 			if (Configuration.isDevModeActive()) {
 				testResources(clazz);
 			}
-			// testNoDuplicateFieldsInSuperClass(clazz)
 		}
 	}
 
@@ -287,6 +286,8 @@ public class ModelTest {
 					testTimeSize(field);
 				}
 			}
+		}
+		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field)) {
 			testFieldNotInSuperClass(field);
 		}
 	}
