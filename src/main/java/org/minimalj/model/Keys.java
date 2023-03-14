@@ -218,6 +218,7 @@ public class Keys {
 			// somehow the method in the extension class should win
 			// the array check is because of char[]  . char[] is reported as abstract
 			if (isStatic(method) || !isPublic(method) || Modifier.isAbstract(method.getModifiers()) || //
+					method.getParameterCount() > 0 || //
 					Modifier.isAbstract(method.getReturnType().getModifiers()) && //
 					!method.getReturnType().isArray() && //
 					!Collection.class.isAssignableFrom(method.getReturnType())) continue;
