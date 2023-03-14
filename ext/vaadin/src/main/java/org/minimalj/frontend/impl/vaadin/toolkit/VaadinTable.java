@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -22,7 +23,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.renderer.BasicRenderer;
+import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.selection.SelectionListener;
 
@@ -42,7 +43,12 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 			if (clazz == null) {
 				clazz = p.getDeclaringClass();
 			}
-			addColumn(new MinimalRenderer(p)).setHeader(Resources.getPropertyName(p)).setComparator((a, b) -> compareMaybeComparables(p.getValue(a), p.getValue(b))).setSortProperty(p.getPath());
+			var header = Resources.getPropertyName(p);
+			Comparator<T> comparator = (a, b) -> compareMaybeComparables(p.getValue(a), p.getValue(b));
+			
+			var renderer = LitRenderer.<T>of("${item." + p.getPath() + "}").withProperty(p.getPath(), object -> org.minimalj.model.Rendering.toString(p.getValue(object), p));
+	        
+			addColumn(renderer).setHeader(header).setComparator(comparator).setSortProperty(p.getPath());
 
 			/*
 			 * add column filters:
@@ -69,22 +75,6 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 
 		for (int i = 0; i < keys.length; i++) {
 			getColumns().get(i).setSortable(true);
-		}
-	}
-
-	private class MinimalRenderer extends BasicRenderer<T, Object> {
-		private static final long serialVersionUID = 1L;
-
-		private final Property property;
-
-		protected MinimalRenderer(Property property) {
-			super(T -> property.getValue(T));
-			this.property = property;
-		}
-
-		@Override
-		protected String getFormattedValue(Object object) {
-			return org.minimalj.model.Rendering.toString(object, property);
 		}
 	}
 
