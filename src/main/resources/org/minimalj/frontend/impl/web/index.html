@@ -767,6 +767,9 @@ $ICON
 			element = document.createElement("textarea");
 			element.setAttribute("onkeyup", "sendchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
+			if (content.placeholder) {
+				element.setAttribute("placeholder", content.placeholder);
+			}
 			if (content.value) {
 				element.value = content.value;
 			}
