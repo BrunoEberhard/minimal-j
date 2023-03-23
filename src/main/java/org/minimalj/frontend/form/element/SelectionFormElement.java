@@ -19,7 +19,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 	private boolean hasSelection;
 
 	public SelectionFormElement(Object key) {
-		this(key, null);
+		this(key, ComboBoxFormElement.NO_NULL_STRING);
 	}
 	
 	public SelectionFormElement(Object key, String nullText) {
