@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
@@ -42,6 +43,8 @@ public class MjProperty {
 	public Boolean autoIncrement;
 	public TechnicalFieldType technical;
 	public String enabled;
+	@Size(1024)
+	public String comment;
 	
 	public MjProperty() {
 		//
@@ -51,7 +54,12 @@ public class MjProperty {
 		name = field.getName();
 		this.propertyType = propertyType(field);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
-			this.type = model.getOrCreateEntity(GenericUtils.getGenericClass(clazz, field));
+			Class<?> collectedClass = GenericUtils.getGenericClass(clazz, field);
+			if (collectedClass == null) {
+				// Happens for parametrized types
+				throw new IllegalArgumentException("Collected class not found for " + clazz.getSimpleName() + "." + field.getName());
+			}
+			this.type = model.getOrCreateEntity(collectedClass);
 		} else if (!FieldUtils.isAllowedPrimitive(field.getType())) {
 			this.type = model.getOrCreateEntity(field.getType());
 		} else {
@@ -67,6 +75,8 @@ public class MjProperty {
 		}
 		TechnicalField technicalFieldAnnotation = field.getAnnotation(TechnicalField.class);
 		this.technical = technicalFieldAnnotation != null ? technicalFieldAnnotation.value() : null;
+		Comment commentAnnotation = field.getAnnotation(Comment.class);
+		this.comment = commentAnnotation != null ? commentAnnotation.value() : null;
 	}
 	
 	public MjProperty(MjModel model, Method method) {
