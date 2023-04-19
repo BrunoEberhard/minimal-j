@@ -142,7 +142,7 @@ public abstract class Application implements Model {
 		List<ResourceBundle> resourceBundles = new ArrayList<>();
 		do {
 			try {
-				String resourceBundleName = clazz.getName();
+				String resourceBundleName = clazz.getSimpleName();
 				resourceBundles.add(ResourceBundle.getBundle(resourceBundleName, locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES)));
 			} catch (MissingResourceException x) {
 				if (clazz == getInstance().getClass()) {
