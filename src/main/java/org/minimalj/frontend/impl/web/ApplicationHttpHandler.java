@@ -50,13 +50,18 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 		}
 		switch (path) {
 		case "/ajax_request.json":
-			// hier die applikatorischen Fehler abfangen, damit sie von Verbindungsproblemen unterschieden werden?
+			String response = null;
 			try {
-				String response = JsonSessionManager.getInstance().handle(exchange.getRequest());
-				exchange.sendResponse(200, response, "application/json;charset=UTF-8");
+				response = JsonSessionManager.getInstance().handle(exchange.getRequest());
 			} catch (Exception x) {
 				logger.log(Level.SEVERE, x.getLocalizedMessage(), x);
 				sendError(exchange, x);
+				return;
+			}
+			try {
+				exchange.sendResponse(200, response, "application/json;charset=UTF-8");
+			} catch (Exception x) {
+				logger.log(Level.FINE, "Could not send Response, " + x.getLocalizedMessage());
 			}
 			break;
 		case "/":
@@ -67,7 +72,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			break;
 		default:
 			if (path.startsWith("/download")) {
-				String response = JsonSessionManager.getInstance().export(exchange.getParameter("session"), exchange.getParameter("component"));
+				response = JsonSessionManager.getInstance().export(exchange.getParameter("session"), exchange.getParameter("component"));
 				if (response != null) {
 					// ms office can better handle iso-8859-1 than utf-8
 					exchange.sendResponse(200, response.getBytes(Charset.forName("ISO-8859-1")), "application/csv;charset=ISO-8859-1");
