@@ -20,22 +20,22 @@ public abstract class MjHttpExchange {
 	public static final Logger LOG_WEB = Logger.getLogger("WEB");
 
 	public abstract String getPath();
-	
+
 	private Cookies cookies;
 
 	public String getMethod() {
 		throw new RuntimeException(this.getClass().getSimpleName() + " does not support method");
 	}
-	
+
 	public abstract InputStream getRequest();
 
 	public abstract Map<String, ? extends Collection<String>> getParameters();
-	
+
 	public String getParameter(String name) {
 		Collection<String> values = getParameters().get(name);
 		return values != null ? values.iterator().next() : null;
 	}
-	
+
 	public String getHeader(String name) {
 		throw new RuntimeException(this.getClass().getSimpleName() + " does not support request headers");
 	}
@@ -43,7 +43,7 @@ public abstract class MjHttpExchange {
 	public void addHeader(String string, String string2) {
 		throw new RuntimeException(this.getClass().getSimpleName() + " does not support response headers");
 	}
-	
+
 	public abstract void sendResponse(int statusCode, byte[] bytes, String contentType);
 
 	public abstract void sendResponse(int statusCode, String body, String contentType);
@@ -106,7 +106,7 @@ public abstract class MjHttpExchange {
 			throw new RuntimeException("Unsupported encoding");
 		}
 	}
-	
+
 	public Cookies getCookies() {
 		if (cookies == null) {
 			cookies = new Cookies(this);
@@ -115,10 +115,10 @@ public abstract class MjHttpExchange {
 	}
 
 	public static class LoggingHttpExchange extends MjHttpExchange {
-	
+
 		private final MjHttpExchange delegate;
 		private final byte[] input;
-		
+
 		public LoggingHttpExchange(MjHttpExchange delegate) {
 			this.delegate = delegate;
 			try {
@@ -189,7 +189,6 @@ public abstract class MjHttpExchange {
 		public void sendNotfound() {
 			delegate.sendNotfound();
 		}
-		
-		
+
 	}
 }

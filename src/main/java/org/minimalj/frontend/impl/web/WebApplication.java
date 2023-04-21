@@ -63,20 +63,20 @@ public abstract class WebApplication extends Application {
 		if (handlers == null) {
 			boolean isJsonFrontend = Frontend.getInstance() instanceof JsonFrontend;
 			String mjHandlerPath = WebApplication.mjHandlerPath();
-			
+
 			handlers = new ArrayList<>();
 
 			// intial html and ajax calls
 			if (isJsonFrontend && mjHandlerPath != null) {
 				handlers.add(new ApplicationHttpHandler(mjHandlerPath));
 			}
-			
+
 			// for applications with custom http handler
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
 				handlers.add(webApplication.createHttpHandler());
 			}
-			
+
 			// serve the application resources (located in web package)
 			handlers.add(new ResourcesHttpHandler());
 
@@ -112,7 +112,7 @@ public abstract class WebApplication extends Application {
 			return doCallHandlers(exchange);
 		}
 	}
-	
+
 	private static final boolean doCallHandlers(MjHttpExchange exchange) {
 		for (MjHttpHandler handler : getHandlers()) {
 			try {
@@ -121,7 +121,7 @@ public abstract class WebApplication extends Application {
 					return true;
 				}
 			} catch (Exception x) {
-				logger.log(Level.WARNING,x.getLocalizedMessage(), x);
+				logger.log(Level.WARNING, x.getLocalizedMessage(), x);
 			}
 		}
 		return false;
@@ -130,7 +130,7 @@ public abstract class WebApplication extends Application {
 	protected void sendNotFound(MjHttpExchange exchange) {
 		sendNotFoundDefault(exchange);
 	}
-	
+
 	private static void sendNotFoundDefault(MjHttpExchange exchange) {
 		exchange.sendResponse(404, "Not found", "text/plain");
 	}

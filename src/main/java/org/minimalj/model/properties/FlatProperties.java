@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
@@ -17,13 +16,12 @@ import org.minimalj.util.StringUtils;
 public class FlatProperties {
 	private static final Logger logger = Logger.getLogger(FlatProperties.class.getName());
 
-	private static final Map<Class<?>, Map<String, Property>> properties =
-			new HashMap<>();
+	private static final Map<Class<?>, Map<String, Property>> properties = new HashMap<>();
 
 	public static Property getProperty(Class<?> clazz, String fieldName) {
 		return getProperty(clazz, fieldName, false);
 	}
-	
+
 	public static Property getProperty(Class<?> clazz, String fieldName, boolean safe) {
 		if (fieldName == null) throw new NullPointerException();
 
@@ -43,7 +41,7 @@ public class FlatProperties {
 	public static Property getProperty(Field field) {
 		return getProperty(field.getDeclaringClass(), field.getName());
 	}
-	
+
 	public static Object getValue(Object domainObject, String key) {
 		Class<?> clazz = domainObject.getClass();
 		Map<String, Property> propertiesForClass = getProperties(clazz);
@@ -55,14 +53,14 @@ public class FlatProperties {
 			return null;
 		}
 	}
-	
+
 	public static void set(Object object, String fieldName, Object value) {
 		if (fieldName == null) throw new NullPointerException();
 		if (object == null) throw new NullPointerException();
-		
+
 		getProperty(object.getClass(), fieldName).setValue(object, value);
 	}
-	
+
 	public static Map<String, Property> getProperties(Class<?> clazz) {
 		if (!properties.containsKey(clazz)) {
 			properties.put(clazz, Collections.unmodifiableMap(properties(clazz)));
@@ -70,12 +68,13 @@ public class FlatProperties {
 		Map<String, Property> propertiesForClass = properties.get(clazz);
 		return propertiesForClass;
 	}
-	
+
 	private static Map<String, Property> properties(Class<?> clazz) {
 		// Java doesn't guarantee the field / property order but most of the time the
-		// order is as in the class described. Keep it that way for json/xml/yaml... serialization stuff.
+		// order is as in the class described. Keep it that way for json/xml/yaml...
+		// serialization stuff.
 		Map<String, Property> properties = new LinkedHashMap<>();
-		
+
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
@@ -94,12 +93,12 @@ public class FlatProperties {
 				}
 			}
 		}
-		return properties; 
+		return properties;
 	}
-	
+
 	public static List<Property> getListProperties(Class<?> clazz) {
 		List<Property> properties = new ArrayList<>();
-		
+
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
@@ -113,9 +112,9 @@ public class FlatProperties {
 				}
 			}
 		}
-		return properties; 
+		return properties;
 	}
-	
+
 	public static boolean hasCollidingFields(Class<?> clazz, Class<?> clazz2, String ignore) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
@@ -138,5 +137,5 @@ public class FlatProperties {
 			return o1.getName().compareTo(o2.getName());
 		}
 	}
-	
+
 }

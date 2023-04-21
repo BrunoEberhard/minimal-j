@@ -84,7 +84,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			resourcesHttpHandler.handle(exchange, path);
 		}
 	}
-	
+
 	protected void sendError(MjHttpExchange exchange, Exception x) {
 		if (Configuration.isDevModeActive()) {
 			try (StringWriter sw = new StringWriter()) {

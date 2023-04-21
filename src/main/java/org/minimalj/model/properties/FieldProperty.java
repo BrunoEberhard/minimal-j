@@ -117,7 +117,7 @@ public class FieldProperty implements Property {
 	public boolean isFinal() {
 		return isFinal;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "[" + field.getDeclaringClass().getSimpleName() + "." + field.getName() + "]";
