@@ -34,7 +34,7 @@ public class Resources {
 		Locale locale = LocaleContext.getCurrent();
 		if (!resourcesByLocale.containsKey(locale)) {
 			ResourceBundle resourceBundle = Application.getInstance().getResourceBundle(locale);
-			ResourceBundle frameworkResourceBundle = ResourceBundle.getBundle(Resources.class.getPackage().getName() + ".MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
+			ResourceBundle frameworkResourceBundle = ResourceBundle.getBundle("MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
 			resourcesByLocale.put(locale, new ResourceBundleAccess(new MultiResourceBundle(resourceBundle, frameworkResourceBundle)));
 		}
 		return resourcesByLocale.get(locale);
