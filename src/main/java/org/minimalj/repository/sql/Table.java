@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.minimalj.model.Code;
@@ -495,7 +497,7 @@ public class Table<T> extends AbstractTable<T> {
 			while (resultSet.next()) {
 				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 				loadViewLists(resultObject);
-				// TODO loadDependables?
+				loadViewDependables(resultObject);
 				result.add(resultObject);
 			}
 		}
@@ -544,7 +546,19 @@ public class Table<T> extends AbstractTable<T> {
 			}
 		}
 	}
-	
+
+	protected <S> void loadViewDependables(S object) {
+		Collection<Property> properties = FlatProperties.getProperties(object.getClass()).values();
+		for (Entry<Property, DependableTable> dependableTableEntry : dependables.entrySet()) {
+			Property dependableProperty = dependableTableEntry.getKey();
+			Optional<Property> propertyOptional = properties.stream().filter(p -> p.getPath().equals(dependableProperty.getPath())).findFirst();
+			if (propertyOptional.isPresent()) {
+				Object value = dependableTableEntry.getValue().read(IdUtils.getId(object), null);
+				dependableProperty.setValue(object, value);
+			}
+		}
+	}
+
 	// Statements
 
 	@Override
