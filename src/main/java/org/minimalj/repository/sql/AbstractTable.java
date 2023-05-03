@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
-import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.NotEmpty;
@@ -266,14 +265,6 @@ public abstract class AbstractTable<T> {
 			}
 		}
 		return null;
-	}
-
-	public String column(Property property) {
-		return findColumn(property.getPath());
-	}
-	
-	public String column(Object key) {
-		return column(Keys.getProperty(key));
 	}
 
 	public String getTableName() {

@@ -346,21 +346,24 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		return preparedStatement;
 	}
-	
+
 	public LinkedHashMap<String, Property> findColumns(Class<?> clazz) {
 		if (columnsForClass.containsKey(clazz)) {
 			return columnsForClass.get(clazz);
 		}
-		
+		return findColumns(clazz, false);
+	}
+	
+	public LinkedHashMap<String, Property> findColumns(Class<?> clazz, boolean includeTransient) {
 		LinkedHashMap<String, Property> columns = new LinkedHashMap<>();
 		for (Field field : clazz.getFields()) {
-			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || FieldUtils.isTransient(field)) continue;
+			if (!FieldUtils.isPublic(field) || FieldUtils.isStatic(field) || !includeTransient && FieldUtils.isTransient(field)) continue;
 			String fieldName = field.getName();
 			if (StringUtils.equals(fieldName, "id", "version", "historized")) continue;
 			if (FieldUtils.isList(field)) continue;
 			if (!FieldUtils.isFinal(field) && AbstractTable.isDependable(field.getType())) continue;
 			if (FieldUtils.isFinal(field) && !FieldUtils.isSet(field) && !Codes.isCode(field.getType())) {
-				Map<String, Property> inlinePropertys = findColumns(field.getType());
+				Map<String, Property> inlinePropertys = findColumns(field.getType(), includeTransient);
 				boolean hasClassName = FieldUtils.hasClassName(field) && !FlatProperties.hasCollidingFields(clazz, field.getType(), field.getName());
 				for (String inlineKey : inlinePropertys.keySet()) {
 					String key = inlineKey;
@@ -392,7 +395,7 @@ public class SqlRepository implements TransactionalRepository {
 		if (columnsForClassUpperCase.containsKey(clazz)) {
 			return columnsForClassUpperCase.get(clazz);
 		}
-		LinkedHashMap<String, Property> columns = findColumns(clazz);
+		LinkedHashMap<String, Property> columns = findColumns(clazz, true);
 		HashMap<String, Property> columnsUpperCase = new HashMap<>(columns.size() * 3);
 		columns.forEach((key, value) -> columnsUpperCase.put(key.toUpperCase(), value));
 		columnsForClassUpperCase.put(clazz, columnsUpperCase);
@@ -419,13 +422,21 @@ public class SqlRepository implements TransactionalRepository {
 
 	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {
 		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				List<T> result = new ArrayList<>();
-				Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
-				while (resultSet.next() && result.size() < maxResults) {
-					result.add(readResultSetRow(clazz, resultSet, loadedReferences));
+			if (tables.containsKey(clazz)) {
+				Table<T> table = (Table<T>) tables.get(clazz);
+				return table.executeSelectAll(preparedStatement);
+			} else if (View.class.isAssignableFrom(clazz)) {
+				Table<T> table = (Table<T>) tables.get(ViewUtils.getViewedClass(clazz));
+				return table.executeSelectViewAll(clazz, preparedStatement);
+			} else {
+				try (ResultSet resultSet = preparedStatement.executeQuery()) {
+					List<T> result = new ArrayList<>();
+					Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
+					while (resultSet.next() && result.size() < maxResults) {
+						result.add(readResultSetRow(clazz, resultSet, loadedReferences));
+					}
+					return result;
 				}
-				return result;
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Couldn't execute query");
@@ -753,18 +764,19 @@ public class SqlRepository implements TransactionalRepository {
 		} else {
 			declaringClass = property.getDeclaringClass();
 		}
-		if (tables.containsKey(declaringClass)) {
-			AbstractTable<?> table = getAbstractTable(declaringClass);
-			return table.column(property);
-		} else {
-			LinkedHashMap<String, Property> columns = findColumns(declaringClass);
-			for (Map.Entry<String, Property> entry : columns.entrySet()) {
-				if (StringUtils.equals(entry.getValue().getPath(), property.getPath())) {
-					return entry.getKey();
-				}
+		Map<String, Property> columns = findColumns(declaringClass);
+		for (Map.Entry<String, Property> entry : columns.entrySet()) {
+			if (StringUtils.equals(entry.getValue().getPath(), property.getPath())) {
+				return entry.getKey();
 			}
-			return null;
 		}
+		columns = findColumnsUpperCase(declaringClass);
+		for (Map.Entry<String, Property> entry : columns.entrySet()) {
+			if (StringUtils.equals(entry.getValue().getPath(), property.getPath())) {
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 	
 	public boolean tableExists(Class<?> clazz) {
