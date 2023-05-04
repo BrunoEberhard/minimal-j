@@ -509,7 +509,8 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
 				result = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
-				loadViewLists(result);				
+				loadViewLists(result);	
+				loadViewDependables(result);
 			}
 		}
 		return result;
@@ -554,7 +555,7 @@ public class Table<T> extends AbstractTable<T> {
 			Optional<Property> propertyOptional = properties.stream().filter(p -> p.getPath().equals(dependableProperty.getPath())).findFirst();
 			if (propertyOptional.isPresent()) {
 				Object value = dependableTableEntry.getValue().read(IdUtils.getId(object), null);
-				dependableProperty.setValue(object, value);
+				propertyOptional.get().setValue(object, value);
 			}
 		}
 	}
