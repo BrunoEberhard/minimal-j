@@ -342,7 +342,7 @@ public class SqlRepository implements TransactionalRepository {
 		PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false);
 		int param = 1; // !
 		for (Object parameter : parameters) {
-			setParameter(preparedStatement, param++, parameter);
+			getSqlDialect().setParameter(preparedStatement, param++, parameter);
 		}
 		return preparedStatement;
 	}
@@ -400,24 +400,6 @@ public class SqlRepository implements TransactionalRepository {
 		columns.forEach((key, value) -> columnsUpperCase.put(key.toUpperCase(), value));
 		columnsForClassUpperCase.put(clazz, columnsUpperCase);
 		return columnsUpperCase;
-	}
-	
-	/*
-	 * TODO: should be merged with the setParameter in AbstractTable.
-	 */
-	private void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
-		getSqlDialect().setParameter(preparedStatement, param, value);
-//		if (value instanceof Enum<?>) {
-//			Enum<?> e = (Enum<?>) value;
-//			value = e.ordinal();
-//		} else if (value instanceof LocalDate) {
-//			value = java.sql.Date.valueOf((LocalDate) value);
-//		} else if (value instanceof LocalTime) {
-//			value = java.sql.Time.valueOf((LocalTime) value);
-//		} else if (value instanceof LocalDateTime) {
-//			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
-//		}
-//		preparedStatement.setObject(param, value);
 	}
 
 	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {
