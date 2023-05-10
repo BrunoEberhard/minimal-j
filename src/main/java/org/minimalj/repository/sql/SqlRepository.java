@@ -425,7 +425,7 @@ public class SqlRepository implements TransactionalRepository {
 			if (tables.containsKey(clazz)) {
 				Table<T> table = (Table<T>) tables.get(clazz);
 				return table.executeSelectAll(preparedStatement);
-			} else if (View.class.isAssignableFrom(clazz)) {
+			} else if (View.class.isAssignableFrom(clazz) && tables.containsKey(ViewUtils.getViewedClass(clazz))) {
 				Table<T> table = (Table<T>) tables.get(ViewUtils.getViewedClass(clazz));
 				return table.executeSelectViewAll(clazz, preparedStatement);
 			} else {
