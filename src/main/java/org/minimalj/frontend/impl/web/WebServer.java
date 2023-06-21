@@ -18,6 +18,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -98,7 +99,9 @@ public class WebServer {
 				exchange.sendResponseHeaders(statusCode, bytes.length);
 				os.write(bytes);
 			} catch (IOException x) {
-				throw new RuntimeException(x);
+				// this happens when the browser doesn't accept the response
+				// and this can be quite often. Only log with level finer
+				LOG.log(Level.INFO, x.getMessage(), x);
 			}
 		}
 
