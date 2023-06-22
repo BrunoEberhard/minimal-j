@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
@@ -183,15 +184,24 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		public abstract void selectionChanged(T selectedObject);
 	}
 
-	public static abstract class AbstractObjectsAction<U> extends Action implements ObjectsAction<U> {
+	public static abstract class AbstractObjectsAction<U> extends Action implements ObjectsAction<U>, Result<List<U>> {
+		private Consumer<List<U>> finishedListener;
 		private List<U> selectedObjects;
-		
+
 		public AbstractObjectsAction() {
 			selectionChanged(Collections.emptyList());
 		}
 		
 		public List<U> getSelectedObjects() {
 			return selectedObjects;
+		}
+
+		public void setFinishedListener(Consumer<List<U>> finishedListener) {
+			this.finishedListener = finishedListener;
+		}
+
+		public Consumer<List<U>> getFinishedListener() {
+			return finishedListener;
 		}
 		
 		@Override
@@ -215,15 +225,25 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		}
 	}
 	
-	public static abstract class AbstractObjectAction<U> extends Action implements ObjectAction<U> {
+	public static abstract class AbstractObjectAction<U> extends Action implements ObjectAction<U>, Result<U> {
 		private U selectedObject;
-		
+		private Consumer<U> finishedListener;
+
 		public AbstractObjectAction() {
 			setEnabled(false);
 		}
 		
 		public U getSelectedObject() {
 			return selectedObject;
+		}
+
+		@Override
+		public void setFinishedListener(Consumer<U> finishedListener) {
+			this.finishedListener = finishedListener;
+		}
+		
+		public Consumer<U> getFinishedListener() {
+			return finishedListener;
 		}
 		
 		@Override
