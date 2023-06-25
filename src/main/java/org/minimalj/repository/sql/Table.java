@@ -371,13 +371,14 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	/**
+	 * <i>warning:</i> project specific. Could change or be removed.
+	 * 
+	 * @param id id of entity
+	 * @return entity with loaded dependables but without loading lists of entities with ids
+	 */
 	public T readDontLoadReferences(Object id) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, id);
-			return executeSelect(selectByIdStatement, SqlRepository.DONT_LOAD_REFERENCES);
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
-		}
+		return read(id, SqlRepository.DONT_LOAD_REFERENCES);
 	}
 	
 	protected List<String> getColumns(Object[] keys) {
@@ -527,6 +528,9 @@ public class Table<T> extends AbstractTable<T> {
 	@SuppressWarnings("unchecked")
 	protected void loadLists(T object, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
+			if (loadedReferences == SqlRepository.DONT_LOAD_REFERENCES && IdUtils.hasId(listTableEntry.getKey().getGenericClass())) {
+				continue;
+			}
 			List values = listTableEntry.getValue().getList(object, loadedReferences);
 			Property listProperty = listTableEntry.getKey();
 			listProperty.setValue(object, values);
