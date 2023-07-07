@@ -12,6 +12,8 @@ import org.minimalj.util.resources.Resources;
 
 public abstract class Column<ROW, COLUMN> implements Property {
 
+	public static final String TABLE_HEADER = "tableHeader";
+	
 	protected final Property property;
 	
 	/**
@@ -60,12 +62,21 @@ public abstract class Column<ROW, COLUMN> implements Property {
 	}
 	
 	public String getHeader() {
-		return Resources.getPropertyName(property);
+		return getPropertyName(property);
 	}
 	
 	public static String evalHeader(Property property) {
 		if (property instanceof Column) {
 			return ((Column<?, ?>) property).getHeader();
+		} else {
+			return getPropertyName(property);
+		}
+	}
+	
+	private static String getPropertyName(Property property) {
+		String header = Resources.getPropertyName(property, TABLE_HEADER);
+		if (header != null) {
+			return header;
 		} else {
 			return Resources.getPropertyName(property);
 		}

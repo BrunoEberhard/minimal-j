@@ -74,7 +74,7 @@ public class Resources {
 	}
 
 	public static String getPropertyName(Property property, String postfix) {
-		return getAccess().getPropertyName(property, postfix);
+		return getAccess().getPropertyName(property, "." + postfix);
 	}
 
 	public static String getResourceName(Class<?> clazz) {

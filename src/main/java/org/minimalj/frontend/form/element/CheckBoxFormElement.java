@@ -24,7 +24,7 @@ public class CheckBoxFormElement extends AbstractFormElement<Boolean> implements
 	}
 
 	private static String getPropertyName(Property property) {
-		String name = Resources.getPropertyName(property, ".checkBoxText");
+		String name = Resources.getPropertyName(property, "checkBoxText");
 		if (name == null) {
 			name = Resources.getPropertyName(property);
 		}

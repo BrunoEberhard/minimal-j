@@ -76,7 +76,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 			}
 			// TODO find general concept for placeholer
 			if (textField instanceof JsonTextField) {
-				String placeholder = Resources.getPropertyName(getProperty(), ".placeholder");
+				String placeholder = Resources.getPropertyName(getProperty(), "placeholder");
 				if (placeholder != null) {
 					((JsonTextField) textField).setPlaceholder(placeholder);
 				}
