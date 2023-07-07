@@ -100,8 +100,12 @@ public class WebServer {
 				os.write(bytes);
 			} catch (IOException x) {
 				// this happens when the browser doesn't accept the response
-				// and this can be quite often. Only log with level finer
-				LOG.log(Level.INFO, x.getMessage(), x);
+				// and this can be quite often.
+				if (LOG.getLevel() == Level.FINEST) {
+					LOG.log(Level.FINEST, x.getMessage(), x);
+				} else {
+					LOG.log(Level.FINE, x.getMessage());
+				}
 			}
 		}
 
