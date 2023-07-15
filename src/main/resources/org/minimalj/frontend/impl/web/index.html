@@ -1690,7 +1690,7 @@ $ICON
 				onMessage(evt.data)
 			};
 			websocket.onopen = function(evt) {
-				send(data);
+				websocket.send(JSON.stringify(data));
 			}
 		} else {
 			pendingRequests++;
