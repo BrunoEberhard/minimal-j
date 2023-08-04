@@ -511,22 +511,23 @@ public class ModelTest {
 	}
 	
 	private void testSelfReferences(Class<?> clazz) {
-		testSelfReferences(clazz, new HashSet<>());
+		testSelfReferences("", clazz, new HashSet<>());
 	}
 	
-	private void testSelfReferences(Class<?> clazz, Set<Class<?>> forbiddenClasses) {
+	private void testSelfReferences(String path, Class<?> clazz, Set<Class<?>> seenClasses) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
+			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) &!FieldUtils.isTransient(field)) {
 				Class<?> fieldType = field.getType();
 				boolean selfReferenceAllowed = AnnotationUtil.isAnnotationPresentOrInherited(fieldType, SelfReferenceAllowed.class);
 				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class && !selfReferenceAllowed) {
-					if (forbiddenClasses.contains(fieldType)) {
-						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
+					String pathWithField = (path.length() == 0 ? "" : path + ".") + field.getName();
+					if (seenClasses.contains(fieldType)) {
+						problems.add("Self reference cycle: " + pathWithField);
 					} else {
-						forbiddenClasses.add(fieldType);
-						testSelfReferences(fieldType, forbiddenClasses);
-						forbiddenClasses.remove(fieldType);
+						seenClasses.add(fieldType);
+						testSelfReferences(pathWithField, fieldType, seenClasses);
+						seenClasses.remove(fieldType);
 					}
 				}
 			}
