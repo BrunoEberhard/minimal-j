@@ -11,6 +11,7 @@ import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.LazyLoadingList;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.resources.Resources;
@@ -48,8 +49,12 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 			
 			var renderer = LitRenderer.<T>of("${item." + p.getPath() + "}").withProperty(p.getPath(), object -> org.minimalj.model.Rendering.toString(p.getValue(object), p));
 	        
-			addColumn(renderer).setHeader(header).setComparator(comparator).setSortProperty(p.getPath());
-
+			var column = addColumn(renderer).setHeader(header).setComparator(comparator).setSortProperty(p.getPath()).setResizable(true);
+			var width = p.getAnnotation(Width.class);
+			if (width != null) {
+				column.setWidth(width.value() + "px");
+			}
+			
 			/*
 			 * add column filters:
 			 * 

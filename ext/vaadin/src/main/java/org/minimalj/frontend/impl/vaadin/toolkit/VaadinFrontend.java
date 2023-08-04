@@ -268,6 +268,11 @@ public class VaadinFrontend extends Frontend {
 			this.stringInput = stringInput;
 
 			this.lookupButton = new Button("...");
+			lookupButton.getStyle()
+	        .set("margin", "0")
+	        .set("--lumo-button-size", "20px")
+	        .set("--lumo-font-size-s", "12px");
+
 			ContextMenu menu = VaadinMenu.createMenu(lookupButton, actions);
 			menu.setOpenOnClick(true);
 			((HasSuffix) stringInput).setSuffixComponent(lookupButton);
@@ -303,7 +308,12 @@ public class VaadinFrontend extends Frontend {
             this.stringInput = stringInput;
 
 			this.lookupButton = new Button("...", event -> lookup.run());
-			lookupButton.setHeight("60%");
+//			lookupButton.setHeight("60%");
+			lookupButton.setWidth("10px");
+			lookupButton.getStyle()
+	        .set("margin", "0")
+	        .set("padding-left", "0").set("padding-right", "0");
+			
             ((HasSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 
