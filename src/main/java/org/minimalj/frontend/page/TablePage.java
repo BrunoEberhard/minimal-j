@@ -220,8 +220,8 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 			setEnabled(accept(selectedObjects));
 		}
 
-		protected boolean accept(List<U> selectedObjectss) {
-			return !selectedObjectss.isEmpty();
+		protected boolean accept(List<U> selectedObjects) {
+			return !selectedObjects.isEmpty();
 		}
 	}
 	
