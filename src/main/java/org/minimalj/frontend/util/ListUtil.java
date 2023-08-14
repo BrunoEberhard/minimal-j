@@ -68,7 +68,7 @@ public class ListUtil {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static class KeyComparator<T> implements Comparator<T> {
+	public static class KeyComparator<T> implements Comparator<T> {
 		private final Property[] sortProperties;
 		private final boolean[] sortDirections;
 
