@@ -631,15 +631,17 @@ input, .checkBoxContainer, select {
 input[type="checkbox"] {
 	height: inherit;
 	width: 1.2em;
-	margin-bottom: 0px;
+	margin: 0px 5px 0px 1px;
 	vertical-align: bottom;
 }
 
 label.checkboxLabel {
-	display: inline;
+	display: inline-block;
 	white-space: nowrap; /* important for long labels */
-	margin-top: 0.2em;
+	padding-top: 0.35em;
 	font-weight: normal;
+	font-size: unset;
+	color: unset;
 }
 
 textarea {
@@ -689,7 +691,7 @@ label.invisible {
 	color: transparent;
 }
 
-.title {
+.form .title {
 	font-size: larger;
 	font-weight: bolder;
 }
