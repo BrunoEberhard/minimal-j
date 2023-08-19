@@ -104,9 +104,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static String alignment(Property property) {
 		if (property instanceof Column) {
 			ColumnAlignment alignment = ((Column<?, ?>) property).getAlignment();
-			if (alignment != null) {
-				return alignment.name();
-			}
+			return alignment != null ? alignment.name() : null;
 		} 
 		if (Number.class.isAssignableFrom(property.getClazz())) {
 			return ColumnAlignment.end.name();
