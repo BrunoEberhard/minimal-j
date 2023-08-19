@@ -144,6 +144,9 @@ public class Keys {
 				fillFields(value, property, depth + 1);
 			}
 			
+			// if (properties.size() % 1000 == 0) {
+			// 	logger.finer(properties.size() + ": " + property.toString());
+			// }
 			properties.put(value, property);
 		}
 	}
