@@ -17,6 +17,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 	private final SwitchComponent component;
 	private Input<T> input;
 	private boolean hasSelection;
+	private List<T> values;
 
 	public SelectionFormElement(Object key) {
 		this(key, ComboBoxFormElement.NO_NULL_STRING);
@@ -37,6 +38,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 	public void setValue(Selection<T> selection) {
 		hasSelection = selection != null;
 		if (selection != null) {
+			this.values = selection.values;
 			List<T> values = selection.values != null ? selection.values : Collections.emptyList();
 			component.show(input = Frontend.getInstance().createComboBox(values, nullText, listener()));
 			T selectedValue = selection.selectedValue;
@@ -50,6 +52,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 				input.setValue(selectedValue);
 			}
 		} else {
+			this.values = null;
 			input = Frontend.getInstance().createComboBox(Collections.emptyList(), nullText, listener());
 			input.setEditable(false);
 			component.show(input);
@@ -58,7 +61,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 
 	@Override
 	public Selection<T> getValue() {
-		return new Selection<>(input.getValue());
+		return new Selection<>(input.getValue(), values);
 	}
 	
 	@Override
