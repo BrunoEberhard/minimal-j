@@ -92,13 +92,17 @@ public class ListUtil {
 					value1 = convert(value1);
 					value2 = convert(value2);
 
+					int compareTo;
 					try {
-						return ((Comparable) value1).compareTo(value2) * factor;
+						compareTo = ((Comparable) value1).compareTo(value2) * factor;
 					} catch (Exception x) {
 						// fallback to string comparation
 						String s1 = Rendering.render(value1).toString();
 						String s2 = Rendering.render(value2).toString();
-						return s1.compareTo(s2);
+						compareTo = s1.compareTo(s2);
+					}
+					if (compareTo != 0) {
+						return compareTo;
 					}
 				}
 			}
