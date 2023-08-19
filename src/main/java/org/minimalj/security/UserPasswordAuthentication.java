@@ -106,12 +106,20 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			form.indicate(validationMessages);
 			return validationMessages.isEmpty();
 		}
+		
+		/**
+		 * Allows additional application custom validation before login.
+		 * Use showError or showInformation if something wrong.
+		 */
+		protected boolean valid(T userPassword) {
+			return true;
+		}
 
 		protected final class LoginAction extends Action {
 			
 			@Override
 			public void run() {
-				if (validate(form)) {
+				if (valid(userPassword) && validate(form)) {
 					Subject subject = Backend.execute(new LoginTransaction(userPassword));
 					if (subject != null) {
 						Frontend.getInstance().login(subject);
