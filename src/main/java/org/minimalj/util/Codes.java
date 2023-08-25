@@ -127,7 +127,7 @@ public class Codes {
 		public int compare(Code o1, Code o2) {
 			String string1 = Rendering.toString(o1);
 			String string2 = Rendering.toString(o2);
-			return collator.compare(string1, string2);
+			return collator.compare(StringUtils.emptyIfNull(string1), StringUtils.emptyIfNull(string2));
 		}
 	}
 
