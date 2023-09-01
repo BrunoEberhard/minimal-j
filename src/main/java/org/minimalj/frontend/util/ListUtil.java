@@ -85,7 +85,9 @@ public class ListUtil {
 				Object value1 = property.getValue(a);
 				Object value2 = property.getValue(b);
 				if (value1 == null) {
-					return value2 == null ? 0 : -factor;
+					if (value2 != null) {
+						return -factor;
+					}
 				} else if (value2 == null) {
 					return factor;
 				} else {
@@ -99,7 +101,7 @@ public class ListUtil {
 						// fallback to string comparation
 						String s1 = Rendering.render(value1).toString();
 						String s2 = Rendering.render(value2).toString();
-						compareTo = s1.compareTo(s2);
+						compareTo = s1.compareTo(s2) * factor;
 					}
 					if (compareTo != 0) {
 						return compareTo;
@@ -113,7 +115,7 @@ public class ListUtil {
 			if (value instanceof Comparable) {
 				return (Comparable) value;
 			} else {
-				return Rendering.render(value).toString();
+				return Rendering.toString(value);
 			}
 		}
 	}
