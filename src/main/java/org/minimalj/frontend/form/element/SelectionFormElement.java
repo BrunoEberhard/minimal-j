@@ -3,15 +3,18 @@ package org.minimalj.frontend.form.element;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.model.Selection;
+import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.IdUtils;
 
-public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> implements Enable {
+public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> implements Enable, Indication {
 
 	private final String nullText;
 	private final SwitchComponent component;
@@ -67,5 +70,10 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 	@Override
 	public void setEnabled(boolean enabled) {
 		input.setEditable(hasSelection && enabled);
+	}
+	
+	@Override
+	public void setValidationMessages(List<ValidationMessage> validationMessages, FormContent formContent) {
+		formContent.setValidationMessages(input, validationMessages.stream().map(ValidationMessage::getFormattedText).collect(Collectors.toList()));
 	}
 }
