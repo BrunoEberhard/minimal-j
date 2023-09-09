@@ -194,6 +194,10 @@ public class JsonFrontend extends Frontend {
 		getClientSession().show(url);
 	}
 
+	public void showNewTab(String url) {
+		((JsonPageManager) getClientSession()).showNewTab(url);
+	}
+	
 	@Override
 	public IContent createQueryContent() {
 		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);

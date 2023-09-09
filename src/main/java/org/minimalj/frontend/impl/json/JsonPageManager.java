@@ -675,6 +675,10 @@ public class JsonPageManager implements PageManager {
 	public void show(String url) {
 		output.add("showUrl", url);
 	}
+	
+	public void showNewTab(String url) {
+		output.add("showUrlNewTab", url);
+	}
 
 	public void setRememberMeCookie(String rememberMeCookie) {
 		output.add("rememberMeToken", rememberMeCookie != null ? rememberMeCookie : "");

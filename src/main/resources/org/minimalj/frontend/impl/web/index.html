@@ -118,6 +118,8 @@ $ICON
 			resizeNavigation();
 		} else if ("showUrl" in dataObject) {
 			window.location.href = dataObject.showUrl;
+		} else if ("showUrlNewTab" in dataObject) {
+			window.open(dataObject.showUrlNewTab, '_blank');
 		} else if (dataObject.pageId) {
 			var title = dataObject.title;
 			var pageId = dataObject.pageId;
