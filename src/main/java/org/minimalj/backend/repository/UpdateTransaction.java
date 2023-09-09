@@ -1,6 +1,6 @@
 package org.minimalj.backend.repository;
 
-public class UpdateTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
+public class UpdateTransaction<ENTITY> extends WriteTransaction<ENTITY, Void> {
 	private static final long serialVersionUID = 1L;
 
 	public UpdateTransaction(ENTITY object) {
@@ -8,7 +8,7 @@ public class UpdateTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> 
 	}
 
 	@Override
-	public ENTITY execute() {
+	public Void execute() {
 		update(getUnwrapped());
 		return null;
 	}
