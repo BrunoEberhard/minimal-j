@@ -611,9 +611,9 @@ public class Form<T> {
 				((Enable) element.getValue()).setEnabled(enabled);
 			} else if (!enabled && !property.isFinal()) {
 				if (editable) {
-					logger.severe("element " + property.getPath() + " should implement Enable");
+					logger.severe("element " + (element.getValue().getClass().getName()) + " for "  + property.getPath() + " should implement Enable");
 				} else {
-					logger.fine("element " + property.getPath() + " should maybe implement Enable");
+					logger.fine("element " + (element.getValue().getClass().getName()) + " for "  + property.getPath() + " should maybe implement Enable");
 				}
 			}
 		}
