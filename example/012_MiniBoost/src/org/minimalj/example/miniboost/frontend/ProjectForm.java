@@ -9,7 +9,7 @@ import org.minimalj.example.miniboost.model.Customer;
 import org.minimalj.example.miniboost.model.Employee;
 import org.minimalj.example.miniboost.model.Project;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.form.element.ReferenceFormElement;
+import org.minimalj.frontend.form.element.LookupFormElement;
 import org.minimalj.util.LocaleContext;
 
 public class ProjectForm extends Form<Project> {
@@ -19,17 +19,17 @@ public class ProjectForm extends Form<Project> {
 		
 		text("Beschreibung");
 		line($.matchcode, $.name1);
-		line(new ReferenceFormElement<Customer>($.customer, new Object[]{ Customer.$.matchcode, Customer.$.name1, Customer.$.address.country, Customer.$.address.city }));
+		line(new LookupFormElement<Customer>($.customer, new Object[]{ Customer.$.matchcode, Customer.$.name1, Customer.$.address.country, Customer.$.address.city }));
 		line($.description);
 		line($.address.street, $.address.zip);
 		boolean german = LocaleContext.getCurrent().getLanguage().equals(new Locale("de").getLanguage());
-		line($.address.city, new ReferenceFormElement<>($.address.country, new Object[]{ german ? Country.$.nameDe : Country.$.nameEn, Country.$.code2}) );
+		line($.address.city, new LookupFormElement<>($.address.country, new Object[]{ german ? Country.$.nameDe : Country.$.nameEn, Country.$.code2}) );
 		
 		text("Projektdaten");
 		line($.startDate, $.endDate);
 		line($.closeDate);
 
-		line(new ReferenceFormElement<>($.crewChief, Employee.$.matchcode, Employee.$.firstname, Employee.$.lastname));
+		line(new LookupFormElement<>($.crewChief, Employee.$.matchcode, Employee.$.firstname, Employee.$.lastname));
 		line($.amount, $.cost); // turnover and costs
 	}
 

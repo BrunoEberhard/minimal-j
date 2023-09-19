@@ -44,7 +44,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 			Input<String> input;
 			if (this instanceof LookupParser) {
 				input = Frontend.getInstance().createTextField(((LookupParser) this).getAllowedSize(),
-						((LookupParser) this).getAllowedCharacters(), getSearch(),
+						((LookupParser) this).getAllowedCharacters(), getSuggestionSearch(),
 						this::inputChanged);
 				if (input instanceof JsonTextField) {
 					if (changeOnFocus()) {
@@ -142,7 +142,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 
 	protected abstract void lookup();
 
-	protected Search<String> getSearch() {
+	protected Search<String> getSuggestionSearch() {
 		return null;
 	}
 

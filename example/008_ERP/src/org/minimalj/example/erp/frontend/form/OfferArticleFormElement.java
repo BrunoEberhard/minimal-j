@@ -7,7 +7,7 @@ import org.minimalj.example.erp.model.OfferArticle;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.ListFormElement;
-import org.minimalj.frontend.form.element.ReferenceFormElement;
+import org.minimalj.frontend.form.element.LookupFormElement;
 import org.minimalj.model.Keys;
 
 public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
@@ -19,7 +19,7 @@ public class OfferArticleFormElement extends ListFormElement<OfferArticle> {
 	@Override
 	protected Form<OfferArticle> createForm(boolean newObject) {
 		Form<OfferArticle> form = new Form<>();
-		form.line(new ReferenceFormElement<>(OfferArticle.$.article, Article.$.article, Article.$.articleNr));
+		form.line(new LookupFormElement<>(OfferArticle.$.article, Article.$.article, Article.$.articleNr));
 		form.line(OfferArticle.$.numberof);
 		form.line(OfferArticle.$.price);
 		return form;

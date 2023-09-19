@@ -12,7 +12,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.util.resources.Resources;
 
-public class SearchDialog<T> extends TableDialog {
+public class SearchDialog<T> extends TableDialog<T> {
 	private IContent content;
 	
 	public SearchDialog(Search<T> search, String title, Object[] keys, boolean multiSelect, TableActionListener<T> listener, List<Action> additionalActions) {

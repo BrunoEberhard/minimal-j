@@ -6,7 +6,7 @@ import org.minimalj.example.timesheet.model.Project;
 import org.minimalj.example.timesheet.model.WorkForProject;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.ListFormElement;
-import org.minimalj.frontend.form.element.ReferenceFormElement;
+import org.minimalj.frontend.form.element.LookupFormElement;
 import org.minimalj.model.Keys;
 
 public class WorkForProjectsFormElement extends ListFormElement<WorkForProject> {
@@ -29,7 +29,7 @@ public class WorkForProjectsFormElement extends ListFormElement<WorkForProject> 
 	@Override
 	protected Form<WorkForProject> createForm(boolean edit) {
 		Form<WorkForProject> form = new Form<>(edit);
-		form.line(new ReferenceFormElement<Project>(WorkForProject.$.project, Project.$.name, Project.$.description));
+		form.line(new LookupFormElement<>(WorkForProject.$.project, Project.$.name, Project.$.description));
 		form.line(WorkForProject.$.hours);
 		return form;
 	}

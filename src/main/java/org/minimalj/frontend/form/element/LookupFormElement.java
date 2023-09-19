@@ -11,9 +11,11 @@ import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
+import org.minimalj.frontend.editor.SearchDialog;
 import org.minimalj.frontend.editor.TableDialog;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.annotation.NotEmpty;
+import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.query.By;
@@ -22,20 +24,20 @@ import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-public class TableLookupFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
-	private final Class<T> fieldClazz;
-	private Object[] columns;
+public class LookupFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
+	protected final Class<T> fieldClazz;
+	protected Object[] columns;
 	private Form<?> newForm;
 	private Class<?> formClazz;
 	private Function<Object, T> formResultConverter;
 	private TableDialog<T> dialog;
 
-	public TableLookupFormElement(T key) {
+	public LookupFormElement(T key) {
 		this(key, (Object[]) null);
 	}
 
 	@SuppressWarnings("unchecked")
-	public TableLookupFormElement(T key, Object... columns) {
+	public LookupFormElement(T key, Object... columns) {
 		super(key, true);
 		this.columns = columns;
 		fieldClazz = (Class<T>) getProperty().getClazz();
@@ -54,12 +56,20 @@ public class TableLookupFormElement<T> extends AbstractLookupFormElement<T> impl
 	protected void lookup() {
 		List<Action> additionalActions = createAdditionalActions();
 		additionalActions = additionalActions.stream().filter(Action::isEnabled).collect(Collectors.toList());
-		dialog = new TableDialog<>(this, getTitle(), columns, false, new SearchDialogActionListener(), additionalActions);
+		dialog = createDialog(additionalActions, new SearchDialogActionListener());
 		Frontend.showDialog(dialog);
 	}
 	
+	protected TableDialog<T> createDialog(List<Action> additionalActions, TableActionListener<T> listener) {
+		if (searchable()) {
+			return new SearchDialog<>(this, getTitle(), columns, false, listener, additionalActions);
+		} else {
+			return new TableDialog<>(this, getTitle(), columns, false, listener, additionalActions);
+		}
+	}
+		
 	protected String getTitle() {
-		return Resources.getString(fieldClazz);
+		return Resources.getString(SearchDialog.class);
 	}
 
 	protected List<Action> createAdditionalActions() {
@@ -74,13 +84,13 @@ public class TableLookupFormElement<T> extends AbstractLookupFormElement<T> impl
 		return additionalActions;
 	}
 
-	public TableLookupFormElement<T> newForm(Form<T> form) {
+	public LookupFormElement<T> newForm(Form<T> form) {
 		this.newForm = form;
 		this.formClazz = fieldClazz;
 		return this;
 	}
 	
-	public TableLookupFormElement<T> newForm(Class formClazz, Form form, Function<Object, T> formResultConvert) {
+	public LookupFormElement<T> newForm(Class formClazz, Form form, Function<Object, T> formResultConvert) {
 		this.newForm = form;
 		this.formClazz = formClazz;
 		return this;
@@ -97,7 +107,7 @@ public class TableLookupFormElement<T> extends AbstractLookupFormElement<T> impl
 
 		@Override
 		protected Object createObject() {
-			return TableLookupFormElement.this.createObject();
+			return LookupFormElement.this.createObject();
 		}
 		
 		@Override
@@ -118,7 +128,7 @@ public class TableLookupFormElement<T> extends AbstractLookupFormElement<T> impl
 		@Override
 		protected void finished(Object result) {
 			T converted = (T) formResultConverter.apply(result);
-			TableLookupFormElement.this.setValueInternal(converted);
+			LookupFormElement.this.setValueInternal(converted);
 			Frontend.closeDialog(dialog);
 		}
 	}
@@ -130,13 +140,22 @@ public class TableLookupFormElement<T> extends AbstractLookupFormElement<T> impl
 	private class SearchDialogActionListener implements TableActionListener<T> {
 		@Override
 		public void action(T selectedObject) {
-			TableLookupFormElement.this.setValueInternal(selectedObject);
+			LookupFormElement.this.setValueInternal(selectedObject);
 			Frontend.closeDialog(dialog);
 		}
 	}
-
+	
+	protected boolean searchable() {
+		return Properties.getProperties(fieldClazz).values().stream().anyMatch(p -> p.getAnnotation(Searched.class) != null);	
+	}
+	
 	@Override
 	public List<T> search(String searchText) {
-		return Backend.find(fieldClazz, By.search(searchText));
+		if (searchable()) {
+			return Backend.find(fieldClazz, By.search(searchText));
+		} else {
+			return Backend.find(fieldClazz, By.all());
+		}
 	}
+
 }
