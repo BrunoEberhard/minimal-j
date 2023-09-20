@@ -15,18 +15,16 @@ import org.minimalj.frontend.editor.SearchDialog;
 import org.minimalj.frontend.editor.TableDialog;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.StringUtils;
-import org.minimalj.util.resources.Resources;
 
-public class LookupFormElement<T> extends AbstractLookupFormElement<T> implements Search<T> {
-	protected final Class<T> fieldClazz;
+public class LookupFormElement<T> extends AbstractLookupFormElement<T> {
 	protected Object[] columns;
+	private final Class<T> fieldClazz;
 	private Form<?> newForm;
 	private Class<?> formClazz;
 	private Function<Object, T> formResultConverter;
@@ -59,17 +57,13 @@ public class LookupFormElement<T> extends AbstractLookupFormElement<T> implement
 		dialog = createDialog(additionalActions, new SearchDialogActionListener());
 		Frontend.showDialog(dialog);
 	}
-	
+
 	protected TableDialog<T> createDialog(List<Action> additionalActions, TableActionListener<T> listener) {
-		if (searchable()) {
-			return new SearchDialog<>(this, getTitle(), columns, false, listener, additionalActions);
-		} else {
-			return new TableDialog<>(this, getTitle(), columns, false, listener, additionalActions);
-		}
+		return new TableDialog<>(load(), getDialogTitle(), columns, false, listener, additionalActions);
 	}
-		
-	protected String getTitle() {
-		return Resources.getString(SearchDialog.class);
+
+	protected String getDialogTitle() {
+		return null;
 	}
 
 	protected List<Action> createAdditionalActions() {
@@ -89,7 +83,7 @@ public class LookupFormElement<T> extends AbstractLookupFormElement<T> implement
 		this.formClazz = fieldClazz;
 		return this;
 	}
-	
+
 	public LookupFormElement<T> newForm(Class formClazz, Form form, Function<Object, T> formResultConvert) {
 		this.newForm = form;
 		this.formClazz = formClazz;
@@ -109,7 +103,7 @@ public class LookupFormElement<T> extends AbstractLookupFormElement<T> implement
 		protected Object createObject() {
 			return LookupFormElement.this.createObject();
 		}
-		
+
 		@Override
 		protected Class<?> getEditedClass() {
 			return formClazz;
@@ -132,7 +126,7 @@ public class LookupFormElement<T> extends AbstractLookupFormElement<T> implement
 			Frontend.closeDialog(dialog);
 		}
 	}
-	
+
 	protected Object createObject() {
 		return CloneHelper.newInstance(formClazz);
 	}
@@ -144,17 +138,27 @@ public class LookupFormElement<T> extends AbstractLookupFormElement<T> implement
 			Frontend.closeDialog(dialog);
 		}
 	}
-	
-	protected boolean searchable() {
-		return Properties.getProperties(fieldClazz).values().stream().anyMatch(p -> p.getAnnotation(Searched.class) != null);	
+
+	protected List<T> load() {
+		return Backend.find(fieldClazz, By.all());
 	}
-	
-	@Override
-	public List<T> search(String searchText) {
-		if (searchable()) {
-			return Backend.find(fieldClazz, By.search(searchText));
-		} else {
-			return Backend.find(fieldClazz, By.all());
+
+	public static abstract class LookupSearchFormElement<T> extends LookupFormElement<T> implements Search<T> {
+
+		public LookupSearchFormElement(T key) {
+			super(key);
+		}
+
+		public LookupSearchFormElement(T key, Object... columns) {
+			super(key, columns);
+		}
+
+		protected TableDialog<T> createDialog(List<Action> additionalActions, TableActionListener<T> listener) {
+			return new SearchDialog<>(this, getDialogTitle(), columns, false, listener, additionalActions);
+		}
+
+		protected final List<T> load() {
+			throw new IllegalStateException("Should not be called");
 		}
 	}
 

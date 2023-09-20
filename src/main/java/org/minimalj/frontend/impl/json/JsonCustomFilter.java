@@ -25,6 +25,8 @@ public class JsonCustomFilter extends JsonComponent implements IContent {
 			put("overviewActions", jsonActions);
 		}
 
+		// With a custom filter the auto filter of the table should be disabled
+		((JsonTable<?>) table).setFilterVisible(false);
 		put("table", table);
 	}
 }

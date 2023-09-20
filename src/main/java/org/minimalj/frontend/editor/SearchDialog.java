@@ -14,9 +14,9 @@ import org.minimalj.util.resources.Resources;
 
 public class SearchDialog<T> extends TableDialog<T> {
 	private IContent content;
-	
+
 	public SearchDialog(Search<T> search, String title, Object[] keys, boolean multiSelect, TableActionListener<T> listener, List<Action> additionalActions) {
-		super(search, title, keys, multiSelect, listener, additionalActions);
+		super(search.search(null), title, keys, multiSelect, listener, additionalActions);
 
 		Form<SearchModel> form = new Form<>();
 		form.setIgnoreCaption(true);
@@ -24,27 +24,27 @@ public class SearchDialog<T> extends TableDialog<T> {
 		SearchModel model = new SearchModel();
 		form.setChangeListener(source -> {});
 		form.setObject(model);
-		
+
 		Action searchAction = new Action(Resources.getString("SearchAction")) {
 			@Override
 			public void run() {
 				table.setObjects(search.search(model.query));
 			};
 		};
-		
+
 		content = Frontend.getInstance().createFilteredTable(form.getContent(), table, searchAction, null);
 	}
-	
+
 	public static class SearchModel {
 		public static final SearchModel $ = Keys.of(SearchModel.class);
-		
+
 		@Size(255)
 		public String query;
 	}
-	
+
 	@Override
 	public IContent getContent() {
 		return content;
 	}
-	
+
 }

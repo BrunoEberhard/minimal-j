@@ -211,6 +211,7 @@ public abstract class Frontend {
 		}
 	}
 	
+	// this decoration should disable auto filter of decorated table
 	public abstract IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset);
 
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
