@@ -36,7 +36,13 @@ public class ListUtil {
 				filteredList = list;
 			}
 
-			filteredList.sort(new KeyComparator<>(sortKeys, sortDirections));
+			if (sortKeys.length > 0) {
+				// avoid ImmutableList from List.of()
+				if (!(filteredList instanceof ArrayList) && !filteredList.isEmpty()) {
+					filteredList = new ArrayList<>(filteredList);
+				}
+				filteredList.sort(new KeyComparator<>(sortKeys, sortDirections));
+			}
 
 			int fromIndex = Math.min(offset, filteredList.size());
 			int toIndex = Math.min(offset + pageSize, filteredList.size());
