@@ -140,4 +140,9 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		textField.setEditable(enabled);
 	}
 
+	@Override
+	public boolean canBeEmpty() {
+		// if not editable it cannot be users fault that it is empty (don't show 'required' mark)
+		return editable;
+	}
 }
