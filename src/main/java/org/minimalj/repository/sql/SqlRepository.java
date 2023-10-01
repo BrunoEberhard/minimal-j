@@ -139,7 +139,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	private Connection getAutoCommitConnection() {
+	protected Connection getAutoCommitConnection() {
 		try {
 			if (autoCommitConnection == null || !sqlDialect.isValid(autoCommitConnection)) {
 				autoCommitConnection = dataSource.getConnection();
@@ -188,7 +188,7 @@ public class SqlRepository implements TransactionalRepository {
 		threadLocalTransactionConnection.get().pop();
 	}
 	
-	private Connection allocateConnection(int transactionIsolationLevel) {
+	protected Connection allocateConnection(int transactionIsolationLevel) {
 		Connection connection = connectionDeque.poll();
 		while (true) {
 			boolean valid = false;
@@ -211,8 +211,6 @@ public class SqlRepository implements TransactionalRepository {
 				return connection;
 			} catch (Exception e) {
 				// this could happen if there are already too many connections
-				e.printStackTrace();
-
 				logger.log(Level.FINE, "Not possible to create additional connection", e);
 			}
 			// so no connection available and not possible to create one
@@ -245,6 +243,7 @@ public class SqlRepository implements TransactionalRepository {
 		return threadLocalTransactionConnection.get() != null && threadLocalTransactionConnection.get().size() > 0;
 	}
 	
+	// TODO make final
 	public Connection getConnection() {
 		if (isTransactionActive()) {
 			return threadLocalTransactionConnection.get().peek();
