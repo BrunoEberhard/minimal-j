@@ -937,7 +937,7 @@ $ICON
 		var cellElement = document.createElement("div");
 		cellElement.classList.add("formElement");
 		cellElement.id = cell.id + "-element";
-		if (cell.hideFormElement) {
+		if (cell.hideFormElement || cell.type === "Empty") {
 			cellElement.classList.add("hideFormElement");
 		}
 		cellElement.appendChild(cellContent);

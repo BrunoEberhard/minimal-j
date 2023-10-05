@@ -739,6 +739,7 @@ label.invisible {
 .hideFormElement {
 	visibility: hidden;
 	max-height: 0px;
+	padding: 0px !important;
 }
 
 .red { color: red; }
