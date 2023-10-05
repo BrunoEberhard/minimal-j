@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.minimalj.backend.Backend;
+import org.minimalj.backend.repository.ReadEntityTransaction;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.CloneHelper;
@@ -75,7 +76,7 @@ public class ViewUtils {
 			return null;
 		}
 		
-		return Backend.read(viewedClass, id);
+		return Backend.execute(new ReadEntityTransaction<>(viewedClass, id), true);
 	}
 	
 	public static Class<?> getViewedClass(Class<?> clazz) {
