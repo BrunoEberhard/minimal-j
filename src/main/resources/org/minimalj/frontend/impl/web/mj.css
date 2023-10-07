@@ -509,6 +509,11 @@ dialog table {
 	padding-top: 1.2rem;
 }
 
+/* radio buttons would be too low */
+.form fieldset.noCaption {
+	padding-top: 1.0rem;
+}
+
 .lookup .text, .lookup input {
 	width: 100%;
 	min-height: 1.8em;
