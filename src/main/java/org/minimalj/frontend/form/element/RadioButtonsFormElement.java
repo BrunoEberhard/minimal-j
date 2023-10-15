@@ -35,7 +35,7 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static <T> List<CodeItem<T>> createCodeItems(Boolean key, String resourceNames) {
+	static <T> List<CodeItem<T>> createCodeItems(Boolean key, String resourceNames) {
 		Property property = Keys.getProperty(key);
 		List<CodeItem<T>> codeItems = new ArrayList<>();
 		if (property.getAnnotation(NotEmpty.class) == null) {
