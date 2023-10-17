@@ -23,6 +23,8 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public static final String CSS_GROUP_END = "groupEnd";
 	public static final String CSS_GROUP = "group";
 	
+	public static final String CSS_IGNORE_CAPTION = "ignoreCaption";
+
 	
 	private final List<List<JsonComponent>> rows = new ArrayList<>();
 	private final int columns;
@@ -50,17 +52,17 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		rows.add(actualRow);
 		actualColumn = 0;
 		
+		String ignoreCaptionCss = ignoreCaption ? " " + CSS_IGNORE_CAPTION : "";
 		if (startGroup) {
-			rowCss.add(CSS_GROUP_SINGLE_ROW);
+			rowCss.add(CSS_GROUP_SINGLE_ROW + ignoreCaptionCss);
 			startGroup = false;
 		} else {
-			String previousRowCss = rowCss.get(rowCss.size() - 1);
-			if (previousRowCss.equals(CSS_GROUP_SINGLE_ROW)) {
-				rowCss.set(rowCss.size() - 1, CSS_GROUP_START);
-			} else if (previousRowCss.equals(CSS_GROUP_END)) {
-				rowCss.set(rowCss.size() - 1, CSS_GROUP);
-			}
-			rowCss.add(CSS_GROUP_END);
+			int previousIndex = rowCss.size() - 1;
+			String previousRowCss = rowCss.get(previousIndex);
+			previousRowCss = previousRowCss.replace(CSS_GROUP_SINGLE_ROW, CSS_GROUP_START);
+			previousRowCss = previousRowCss.replace(CSS_GROUP_END, CSS_GROUP);
+			rowCss.set(previousIndex, previousRowCss);
+			rowCss.add(CSS_GROUP_END + ignoreCaptionCss);
 		}
 	}
 	
