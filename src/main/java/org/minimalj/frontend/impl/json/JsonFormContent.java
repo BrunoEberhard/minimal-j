@@ -18,17 +18,17 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public static final String MIN_HEIGHT = "minHeight";
 	public static final String MAX_HEIGHT = "maxHeight";
 
-	public static final String CSS_GROUP_SINGLE_ROW = "groupSingleRow";
-	public static final String CSS_GROUP_START = "groupStart";
-	public static final String CSS_GROUP_END = "groupEnd";
-	public static final String CSS_GROUP = "group";
+	public static final String GROUP_SINGLE_ROW = "groupSingleRow";
+	public static final String GROUP_START = "groupStart";
+	public static final String GROUP_END = "groupEnd";
+	public static final String GROUP_ROW = "groupRow";
 	
-	public static final String CSS_IGNORE_CAPTION = "ignoreCaption";
+	public static final String IGNORE_CAPTION = "ignoreCaption";
 
 	
 	private final List<List<JsonComponent>> rows = new ArrayList<>();
 	private final int columns;
-	private final List<String> rowCss = new ArrayList<>();
+	private final List<String> rowClass = new ArrayList<>();
 	
 	private List<JsonComponent> actualRow = new ArrayList<>();
 	private boolean startGroup = true;
@@ -44,7 +44,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		put("columnWidth", columnWidth);
 		
 		put("rows", rows);
-		put("rowCss", rowCss);
+		put("rowCss", rowClass);
 	}
 
 	private void createNewRow() {
@@ -52,17 +52,17 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		rows.add(actualRow);
 		actualColumn = 0;
 		
-		String ignoreCaptionCss = ignoreCaption ? " " + CSS_IGNORE_CAPTION : "";
+		String ignoreCaptionCss = ignoreCaption ? " " + IGNORE_CAPTION : "";
 		if (startGroup) {
-			rowCss.add(CSS_GROUP_SINGLE_ROW + ignoreCaptionCss);
+			rowClass.add(GROUP_SINGLE_ROW + ignoreCaptionCss);
 			startGroup = false;
 		} else {
-			int previousIndex = rowCss.size() - 1;
-			String previousRowCss = rowCss.get(previousIndex);
-			previousRowCss = previousRowCss.replace(CSS_GROUP_SINGLE_ROW, CSS_GROUP_START);
-			previousRowCss = previousRowCss.replace(CSS_GROUP_END, CSS_GROUP);
-			rowCss.set(previousIndex, previousRowCss);
-			rowCss.add(CSS_GROUP_END + ignoreCaptionCss);
+			int previousIndex = rowClass.size() - 1;
+			String previousRowClass = rowClass.get(previousIndex);
+			previousRowClass = previousRowClass.replace(GROUP_SINGLE_ROW, GROUP_START);
+			previousRowClass = previousRowClass.replace(GROUP_END, GROUP_ROW);
+			rowClass.set(previousIndex, previousRowClass);
+			rowClass.add(GROUP_END + ignoreCaptionCss);
 		}
 	}
 	

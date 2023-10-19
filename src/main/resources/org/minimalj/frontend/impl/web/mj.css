@@ -14,6 +14,11 @@
 	--pageHeaderBackground: #f0f0f0;
 	--navigationBackground: #f8f8f8;
 	--contentBackground: white;
+	
+	--formGroupBackground: unset;
+	--formGroupMargin: 0px;
+	--formGroupBorder: calc(var(--formGroupMargin) * 0.5);
+	--formGroupPadding: calc(var(--formGroupMargin) * 0.3);
 }
 
 html {
@@ -461,6 +466,38 @@ table tbody  tr:nth-child(odd).selected {
 	display: flex;
 	flex-wrap: nowrap;	
 	overflow: hidden;
+
+	background: var(--formGroupBackground);
+	border-left: var(--formGroupBackground) var(--formGroupBorder) solid;
+	border-right: var(--formGroupBackground) var(--formGroupBorder) solid;
+	padding-left: var(--formGroupPadding);
+	padding-right: var(--formGroupPadding);
+	min-height: 2.7rem;
+}
+
+.form>div.ignoreCaption {
+	min-height: 1.7rem;
+}
+
+.form>div.groupStart, .form>div.groupSingleRow {
+	border-top: var(--formGroupBackground) var(--formGroupBorder) solid;
+	border-top-left-radius: var(--formGroupBorder);
+	border-top-right-radius: var(--formGroupBorder);
+	margin-top: var(--formGroupBorder);
+}
+
+.form>div.groupEnd, .form>div.groupSingleRow {
+	border-bottom: var(--formGroupBackground) var(--formGroupBorder) solid;
+	border-bottom-left-radius: var(--formGroupBorder);
+	border-bottom-right-radius: var(--formGroupBorder);
+	margin-bottom: var(--formGroupBorder);
+}
+
+.form .form>div {
+	background: unset;
+	border: 0px;
+	padding: 0px;
+	margin: 0px;
 }
 
 .dialogContent, .dialogHeader {
