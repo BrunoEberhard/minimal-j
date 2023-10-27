@@ -122,7 +122,7 @@ public class Keys {
 	private static <T> void fillFields(T object, Property enclosingProperty, int depth) {
 		Map<String, Property> propertiesOfObject = Properties.getProperties(object.getClass());
 		for (Property property : propertiesOfObject.values()) {
-			if (StringUtils.equals(property.getName(), "version", "historized"))
+			if (StringUtils.equals(property.getName(), "version", "historized") || property.getClazz().isPrimitive())
 				continue;
 
 			Object value = null;
