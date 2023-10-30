@@ -472,7 +472,6 @@ table tbody  tr:nth-child(odd).selected {
 	border-right: var(--formGroupBackground) var(--formGroupBorder) solid;
 	padding-left: var(--formGroupPadding);
 	padding-right: var(--formGroupPadding);
-	min-height: 2.7rem;
 }
 
 .form>div.ignoreCaption {
