@@ -673,11 +673,10 @@ input[type="checkbox"] {
 	height: inherit;
 	width: 1.2em;
 	margin: 0px 5px 0px 1px;
-	vertical-align: bottom;
+	vertical-align: baseline;
 }
 
 label.checkboxLabel {
-	display: inline-block;
 	white-space: nowrap; /* important for long labels */
 	padding-top: 0.35em;
 	font-weight: normal;
@@ -775,6 +774,11 @@ label.invisible {
 
 .hide {
 	display: none;
+}
+
+/* don't let form rows with only hidden elements collapse */
+.formElement > :nth-child(2) {
+  min-height: 1.3rem;
 }
 
 .hideFormElement {
