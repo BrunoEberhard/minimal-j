@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,16 +63,16 @@ public class InMemoryRepository implements Repository {
 			memory.put(clazz, new HashMap<>());
 		}
 		
-		createCodes(modelTest.getModelClasses());
+		createCodes(Model.getClassesRecursive(classes, false, false));
 	}
 
-	private void createCodes(Set<Class<?>> modelClasses) {
+	private void createCodes(Collection<Class<?>> modelClasses) {
 		createConstantCodes(modelClasses);
 		createCsvCodes(modelClasses);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createConstantCodes(Set<Class<?>> modelClasses) {
+	private void createConstantCodes(Collection<Class<?>> modelClasses) {
 		for (Class<?> clazz : modelClasses) {
 			if (Code.class.isAssignableFrom(clazz)) {
 				Class<? extends Code> codeClass = (Class<? extends Code>) clazz; 
@@ -84,7 +85,7 @@ public class InMemoryRepository implements Repository {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void createCsvCodes(Set<Class<?>> modelClasses) {
+	private void createCsvCodes(Collection<Class<?>> modelClasses) {
 		for (Class<?> clazz : modelClasses) {
 			if (Code.class.isAssignableFrom(clazz)) {
 				Class<? extends Code> codeClazz = (Class<? extends Code>) clazz;

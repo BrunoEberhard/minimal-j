@@ -98,10 +98,6 @@ public class ModelTest {
 		}
 	}
 	
-	public Set<Class<?>> getModelClasses() {
-		return Collections.unmodifiableSet(modelClasses);
-	}
-	
 	public void logProblems() {
 		if (!problems.isEmpty()) {
 			logger.severe("The entitiy classes don't apply to the given rules");
