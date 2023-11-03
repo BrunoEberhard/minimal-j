@@ -12,17 +12,11 @@ public abstract class SqlTest implements Model {
 	@Before
 	public void createTables() {
 		createRepositoryH2();
-		// createRepositoryMsSql();
 		initData();
 	}
 
 	protected void createRepositoryH2() {
 		repository = new SqlRepository(DataSourceFactory.embeddedDataSource(), getEntityClasses());
-	}
-
-	protected void createRepositoryMsSql() {
-		repository = new SqlRepository(DataSourceFactory.mssqlDataSource("jdbc:sqlserver://localhost:1433", "user", "password"), getEntityClasses());
-		repository.createTables();
 	}
 
 	@After
