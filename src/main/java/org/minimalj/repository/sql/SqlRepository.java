@@ -99,7 +99,7 @@ public class SqlRepository implements TransactionalRepository {
 				afterCreateTables();
 			}
 		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, logger, "Could not determine product name of database");
+			throw new LoggingRuntimeException(x, logger, "Initialize of SqlRepository failed");
 		}
 	}
 
@@ -109,7 +109,7 @@ public class SqlRepository implements TransactionalRepository {
 		}
 		
 		String databaseProductName = connection.getMetaData().getDatabaseProductName();
-		if (StringUtils.equals(databaseProductName, "MySQL") || StringUtils.equals(databaseProductName, "MariaDB")) {
+		if (StringUtils.equals(databaseProductName, "MySQL", "MariaDB")) {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "PostgreSQL")) {
 			return new SqlDialect.PostgresqlDialect();
