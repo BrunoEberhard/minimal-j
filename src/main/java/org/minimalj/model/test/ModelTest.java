@@ -67,6 +67,7 @@ public class ModelTest {
 		for (Class<?> clazz : mainClasses) {
 			testClass(clazz);
 		}
+		testEnums(mainClasses);
 	}
 	
 	/**
@@ -528,6 +529,43 @@ public class ModelTest {
 						seenClasses.add(fieldType);
 						testSelfReferences(pathWithField, fieldType, seenClasses);
 						seenClasses.remove(fieldType);
+					}
+				}
+			}
+		}
+	}
+	
+	private void testEnums(Collection<Class<?>> mainClasses) {
+		Set<Class<? extends Enum<?>>> enums = new HashSet<>();
+		Set<Class<?>> visited = new HashSet<>();
+		mainClasses.forEach(clazz -> collectEnums(clazz, enums, visited));
+		for (Class<? extends Enum<?>> enm : enums) {
+			for (Class<? extends Enum<?>> enm2 : enums) {
+				if (enm != enm2 && enm.getSimpleName().equals(enm2.getSimpleName())) {
+					problems.add("Two enum classes with same simple name not allowed: " + enm.getName() + " / " + enm2.getName());
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void collectEnums(Class<?> clazz, Set<Class<? extends Enum<?>>> enums, Set<Class<?>> visited) {
+		if (!visited.contains(clazz)) {
+			visited.add(clazz);
+			Field[] fields = clazz.getFields();
+			for (Field field : fields) {
+				if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) &!FieldUtils.isTransient(field)) {
+					Class<?> fieldType = field.getType();
+					if (Collection.class.isAssignableFrom(fieldType)) {
+						fieldType = GenericUtils.getGenericClass(clazz, field);
+					}
+					if (fieldType != null) {
+						if (fieldType.isEnum()) {
+							enums.add((Class<? extends Enum<?>>) fieldType);
+						}
+						if (!fieldType.isPrimitive()) {
+							collectEnums(fieldType, enums, visited);
+						}
 					}
 				}
 			}
