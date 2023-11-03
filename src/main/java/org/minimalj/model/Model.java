@@ -53,7 +53,7 @@ public interface Model {
 				if (propertyClass == null || View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
 					continue;
 				}
-				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass) /* && !property.isFinal() */) {
+				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass)) {
 					getClassesRecursive(classes, propertyClass, depthFirst, onlyWithId);
 				}
 			}
