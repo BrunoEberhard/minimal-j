@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,12 +66,13 @@ public class SqlRepository implements TransactionalRepository {
 	protected final SqlDialect sqlDialect;
 	protected final SqlIdentifier sqlIdentifier;
 	
-	private final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<>();
+	final Map<Class<?>, AbstractTable<?>> tables = new LinkedHashMap<>();
+	
 	private final Map<String, AbstractTable<?>> tableByName = new HashMap<>();
 	private final Map<Class<?>, LinkedHashMap<String, Property>> columnsForClass = new HashMap<>(200);
 	private final Map<Class<?>, HashMap<String, Property>> columnsForClassUpperCase = new HashMap<>(200);
 	
-	protected final Map<Class<?>, String> dbTypes = new HashMap<>();
+	protected final Set<Class<? extends Enum<?>>> enums = new HashSet<>();
 	
 	protected final DataSource dataSource;
 	
@@ -84,16 +86,16 @@ public class SqlRepository implements TransactionalRepository {
 	
 	public SqlRepository(DataSource dataSource, Class<?>... classes) {
 		this.dataSource = dataSource;
+		new ModelTest(classes).assertValid();
 
 		try (Connection connection = getAutoCommitConnection()) {
 			sqlDialect = findDialect(connection);
 			sqlIdentifier = createSqlIdentifier();
-			for (Class<?> clazz : Model.getEntityClassesRecursive(classes)) {
-				addClass(clazz);
-			}
-			new ModelTest(classes).assertValid();
+			Model.getEntityClassesRecursive(classes).forEach(this::addClass);
+			tables.values().forEach(table -> table.collectEnums(enums));
 			if (createTablesOnInitialize(dataSource)) {
 				beforeCreateTables();
+				createEnums();
 				createTables();
 				createCodes();
 				afterCreateTables();
@@ -610,6 +612,16 @@ public class SqlRepository implements TransactionalRepository {
 		// for extensions
 	}
 	
+	void createEnums() {
+		for (Class<? extends Enum<?>> enumClass : enums) {
+			String identifier = sqlIdentifier.identifier(enumClass.getSimpleName(), Collections.emptyList());
+			String query = getSqlDialect().createEnum(enumClass, identifier);
+			if (query != null) {
+				execute(query);
+			}
+		}
+	}
+	
 	void createTables() {
 		for (AbstractTable<?> table : tables.values()) {
 			table.createTable(sqlDialect);
@@ -629,7 +641,7 @@ public class SqlRepository implements TransactionalRepository {
 	protected void afterCreateTables(Collection<AbstractTable<?>> tables) {
 		// for extensions
 	}
-
+	
 	void dropTables() {
 		Collection<AbstractTable<?>> tables = Collections.unmodifiableCollection(this.tables.values());
 		beforeDropTables(tables);

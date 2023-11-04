@@ -132,10 +132,10 @@ public abstract class SqlDialect {
 		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
 	}
 	
-	public String createType(Class<?> clazz, String identifier) {
+	public String createEnum(Class<?> clazz, String identifier) {
 		return null;
 	}
-	
+
 	public String enumSql(Enum<?> enuum) {
 		return Integer.toString(enuum.ordinal());
 	}
@@ -248,7 +248,7 @@ public abstract class SqlDialect {
 		}
 		
 		@Override
-		public String createType(Class<?> clazz, String identifier) {
+		public String createEnum(Class<?> clazz, String identifier) {
 			StringBuilder s = new StringBuilder();
 			s.append("CREATE TYPE ").append(identifier).append(" AS ENUM ('");
 			for (Object e : EnumUtils.valueList((Class<? extends Enum>) clazz)) {

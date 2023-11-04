@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.minimalj.model.Code;
@@ -88,6 +89,19 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
+	@Override
+	public void collectEnums(Set<Class<? extends Enum<?>>> enms) {
+		super.collectEnums(enms);
+		for (Object object : dependables.values()) {
+			DependableTable dependableTable = (DependableTable) object;
+			dependableTable.collectEnums(enms);
+		}
+		for (Object object : lists.values()) {
+			AbstractTable subTable = (AbstractTable) object;
+			subTable.collectEnums(enms);
+		}
+	}
+	
 	@Override
 	protected void dropTable(SqlDialect dialect) {
 		for (Object object : dependables.values()) {

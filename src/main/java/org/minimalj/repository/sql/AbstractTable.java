@@ -8,11 +8,13 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,8 +120,6 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected void createTable(SqlDialect dialect) {
-		createEnums(dialect);
-		
 		StringBuilder s = new StringBuilder();
 		dialect.addCreateStatementBegin(s, getTableName());
 		addSpecialColumns(dialect, s);
@@ -132,6 +132,18 @@ public abstract class AbstractTable<T> {
 		createColumnComments();
 	}
 
+
+	@SuppressWarnings("unchecked")
+	public void collectEnums(Set<Class<? extends Enum<?>>> enms) {
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
+			Class<?> propertyClass = property.getClazz();
+			if (propertyClass.isEnum()) {
+				enms.add((Class<? extends Enum<?>>) propertyClass);
+			}
+		}
+	}
+	
 	protected void createTableComment() {
 		Comment commentAnnotation = clazz.getAnnotation(Comment.class);
 		if (commentAnnotation != null) {
@@ -176,41 +188,29 @@ public abstract class AbstractTable<T> {
 			execute("ALTER TABLE " + getTableName() + " DROP CONSTRAINT " + constraint);
 		}
 	}
-
-	protected void createEnums(SqlDialect dialect) {
-		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
-			Property property = column.getValue();
-			Class<?> propertyClass = property.getClazz();
-			if (propertyClass.isEnum()) {
-				if (!sqlRepository.dbTypes.containsKey(propertyClass)) {
-					String identifier = sqlRepository.sqlIdentifier.identifier(propertyClass.getSimpleName(), sqlRepository.dbTypes.values());
-					String query = dialect.createType(propertyClass, identifier);
-					if (query != null) {
-						execute(query);
-						sqlRepository.dbTypes.put(propertyClass, identifier);
-					}
-				}
-			}
-		}
-	}
 	
 	protected abstract void addSpecialColumns(SqlDialect dialect, StringBuilder s);
 	
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
 		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
-			s.append(",\n ").append(column.getKey()).append(' '); 
-
 			Property property = column.getValue();
-			if (sqlRepository.dbTypes.containsKey(property.getClazz())) {
-				s.append(sqlRepository.dbTypes.get(property.getClazz()));
-			} else {
-				dialect.addColumnDefinition(s, property);
-			}
-			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
-			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
+			s.append(",\n ").append(column.getKey()).append(' ').append(getFieldColumn(dialect, property));
 		}
 	}
 
+	protected String getFieldColumn(SqlDialect dialect, Property property) {
+		StringBuilder s = new StringBuilder();
+		if (sqlRepository.enums.contains(property.getClazz())) {
+			String identifier = sqlRepository.sqlIdentifier.identifier(property.getClazz().getSimpleName(), Collections.emptyList());
+			s.append(identifier);
+		} else {
+			dialect.addColumnDefinition(s, property);
+		}
+		boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
+		s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
+		return s.toString();
+	}
+	
 	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
 		dialect.addPrimaryKey(s, "ID");
 	}
