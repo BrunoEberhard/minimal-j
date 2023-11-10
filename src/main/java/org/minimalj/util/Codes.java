@@ -173,6 +173,7 @@ public class Codes {
 			return codeMap.computeIfAbsent(id, newId -> {
 				S code = CloneHelper.newInstance(clazz);
 				IdUtils.setId(code, newId);
+				codesSortedByLocale = new HashMap<>();
 				return code;
 			});
 		}
