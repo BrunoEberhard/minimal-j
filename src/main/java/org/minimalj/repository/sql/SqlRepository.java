@@ -1,6 +1,5 @@
 package org.minimalj.repository.sql;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -48,9 +47,9 @@ import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
+import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
-import org.minimalj.util.CsvReader;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -93,16 +92,38 @@ public class SqlRepository implements TransactionalRepository {
 			sqlIdentifier = createSqlIdentifier();
 			Model.getEntityClassesRecursive(classes).forEach(this::addClass);
 			tables.values().forEach(table -> table.collectEnums(enums));
-			if (createTablesOnInitialize(dataSource)) {
-				beforeCreateTables();
-				createEnums();
-				createTables();
-				createCodes();
-				afterCreateTables();
-			}
+			
+			SchemaPreparation schemaPreparation = getSchemaPreparation();
+			schemaPreparation.prepare(this);
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Initialize of SqlRepository failed");
 		}
+	}
+
+	private SchemaPreparation getSchemaPreparation() throws SQLException {
+		if (Configuration.available("schemaPreparation")) {
+			return SchemaPreparation.valueOf(Configuration.get("schemaPreparation")); 
+		}
+		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
+		if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {
+			String url = ((org.h2.jdbcx.JdbcDataSource) dataSource).getUrl();
+			if (url.startsWith("jdbc:h2:mem")) {
+				return SchemaPreparation.create;
+			}
+			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
+				if (!tableDescriptions.next()) {
+					return SchemaPreparation.create;
+				}
+			}
+		} else if (sqlDialect instanceof PostgresqlDialect) {
+			Integer tableCount = execute(Integer.class, "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = current_schema");
+			if (tableCount == null || tableCount == 0) {
+				return SchemaPreparation.create;
+			} else {
+				return SchemaPreparation.update;
+			}
+		}
+		return SchemaPreparation.none;
 	}
 
 	private SqlDialect findDialect(Connection connection) throws SQLException {
@@ -114,7 +135,7 @@ public class SqlRepository implements TransactionalRepository {
 		if (StringUtils.equals(databaseProductName, "MySQL", "MariaDB")) {
 			return new SqlDialect.MariaSqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "PostgreSQL")) {
-			return new SqlDialect.PostgresqlDialect();
+			return new PostgresqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "H2")) {
 			return new SqlDialect.H2SqlDialect();
 		} else if (StringUtils.equals(databaseProductName, "Oracle")) {
@@ -126,9 +147,9 @@ public class SqlRepository implements TransactionalRepository {
 //			throw new RuntimeException("Only Oracle, H2, MySQL/MariaDB and SQL Server supported at the moment. ProductName: " + databaseProductName);
 		}
 	}
-	
+
 	protected SqlIdentifier createSqlIdentifier() {
-		if (sqlDialect instanceof SqlDialect.PostgresqlDialect) {
+		if (sqlDialect instanceof PostgresqlDialect) {
 			// https://stackoverflow.com/questions/13409094/why-does-postgresql-default-everything-to-lower-case
 			return new SqlIdentifier(sqlDialect.getMaxIdentifierLength()) {
 				protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
@@ -612,28 +633,6 @@ public class SqlRepository implements TransactionalRepository {
 		// for extensions
 	}
 	
-	void createEnums() {
-		for (Class<? extends Enum<?>> enumClass : enums) {
-			String identifier = sqlIdentifier.identifier(enumClass.getSimpleName(), Collections.emptyList());
-			String query = getSqlDialect().createEnum(enumClass, identifier);
-			if (query != null) {
-				execute(query);
-			}
-		}
-	}
-	
-	void createTables() {
-		for (AbstractTable<?> table : tables.values()) {
-			table.createTable(sqlDialect);
-		}
-		for (AbstractTable<?> table : tables.values()) {
-			table.createIndexes(sqlDialect);
-		}
-		for (AbstractTable<?> table : tables.values()) {
-			table.createConstraints(sqlDialect);
-		}
-	}
-
 	void afterCreateTables() {
 		afterCreateTables(Collections.unmodifiableCollection(tables.values()));
 	}
@@ -657,44 +656,7 @@ public class SqlRepository implements TransactionalRepository {
 		// for extensions
 	}
 
-	// TODO move someplace where it's available for all kind of repositories (Memory DB for example)
-	void createCodes() {
-		startTransaction(Connection.TRANSACTION_READ_UNCOMMITTED);
-		createConstantCodes();
-		createCsvCodes();
-		endTransaction(true);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void createConstantCodes() {
-		for (AbstractTable<?> table : tables.values()) {
-			if (Code.class.isAssignableFrom(table.getClazz())) {
-				Class<? extends Code> codeClass = (Class<? extends Code>) table.getClazz(); 
-				List<? extends Code> constants = Codes.getConstants(codeClass);
-				for (Code code : constants) {
-					((Table<Code>) table).insert(code);
-				}
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void createCsvCodes() {
-		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
-		for (AbstractTable<?> table : tableList) {
-			if (Code.class.isAssignableFrom(table.getClazz())) {
-				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
-				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
-				if (is != null) {
-					CsvReader reader = new CsvReader(is, getObjectProvider());
-					List<? extends Code> values = reader.readValues(clazz);
-					values.forEach(value -> ((Table<Code>) table).insert(value));
-				}
-			}
-		}
-	}
-	
-	private BiFunction<Class<?>, Object, Object> getObjectProvider() {
+	protected BiFunction<Class<?>, Object, Object> getObjectProvider() {
 		return new BiFunction<Class<?>, Object, Object>() {
 			@Override
 			public Object apply(Class<?> clazz, Object id) {

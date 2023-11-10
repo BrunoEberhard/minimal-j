@@ -132,6 +132,10 @@ public abstract class SqlDialect {
 		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
 	}
 	
+	public boolean hasEnumTypes() {
+		return false;
+	}
+
 	public String createEnum(Class<?> clazz, String identifier) {
 		return null;
 	}
@@ -245,6 +249,11 @@ public abstract class SqlDialect {
 		@Override
 		public String limit(int rows, Integer offset) {
 			return "LIMIT " + rows + (offset != null ? " OFFSET " + offset.toString() : "");
+		}
+		
+		@Override
+		public boolean hasEnumTypes() {
+			return true;
 		}
 		
 		@Override

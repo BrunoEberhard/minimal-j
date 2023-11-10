@@ -194,21 +194,20 @@ public abstract class AbstractTable<T> {
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
 		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
 			Property property = column.getValue();
-			s.append(",\n ").append(column.getKey()).append(' ').append(getFieldColumn(dialect, property));
+			s.append(",\n ").append(column.getKey()).append(' ').append(getColumnDefinition(dialect, property));
+			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
+			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
 		}
 	}
 
-	protected String getFieldColumn(SqlDialect dialect, Property property) {
-		StringBuilder s = new StringBuilder();
-		if (sqlRepository.enums.contains(property.getClazz())) {
-			String identifier = sqlRepository.sqlIdentifier.identifier(property.getClazz().getSimpleName(), Collections.emptyList());
-			s.append(identifier);
+	protected String getColumnDefinition(SqlDialect dialect, Property property) {
+		if (property.getClazz().isEnum() && dialect.hasEnumTypes()) {
+			return sqlRepository.sqlIdentifier.identifier(property.getClazz().getSimpleName(), Collections.emptyList());
 		} else {
+			StringBuilder s = new StringBuilder();
 			dialect.addColumnDefinition(s, property);
+			return s.toString();
 		}
-		boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
-		s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
-		return s.toString();
 	}
 	
 	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
