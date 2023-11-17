@@ -14,8 +14,8 @@ import org.minimalj.util.StringUtils;
  */
 public class ValidationMessage {
 
-	private String formattedText;
-	private Object key;
+	private final String formattedText;
+	private final Object key;
 
 	public ValidationMessage(Object key, String formattedText) {
 		this.key = key;
