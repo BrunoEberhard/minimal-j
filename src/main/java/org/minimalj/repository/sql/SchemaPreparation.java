@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
+import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.Codes;
 import org.minimalj.util.CsvReader;
@@ -136,7 +138,31 @@ public enum SchemaPreparation {
 					repository.execute(s);
 				}
 			} else {
-				// TODO verifyColumnType
+				String isNullable = repository.execute(String.class, "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
+				boolean nullableColumn = "yes".equalsIgnoreCase(isNullable);
+				boolean notEmptyProperty = column.getValue().getAnnotation(NotEmpty.class) != null;
+				if (!nullableColumn && !notEmptyProperty) {
+					logger.info("Make column nullable: " + table.name + "." + columnName);
+					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " DROP NOT NULL";
+					repository.execute(s);
+				} else if (nullableColumn && notEmptyProperty) {
+					// TODO this can go wrong
+					logger.info("Make column not nullable: " + table.name + "." + columnName);
+					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL";
+					repository.execute(s);
+				}
+				
+				if (column.getValue().getClazz() == String.class) {
+					int maxLength = repository.execute(Integer.class, "SELECT character_maximum_length FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
+					int annotatedSize = AnnotationUtil.getSize(column.getValue());
+					if (maxLength > annotatedSize) {
+						// TODO shorten content
+					}
+					if (maxLength != annotatedSize) {
+						logger.info(maxLength < annotatedSize ? "Increase" : "Decrease " + table.name + "." + columnName + " to size " + annotatedSize);
+						repository.execute("ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " TYPE VARCHAR(" + annotatedSize +")");
+					}
+				}
 			}
 		}
 		for (String columnName : columnNames) {
@@ -196,6 +222,10 @@ public enum SchemaPreparation {
 
 	protected String selectColumns(String tableIdentifier) {
 		return "SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema AND table_name = '" + tableIdentifier + "'";
+	}
+
+	protected String isNullableColumn(Class<?> clazz, String tableIdentifier, String columnIdentifier) {
+		return "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?";
 	}
 
 }
