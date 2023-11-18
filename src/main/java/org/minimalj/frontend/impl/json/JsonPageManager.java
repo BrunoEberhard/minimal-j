@@ -24,6 +24,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
 import org.minimalj.frontend.impl.json.JsonSessionManager.JsonSessionInfo;
 import org.minimalj.frontend.impl.util.PageAccess;
@@ -583,6 +584,8 @@ public class JsonPageManager implements PageManager {
 			ActionGroup actionGroup = (ActionGroup) action;
 			item = new JsonAction.JsonActionGroup();
 			item.put("items", createActions(actionGroup.getItems()));
+		} else if (action instanceof Separator){
+			item = new JsonComponent("Separator");
 		} else {
 			item = new JsonAction(action);
 		}

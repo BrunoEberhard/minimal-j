@@ -1124,7 +1124,7 @@ $ICON
 			var item = items[i];
 			var li = document.createElement("li");
 			ul.appendChild(li);
-			if (item.name) {
+			if (item.type !== "Separator") {
 				if (item.items) {
 					li.appendChild(document.createTextNode(item.name));
 					li.appendChild(createMenu(item.items));
