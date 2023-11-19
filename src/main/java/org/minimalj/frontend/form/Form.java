@@ -179,7 +179,7 @@ public class Form<T> {
 		} else if (fieldClass == Password.class) {
 			return new PasswordFormElement(new ChainedProperty(property, Keys.getProperty(Password.$.getPassword())));
 		} else if (fieldClass == Selection.class) {
-			return new SelectionFormElement(property);
+			return editable ? new SelectionFormElement(property) : new TextFormElement(property);
 		} else if (Rendering.class.isAssignableFrom(fieldClass)) {
 			return new TextFormElement(property);
 		}
