@@ -217,6 +217,8 @@ $ICON
 						} else {
 							if (property === "value" && element.tagName === "INPUT" && element.type === "password") {
 								value = value.join("");
+							} else if (property === "value" && element.tagName === "FIELDSET") {
+								document.getElementById(value).checked = true;
 							}
 							if (document.activeElement != element || element.id != dataObject.source || element.changeOnFocus) {
 								// a date (formatted input) should not change while user is entering more characters
