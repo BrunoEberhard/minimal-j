@@ -469,23 +469,25 @@ $ICON
 		var pageElement = getPageElement(event);
 		var pageContentAndActionsElement = pageElement.querySelector(".pageContentAndActions");
 		var sideBarElement = pageElement.querySelector(".actionSideBar");
-		var contextMenuElement = sideBarElement.cloneNode(true);
-		contextMenuElement.className = "contextMenu";
-
-		pageContentAndActionsElement.appendChild(contextMenuElement);
-
-		contextMenuElement.style.left = event.x + "px";
-		if (event.x + contextMenuElement.offsetWidth > window.innerWidth) {
-			contextMenuElement.style.left = Math.max(0, window.innerWidth - contextMenuElement.offsetWidth) + "px";
+		if (sideBarElement != null) {
+			var contextMenuElement = sideBarElement.cloneNode(true);
+			contextMenuElement.className = "contextMenu";
+	
+			pageContentAndActionsElement.appendChild(contextMenuElement);
+	
+			contextMenuElement.style.left = event.x + "px";
+			if (event.x + contextMenuElement.offsetWidth > window.innerWidth) {
+				contextMenuElement.style.left = Math.max(0, window.innerWidth - contextMenuElement.offsetWidth) + "px";
+			}
+			contextMenuElement.style.top = event.y + "px";
+			contextMenuElement.style.maxHeight = "unset";
+			if (event.y + contextMenuElement.offsetHeight > window.innerHeight - 30) {
+				contextMenuElement.style.top = Math.max(30, window.innerHeight - contextMenuElement.offsetHeight) + "px";
+				contextMenuElement.style.maxHeight = window.innerHeight - 70;
+			}
+			event.preventDefault();
+			event.stopPropagation();
 		}
-		contextMenuElement.style.top = event.y + "px";
-		contextMenuElement.style.maxHeight = "unset";
-		if (event.y + contextMenuElement.offsetHeight > window.innerHeight - 30) {
-			contextMenuElement.style.top = Math.max(30, window.innerHeight - contextMenuElement.offsetHeight) + "px";
-			contextMenuElement.style.maxHeight = window.innerHeight - 70;
-		}
-		event.preventDefault();
-		event.stopPropagation();
 	}
 	
 	function getPageElement(event) {
