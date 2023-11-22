@@ -1,6 +1,7 @@
 package org.minimalj.repository.sql;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -129,32 +130,54 @@ public enum SchemaPreparation {
 	protected void updateTableColumns(SqlRepository repository, SchemaPreparation schemaPreparation, AbstractTable<?> table) {
 		List<String> columnNames = repository.find(String.class, selectColumns(table.name), 10000);
 		for (Map.Entry<String, Property> column : table.getColumns().entrySet()) {
+			Property property = column.getValue();
 			String columnName = column.getKey();
+			boolean notEmptyProperty = property.getAnnotation(NotEmpty.class) != null;
 			if (!columnNames.contains(columnName)) {
 				logger.info("New column: " + table.name + "." + columnName);
 				if (schemaPreparation.doUpdate()) {
 					String s = "ALTER TABLE " + table.name + " ADD COLUMN " + columnName + " "
-							+ table.getColumnDefinition(repository.sqlDialect, column.getValue());
+							+ table.getColumnDefinition(repository.sqlDialect, property);
 					repository.execute(s);
+					if (notEmptyProperty) {
+						boolean possible = initializeNullValues(repository, table, property, columnName);
+						if (possible) {
+							logger.info("Make new column " + columnName + " not nullable");
+							repository.execute("ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL");
+						} else {
+							logger.severe("New column: " + table.name + "." + columnName + " cannot set to not nullable as there is no initial value set in the class");
+						}
+					}
 				}
 			} else {
 				String isNullable = repository.execute(String.class, "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
 				boolean nullableColumn = "yes".equalsIgnoreCase(isNullable);
-				boolean notEmptyProperty = column.getValue().getAnnotation(NotEmpty.class) != null;
 				if (!nullableColumn && !notEmptyProperty) {
 					logger.info("Make column nullable: " + table.name + "." + columnName);
 					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " DROP NOT NULL";
 					repository.execute(s);
 				} else if (nullableColumn && notEmptyProperty) {
 					// TODO this can go wrong
-					logger.info("Make column not nullable: " + table.name + "." + columnName);
-					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL";
-					repository.execute(s);
+					// as above. First check if there is a null value in the db
+					// count where is null
+					// only if count > 0 check for empty value...
+					boolean possible = true;
+					Integer countNull = repository.execute(Integer.class, "SELECT COUNT(*) FROM " + table.name + " WHERE " + columnName + " IS NULL");
+					if (countNull != null && countNull > 0) {
+						possible = initializeNullValues(repository, table, property, columnName);
+					}
+					if (possible) {
+						logger.info("Make column not nullable: " + table.name + "." + columnName);
+						String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL";
+						repository.execute(s);
+					} else {
+						logger.severe("Set column " + table.name + "." + columnName + " to not nullable as there is no initial value set in the class");
+					}
 				}
 				
-				if (column.getValue().getClazz() == String.class) {
+				if (property.getClazz() == String.class) {
 					int maxLength = repository.execute(Integer.class, "SELECT character_maximum_length FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
-					int annotatedSize = AnnotationUtil.getSize(column.getValue());
+					int annotatedSize = AnnotationUtil.getSize(property);
 					if (maxLength > annotatedSize) {
 						// TODO shorten content
 					}
@@ -174,6 +197,17 @@ public enum SchemaPreparation {
 		}
 	}
 
+	protected boolean initializeNullValues(SqlRepository repository, AbstractTable<?> table, Property property, String columnName) {
+		Object emptyValue = property.getValue(EmptyObjects.getEmptyObject(property.getDeclaringClass()));
+		if (emptyValue != null) {
+			logger.info("Initialize null values of " + table.name + "." + columnName + " to " + emptyValue);
+			repository.execute("UPDATE " + table.name + " SET " + columnName + " = ? WHERE " + columnName + " IS NULL", (Serializable) emptyValue);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void updateEnums(SqlRepository repository, SchemaPreparation schemaPreparation) {
 		for (Class enumClass : repository.enums) {
