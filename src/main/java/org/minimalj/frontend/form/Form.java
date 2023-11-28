@@ -311,7 +311,7 @@ public class Form<T> {
 	 * @param from the key or property of the field triggering the update
 	 * @param to   the field possible changed its value implicitly
 	 */
-	public void addDependecy(Object from, Object... to) {
+	public void addDependency(Object from, Object... to) {
 		Property fromProperty = Keys.getProperty(from);
 		List<Property> list = dependencies.computeIfAbsent(fromProperty.getPath(), p -> new ArrayList<>());
 		for (Object key : to) {
@@ -319,11 +319,11 @@ public class Form<T> {
 		}
 	}
 
-	private void addDependecy(Property fromProperty, Property to) {
-		addDependecy(fromProperty.getPath(), to);
+	private void addDependency(Property fromProperty, Property to) {
+		addDependency(fromProperty.getPath(), to);
 	}
 
-	private void addDependecy(String fromPropertyPath, Property to) {
+	private void addDependency(String fromPropertyPath, Property to) {
 		List<Property> list = dependencies.computeIfAbsent(fromPropertyPath, p -> new ArrayList<>());
 		list.add(to);
 	}
@@ -342,11 +342,11 @@ public class Form<T> {
 	 * @param updater the updater doing the change of the to field
 	 * @param to      the changed field by the updater
 	 */
-	public <FROM, TO> void addDependecy(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
+	public <FROM, TO> void addDependency(FROM from, PropertyUpdater<FROM, TO, T> updater, TO to) {
 		Property fromProperty = Keys.getProperty(from);
 		Property toProperty = Keys.getProperty(to);
 		propertyUpdater.computeIfAbsent(fromProperty, p -> new LinkedHashMap<>()).put(toProperty, updater);
-		addDependecy(from, to);
+		addDependency(from, to);
 	}
 
 	@FunctionalInterface
@@ -380,14 +380,14 @@ public class Form<T> {
 		Property property = field.getProperty();
 		List<Property> dependencies = Keys.getDependencies(property);
 		for (Property dependency : dependencies) {
-			addDependecy(dependency, field.getProperty());
+			addDependency(dependency, field.getProperty());
 		}
 
 		// a.b.c
 		String path = property.getPath();
 		while (path != null && path.contains(".")) {
 			int pos = path.lastIndexOf('.');
-			addDependecy(path.substring(0, pos), property);
+			addDependency(path.substring(0, pos), property);
 			path = path.substring(0, pos);
 		}
 	}
