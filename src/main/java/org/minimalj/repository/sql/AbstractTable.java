@@ -215,28 +215,34 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void createIndexes(SqlDialect dialect) {
-		for (String indexedColumn : indexes) {
-			String indexName = sqlRepository.sqlIdentifier.index(getTableName(), indexedColumn);
-			String s = sqlRepository.sqlDialect.createIndex(indexName, getTableName(), indexedColumn, isHistorized());
-			execute(s);
-		}
+		indexes.forEach(this::createIndex);
+	}
+	
+	protected void createIndex(String indexedColumn) {
+		String indexName = sqlRepository.sqlIdentifier.index(getTableName(), indexedColumn);
+		String s = sqlRepository.sqlDialect.createIndex(indexName, getTableName(), indexedColumn, isHistorized());
+		execute(s);
 	}
 	
 	protected void createConstraints(SqlDialect dialect) {
 		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
 			Property property = column.getValue();
 			
-			Class<?> fieldClass = property.getClazz();
-			// TODO Contained könnte noch andere Felder enthalten
-			if (IdUtils.hasId(fieldClass) && !Dependable.class.isAssignableFrom(clazz)) {
-				fieldClass = ViewUtils.resolve(fieldClass);
-				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
-				if (referencedTable.isHistorized()) {
-					continue;
-				}
+			createConstraint(dialect, column.getKey(), property);
+		}
+	}
 
-				createConstraint(dialect, column.getKey(), referencedTable);
+	protected void createConstraint(SqlDialect dialect, String column, Property property) {
+		Class<?> fieldClass = property.getClazz();
+		// TODO Contained könnte noch andere Felder enthalten
+		if (IdUtils.hasId(fieldClass) && !Dependable.class.isAssignableFrom(clazz)) {
+			fieldClass = ViewUtils.resolve(fieldClass);
+			AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
+			if (referencedTable.isHistorized()) {
+				return;
 			}
+
+			createConstraint(dialect, column, referencedTable);
 		}
 	}
 

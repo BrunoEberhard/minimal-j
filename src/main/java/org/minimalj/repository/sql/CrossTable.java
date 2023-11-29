@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,11 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 		createConstraint(dialect, "elementId", referencedTable);
 	}
 
+	@Override
+	protected LinkedHashMap<String, Property> getColumns() {
+		return new LinkedHashMap<>();
+	}
+	
 	@Override
 	protected void findIndexes() {
 		// no one is pointing to a CrossTable

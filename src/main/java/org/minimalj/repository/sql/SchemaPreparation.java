@@ -17,6 +17,7 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.Codes;
 import org.minimalj.util.CsvReader;
+import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
 public enum SchemaPreparation {
@@ -28,6 +29,7 @@ public enum SchemaPreparation {
 		return this == update || this == updateWithDrops;
 	}
 
+	// TODO remove unused tables
 	public void prepare(SqlRepository repository) throws SQLException {
 		if (this == SchemaPreparation.create) {
 			repository.beforeCreateTables();
@@ -41,6 +43,20 @@ public enum SchemaPreparation {
 		}
 	}
 
+	public void execute(SqlRepository repository, String query, Serializable... parameters) {
+		execute(repository, query, false, parameters);
+	}
+	
+	public void execute(SqlRepository repository, String query, boolean isDrop, Serializable... parameters) {
+		if (query != null) {
+			if (this == updateWithDrops || !isDrop && this == update) {
+				repository.execute(query, parameters);
+			} else {
+				logger.info("NOT EXECUTING: " + query);
+			}
+		}
+	}
+	
 	// create
 
 	private void createEnums(SqlRepository repository) {
@@ -107,17 +123,9 @@ public enum SchemaPreparation {
 
 	protected void updateTables(SqlRepository repository, SchemaPreparation schemaPreparation) {
 		List<AbstractTable<?>> createdTables = new ArrayList<>();
+		List<NewColumn> newColumns = new ArrayList<>();
 		for (AbstractTable<?> table : repository.tables.values()) {
-			int count = repository.find(Integer.class, tableExists(table.clazz, table.name), 1).get(0);
-			if (count == 0) {
-				logger.info("New table: " + table.name);
-				table.createTable(repository.sqlDialect);
-				createdTables.add(table);
-			} else {
-				updateTableColumns(repository, schemaPreparation, table);
-				// TODO updateTableIndexes
-				// TODO updateTableConstraints
-			}
+			updateTable(repository, schemaPreparation, createdTables, newColumns, table);
 		}
 		for (AbstractTable<?> table : createdTables) {
 			table.createIndexes(repository.sqlDialect);
@@ -125,9 +133,39 @@ public enum SchemaPreparation {
 		for (AbstractTable<?> table : createdTables) {
 			table.createConstraints(repository.sqlDialect);
 		}
+		for (NewColumn newColumn : newColumns) {
+			newColumn.table.createConstraint(repository.sqlDialect, newColumn.name, newColumn.property);
+		}
 	}
 
-	protected void updateTableColumns(SqlRepository repository, SchemaPreparation schemaPreparation, AbstractTable<?> table) {
+	protected void updateTable(SqlRepository repository, SchemaPreparation schemaPreparation, List<AbstractTable<?>> createdTables, List<NewColumn> newColumns, AbstractTable<?> table) {
+		int count = repository.find(Integer.class, tableExists(table.clazz, table.name), 1).get(0);
+		if (count == 0) {
+			logger.info("New table: " + table.name);
+			table.createTable(repository.sqlDialect);
+			createdTables.add(table);
+		} else {
+			if (!(table instanceof CrossTable)) {
+				updateTableColumns(repository, schemaPreparation, table, newColumns);
+			}
+			if (table instanceof Table) {
+				for (Object dependableTable : ((Table) table).getDependableTables()) {
+					updateTable(repository, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) dependableTable);
+				}
+				for (Object listTable : ((Table) table).getListTables()) {
+					updateTable(repository, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) listTable);
+				}
+			}
+		}
+	}
+	
+	private static class NewColumn {
+		public AbstractTable<?> table;
+		public String name;
+		public Property property;
+	}
+
+	protected void updateTableColumns(SqlRepository repository, SchemaPreparation schemaPreparation, AbstractTable<?> table, List<NewColumn> newColumns) {
 		List<String> columnNames = repository.find(String.class, selectColumns(table.name), 10000);
 		for (Map.Entry<String, Property> column : table.getColumns().entrySet()) {
 			Property property = column.getValue();
@@ -138,16 +176,25 @@ public enum SchemaPreparation {
 				if (schemaPreparation.doUpdate()) {
 					String s = "ALTER TABLE " + table.name + " ADD COLUMN " + columnName + " "
 							+ table.getColumnDefinition(repository.sqlDialect, property);
-					repository.execute(s);
+					execute(repository, s);
 					if (notEmptyProperty) {
 						boolean possible = initializeNullValues(repository, table, property, columnName);
 						if (possible) {
 							logger.info("Make new column " + columnName + " not nullable");
-							repository.execute("ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL");
+							execute(repository, "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL");
 						} else {
 							logger.severe("New column: " + table.name + "." + columnName + " cannot set to not nullable as there is no initial value set in the class");
 						}
 					}
+					if (IdUtils.hasId(property.getClazz())) {
+						table.createIndex(columnName);
+					}
+					// defer create constraint (maybe table does not exist yet)
+					NewColumn newColumn = new NewColumn(); // convert to record
+					newColumn.name = columnName;
+					newColumn.table = table;
+					newColumn.property = property;
+					newColumns.add(newColumn);
 				}
 			} else {
 				String isNullable = repository.execute(String.class, "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
@@ -155,9 +202,8 @@ public enum SchemaPreparation {
 				if (!nullableColumn && !notEmptyProperty) {
 					logger.info("Make column nullable: " + table.name + "." + columnName);
 					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " DROP NOT NULL";
-					repository.execute(s);
+					execute(repository, s);
 				} else if (nullableColumn && notEmptyProperty) {
-					// TODO this can go wrong
 					// as above. First check if there is a null value in the db
 					// count where is null
 					// only if count > 0 check for empty value...
@@ -169,7 +215,7 @@ public enum SchemaPreparation {
 					if (possible) {
 						logger.info("Make column not nullable: " + table.name + "." + columnName);
 						String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL";
-						repository.execute(s);
+						execute(repository, s);
 					} else {
 						logger.severe("Set column " + table.name + "." + columnName + " to not nullable as there is no initial value set in the class");
 					}
@@ -183,16 +229,16 @@ public enum SchemaPreparation {
 					}
 					if (maxLength != annotatedSize) {
 						logger.info(maxLength < annotatedSize ? "Increase" : "Decrease " + table.name + "." + columnName + " to size " + annotatedSize);
-						repository.execute("ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " TYPE VARCHAR(" + annotatedSize +")");
+						execute(repository, "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " TYPE VARCHAR(" + annotatedSize +")");
 					}
 				}
 			}
 		}
 		for (String columnName : columnNames) {
-			if (!table.getColumns().containsKey(columnName) && !StringUtils.equals(columnName, "id", "version", "historized")) {
+			if (!table.getColumns().containsKey(columnName) && !StringUtils.equals(columnName, "id", "version", "historized", "position")) {
 				logger.info("Drop column: " + table.name + "." + columnName);
 				String s = "ALTER TABLE " + table.name + " DROP COLUMN " + columnName;
-				repository.execute(s);
+				execute(repository, s, true, new Serializable[0]);
 			}
 		}
 	}
@@ -201,7 +247,7 @@ public enum SchemaPreparation {
 		Object emptyValue = property.getValue(EmptyObjects.getEmptyObject(property.getDeclaringClass()));
 		if (emptyValue != null) {
 			logger.info("Initialize null values of " + table.name + "." + columnName + " to " + emptyValue);
-			repository.execute("UPDATE " + table.name + " SET " + columnName + " = ? WHERE " + columnName + " IS NULL", (Serializable) emptyValue);
+			execute(repository, "UPDATE " + table.name + " SET " + columnName + " = ? WHERE " + columnName + " IS NULL", (Serializable) emptyValue);
 			return true;
 		} else {
 			return false;
@@ -216,7 +262,7 @@ public enum SchemaPreparation {
 			if (count == 0) {
 				logger.info("New enum: " + enumIdentifier);
 				if (schemaPreparation.doUpdate()) {
-					repository.execute(repository.sqlDialect.createEnum(enumClass, enumIdentifier));
+					execute(repository, repository.sqlDialect.createEnum(enumClass, enumIdentifier));
 				}
 			} else {
 				String getEnumValues = selectEnumValues(enumClass, enumIdentifier);
@@ -226,7 +272,7 @@ public enum SchemaPreparation {
 					if (!existingEnumValues.contains(enmValue.name())) {
 						logger.info("New enum value: " + enumIdentifier + "." + enmValue.name());
 						if (schemaPreparation.doUpdate()) {
-							repository.execute(addEnumValue(enumClass, enumIdentifier, enmValue.name()));
+							execute(repository, addEnumValue(enumClass, enumIdentifier, enmValue.name()));
 						}
 					}
 				}

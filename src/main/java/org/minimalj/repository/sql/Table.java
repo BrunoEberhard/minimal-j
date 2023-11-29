@@ -324,6 +324,14 @@ public class Table<T> extends AbstractTable<T> {
 		return dependables.get(property);
 	}	
 	
+	Collection<DependableTable> getDependableTables() {
+		return dependables.values();
+	}
+
+	Collection<ListTable> getListTables() {
+		return lists.values();
+	}
+
 	protected String buildSubTableName(Property property) {
 		return getTableName() + "__" + property.getName();
 	}
