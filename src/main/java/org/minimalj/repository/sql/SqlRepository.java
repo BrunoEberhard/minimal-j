@@ -102,7 +102,12 @@ public class SqlRepository implements TransactionalRepository {
 
 	private SchemaPreparation getSchemaPreparation() throws SQLException {
 		if (Configuration.available("schemaPreparation")) {
-			return SchemaPreparation.valueOf(Configuration.get("schemaPreparation")); 
+			try {
+				return SchemaPreparation.valueOf(Configuration.get("schemaPreparation")); 
+			} catch (IllegalArgumentException x) {
+				logger.severe("Valid values for schemaPreparation: none, create, verify, update");
+				throw x;
+			}
 		}
 		// If the classes are not in the classpath a 'instanceof' would throw ClassNotFoundError
 		if (StringUtils.equals(dataSource.getClass().getName(), "org.h2.jdbcx.JdbcDataSource")) {

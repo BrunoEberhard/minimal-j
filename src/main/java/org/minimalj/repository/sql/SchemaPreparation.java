@@ -21,12 +21,12 @@ import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
 public enum SchemaPreparation {
-	none, create, verifyOnly, update, updateWithDrops;
+	none, create, verify, update;
 
 	private static final Logger logger = Logger.getLogger(SchemaPreparation.class.getName());
-
+	
 	public boolean doUpdate() {
-		return this == update || this == updateWithDrops;
+		return this == update;
 	}
 
 	// TODO remove unused tables
@@ -44,12 +44,8 @@ public enum SchemaPreparation {
 	}
 
 	public void execute(SqlRepository repository, String query, Serializable... parameters) {
-		execute(repository, query, false, parameters);
-	}
-	
-	public void execute(SqlRepository repository, String query, boolean isDrop, Serializable... parameters) {
 		if (query != null) {
-			if (this == updateWithDrops || !isDrop && this == update) {
+			if (this == update) {
 				repository.execute(query, parameters);
 			} else {
 				logger.info("NOT EXECUTING: " + query);
@@ -173,29 +169,27 @@ public enum SchemaPreparation {
 			boolean notEmptyProperty = property.getAnnotation(NotEmpty.class) != null;
 			if (!columnNames.contains(columnName)) {
 				logger.info("New column: " + table.name + "." + columnName);
-				if (schemaPreparation.doUpdate()) {
-					String s = "ALTER TABLE " + table.name + " ADD COLUMN " + columnName + " "
-							+ table.getColumnDefinition(repository.sqlDialect, property);
-					execute(repository, s);
-					if (notEmptyProperty) {
-						boolean possible = initializeNullValues(repository, table, property, columnName);
-						if (possible) {
-							logger.info("Make new column " + columnName + " not nullable");
-							execute(repository, "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL");
-						} else {
-							logger.severe("New column: " + table.name + "." + columnName + " cannot set to not nullable as there is no initial value set in the class");
-						}
+				String s = "ALTER TABLE " + table.name + " ADD COLUMN " + columnName + " "
+						+ table.getColumnDefinition(repository.sqlDialect, property);
+				execute(repository, s);
+				if (notEmptyProperty) {
+					boolean possible = initializeNullValues(repository, table, property, columnName);
+					if (possible) {
+						logger.info("Make new column " + columnName + " not nullable");
+						execute(repository, "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " SET NOT NULL");
+					} else {
+						logger.severe("New column: " + table.name + "." + columnName + " cannot set to not nullable as there is no initial value set in the class");
 					}
-					if (IdUtils.hasId(property.getClazz())) {
-						table.createIndex(columnName);
-					}
-					// defer create constraint (maybe table does not exist yet)
-					NewColumn newColumn = new NewColumn(); // convert to record
-					newColumn.name = columnName;
-					newColumn.table = table;
-					newColumn.property = property;
-					newColumns.add(newColumn);
 				}
+				if (IdUtils.hasId(property.getClazz()) && doUpdate()) {
+					table.createIndex(columnName);
+				}
+				// defer create constraint (maybe table does not exist yet)
+				NewColumn newColumn = new NewColumn(); // convert to record
+				newColumn.name = columnName;
+				newColumn.table = table;
+				newColumn.property = property;
+				newColumns.add(newColumn);
 			} else {
 				String isNullable = repository.execute(String.class, "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
 				boolean nullableColumn = "yes".equalsIgnoreCase(isNullable);
@@ -238,7 +232,7 @@ public enum SchemaPreparation {
 			if (!table.getColumns().containsKey(columnName) && !StringUtils.equals(columnName, "id", "version", "historized", "position")) {
 				logger.info("Drop column: " + table.name + "." + columnName);
 				String s = "ALTER TABLE " + table.name + " DROP COLUMN " + columnName;
-				execute(repository, s, true, new Serializable[0]);
+				execute(repository, s, new Serializable[0]);
 			}
 		}
 	}
@@ -295,10 +289,6 @@ public enum SchemaPreparation {
 	protected String addEnumValue(Class<?> clazz, String enumIdentifier, String value) {
 		return "ALTER TYPE " + enumIdentifier + " ADD VALUE '" + value + "'";
 	}
-
-//	protected String columnExists(String tableIdentifier, String columnIdentifier) {
-//		return "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = current_schema AND table_name = '" + tableIdentifier + "'" + " AND column_name = '" + columnIdentifier + "'";
-//	}
 
 	protected String selectColumns(String tableIdentifier) {
 		return "SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema AND table_name = '" + tableIdentifier + "'";
