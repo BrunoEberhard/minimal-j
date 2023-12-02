@@ -4,8 +4,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -68,6 +70,49 @@ public class EnumUtils {
 	public static <T extends Enum<T>> String getDescription(T enumElement) {
 		return getText(enumElement, true);
 	}
+	
+	private enum EnumTextCache {
+		instance;
+		
+		public Map<Locale, Map<Object, String>> cacheText = Collections.synchronizedMap(new HashMap<>());
+		public Map<Locale, Map<Object, String>> cacheDescription = Collections.synchronizedMap(new HashMap<>());
+		
+		public <T extends Enum<T>> String get(T enumElement, boolean description) {
+			Map<Locale, Map<Object, String>> cache = description ? cacheDescription : cacheText;
+			Map<Object, String> cacheByLocale = cache.computeIfAbsent(LocaleContext.getCurrent(), l -> Collections.synchronizedMap(new HashMap<>()));
+			return cacheByLocale.computeIfAbsent(enumElement, e -> getText(enumElement, description));
+		}
+		
+		private static <T extends Enum<T>> String getText(T enumElement, boolean description) {
+			String name = enumElement.name();
+			
+			String bundleName = enumElement.getClass().getName();
+			while (true) {
+				try {
+					ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName, LocaleContext.getCurrent());
+					return resourceBundle.getString(name);
+				} catch (MissingResourceException mre) {
+					int pos = bundleName.lastIndexOf('$');
+					if (pos < 0) break;
+					bundleName = bundleName.substring(0, pos);
+				}
+			}
+			
+			String resourceName = enumElement.getClass().getName() + "." + name;
+			if (Resources.isAvailable(resourceName)) {
+				return Resources.getString(resourceName);
+			}
+			resourceName = enumElement.getClass().getSimpleName() + "." + name;
+			if (Resources.isAvailable(resourceName)) {
+				return Resources.getString(resourceName);
+			}
+			resourceName = name;
+			if (Resources.isAvailable(resourceName)) {
+				return Resources.getString(resourceName);
+			}
+			return description ? null : enumElement.name();
+		}
+	}
 
 	private static <T extends Enum<T>> String getText(T enumElement, boolean description) {
 		if (enumElement == null) {
@@ -81,33 +126,7 @@ public class EnumUtils {
 			}
 		}
 		
-		String postfix = description ? ".description" : "";
-		
-		String bundleName = enumElement.getClass().getName();
-		while (true) {
-			try {
-				ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleName, LocaleContext.getCurrent());
-				return resourceBundle.getString(enumElement.name() + postfix);
-			} catch (MissingResourceException mre) {
-				int pos = bundleName.lastIndexOf('$');
-				if (pos < 0) break;
-				bundleName = bundleName.substring(0, pos);
-			}
-		}
-		
-		String resourceName = enumElement.getClass().getName() + "." + enumElement.name() + postfix;
-		if (Resources.isAvailable(resourceName)) {
-			return Resources.getString(resourceName);
-		}
-		resourceName = enumElement.getClass().getSimpleName() + "." + enumElement.name() + postfix;
-		if (Resources.isAvailable(resourceName)) {
-			return Resources.getString(resourceName);
-		}
-		resourceName = enumElement.name() + postfix;
-		if (Resources.isAvailable(resourceName)) {
-			return Resources.getString(resourceName);
-		}
-		return description ? null : enumElement.name();
+		return EnumTextCache.instance.get(enumElement, description);
 	}
 
 //	private static <T> Map<Class<T>, List<CodeItem<T>>> itemLists = new HashMap<Class<T>, List<CodeItem<T>>>();
