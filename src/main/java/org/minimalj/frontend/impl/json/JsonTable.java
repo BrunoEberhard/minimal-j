@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.json;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,6 +101,10 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 		public boolean isFilterVisible() {
 			return Boolean.TRUE.equals(get("filterVisible"));
+		}
+		
+		public boolean hasActiveFilter() {
+			return Arrays.stream(filters).anyMatch(ColumnFilter::active);
 		}
 	}
 	
@@ -357,17 +362,23 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	public void setFilterVisible(boolean visible) {
-		tableModel.put("filterVisible", visible);
-
-		if (visible) {
-			for (int column = 0; column < tableModel.filters.length; column++) {
-				ValidationMessage validationMessage = tableModel.filters[column].validate();
-				((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+		boolean previousVisible = tableModel.isFilterVisible();
+		boolean previousVisibleAndActive = previousVisible && tableModel.hasActiveFilter();
+		
+		if (previousVisible != visible) {
+			tableModel.put("filterVisible", visible);
+			
+			if (visible) {
+				for (int column = 0; column < tableModel.filters.length; column++) {
+					ValidationMessage validationMessage = tableModel.filters[column].validate();
+					((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+				}
 			}
 		}
-
-		page = 0;
-		setObjects(objects);
+		if (previousVisibleAndActive != visible) {
+			page = 0;
+			setObjects(objects);
+		}
 	}
 
 	public String export() {
