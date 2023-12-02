@@ -59,6 +59,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	public class JsonTableModel extends HashMap<String, Object> {
+		private static final long serialVersionUID = 1L;
+
 		private final Object[] keys;
 		private final List<Property> properties;
 		private final ColumnFilter[] filters;
@@ -104,7 +106,9 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static String alignment(Property property) {
 		if (property instanceof Column) {
 			ColumnAlignment alignment = ((Column<?, ?>) property).getAlignment();
-			return alignment != null ? alignment.name() : null;
+			if (alignment != null) {
+				return alignment.name();
+			}
 		} 
 		if (Number.class.isAssignableFrom(property.getClazz())) {
 			return ColumnAlignment.end.name();
