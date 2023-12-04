@@ -217,19 +217,24 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	protected Connection allocateConnection(int transactionIsolationLevel) {
+		logger.finest(() -> "Current connections in pool " + connectionDeque.size());
 		Connection connection = connectionDeque.poll();
 		while (true) {
 			boolean valid = false;
 			try {
 				valid = connection != null && connection.isValid(0);
 			} catch (SQLException x) {
-				// ignore
-			}
-			if (valid) {
-				return connection;
+				try {
+					logger.warning("connection.isValid failed: " + x.getLocalizedMessage());
+					connection.close();
+				} catch (Exception x2) {
+					logger.log(Level.WARNING, "connection.close failed", x);
+				}
 			}
 			try {
-				connection = dataSource.getConnection();
+				if (!valid) {
+					connection = dataSource.getConnection();
+				}
 				if (transactionIsolationLevel != Connection.TRANSACTION_NONE) {
 					connection.setTransactionIsolation(transactionIsolationLevel);
 					connection.setAutoCommit(false);
