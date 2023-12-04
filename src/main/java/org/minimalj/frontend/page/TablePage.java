@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
@@ -13,6 +14,8 @@ import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.editor.Result;
+import org.minimalj.model.Keys;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -64,6 +67,10 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		return null;
 	}
 
+	protected boolean immediateRefresh() {
+		return true;
+	}
+
 	@Override
 	public String getTitle() {
 		String title = Resources.getStringOrNull(getClass());
@@ -84,32 +91,46 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 			table = Frontend.getInstance().createTable(columns, multiSelect, this);
 			this.table = new SoftReference<>(table);
 		}
-		table.setObjects(load());
+		refresh();
 
 		FormContent overview = getOverview();
 		if (overview != null) {
-			return Frontend.getInstance().createFormTableContent(overview, table);
+			Action refreshAction = null;
+			if (!immediateRefresh()) {
+				refreshAction = new Action(Resources.getString("RefreshAction")) {
+					@Override
+					public void run() {
+						refresh();
+					};
+				};
+			}
+			return Frontend.getInstance().createFilteredTable(overview, table, refreshAction, null);
 		} else {
 			return table;
 		}
 	}
+
+//	@Override
+//	public int getMaxWidth() {
+//		int maxWidth = 0;
+//		for (Object column : columns) {
+//			Property property = Keys.getProperty(column);
+//			maxWidth += ListUtil.maxWidth(property);
+//		}
+//		return maxWidth + columns.length * 6;
+//	}
 	
-	@Override
-	public int getMinWidth() {
-		return columns.length * 100;
-	}
-
-	@Override
-	public int getMaxWidth() {
-		return columns.length * 200;
-	}
-
 	@Override
 	public final List<Action> getActions() {
 		List<Action> actions = this.actions != null ? this.actions.get() : null;
 		if (actions == null) {
 			actions = getTableActions();
 			this.actions = new SoftReference<>(actions);
+			actions.forEach(a -> {
+				if (a instanceof Result) {
+					((Result<?>) a).setFinishedListener(result -> refresh());
+				}
+			});
 		}
 		return actions;
 	}
@@ -121,8 +142,18 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	public void refresh() {
 		ITable<T> table = this.table != null ? this.table.get() : null;
 		if (table != null) {
+			Object[] newColumns = getColumns();
+			if (!Keys.equalsIdentity(columns, newColumns)) {
+				table.setColumns(newColumns);
+				columns = newColumns;
+			}
 			table.setObjects(load());
 		}
+	}
+	
+	public void resetPage() {
+		this.table = null;
+		this.actions = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -130,9 +161,12 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	public void selectionChanged(List<T> selectedObjects) {
 		List<Action> actions = this.actions != null ? this.actions.get() : null;
 		if (actions != null) {
+			T selectedObject = selectedObjects.isEmpty() ? null : selectedObjects.get(0);
 			for (Action action : actions) {
-				if (action instanceof TableSelectionAction) {
-					((TableSelectionAction<T>) action).selectionChanged(selectedObjects);
+				if (action instanceof ObjectsAction) {
+					((ObjectsAction<T>) action).selectionChanged(selectedObjects);
+				} else if (action instanceof ObjectAction) {
+					((ObjectAction<T>) action).selectionChanged(selectedObject);
 				}
 			}
 		}
@@ -140,52 +174,98 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	
 	//
 
-	public interface TableSelectionAction<T> {
+	public interface ObjectsAction<T> {
 		
 		public abstract void selectionChanged(List<T> selectedObjects);
-		
-		public default void setObject(T selectedObject) {
-			selectionChanged(selectedObject != null ? Arrays.asList(selectedObject) : Collections.emptyList());
-		}
 	}
-	
-	public static abstract class BaseTableSelectionAction<U> extends Action implements TableSelectionAction<U> {
-		private List<U> selectedObjects;
+
+	public interface ObjectAction<T> {
 		
-		public BaseTableSelectionAction() {
+		public abstract void selectionChanged(T selectedObject);
+	}
+
+	public static abstract class AbstractObjectsAction<U> extends Action implements ObjectsAction<U>, Result<List<U>> {
+		private Consumer<List<U>> finishedListener;
+		private List<U> selectedObjects;
+
+		public AbstractObjectsAction() {
 			selectionChanged(Collections.emptyList());
 		}
 		
 		public List<U> getSelectedObjects() {
 			return selectedObjects;
 		}
+
+		public void setFinishedListener(Consumer<List<U>> finishedListener) {
+			this.finishedListener = finishedListener;
+		}
+
+		public Consumer<List<U>> getFinishedListener() {
+			return finishedListener;
+		}
+		
+		@Override
+		public final boolean isEnabled() {
+			return super.isEnabled();
+		}
+		
+		@Override
+		public final void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+		}
 		
 		@Override
 		public void selectionChanged(List<U> selectedObjects) {
 			this.selectedObjects = selectedObjects;
-			setEnabled(!selectedObjects.isEmpty());
+			setEnabled(accept(selectedObjects));
+		}
+
+		protected boolean accept(List<U> selectedObjects) {
+			return !selectedObjects.isEmpty();
 		}
 	}
 	
-	public static abstract class ObjectTableSelectionAction<U> extends Action implements TableSelectionAction<U> {
+	public static abstract class AbstractObjectAction<U> extends Action implements ObjectAction<U>, Result<U> {
 		private U selectedObject;
-		
-		public ObjectTableSelectionAction() {
-			selectionChanged(Collections.emptyList());
+		private Consumer<U> finishedListener;
+
+		public AbstractObjectAction() {
+			setEnabled(false);
 		}
 		
 		public U getSelectedObject() {
 			return selectedObject;
 		}
+
+		@Override
+		public void setFinishedListener(Consumer<U> finishedListener) {
+			this.finishedListener = finishedListener;
+		}
+		
+		public Consumer<U> getFinishedListener() {
+			return finishedListener;
+		}
 		
 		@Override
-		public void selectionChanged(List<U> selectedObjects) {
-			if (selectedObjects.size() == 1) {
-				this.selectedObject = selectedObjects.get(0);
-			} else {
-				this.selectedObject = null;
+		public final boolean isEnabled() {
+			return super.isEnabled();
+		}
+		
+		@Override
+		public final void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+		}
+		
+		@Override
+		public void selectionChanged(U selectedObject) {
+			if (this.selectedObject != selectedObject) {
+				this.selectedObject = selectedObject;
+				setEnabled(accept(selectedObject));
 			}
-			setEnabled(selectedObject != null);
+		}
+
+		protected boolean accept(U selectedObject) {
+			return selectedObject != null;
 		}
 	}
 	
@@ -195,7 +275,7 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		}
 	}
 
-	public class DeleteDetailAction extends BaseTableSelectionAction<T> {
+	public class DeleteDetailAction extends AbstractObjectsAction<T> {
 		
 		@Override
 		protected Object[] getNameArguments() {

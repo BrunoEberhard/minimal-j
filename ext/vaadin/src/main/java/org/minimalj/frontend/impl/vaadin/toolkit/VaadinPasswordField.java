@@ -15,6 +15,7 @@ import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.KeyPressEvent;
 import com.vaadin.flow.component.KeyUpEvent;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
 
 /**
@@ -74,8 +75,13 @@ public class VaadinPasswordField implements PasswordField, KeyNotifier, HasCapti
 		}
 	}
 
+	@Override
+	public Element getElement() {
+		return field.getElement();
+	}
+	
     @Override
-    public void setLabel(String label) {
+    public void setCaption(String label) {
         field.setLabel(label);
     }
 

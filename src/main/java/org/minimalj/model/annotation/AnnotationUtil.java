@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 
 public class AnnotationUtil {
@@ -14,11 +14,11 @@ public class AnnotationUtil {
 	
 	public static final boolean OPTIONAL = true;
 	
-	public static int getSize(PropertyInterface property) {
+	public static int getSize(Property property) {
 		return getSize(property, !OPTIONAL);
 	}
 	
-	public static int getSize(PropertyInterface property, boolean optional) {
+	public static int getSize(Property property, boolean optional) {
 		Size size = property.getAnnotation(Size.class);
 		if (size != null) {
 			return size.value();
@@ -63,7 +63,7 @@ public class AnnotationUtil {
 		}
 	}
 		
-	public static int getDecimal(PropertyInterface property) {
+	public static int getDecimal(Property property) {
 		Decimal decimal = property.getAnnotation(Decimal.class);
 		if (decimal != null) {
 			return decimal.value();
@@ -72,7 +72,7 @@ public class AnnotationUtil {
 		}
 	}
 
-	public static int getMinDecimals(PropertyInterface property) {
+	public static int getMinDecimals(Property property) {
 		Decimal decimal = property.getAnnotation(Decimal.class);
 		if (decimal != null) {
 			return decimal.minDecimals();
@@ -82,20 +82,20 @@ public class AnnotationUtil {
 	}
 
 	public static <T extends Annotation> T get(Class<T> annotationClass, Object key) {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
 		return property.getAnnotation(annotationClass);
 	}
 		
-	public static boolean isSigned(PropertyInterface property) {
+	public static boolean isSigned(Property property) {
 		return property.getAnnotation(Signed.class) != null;
 	}
 
 	/**
-	 * @param clazz inspected class
+	 * @param clazz           inspected class
 	 * @param annotationClass the annotation to get
-	 * @param <A> type
-	 * @return the annotation on the class itself or if not available the
-	 *         annotation for the (direct) package of the class
+	 * @param <A>             type
+	 * @return the annotation on the class itself or if not available the annotation
+	 *         for the (direct) package of the class
 	 */
 	public static <A extends Annotation> A getAnnotationOfClassOrPackage(Class<?> clazz, Class<A> annotationClass) {
 		A annotation = clazz.getAnnotation(annotationClass);
@@ -106,5 +106,26 @@ public class AnnotationUtil {
 		}
 	}
 	
-
+	/**
+	 * @param clazz           inspected class
+	 * @param annotationClass the annotation to find
+	 * @return true if the annotation is present on the class, on one of its superclasses or on one of its implemented interfaces
+	 */
+	public static boolean isAnnotationPresentOrInherited(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+		if (clazz.isAnnotationPresent(annotationClass)) {
+			return true;
+		}
+		if (clazz.getSuperclass() != null) {
+			if (isAnnotationPresentOrInherited(clazz.getSuperclass(), annotationClass)) {
+				return true;
+			}
+		} 
+		for (Class<?> interfce : clazz.getInterfaces()) {
+			if (isAnnotationPresentOrInherited(interfce, annotationClass)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 }

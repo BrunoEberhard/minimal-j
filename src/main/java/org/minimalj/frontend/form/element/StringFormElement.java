@@ -7,7 +7,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Autocomplete;
 import org.minimalj.model.annotation.Autocomplete.Autocompletable;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 
 public class StringFormElement extends  AbstractFormElement<String> implements Enable {
@@ -23,11 +23,11 @@ public class StringFormElement extends  AbstractFormElement<String> implements E
 		this(Keys.getProperty(key), lines);
 	}
 
-	public StringFormElement(PropertyInterface property) {
+	public StringFormElement(Property property) {
 		this(property, AnnotationUtil.getSize(property) < 256 ? SINGLE_LINE : MULTI_LINE);
 	}
 	
-	public StringFormElement(PropertyInterface property, int lines) {
+	public StringFormElement(Property property, int lines) {
 		super(property);
 		this.lines = lines;
 		this.maxLength = AnnotationUtil.getSize(property);

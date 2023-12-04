@@ -1,23 +1,31 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
+import org.apache.commons.lang3.StringUtils;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
-import org.minimalj.frontend.page.IDialog;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.dom.ElementConstants;
 
-public class VaadinDialog extends Dialog implements IDialog {
+public class VaadinDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
 	
-	private final Action saveAction, closeAction;
+	private final Action saveAction, cancelAction;
 	
-	public VaadinDialog(String title, Component component, Action saveAction, Action closeAction, Action... actions) {
-		super(new VaadinEditorLayout(title, component, saveAction, closeAction, actions));
-
-		this.saveAction = saveAction;
-		this.closeAction = closeAction;
+	public VaadinDialog(org.minimalj.frontend.page.Page.Dialog dialog) {
+		setHeaderTitle(dialog.getTitle());
+		
+		add((Component) dialog.getContent());
+		for (Action action : dialog.getActions()) {
+			getFooter().add(createButton(action, action == dialog.getSaveAction()));
+		}
+		
+		this.saveAction = dialog.getSaveAction();
+		this.cancelAction = dialog.getCancelAction();
 
 		setCloseOnEsc(true);
 		setCloseOnOutsideClick(false);
@@ -26,11 +34,12 @@ public class VaadinDialog extends Dialog implements IDialog {
 
         getElement().executeJs("this.$.overlay.$.overlay.style[$0]=$1", ElementConstants.STYLE_MAX_HEIGHT, "97%");
 
-		if (closeAction != null) {
+		if (cancelAction != null) {
 			addDialogCloseActionListener(new VaadinDialogListener());
 		}
 
 //		TODO: VaadinComponentWithWidth componentWithWidth = findComponentWithWidth(content);
+		IContent component = dialog.getContent();
         if (component instanceof VaadinFormContent) {
             VaadinFormContent form = (VaadinFormContent) component;
 
@@ -41,13 +50,45 @@ public class VaadinDialog extends Dialog implements IDialog {
 		open();
 	}
 	
+	private Button createButton(Action action, boolean save) {
+		Button button = new Button(action.getName());
+		button.setEnabled(action.isEnabled());
+		if (!StringUtils.isEmpty(action.getDescription())) {
+			button.getElement().setAttribute("title", action.getDescription());
+		}
+		button.setMinWidth("10em");
+		if (save) {
+			button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		}
+		// installShortcut(button, action);
+		button.addClickListener(event -> action.run());
+		installActionListener(action, button);
+		return button;
+	}
+	
+	private static void installActionListener(final Action action, final Button button) {
+		action.setChangeListener(new Action.ActionChangeListener() {
+			
+			@Override
+			public void change() {
+				button.setEnabled(action.isEnabled());
+				button.setText(action.getName());
+				if (!StringUtils.isEmpty(action.getDescription())) {
+					button.getElement().setAttribute("title", action.getDescription());
+				} else {
+					button.getElement().removeAttribute("title");
+				}
+			}
+		});
+	}
+	
 	private class VaadinDialogListener implements ComponentEventListener<DialogCloseActionEvent> {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void onComponentEvent(DialogCloseActionEvent event) {
-			closeAction.run();
+			cancelAction.run();
 		}
 	}
 	
@@ -55,10 +96,10 @@ public class VaadinDialog extends Dialog implements IDialog {
 		return saveAction;
 	}
 	
-	@Override
-	public void closeDialog() {
-		super.close();
-	}
+//	@Override
+//	public Action getCancelAction() {
+//		return cancelAction;
+//	}
 	
 //	private static VaadinComponentWithWidth findComponentWithWidth(Component c) {
 //		if (c instanceof VaadinComponentWithWidth) {

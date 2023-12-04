@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.function.Predicate;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
@@ -120,7 +120,7 @@ public class ComparableRange implements Predicate<Object> {
 		return c1.compareTo(c2);
 	}
 	
-	public Criteria getCriteria(PropertyInterface property) {
+	public Criteria getCriteria(Property property) {
 		if (valid()) {
 			return By.field(property, FieldOperator.greaterOrEqual, value1).and(By.field(property, FieldOperator.lessOrEqual, value2));
 		} else {

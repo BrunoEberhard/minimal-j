@@ -18,10 +18,12 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.form.element.ComboBoxFormElement;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.DateUtils;
 import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
@@ -109,7 +111,7 @@ public class JsonFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new JsonCombobox<>(objects, null, changeListener);
+		return new JsonCombobox<>(objects, ComboBoxFormElement.EMPTY_NULL_STRING, changeListener);
 	}
 
 	@Override
@@ -128,14 +130,8 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
-	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new JsonSearchTable<>(getClientSession(), search, keys, multiSelect, listener);
-	}
-
-	@Override
-	public IContent createFormTableContent(FormContent form, ITable<?> table) {
-		((JsonTable<?>) table).put("overview", form);
-		return table;
+	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
+		return new JsonCustomFilter(filter, table, search, reset);
 	}
 
 	@Override
@@ -174,11 +170,6 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public FormContent createFormContent(List<Integer> columnWidths) {
-		return new JsonFormContent(columnWidths);
-	}
-
-	@Override
 	public SwitchContent createSwitchContent() {
 		return new JsonSwitch(getClientSession());
 	}
@@ -203,6 +194,10 @@ public class JsonFrontend extends Frontend {
 		getClientSession().show(url);
 	}
 
+	public void showNewTab(String url) {
+		((JsonPageManager) getClientSession()).showNewTab(url);
+	}
+	
 	@Override
 	public IContent createQueryContent() {
 		String caption = Resources.getString("Application.queryCaption", Resources.OPTIONAL);
@@ -233,7 +228,7 @@ public class JsonFrontend extends Frontend {
 		String[] customCss = Configuration.get("MjCss", "").split(",");
 		StringBuilder s = new StringBuilder(100);
 		Arrays.stream(customCss).forEach(css -> {
-			s.append("<link rel=\"stylesheet\" href=\"" + css + "\" />\n");
+			s.append("<link rel=\"stylesheet\" href=\"" + css.trim() + "\" />\n");
 		});
 		return s.toString();
 	}
@@ -246,9 +241,11 @@ public class JsonFrontend extends Frontend {
 			MINIMALJ_VERSION = "Development";
 		}
 		
+		// Implementation Version has to be included in the manifest
+		// see https://stackoverflow.com/questions/921667/how-do-i-add-an-implementation-version-value-to-a-jar-manifest-using-maven
 		APPLICATION_VERSION = Application.getInstance().getClass().getPackage().getImplementationVersion();
 		if (APPLICATION_VERSION == null) {
-			APPLICATION_VERSION = "Development " + LocalDateTime.now();
+			APPLICATION_VERSION = "Development " + DateUtils.format(LocalDateTime.now(), null);
 		}
 	}
 	

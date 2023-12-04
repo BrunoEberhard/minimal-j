@@ -1,14 +1,12 @@
 package org.minimalj.security.model;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 
-public class User {
+public class User implements UserData {
 	public static final User $ = Keys.of(User.class);
 	
 	public Object id;
@@ -19,20 +17,24 @@ public class User {
 	public final Password password = new Password();
 	
 	public List<UserRole> roles = new ArrayList<>();
+
+	@Override
+	public Object getId() {
+		return id;
+	}
 	
-	public String format() {
-		StringBuilder s = new StringBuilder();
-		s.append(name).append(" = ");
-		s.append(Base64.getEncoder().encodeToString(password.hash)).append(", ");
-		s.append(Base64.getEncoder().encodeToString(password.salt));
-		for (UserRole role : roles) {
-			s.append(", ").append(role.name);
-		}
-		return s.toString();
+	@Override
+	public String getName() {
+		return name;
 	}
-
-	public List<String> getRoleNames() {
-		return roles.stream().map(role -> role.name).collect(Collectors.toList());
+	
+	@Override
+	public Password getPassword() {
+		return password;
 	}
-
+	
+	@Override
+	public List<UserRole> getRoles() {
+		return roles;
+	}
 }

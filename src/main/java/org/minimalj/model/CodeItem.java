@@ -1,5 +1,7 @@
 package org.minimalj.model;
 
+import java.util.Objects;
+
 /**
  * Internal framework class. Don't use it directly!
  * 
@@ -53,7 +55,7 @@ public class CodeItem<E> implements Rendering {
 			return false;
 		}
 		CodeItem other = (CodeItem) obj;
-		return key.equals(other.key);
+		return Objects.equals(key, other.key);
 	}
 
 	@Override

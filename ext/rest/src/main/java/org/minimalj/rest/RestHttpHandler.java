@@ -14,12 +14,14 @@ import java.util.UUID;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.minimalj.application.Application;
+//import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.impl.web.MjHttpExchange;
 import org.minimalj.frontend.impl.web.MjHttpHandler;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.model.Api;
+import org.minimalj.model.Model;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.rest.openapi.OpenAPIFactory;
@@ -36,23 +38,28 @@ import org.minimalj.util.resources.Resources;
 public class RestHttpHandler implements MjHttpHandler {
 
 	private final MjHttpHandler next;
+	private final Model model;
 	private final Map<String, Class<?>> classByName = new HashMap<>();
 
 	public RestHttpHandler() {
 		this(null);
 	}
-	
+
 	public RestHttpHandler(MjHttpHandler next) {
+		this(Application.getInstance(), next);
+	}
+	
+	public RestHttpHandler(Model model, MjHttpHandler next) {
+		this.model = model;
 		this.next = next;
-		Application application = Application.getInstance();
 		
-		MjModel mjModel = new MjModel(application.getEntityClasses());
+		MjModel mjModel = new MjModel(model.getEntityClasses());
 		for (MjEntity entity : mjModel.entities) {
 			classByName.put(entity.getClassName(), entity.getClazz());
 		}
 		
-		if (application instanceof Api) {
-			Api api = (Api) application;
+		if (model instanceof Api) {
+			Api api = (Api) model;
 			Class<?>[] transactionClasses = api.getTransactionClasses();
 			for (Class<?> transactionClass : transactionClasses) {
 				if (!Transaction.class.isAssignableFrom(transactionClass)) {
@@ -61,23 +68,6 @@ public class RestHttpHandler implements MjHttpHandler {
 				classByName.put(transactionClass.getSimpleName(), transactionClass);
 			}
 		}
-	}
-
-	protected Map<String, Class<?>> initClassMap() {
-		Map<String, Class<?>> classByName = new HashMap<>();
-		MjModel model = new MjModel(Application.getInstance().getEntityClasses());
-		for (MjEntity entity : model.entities) {
-			classByName.put(entity.getClassName(), entity.getClazz());
-		}
-		if (Application.getInstance() instanceof Api) {
-			Api mjApi = (Api) Application.getInstance();
-			Class<?>[] transactionClasses = mjApi.getTransactionClasses();
-			for (Class<?> transactionClass : transactionClasses) {
-				classByName.put(transactionClass.getSimpleName(), transactionClass);
-			}
-		}
-		
-		return classByName;
 	}
 	
 	@Override
@@ -126,7 +116,7 @@ public class RestHttpHandler implements MjHttpHandler {
 					}
 					return;
 				} else if (StringUtils.equals("swagger.json", pathElements[1])) {
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, new OpenAPIFactory().create(Application.getInstance()), "text/json");
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, new OpenAPIFactory().create(model), "text/json");
 					return;
 				} else {
 					int pos = uriString.lastIndexOf('.');

@@ -11,7 +11,7 @@ import org.minimalj.frontend.form.element.AbstractLookupFormElement.LookupParser
 import org.minimalj.frontend.form.element.CheckBoxFormElement.CheckBoxProperty;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
@@ -22,11 +22,11 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 	private final Class enumClass;
 	private final Collection allowedValues;
 	
-	public EnumSetFormElement(PropertyInterface property, boolean editable) {
+	public EnumSetFormElement(Property property, boolean editable) {
 		this(property, null, editable);
 	}
 	
-	public EnumSetFormElement(PropertyInterface property, E allowedValues, boolean editable) {
+	public EnumSetFormElement(Property property, E allowedValues, boolean editable) {
 		super(property, editable);
 		this.enumClass = property.getGenericClass();
 		this.allowedValues = allowedValues != null ? allowedValues : EnumUtils.valueList(enumClass);

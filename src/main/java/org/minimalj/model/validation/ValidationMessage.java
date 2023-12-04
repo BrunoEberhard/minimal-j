@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.StringUtils;
 
 /**
@@ -14,8 +14,8 @@ import org.minimalj.util.StringUtils;
  */
 public class ValidationMessage {
 
-	private String formattedText;
-	private Object key;
+	private final String formattedText;
+	private final Object key;
 
 	public ValidationMessage(Object key, String formattedText) {
 		this.key = key;
@@ -30,9 +30,9 @@ public class ValidationMessage {
 		return key;
 	}
 
-	public PropertyInterface getProperty() {
-		if (key instanceof PropertyInterface) {
-			return (PropertyInterface) key;
+	public Property getProperty() {
+		if (key instanceof Property) {
+			return (Property) key;
 		} else {
 			return Keys.getProperty(key);
 		}
@@ -43,7 +43,7 @@ public class ValidationMessage {
 		return "ValidationMessage [key=" + key + ", formattedText=" + formattedText + "]";
 	}
 
-	public static List<ValidationMessage> filterValidationMessage(List<ValidationMessage> validationMessages, PropertyInterface property) {
+	public static List<ValidationMessage> filterValidationMessage(List<ValidationMessage> validationMessages, Property property) {
 		List<ValidationMessage> filteredMessages = new ArrayList<>();
 		if (validationMessages != null) {
 			for (ValidationMessage validationMessage : validationMessages) {
@@ -55,7 +55,7 @@ public class ValidationMessage {
 		return filteredMessages;
 	}
 
-	private static boolean equalsOrParent(PropertyInterface p1, PropertyInterface p2) {
+	private static boolean equalsOrParent(Property p1, Property p2) {
 		if (p1 != null && p2 != null) {
 			String path1 = p1.getPath();
 			String path2 = p2.getPath();

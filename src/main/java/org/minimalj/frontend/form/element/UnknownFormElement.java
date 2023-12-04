@@ -1,6 +1,6 @@
 package org.minimalj.frontend.form.element;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 /**
  * If no FormElement class is found for a property then a TypeUnknownField
@@ -9,7 +9,7 @@ import org.minimalj.model.properties.PropertyInterface;
  */
 public class UnknownFormElement extends TextFormElement {
 
-	public UnknownFormElement(PropertyInterface property) {
+	public UnknownFormElement(Property property) {
 		super(property);
 	}
 	

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
@@ -14,7 +15,7 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -42,16 +43,23 @@ public class MjProperty {
 	public Boolean autoIncrement;
 	public TechnicalFieldType technical;
 	public String enabled;
+	@Size(1024)
+	public String comment;
 	
 	public MjProperty() {
 		//
 	}
 	
-	public MjProperty(MjModel model, Field field) {
+	public MjProperty(MjModel model, Class<?> clazz, Field field) {
 		name = field.getName();
 		this.propertyType = propertyType(field);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
-			this.type = model.getOrCreateEntity(GenericUtils.getGenericClass(field));
+			Class<?> collectedClass = GenericUtils.getGenericClass(clazz, field);
+			if (collectedClass == null) {
+				// Happens for parametrized types
+				throw new IllegalArgumentException("Collected class not found for " + clazz.getSimpleName() + "." + field.getName());
+			}
+			this.type = model.getOrCreateEntity(collectedClass);
 		} else if (!FieldUtils.isAllowedPrimitive(field.getType())) {
 			this.type = model.getOrCreateEntity(field.getType());
 		} else {
@@ -67,11 +75,13 @@ public class MjProperty {
 		}
 		TechnicalField technicalFieldAnnotation = field.getAnnotation(TechnicalField.class);
 		this.technical = technicalFieldAnnotation != null ? technicalFieldAnnotation.value() : null;
+		Comment commentAnnotation = field.getAnnotation(Comment.class);
+		this.comment = commentAnnotation != null ? commentAnnotation.value() : null;
 	}
 	
 	public MjProperty(MjModel model, Method method) {
 		name = StringUtils.lowerFirstChar(method.getName().substring(3));
-		PropertyInterface property = new Keys.MethodProperty(method.getReturnType(), name, method, null);
+		Property property = new Keys.MethodProperty(method.getReturnType(), name, method, null);
 		
 		Class<?> returnType = method.getReturnType();
 		this.propertyType = propertyType(returnType, false);

@@ -57,7 +57,7 @@ public class MinimalClinicApplication extends Application {
 	
 	@Override
 	public Page createDefaultPage() {
-		return new WebApplicationPage("/intro.html");
+		return new WebApplicationPage("intro.html");
 	}
 	
 	@Override

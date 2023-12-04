@@ -25,19 +25,19 @@ public class ActionGroup extends Action {
 		items.add(item);
 	}
 
-	public void add(Page page) {
-		items.add(new PageAction(page));
+	public final void add(Page page) {
+		add((Action) new PageAction(page));
 	}
 
-	public void add(Editor<?, ?> item) {
-		items.add(item);
+	public final void add(Editor<?, ?> item) {
+		add((Action) item);
 	}
 
-	public void add(Page page, String name) {
-		items.add(new PageAction(page, name));
+	public final void add(Page page, String name) {
+		add((Action) new PageAction(page, name));
 	}
 
-	public List<Action> getItems() {
+	public final List<Action> getItems() {
 		return Collections.unmodifiableList(items);
 	}
 	
@@ -47,7 +47,7 @@ public class ActionGroup extends Action {
 		return group;
 	}
 
-	public void addSeparator() {
+	public final void addSeparator() {
 		add(new Separator());
 	}
 

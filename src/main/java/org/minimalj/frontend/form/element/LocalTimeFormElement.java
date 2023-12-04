@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.mock.MockDate;
 
@@ -14,7 +14,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	private final int size;
 	private boolean upperEnd;
 	
-	public LocalTimeFormElement(PropertyInterface property, boolean editable) {
+	public LocalTimeFormElement(Property property, boolean editable) {
 		super(property, editable);
 		formatter = DateUtils.getTimeFormatter(property);
 		Size sizeAnnotation = property.getAnnotation(Size.class);
@@ -22,7 +22,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	}
 	
 	@Override
-	protected String getAllowedCharacters(PropertyInterface property) {
+	protected String getAllowedCharacters(Property property) {
 		if (size > Size.TIME_WITH_SECONDS) {
 			return "01234567890:.";
 		} else {
@@ -36,7 +36,7 @@ public class LocalTimeFormElement extends FormatFormElement<LocalTime> {
 	}
 
 	@Override
-	protected int getAllowedSize(PropertyInterface property) {
+	protected int getAllowedSize(Property property) {
 		return DateUtils.getTimeSize(property);
 	}
 

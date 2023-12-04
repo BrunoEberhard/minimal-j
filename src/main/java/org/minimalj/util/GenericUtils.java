@@ -6,6 +6,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -112,7 +113,11 @@ public class GenericUtils {
 			throw new IllegalArgumentException(genericSuperclass.toString() + " must be parameterized!");
 		}
 		ParameterizedType type = (ParameterizedType) genericSuperclass;
-		return (Class<?>) type.getActualTypeArguments()[0];
+		Type actualTypeArgument = type.getActualTypeArguments()[0];
+		while (actualTypeArgument instanceof ParameterizedType) {
+			actualTypeArgument = ((ParameterizedType) actualTypeArgument).getRawType();
+		}
+		return (Class<?>) actualTypeArgument;
 	}
 
 	/**
@@ -130,4 +135,47 @@ public class GenericUtils {
 		}
 		return null;
 	}
+	
+	public static Class<?> getGenericClass(Class<?> inClass, Field field) {
+		Type type = field.getGenericType();
+		if (type instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
+			if (actualTypeArgument instanceof Class) {
+				return (Class<?>) actualTypeArgument;
+			} else if (actualTypeArgument instanceof TypeVariable) {
+				TypeVariable typeVariable = (TypeVariable) actualTypeArgument;
+				return getTypeVariableValue(typeVariable.getName(), field.getDeclaringClass(), inClass, Collections.emptyMap());
+			}
+		}
+		return null;
+	}
+	
+	private static Class<?> getTypeVariableValue(String name, Class<?> declaringClass, Class<?> inClass, Map<String, Class<?>> names) {
+		if (declaringClass == inClass) {
+			return names.get(name);
+		}
+		
+		ParameterizedType ptc = (ParameterizedType) inClass.getGenericSuperclass();
+		Type[] actualTypeArguments = ptc.getActualTypeArguments();
+		TypeVariable<?>[] typeParameters = ((Class<?>) ptc.getRawType()).getTypeParameters();
+
+		Map<String, Class<?>> thisNames = new HashMap<>();
+		for (int i = 0; i<actualTypeArguments.length; i++) {
+			String typeParameterName = typeParameters[i].getName();
+			Type actualTypeArgument = actualTypeArguments[i];
+			if (actualTypeArgument instanceof Class) {
+				thisNames.put(typeParameterName, (Class<?>) actualTypeArgument);
+			} else if (actualTypeArgument instanceof TypeVariable) {
+				TypeVariable typeVariable = (TypeVariable) actualTypeArgument;
+				Class<?> clazz = names.get(typeVariable.getName());
+				thisNames.put(typeParameterName, clazz);
+			} else {
+				throw new IllegalArgumentException(actualTypeArgument.toString());
+			}
+		}
+		
+		return getTypeVariableValue(name, declaringClass, (Class<?>) ptc.getRawType(), thisNames);
+	}
+	
 }

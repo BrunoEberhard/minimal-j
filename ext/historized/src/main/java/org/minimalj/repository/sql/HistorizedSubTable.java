@@ -3,8 +3,9 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 
@@ -24,7 +25,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 	protected final String selectByIdAndTimeQuery;
 	private final String endQuery;
 	
-	public HistorizedSubTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public HistorizedSubTable(SqlRepository sqlRepository, String prefix, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, prefix, clazz, parentIdProperty);
 		
 		selectByIdAndTimeQuery = selectByIdAndTimeQuery();
@@ -98,7 +99,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 	@Override
 	public List<ELEMENT> getList(PARENT parent, Integer time) {
 		if (time == null) {
-			return getList(parent);
+			return getList(parent, (Map<Class<?>, Map<Object, Object>>) null);
 		}
 		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
@@ -111,7 +112,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 	}
 
 	@Override
-	public List<ELEMENT> getList(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);

@@ -40,16 +40,15 @@ import com.sun.net.httpserver.HttpsServer;
 
 public class WebServer {
 	private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
-	private static final Logger LOG_WEB = Logger.getLogger("WEB");
 
 	public static final boolean SECURE = true;
 
 	public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
-	
+
 	public static boolean useWebSocket = Boolean.valueOf(Configuration.get("MjUseWebSocket", "false"));
 
 	private static HttpServer server;
-	
+
 	public static class WebServerHttpExchange extends MjHttpExchange {
 		private final HttpExchange exchange;
 
@@ -66,7 +65,7 @@ public class WebServer {
 		public String getMethod() {
 			return exchange.getRequestMethod();
 		}
-		
+
 		@Override
 		public InputStream getRequest() {
 			return exchange.getRequestBody();
@@ -81,7 +80,7 @@ public class WebServer {
 				return decodeParameters(requestBody);
 			}
 		}
-		
+
 		@Override
 		public String getHeader(String name) {
 			Collection<String> values = exchange.getRequestHeaders().get(name);
@@ -92,7 +91,7 @@ public class WebServer {
 		public void addHeader(String key, String value) {
 			exchange.getResponseHeaders().add(key, value);
 		}
-		
+
 		@Override
 		public void sendResponse(int statusCode, byte[] bytes, String contentType) {
 			try (OutputStream os = exchange.getResponseBody()) {
@@ -100,7 +99,13 @@ public class WebServer {
 				exchange.sendResponseHeaders(statusCode, bytes.length);
 				os.write(bytes);
 			} catch (IOException x) {
-				throw new RuntimeException(x);
+				// this happens when the browser doesn't accept the response
+				// and this can be quite often.
+				if (LOG.getLevel() == Level.FINEST) {
+					LOG.log(Level.FINEST, x.getMessage(), x);
+				} else {
+					LOG.log(Level.FINE, x.getMessage());
+				}
 			}
 		}
 
@@ -116,19 +121,15 @@ public class WebServer {
 	}
 
 	private static void handle(HttpExchange exchange) {
-		long start = System.nanoTime();
 		try {
-			LOG_WEB.log(Level.FINEST, () -> exchange.getRequestURI().getPath());
-
 			LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getRequestHeaders().getFirst(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
 			MjHttpExchange mjHttpExchange = new WebServerHttpExchange(exchange);
 			WebApplication.handle(mjHttpExchange);
 		} finally {
 			LocaleContext.resetLocale();
-			LOG_WEB.log(Level.FINER, () -> StringUtils.padLeft("" + ((System.nanoTime() - start) / 1000 / 1000), 5, ' ') + "ms " + exchange.getRequestURI().getPath());
 		}
 	}
-	
+
 	private static class HttpsRedirectFilter extends com.sun.net.httpserver.Filter {
 
 		@Override
@@ -153,7 +154,7 @@ public class WebServer {
 				exchange.sendResponseHeaders(400, -1);
 			}
 		}
-		
+
 		protected String getPort() {
 			int port = WebServer.getPort(SECURE);
 			if (port != 443) {
@@ -162,7 +163,7 @@ public class WebServer {
 				return "";
 			}
 		}
-		
+
 		protected boolean isHttps(String s) {
 			return s.toUpperCase().contains("HTTPS");
 		}
@@ -172,7 +173,7 @@ public class WebServer {
 			return "Redirects non https requests";
 		}
 	}
-	
+
 	private static class FowardedHttpsRedirectFilter extends HttpsRedirectFilter {
 
 		@Override
@@ -188,13 +189,12 @@ public class WebServer {
 		protected String getPort() {
 			return "";
 		}
-		
+
 		@Override
 		public String description() {
 			return "Redirects a forwarded request that was not a https request";
 		}
 	}
-
 
 	private static void start(boolean secure) {
 		int port = getPort(secure);
@@ -238,7 +238,7 @@ public class WebServer {
 
 		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
 		keyManagerFactory.init(ks, password);
-		
+
 		sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
 		return sslContext;
 	}
@@ -251,8 +251,7 @@ public class WebServer {
 			throw new RuntimeException(x);
 		}
 	}
-	
-	
+
 	public static byte[] readAllBytes(InputStream inputStream) throws IOException {
 		int bufLen = 1024;
 		byte[] buf = new byte[bufLen];
@@ -265,7 +264,6 @@ public class WebServer {
 			return outputStream.toByteArray();
 		}
 	}
-	
 
 	public static int getPort(boolean secure) {
 		String portString = Configuration.get("MjFrontendPort" + (secure ? "Ssl" : ""), secure ? "-1" : "8080");
@@ -284,7 +282,7 @@ public class WebServer {
 		start(!SECURE);
 		start(SECURE);
 	}
-	
+
 	// only for tests
 	public static void stop() {
 		if (server != null) {

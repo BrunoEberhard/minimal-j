@@ -21,13 +21,13 @@ import org.apache.ignite.internal.processors.cache.CacheEntryImpl;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import org.minimalj.model.Keys;
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
@@ -212,9 +212,9 @@ public class IgniteRepository implements Repository {
         IgniteBiPredicate filter = (k, v) -> criteria.test(v);
 
 		if (View.class.isAssignableFrom(clazz)) {
-			IgniteCache cache = getCache(ViewUtil.getViewedClass(clazz));
+			IgniteCache cache = getCache(ViewUtils.getViewedClass(clazz));
 			List<Cache.Entry> entries = cache.query(new ScanQuery(filter)).getAll();
-            return entries.stream().map(e -> e.getValue()).map(object -> ViewUtil.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
+            return entries.stream().map(e -> e.getValue()).map(object -> ViewUtils.view(object, CloneHelper.newInstance(clazz))).collect(Collectors.toList());
 		} else {
 			IgniteCache cache = getCache(clazz);
 			List<Cache.Entry> entries = cache.query(new ScanQuery(filter)).getAll();
@@ -228,7 +228,7 @@ public class IgniteRepository implements Repository {
 			throw new IllegalArgumentException();
 		}
 		int factor = order.isAscending() ? 1 : -1;
-		PropertyInterface property = Properties.getProperty(l.get(0).getClass(), path);
+		Property property = Properties.getProperty(l.get(0).getClass(), path);
 		Collections.sort(l, (a, b) -> {
 			Object value1 = property.getValue(a);
 			Object value2 = property.getValue(b);
@@ -245,7 +245,7 @@ public class IgniteRepository implements Repository {
 	@FunctionalInterface
 	public interface PropertyInspector {
 
-		public void inspect(Object object, PropertyInterface property, Object value) throws Exception;
+		public void inspect(Object object, Property property, Object value) throws Exception;
 	}
 
 	private void check(Object root) {
@@ -285,7 +285,7 @@ public class IgniteRepository implements Repository {
 		} else {
 			checked.add(object);
 		}
-		for (PropertyInterface property : FlatProperties.getProperties(object.getClass()).values()) {
+		for (Property property : FlatProperties.getProperties(object.getClass()).values()) {
 			try {
 				Object value = property.getValue(object);
 				consumer.inspect(object, property, value);

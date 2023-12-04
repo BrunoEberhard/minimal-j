@@ -9,7 +9,7 @@ import org.minimalj.example.petclinic.model.Pet;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.frontend.form.element.ReferenceFormElement;
+import org.minimalj.frontend.form.element.LookupFormElement;
 import org.minimalj.frontend.page.ObjectPage;
 import org.minimalj.util.resources.Resources;
 
@@ -67,7 +67,7 @@ public class OwnerPage extends ObjectPage<Owner> {
 			form.line(Pet.$.type);
 			form.line(Pet.$.name);
 			form.line(Pet.$.birthDate);
-			form.line(new ReferenceFormElement<Owner>(Pet.$.owner, Owner.$.person.firstName, Owner.$.person.lastName, Owner.$.address));
+			form.line(new LookupFormElement<Owner>(Pet.$.owner, Owner.$.person.firstName, Owner.$.person.lastName, Owner.$.address));
 			return form;
 		}
 

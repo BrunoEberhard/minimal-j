@@ -17,7 +17,7 @@ import org.minimalj.util.resources.Resources;
 public class WebApplicationPage extends HtmlPage {
 
 	private String title;
-	
+
 	public WebApplicationPage(String route) {
 		super(null, Objects.requireNonNull(route));
 	}
@@ -33,16 +33,16 @@ public class WebApplicationPage extends HtmlPage {
 		this.title = title;
 		return this;
 	}
-	
+
 	public WebApplicationPage titleResource(String resourceName) {
 		return title(Resources.getString(resourceName));
 	}
-	
+
 	@Override
 	public String getTitle() {
 		return title;
 	}
-	
+
 	public static class WebApplicationPageExchange extends MjHttpExchange {
 		private final String path;
 		private String result;

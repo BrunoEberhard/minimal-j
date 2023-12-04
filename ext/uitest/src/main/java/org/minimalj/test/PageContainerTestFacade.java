@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -101,7 +101,7 @@ public interface PageContainerTestFacade {
 		}
 
 		public default FormElementTestFacade element(Object key) {
-			PropertyInterface property = Keys.getProperty(key);
+			Property property = Keys.getProperty(key);
 			String caption = Resources.getPropertyName(property);
 			return getElement(caption);
 		}

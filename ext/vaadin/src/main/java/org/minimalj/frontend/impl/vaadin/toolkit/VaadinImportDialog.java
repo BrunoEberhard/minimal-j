@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.upload.Receiver;
@@ -32,14 +31,11 @@ public class VaadinImportDialog extends Dialog implements Receiver {
 		setModal(true);
 		open();
 		
-		this.addDialogCloseActionListener(new ComponentEventListener<Dialog.DialogCloseActionEvent>() {
-			@Override
-			public void onComponentEvent(DialogCloseActionEvent event) {
-				try {
-					inputStream.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+		this.addDialogCloseActionListener(event -> {
+			try {
+				inputStream.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		});
 	}

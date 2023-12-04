@@ -1,15 +1,17 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.Objects;
+
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.ChangeListener;
 import org.minimalj.util.resources.Resources;
 
 public abstract class AbstractFormElement<T> implements FormElement<T> {
 
-	private final PropertyInterface property;
+	private final Property property;
 	
 	private InputComponentListener forwardingChangeListener;
 	private ChangeListener<FormElement<?>> changeListener;
@@ -20,20 +22,23 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 		this(Keys.getProperty(key));
 	}
 	
-	protected AbstractFormElement(PropertyInterface property) {
-		if (property == null) throw new IllegalArgumentException();
-		
-		this.property = property;
+	protected AbstractFormElement(Property property) {
+		this.property = Objects.requireNonNull(property);
 	}
 
 	@Override
-	public PropertyInterface getProperty() {
+	public Property getProperty() {
 		return property;
 	}
 	
 	@Override
 	public String getCaption() {
 		return Resources.getPropertyName(getProperty());
+	}
+
+	@Override
+	public boolean canBeEmpty() {
+		return true;
 	}
 
 	@Override
@@ -66,7 +71,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 			throw new IllegalArgumentException("ChangeListener must not be null");
 		}
 		if (this.changeListener != null) {
-			throw new IllegalStateException("ChangeListener can only be set once");
+			throw new IllegalStateException("ChangeListener can only be set once on " + getProperty().toString());
 		}
 		this.changeListener = changeListener;
 	}

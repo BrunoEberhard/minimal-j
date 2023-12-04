@@ -3,10 +3,11 @@ package org.minimalj.model.validation;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -39,7 +40,7 @@ public interface Validation {
 	 * @return a ValidationMessage with formatted text
 	 */
 	public static ValidationMessage createInvalidValidationMessage(Object key) {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
 		String caption = Resources.getPropertyName(property);
 		return new ValidationMessage(property, MessageFormat.format(Resources.getString("ObjectValidator.message"), caption));
 	}
@@ -51,7 +52,8 @@ public interface Validation {
 	 * @return a ValidationMessage with formatted text
 	 */
 	public static ValidationMessage createEmptyValidationMessage(Object key) {
-		PropertyInterface property = Keys.getProperty(key);
+		Objects.requireNonNull(key);
+		Property property = Keys.getProperty(key);
 		String caption = Resources.getPropertyName(property);
 		String message;
 		if (StringUtils.isEmpty(caption)) {
@@ -70,7 +72,7 @@ public interface Validation {
 	 */
 	public static void validateNotEmpty(Object object, List<ValidationMessage> messages, Object... keys) {
 		for (Object key : keys) {
-			PropertyInterface property = Keys.getProperty(key);
+			Property property = Keys.getProperty(key);
 			Object value = property.getValue(object);
 			if (EmptyObjects.isEmpty(value)) {
 				messages.add(Validation.createEmptyValidationMessage(key));
@@ -78,8 +80,13 @@ public interface Validation {
 		}
 	}
 
+	public static <T> void validateNotInvalid(T object, T key, List<ValidationMessage> messages) {
+		validate(object, key, InvalidValues::isInvalid, messages);
+	}
+	
 	public static <T> void validate(T object, T key, Predicate<T> predicate, List<ValidationMessage> messages) {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
+		@SuppressWarnings("unchecked")
 		T value = (T) property.getValue(object);
 		if (predicate.test(value)) {
 			messages.add(Validation.createInvalidValidationMessage(key));

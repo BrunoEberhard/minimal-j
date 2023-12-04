@@ -8,30 +8,40 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.mock.Mocking;
 
-// TODO: Typisierung bringt hier so was von nichts
 public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> implements Enable, Mocking {
 	private final Class<E> enumClass;
+	private final boolean canBeEmpty;
 	
 	private final Input<CodeItem<E>> comboBox;
 
-	public EnumFormElement(PropertyInterface property) {
-		this(property, null);
+	public EnumFormElement(Property property) {
+		this(property, null, true);
 	}
 
-	public EnumFormElement(E key, List<E> allowedValues) {
-		this(Keys.getProperty(key), allowedValues);
+	public EnumFormElement(E key, List<E> canBeEmpty) {
+		this(Keys.getProperty(key), canBeEmpty, true);
+	}
+
+	public EnumFormElement(E key) {
+		this(key, true);
+	}
+
+	@SuppressWarnings("unchecked")
+	public EnumFormElement(E key, boolean canBeEmpty) {
+		this(Keys.getProperty(key), (List<E>) EnumUtils.valueList(key.getClass()), canBeEmpty);
 	}
 		
 	@SuppressWarnings("unchecked")
-	public EnumFormElement(PropertyInterface property, List<E> allowedValues) {
+	public EnumFormElement(Property property, List<E> allowedValues, boolean canBeEmpty) {
 		super(property);
 		this.enumClass = (Class<E>) property.getClazz();
+		this.canBeEmpty = canBeEmpty;
 		
 		List<CodeItem<E>> itemList = allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass);
-		comboBox = Frontend.getInstance().createComboBox(itemList, listener());
+		comboBox = Frontend.getInstance().createComboBox(itemList, canBeEmpty ? ComboBoxFormElement.EMPTY_NULL_STRING : ComboBoxFormElement.NO_NULL_STRING, listener());
 		
 		setDefault();
 	}
@@ -77,6 +87,11 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 		}
 		
 		comboBox.setValue(item);
+	}
+	
+	@Override
+	public boolean canBeEmpty() {
+		return canBeEmpty;
 	}
 
 	@Override

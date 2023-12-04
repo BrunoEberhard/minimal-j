@@ -25,7 +25,7 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 	protected abstract String render(List<T> value);
 
 	public void lookup() {
-		if (this instanceof LookupParser || getValue() == null || getValue().isEmpty()) {
+		if (this instanceof LookupParser) {
 			new AddListEntryEditor().run();
 		} else {
 			new SmallListFormElementEditor().run();
@@ -56,6 +56,10 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 			return object;
 		}
 	}
+	
+	protected int getColumnWidth() {
+		return Form.DEFAULT_COLUMN_WIDTH;
+	}
 
 	private class SmallListFormElementEditor extends SimpleEditor<List<T>> {
 
@@ -65,7 +69,7 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 
 		@Override
 		protected Form<List<T>> createForm() {
-			Form<List<T>> form = new Form<>();
+			Form<List<T>> form = new Form<>(Form.EDITABLE, 1, getColumnWidth());
 			form.line(new InnerSmallListFormElement());
 			return form;
 		}

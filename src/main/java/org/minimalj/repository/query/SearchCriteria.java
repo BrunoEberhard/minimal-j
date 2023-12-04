@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public class SearchCriteria extends Criteria implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -18,7 +18,7 @@ public class SearchCriteria extends Criteria implements Serializable {
 	private final Object[] keys;
 	private final boolean notEqual;
 	
-	private transient List<PropertyInterface> searchColumns;
+	private transient List<Property> searchColumns;
 	
 	public SearchCriteria(String query) {
 		this(query, null);
@@ -59,7 +59,7 @@ public class SearchCriteria extends Criteria implements Serializable {
 		
 		String regex = convertQuery(getQuery());
 		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-		for (PropertyInterface p : searchColumns) {
+		for (Property p : searchColumns) {
 			Object value = p.getValue(object);
 			if (value instanceof String) {
 				String s = ((String) value);
@@ -71,16 +71,16 @@ public class SearchCriteria extends Criteria implements Serializable {
 		return isNotEqual();
 	}
 	
-	private static List<PropertyInterface> findSearchColumns(Class<?> clazz) {
+	private static List<Property> findSearchColumns(Class<?> clazz) {
 		if (View.class.isAssignableFrom(clazz)) {
-			clazz = ViewUtil.getViewedClass(clazz);
+			clazz = ViewUtils.getViewedClass(clazz);
 		}
 		
-		List<PropertyInterface> searchColumns = new ArrayList<>();
+		List<Property> searchColumns = new ArrayList<>();
 		// at the moment FlatProperties is used.
 		// this supports embedded entities but not nested properties
 		// TODO: same behaviour as in a database but maybe not wanted
-		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+		for (Property property : FlatProperties.getProperties(clazz).values()) {
 			Searched searchable = property.getAnnotation(Searched.class);
 			if (searchable != null) {
 				searchColumns.add(property);

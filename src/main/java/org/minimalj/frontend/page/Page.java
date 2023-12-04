@@ -126,4 +126,8 @@ public interface Page extends AccessControl {
 			return FIT_CONTENT;
 		}
 	}
+	
+	public interface WheelPage extends Page, WheelListener {
+		
+	}
 }

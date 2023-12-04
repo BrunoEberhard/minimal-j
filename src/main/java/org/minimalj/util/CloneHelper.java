@@ -91,7 +91,11 @@ public class CloneHelper {
 						field.set(to, toList);
 					}
 					for (Object element : fromList) {
-						toList.add(clone(element, originals, copies));
+						if (element == null || FieldUtils.isAllowedPrimitive(element.getClass())) {
+							toList.add(element);
+						} else {
+							toList.add(clone(element, originals, copies));
+						}
 					}
 				}
 			} else if (fromValue instanceof Set) {
@@ -100,7 +104,7 @@ public class CloneHelper {
 				// Set can only contain enums. No need for cloning the elements.
 				toSet.clear();
 				toSet.addAll(fromSet);
-			} else if (isPrimitive(field) || field.getType() == Selection.class) {
+			} else if (isPrimitive(field) || Selection.class.isAssignableFrom(field.getType())) {
 				if (!FieldUtils.isFinal(field)) {
 					field.set(to, fromValue);
 				}

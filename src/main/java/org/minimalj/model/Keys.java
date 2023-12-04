@@ -22,15 +22,15 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 public class Keys {
 
 	private static final Logger logger = Logger.getLogger(Keys.class.getName());
-	private static final Map<Object, PropertyInterface> properties = new IdentityHashMap<>();
-	private static final Map<PropertyInterface, List<PropertyInterface>> dependencies = new HashMap<>();
+	private static final Map<Object, Property> properties = new IdentityHashMap<>();
+	private static final Map<Property, List<Property>> dependencies = new HashMap<>();
 
 	private static final HashSet<Object> keyObjects = new HashSet<>();
 	private static final Map<Class<?>, Object> keyObjectByClass = new HashMap<>();
@@ -44,18 +44,20 @@ public class Keys {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T of (Class<T> clazz) {
-		T object = (T) keyObjectByClass.get(clazz); 
-		if (object == null) {
-			try {
-				object = clazz.getConstructor().newInstance();
-				keyObjects.add(object);
-				keyObjectByClass.put(clazz, object);
-				fillFields(object, null, 0);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				throw new RuntimeException(e);
+		synchronized(clazz) {
+			T object = (T) keyObjectByClass.get(clazz); 
+			if (object == null) {
+				try {
+					object = clazz.getConstructor().newInstance();
+					keyObjects.add(object);
+					keyObjectByClass.put(clazz, object);
+					fillFields(object, null, 0);
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+					throw new RuntimeException(e);
+				}
 			}
+			return object;
 		}
-		return object;
 	}
 	
 	public static boolean isKeyObject(Object object) {
@@ -64,12 +66,12 @@ public class Keys {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T methodOf(Object keyObject, String propertyName, Object... dependencies) {
-		PropertyInterface enclosingProperty = null;
+		Property enclosingProperty = null;
 		if (properties.containsKey(keyObject)) {
 			enclosingProperty = properties.get(keyObject);
 		}
 		
-		PropertyInterface property = getMethodProperty(keyObject.getClass(), propertyName);
+		Property property = getMethodProperty(keyObject.getClass(), propertyName);
 		if (property == null) {
 			if (propertyName.startsWith("get")) {
 				throw new IllegalArgumentException("methodOf must be called with the property name. Not with the getter name");
@@ -93,10 +95,10 @@ public class Keys {
 
 		//
 		
-		List<PropertyInterface> dependenciesList = new ArrayList<>();
+		List<Property> dependenciesList = new ArrayList<>();
 		if (dependencies != null && dependencies.length > 0) {
 			for (Object d : dependencies) {
-				PropertyInterface dependency = Keys.getProperty(d);
+				Property dependency = Keys.getProperty(d);
 				if (enclosingProperty != null) {
 					dependency = new ChainedProperty(enclosingProperty, dependency);
 				}
@@ -105,7 +107,7 @@ public class Keys {
 		}
 		if (enclosingProperty != null) {
 			dependenciesList.add(enclosingProperty);
-			List<PropertyInterface> enclosingDependencies = Keys.dependencies.get(enclosingProperty);
+			List<Property> enclosingDependencies = Keys.dependencies.get(enclosingProperty);
 			if (enclosingDependencies != null) {
 				dependenciesList.addAll(enclosingDependencies);
 			}
@@ -117,10 +119,10 @@ public class Keys {
 		return t;
 	}
 	
-	private static <T> void fillFields(T object, PropertyInterface enclosingProperty, int depth) {
-		Map<String, PropertyInterface> propertiesOfObject = Properties.getProperties(object.getClass());
-		for (PropertyInterface property : propertiesOfObject.values()) {
-			if (StringUtils.equals(property.getName(), "version", "historized"))
+	private static <T> void fillFields(T object, Property enclosingProperty, int depth) {
+		Map<String, Property> propertiesOfObject = Properties.getProperties(object.getClass());
+		for (Property property : propertiesOfObject.values()) {
+			if (StringUtils.equals(property.getName(), "version", "historized") || property.getClazz().isPrimitive())
 				continue;
 
 			Object value = null;
@@ -142,11 +144,14 @@ public class Keys {
 				fillFields(value, property, depth + 1);
 			}
 			
+			// if (properties.size() % 1000 == 0) {
+			// 	logger.finer(properties.size() + ": " + property.toString());
+			// }
 			properties.put(value, property);
 		}
 	}
 	
-	@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object createKey(Class<?> clazz, String fieldName, Class<?> declaringClass) {
 		if (clazz == String.class) {
 			return new String(fieldName);
@@ -180,32 +185,32 @@ public class Keys {
 				return keyObject;
 			} catch (Exception x) {
 				if (declaringClass != null) {
-					logger.severe("Could not instantiat " + fieldName + " in class " + declaringClass);
+					logger.severe("Could not instantiate " + fieldName + " in class " + declaringClass);
 				} else {
-					logger.severe("Could not instantiat " + fieldName);				
+					logger.severe("Could not instantiate " + fieldName);				
 				}
 				return null;
 			}
 		}
 	}
 	
-	public static PropertyInterface getProperty(Object key) {
-		if (key instanceof PropertyInterface) {
-			return (PropertyInterface) key;
+	public static Property getProperty(Object key) {
+		if (key instanceof Property) {
+			return (Property) key;
 		} else {
 			return properties.get(key);
 		}
 	}
 	
-	public static PropertyInterface[] getProperties(Object[] keys) {
-		PropertyInterface[] properties = new PropertyInterface[keys.length];
+	public static Property[] getProperties(Object[] keys) {
+		Property[] properties = new Property[keys.length];
 		for (int i = 0; i<keys.length; i++) {
 			properties[i] = getProperty(keys[i]);
 		}
 		return properties;
 	}
 	
-	public static List<PropertyInterface> getDependencies(PropertyInterface property) {
+	public static List<Property> getDependencies(Property property) {
 		return dependencies.getOrDefault(property, Collections.emptyList());
 	}
 
@@ -216,6 +221,7 @@ public class Keys {
 			// somehow the method in the extension class should win
 			// the array check is because of char[]  . char[] is reported as abstract
 			if (isStatic(method) || !isPublic(method) || Modifier.isAbstract(method.getModifiers()) || //
+					method.getParameterCount() > 0 || //
 					Modifier.isAbstract(method.getReturnType().getModifiers()) && //
 					!method.getReturnType().isArray() && //
 					!Collection.class.isAssignableFrom(method.getReturnType())) continue;
@@ -236,7 +242,7 @@ public class Keys {
 		return null;
 	}
 	
-	public static class MethodProperty implements PropertyInterface {
+	public static class MethodProperty implements Property {
 		private final Class<?> clazz;
 		private final Method getterMethod;
 		private final Method setterMethod;
@@ -321,6 +327,20 @@ public class Keys {
 	
 	public static boolean isStatic(Method method) {
 		return Modifier.isStatic(method.getModifiers());
+	}
+	
+	// Arrays.equals doesn't work for Keys as it uses equals.
+	// Different Boolean keys would always be equals
+	public static boolean equalsIdentity(Object[] keys1, Object[] keys2) {
+		if (keys1.length != keys2.length) {
+			return false;
+		}
+		for (int i = 0; i < keys1.length; i++) {
+			if (keys1[i] != keys2[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

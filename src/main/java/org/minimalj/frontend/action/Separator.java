@@ -1,6 +1,6 @@
 package org.minimalj.frontend.action;
 
-public class Separator extends Action {
+public final class Separator extends Action {
 
 	public Separator() {
 		super(null);

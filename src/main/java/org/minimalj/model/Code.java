@@ -1,5 +1,7 @@
 package org.minimalj.model;
 
+import org.minimalj.model.annotation.SelfReferenceAllowed;
+
 /**
  * Codes are small base entities of an application. Like currencies or cities.
  * They are mostly stable but there could be updates from time to time.
@@ -18,6 +20,7 @@ package org.minimalj.model;
  * As specialty codes can have a String or an Integer id field.
  * 
  */
+@SelfReferenceAllowed
 public interface Code {
 	
 }

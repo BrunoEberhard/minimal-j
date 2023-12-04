@@ -11,7 +11,7 @@ import org.minimalj.frontend.form.element.AbstractLookupFormElement.LookupParser
 import org.minimalj.model.Code;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.Codes;
 import org.minimalj.util.StringUtils;
@@ -29,7 +29,7 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 		renderValues();
 	}
 
-	public SmallCodeListFormElement(PropertyInterface property, boolean editable) {
+	public SmallCodeListFormElement(Property property, boolean editable) {
 		super(property, editable);
 		renderValues();
 	}
@@ -85,21 +85,22 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 		new AddListEntryEditor().run();
 	}
 
-	public class ReferenceHolder {
-		public T object;
+	public static class ReferenceHolder<R> {
+		public R object;
 	}
 
-	protected Form<ReferenceHolder> createForm() {
-		Form<ReferenceHolder> form = new Form<>();
+	protected Form<ReferenceHolder<T>> createForm() {
+		Form<ReferenceHolder<T>> form = new Form<>(Form.EDITABLE, 1, Form.DEFAULT_COLUMN_WIDTH * 3 / 2);
+		form.setIgnoreCaption(true);
 		createForm(form);
 		return form;
 	}
 
-	protected void createForm(Form<ReferenceHolder> form) {
+	protected void createForm(Form<ReferenceHolder<T>> form) {
 		form.line(new ComboBoxFormElement<T>(Properties.getProperty(ReferenceHolder.class, "object"), Codes.get(getClazz())));
 	}
 
-	private class AddListEntryEditor extends SimpleEditor<ReferenceHolder> {
+	private class AddListEntryEditor extends SimpleEditor<ReferenceHolder<T>> {
 
 		@Override
 		protected Class<?> getEditedClass() {
@@ -107,17 +108,17 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 		}
 		
 		@Override
-		protected SmallCodeListFormElement<T>.ReferenceHolder createObject() {
-			return new ReferenceHolder();
+		protected ReferenceHolder<T> createObject() {
+			return new ReferenceHolder<T>();
 		}
 
 		@Override
-		protected Form<ReferenceHolder> createForm() {
+		protected Form<ReferenceHolder<T>> createForm() {
 			return SmallCodeListFormElement.this.createForm();
 		}
 
 		@Override
-		protected ReferenceHolder save(ReferenceHolder object) {
+		protected ReferenceHolder<T> save(ReferenceHolder<T> object) {
 			List<T> list = SmallCodeListFormElement.this.getValue();
 			if (list == null)
 				list = new ArrayList<>();

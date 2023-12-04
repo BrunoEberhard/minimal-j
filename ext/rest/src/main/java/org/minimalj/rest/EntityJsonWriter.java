@@ -3,6 +3,7 @@ package org.minimalj.rest;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -16,7 +17,7 @@ import java.util.TreeSet;
 import org.minimalj.frontend.impl.json.JsonWriter;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.AllCriteria;
 import org.minimalj.repository.query.Criteria;
@@ -59,9 +60,9 @@ public class EntityJsonWriter {
 			return values;
 		}
 		
-		Map<String, PropertyInterface> properties = FlatProperties.getProperties(entity.getClass());
-		for (Map.Entry<String, PropertyInterface> e : properties.entrySet()) {
-			PropertyInterface property = e.getValue();
+		Map<String, Property> properties = FlatProperties.getProperties(entity.getClass());
+		for (Map.Entry<String, Property> e : properties.entrySet()) {
+			Property property = e.getValue();
 			Object value = property.getValue(entity);
 			
 			if (value == null) {
@@ -79,6 +80,8 @@ public class EntityJsonWriter {
 				}
 				if (value instanceof String || value instanceof Boolean || value instanceof Number) {
 					values.put(propertyName, value);
+				} else if (value instanceof BigDecimal bd) {
+					values.put(propertyName, bd.doubleValue());
 				} else if (value instanceof byte[]) {
 					values.put(propertyName, Base64.getEncoder().encodeToString((byte[]) value));
 				} else if (FieldUtils.isAllowedPrimitive(property.getClazz())) {

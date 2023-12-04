@@ -11,8 +11,8 @@ import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
-import org.minimalj.frontend.page.IDialog;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.LocaleContext;
@@ -21,6 +21,7 @@ import org.minimalj.util.resources.Resources;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.HasOrderedComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -29,8 +30,8 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.HasSuffix;
 import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.component.textfield.HasPrefixAndSuffix;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
@@ -56,8 +57,10 @@ public class VaadinFrontend extends Frontend {
 		return new VaadinActionLabel(action);
 	}
 
-    public static interface HasCaption {
-        public void setLabel(String label);
+    public static interface HasCaption extends HasLabel {
+        public default void setCaption(String caption) {
+        	setLabel(caption);
+        }
     }
 
     public static interface HasComponent {
@@ -130,7 +133,7 @@ public class VaadinFrontend extends Frontend {
 		}
 
         @Override
-        public void setLabel(String label) {
+        public void setCaption(String label) {
             picker.setLabel(label);
         }
 
@@ -164,6 +167,11 @@ public class VaadinFrontend extends Frontend {
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
 		return new VaadinComboBox<T>(objects, changeListener);
+	}
+	
+	@Override
+	public <T> Input<T> createRadioButtons(List<T> items, InputComponentListener changeListener) {
+		return new VaadinRadioButtons<T>(items, changeListener);
 	}
 
 	@Override
@@ -224,13 +232,13 @@ public class VaadinFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
 		VaadinBorderLayoutContent content = new VaadinBorderLayoutContent();
-		content.add((Component) form);
+		content.add((Component) filter);
 		content.addAndExpand((Component) table);
 		return content;
 	}
-
+	
 	private static class VaadinBorderLayoutContent extends VerticalLayout implements IContent {
 		private static final long serialVersionUID = 1L;
 
@@ -238,12 +246,7 @@ public class VaadinFrontend extends Frontend {
 			setMargin(false);
 		}
 	}
-
-	@Override
-	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new VaadinSearchPanel<T>(search, keys, multiSelect, listener);
-	}
-
+	
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
 		return new VaadinLookup(stringInput, lookup);
@@ -265,9 +268,14 @@ public class VaadinFrontend extends Frontend {
 			this.stringInput = stringInput;
 
 			this.lookupButton = new Button("...");
+			lookupButton.getStyle()
+	        .set("margin", "0")
+	        .set("--lumo-button-size", "20px")
+	        .set("--lumo-font-size-s", "12px");
+
 			ContextMenu menu = VaadinMenu.createMenu(lookupButton, actions);
 			menu.setOpenOnClick(true);
-			((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
+			((HasSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 
 		@Override
@@ -300,8 +308,13 @@ public class VaadinFrontend extends Frontend {
             this.stringInput = stringInput;
 
 			this.lookupButton = new Button("...", event -> lookup.run());
-			lookupButton.setHeight("60%");
-            ((HasPrefixAndSuffix) stringInput).setSuffixComponent(lookupButton);
+//			lookupButton.setHeight("60%");
+			lookupButton.setWidth("10px");
+			lookupButton.getStyle()
+	        .set("margin", "0")
+	        .set("padding-left", "0").set("padding-right", "0");
+			
+            ((HasSuffix) stringInput).setSuffixComponent(lookupButton);
 		}
 
 		@Override
@@ -379,18 +392,19 @@ public class VaadinFrontend extends Frontend {
 	}
 	
 	@Override
-	public Optional<IDialog> showLogin(IContent content, Action loginAction, Action... additionalActions) {
+	public boolean showLogin(Dialog dialog) {
 		Page page = new Page() {
 			@Override
 			public IContent getContent() {
-				Action[] actions;
+				List<Action> actions;
+				Action loginAction = dialog.getSaveAction();
 				if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
 					SkipLoginAction skipLoginAction = new SkipLoginAction();
-					actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, loginAction};
+					actions = List.of(skipLoginAction, loginAction);
 				} else {
-					actions = new org.minimalj.frontend.action.Action[] {loginAction};
+					actions = List.of(loginAction);
 				}
-				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) content, loginAction, null, actions);
+				VaadinEditorLayout editorLayout = new VaadinEditorLayout(getTitle(), (Component) dialog.getContent(), loginAction, null, actions);
 				VaadinHorizontalLayout centerLayout = new VaadinHorizontalLayout(new IComponent[] {editorLayout});
 				editorLayout.setSizeUndefined(); // VaadinHorizontalLayout constructor did set the width
 				centerLayout.setSizeFull();
@@ -405,7 +419,7 @@ public class VaadinFrontend extends Frontend {
 			}
 		};
 		show(page);
-		return Optional.empty();
+		return false;
 	}
 
 	private class SkipLoginAction extends Action {

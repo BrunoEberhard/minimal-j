@@ -9,8 +9,9 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonTextField;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
@@ -40,20 +41,20 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 */
 	protected boolean typed;
 	
-	public FormatFormElement(PropertyInterface property, boolean editable) {
+	public FormatFormElement(Property property, boolean editable) {
 		super(property);
 		this.editable = editable;
 	}
 
-	protected abstract String getAllowedCharacters(PropertyInterface property);
+	protected abstract String getAllowedCharacters(Property property);
 
-	protected abstract int getAllowedSize(PropertyInterface property);
+	protected abstract int getAllowedSize(Property property);
 
 	protected InputType getInputType() {
 		return InputType.TEXT;
 	}
 
-	protected Search<String> getSearch(PropertyInterface property) {
+	protected Search<String> getSearch(Property property) {
 		return null;
 	}
 
@@ -75,12 +76,12 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 			}
 			// TODO find general concept for placeholer
 			if (textField instanceof JsonTextField) {
-				String placeholder = Resources.getPropertyName(getProperty(), ".placeholder");
+				String placeholder = Resources.getPropertyName(getProperty(), "placeholder");
 				if (placeholder != null) {
 					((JsonTextField) textField).setPlaceholder(placeholder);
 				}
 				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
-					((JsonTextField) textField).setCssClass("textAlignRight");
+					((JsonComponent) textField).setCssClass("textAlignRight");
 				}
 			}
 
@@ -139,4 +140,9 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		textField.setEditable(enabled);
 	}
 
+	@Override
+	public boolean canBeEmpty() {
+		// if not editable it cannot be users fault that it is empty (don't show 'required' mark)
+		return editable;
+	}
 }

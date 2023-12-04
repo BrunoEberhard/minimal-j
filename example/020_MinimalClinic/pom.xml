@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj.example</groupId>
 	<artifactId>minimalClinic</artifactId>
-	<version>1.0.1.0</version>
+	<version>2.0.0.0</version>
 	<name>Pet Clinic</name>
 	<description>A more complete demo application for Minimal-J. Based on an application from Spring.</description>
 	<build>
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>org.minimalj</groupId>
 			<artifactId>minimalj</artifactId>
-			<version>[1.14.0.0,)</version>
+			<version>[2.0.10.0,)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fluttercode.datafactory</groupId>

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,13 +19,13 @@ import java.util.logging.Logger;
 import org.minimalj.model.Code;
 import org.minimalj.model.Model;
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.By;
@@ -62,16 +63,16 @@ public class InMemoryRepository implements Repository {
 			memory.put(clazz, new HashMap<>());
 		}
 		
-		createCodes(modelTest.getModelClasses());
+		createCodes(Model.getClassesRecursive(classes, false, false));
 	}
 
-	private void createCodes(Set<Class<?>> modelClasses) {
+	private void createCodes(Collection<Class<?>> modelClasses) {
 		createConstantCodes(modelClasses);
 		createCsvCodes(modelClasses);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createConstantCodes(Set<Class<?>> modelClasses) {
+	private void createConstantCodes(Collection<Class<?>> modelClasses) {
 		for (Class<?> clazz : modelClasses) {
 			if (Code.class.isAssignableFrom(clazz)) {
 				Class<? extends Code> codeClass = (Class<? extends Code>) clazz; 
@@ -84,7 +85,7 @@ public class InMemoryRepository implements Repository {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void createCsvCodes(Set<Class<?>> modelClasses) {
+	private void createCsvCodes(Collection<Class<?>> modelClasses) {
 		for (Class<?> clazz : modelClasses) {
 			if (Code.class.isAssignableFrom(clazz)) {
 				Class<? extends Code> codeClazz = (Class<? extends Code>) clazz;
@@ -174,7 +175,7 @@ public class InMemoryRepository implements Repository {
 	private void order(Order order, List l) {
 		String path = order.getPath();
 		int factor = order.isAscending() ? 1 : -1;
-		PropertyInterface property = Properties.getPropertyByPath(l.get(0).getClass(), path);
+		Property property = Properties.getPropertyByPath(l.get(0).getClass(), path);
 		Collections.sort(l, (a, b) -> {
 			Object value1 = property.getValue(a);
 			Object value2 = property.getValue(b);
@@ -192,11 +193,11 @@ public class InMemoryRepository implements Repository {
 	private <T> List find(Class<T> clazz, Criteria criteria) {
 		List result = new ArrayList();
 		if (View.class.isAssignableFrom(clazz)) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(clazz);
+			Class<?> viewedClass = ViewUtils.getViewedClass(clazz);
 			Map<String, Object> objects = objects(viewedClass);
 			for (Object object : objects.values()) {
 				if (criteria.test(object)) {
-					result.add(ViewUtil.view(object, CloneHelper.newInstance(clazz)));
+					result.add(ViewUtils.view(object, CloneHelper.newInstance(clazz)));
 				}
 			}
 			// Cheerpj doesn't work with Collectors.toList()
@@ -275,7 +276,7 @@ public class InMemoryRepository implements Repository {
 	@FunctionalInterface
 	public interface PropertyInspector {
 		
-		public void inspect(Object object, PropertyInterface property, Object value) throws Exception;
+		public void inspect(Object object, Property property, Object value) throws Exception;
 	}
 	
 	private void check(Object root) {
@@ -314,7 +315,7 @@ public class InMemoryRepository implements Repository {
 		} else {
 			checked.add(object);
 		}
-		for (PropertyInterface property : FlatProperties.getProperties(object.getClass()).values()) {
+		for (Property property : FlatProperties.getProperties(object.getClass()).values()) {
 			try {
 				Object value = property.getValue(object);
 				consumer.inspect(object, property, value);
@@ -370,7 +371,7 @@ public class InMemoryRepository implements Repository {
 	}
 
 	private <T> void update(T object, Object existingObject) {
-		for (PropertyInterface property : FlatProperties.getProperties(object.getClass()).values()) {
+		for (Property property : FlatProperties.getProperties(object.getClass()).values()) {
 			try {
 				Object value = property.getValue(object);
 				if (value instanceof List) {

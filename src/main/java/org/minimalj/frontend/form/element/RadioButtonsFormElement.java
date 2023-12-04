@@ -1,6 +1,7 @@
 package org.minimalj.frontend.form.element;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.minimalj.frontend.Frontend;
@@ -10,7 +11,7 @@ import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
@@ -23,12 +24,19 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 		this(Keys.getProperty(key), createCodeItems(key, resourceName));
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public RadioButtonsFormElement(Enum<?> key) {
 		this(Keys.getProperty(key), (List) EnumUtils.itemList(key.getClass()));
 	}
 	
-	private static <T> List<CodeItem<T>> createCodeItems(Boolean key, String resourceNames) {
-		PropertyInterface property = Keys.getProperty(key);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <E extends Enum<E>> RadioButtonsFormElement(E key, E... values) {
+		this(Keys.getProperty(key), (List) EnumUtils.itemList(Arrays.asList(values)));
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	static <T> List<CodeItem<T>> createCodeItems(Boolean key, String resourceNames) {
+		Property property = Keys.getProperty(key);
 		List<CodeItem<T>> codeItems = new ArrayList<>();
 		if (property.getAnnotation(NotEmpty.class) == null) {
 			codeItems.add(new CodeItem(null, Resources.getString(resourceNames + ".null")));
@@ -38,7 +46,7 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 		return codeItems;
 	}
 	
-	private RadioButtonsFormElement(PropertyInterface property, List<CodeItem<T>> values) {
+	private RadioButtonsFormElement(Property property, List<CodeItem<T>> values) {
 		super(property);
 		this.values = values;
 		radioButtons = Frontend.getInstance().createRadioButtons(values, listener());

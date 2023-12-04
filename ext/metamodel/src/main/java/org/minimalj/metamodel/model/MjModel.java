@@ -3,6 +3,7 @@ package org.minimalj.metamodel.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.minimalj.model.Model;
@@ -26,6 +27,7 @@ public class MjModel {
 	}
 
 	public MjEntity getOrCreateEntity(Class<?> clazz) {
+		Objects.requireNonNull(clazz);
 		Optional<MjEntity> existingEntity = entities.stream().filter(e -> e.getClazz() == clazz).findFirst();
 		return existingEntity.orElseGet(() -> new MjEntity(this, clazz));
 	}

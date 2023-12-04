@@ -486,4 +486,50 @@ public class ModelTestTest {
 	public static class TestClass28b {
 		public Object id;
 	}
+	
+	@Test public void 
+	should_accept_not_two_enums_with_same_name() {
+		Assert.assertFalse(new ModelTest(TestClass29a.class).isValid());
+		Assert.assertFalse(new ModelTest(TestClass29b.class).isValid());
+		Assert.assertFalse(new ModelTest(TestClass29c.class).isValid());
+		Assert.assertFalse(new ModelTest(TestClass29d.class).isValid());
+		Assert.assertFalse(new ModelTest(TestClass29e.class).isValid());
+	}
+	
+	public static class TestClass29a {
+		public Object id;
+		public ModelTestTest.TestEnum29 a;
+		public TestClass29a.TestEnum29 b;
+		
+		public enum TestEnum29 {
+			a
+		}
+	}
+
+	public enum TestEnum29 {
+		a
+	}
+	
+	public static class TestClass29b {
+		public Object id;
+		public ModelTestTest.TestEnum29 a;
+		public List<TestClass29a.TestEnum29> b;
+	}
+	
+	public static class TestClass29c {
+		public Object id;
+		public ModelTestTest.TestEnum29 a;
+		public Set<TestClass29a.TestEnum29> b;
+	}
+	
+	public static class TestClass29d {
+		public Object id;
+		public TestClass29a a;
+	}
+
+	public static class TestClass29e {
+		public Object id;
+		public List<TestClass29a> a;
+	}
+
 }

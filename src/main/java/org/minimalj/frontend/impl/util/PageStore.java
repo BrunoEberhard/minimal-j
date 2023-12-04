@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.util;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,7 +13,18 @@ public class PageStore {
 
 	private final static int HISTORY_LENGTH = Integer.parseInt(Configuration.get("MjHistoryLength", "20"));
 	private final ArrayBlockingQueue<PageStoreEntry> queue = new ArrayBlockingQueue<>(HISTORY_LENGTH);
-	
+
+	public String getId(Page page) {
+		Iterator<PageStoreEntry> iterator = queue.iterator();
+		while (iterator.hasNext()) {
+			PageStoreEntry entry = iterator.next();
+			if (entry.page == page) {
+				return entry.id;
+			}
+		}
+		return null;
+	}
+
 	public String put(Page page) {
 		PageStoreEntry entry = new PageStoreEntry(page);
 		if (queue.remainingCapacity() == 0) {

@@ -3,8 +3,9 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
@@ -17,10 +18,10 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements ListTable<PARENT, ELEMENT> {
 
-	protected final PropertyInterface parentIdProperty;
+	protected final Property parentIdProperty;
 	private final boolean hasId;
 	
-	public SubTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public SubTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, name, clazz);
 		
 		this.parentIdProperty = parentIdProperty;
@@ -56,7 +57,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	@Override
 	public void replaceList(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
-		List<ELEMENT> objectsInDb = getList(parent);
+		List<ELEMENT> objectsInDb = getList(parent, null);
 		int position = 0;
 		try {
 			while (position < Math.max(objects.size(), objectsInDb.size())) {
@@ -109,7 +110,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 
 	@Override
-	public List<ELEMENT> getList(PARENT parent) {
+	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);

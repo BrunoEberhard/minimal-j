@@ -3,23 +3,27 @@ package org.minimalj.frontend.form.element;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.model.Selection;
+import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.IdUtils;
 
-public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> implements Enable {
+public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> implements Enable, Indication {
 
 	private final String nullText;
 	private final SwitchComponent component;
 	private Input<T> input;
 	private boolean hasSelection;
+	private List<T> values;
 
 	public SelectionFormElement(Object key) {
-		this(key, null);
+		this(key, ComboBoxFormElement.NO_NULL_STRING);
 	}
 	
 	public SelectionFormElement(Object key, String nullText) {
@@ -37,6 +41,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 	public void setValue(Selection<T> selection) {
 		hasSelection = selection != null;
 		if (selection != null) {
+			this.values = selection.values;
 			List<T> values = selection.values != null ? selection.values : Collections.emptyList();
 			component.show(input = Frontend.getInstance().createComboBox(values, nullText, listener()));
 			T selectedValue = selection.selectedValue;
@@ -50,6 +55,7 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 				input.setValue(selectedValue);
 			}
 		} else {
+			this.values = null;
 			input = Frontend.getInstance().createComboBox(Collections.emptyList(), nullText, listener());
 			input.setEditable(false);
 			component.show(input);
@@ -58,11 +64,16 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 
 	@Override
 	public Selection<T> getValue() {
-		return new Selection<>(input.getValue());
+		return new Selection<>(input.getValue(), values);
 	}
 	
 	@Override
 	public void setEnabled(boolean enabled) {
 		input.setEditable(hasSelection && enabled);
+	}
+	
+	@Override
+	public void setValidationMessages(List<ValidationMessage> validationMessages, FormContent formContent) {
+		formContent.setValidationMessages(input, validationMessages.stream().map(ValidationMessage::getFormattedText).collect(Collectors.toList()));
 	}
 }

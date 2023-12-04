@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
@@ -26,12 +25,13 @@ import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
+import org.minimalj.model.annotation.SelfReferenceAllowed;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.IdUtils;
@@ -67,6 +67,7 @@ public class ModelTest {
 		for (Class<?> clazz : mainClasses) {
 			testClass(clazz);
 		}
+		testEnums(mainClasses);
 	}
 	
 	/**
@@ -97,10 +98,6 @@ public class ModelTest {
 		}
 	}
 	
-	public Set<Class<?>> getModelClasses() {
-		return Collections.unmodifiableSet(modelClasses);
-	}
-	
 	public void logProblems() {
 		if (!problems.isEmpty()) {
 			logger.severe("The entitiy classes don't apply to the given rules");
@@ -121,7 +118,9 @@ public class ModelTest {
 			if (!clazz.isEnum()) { // it's not pretty to have several enum classes with same name but it works
 				testNoDuplicateName(clazz);
 			}
-			testNoOrAbstractSuperclass(clazz);
+			if (!View.class.isAssignableFrom(clazz)) {
+				testNoOrAbstractSuperclass(clazz);
+			}
 			if (!testNoSelfMixins(clazz)) {
 				return; // further tests could create a StackOverflowException
 			}
@@ -138,7 +137,6 @@ public class ModelTest {
 			if (Configuration.isDevModeActive()) {
 				testResources(clazz);
 			}
-			// testNoDuplicateFieldsInSuperClass(clazz)
 		}
 	}
 
@@ -212,7 +210,7 @@ public class ModelTest {
 			return;
 		}
 		try {
-			PropertyInterface property = FlatProperties.getProperty(clazz, "id");
+			Property property = FlatProperties.getProperty(clazz, "id");
 			if (!FieldUtils.isAllowedId(property.getClazz())) {
 				problems.add(clazz.getName() + ": id must be of Integer, Long, String, Object");
 			}
@@ -264,14 +262,14 @@ public class ModelTest {
 	private void testFields(Class<?> clazz) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			testField(field);
+			testField(clazz, field);
 		}
 	}
 
-	private void testField(Field field) {
+	private void testField(Class<?> clazz, Field field) {
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "historized")) {
 			testName(field);
-			testTypeOfField(field);
+			testTypeOfField(clazz, field);
 			testNoMethodsForPublicField(field);
 			TechnicalField technicalField = field.getAnnotation(TechnicalField.class);
 			if (technicalField != null) {
@@ -284,7 +282,10 @@ public class ModelTest {
 				} else if (fieldType == LocalTime.class || fieldType == LocalDateTime.class) {
 					testTimeSize(field);
 				}
-			} 
+			}
+		}
+		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field)) {
+			testFieldNotInSuperClass(field);
 		}
 	}
 	
@@ -314,7 +315,7 @@ public class ModelTest {
 		if (Keys.isPublic(method) && !Keys.isStatic(method) && method.getName().startsWith("get")) {
 			if (method.getReturnType() == String.class && (method.getAnnotation(Materialized.class) != null || method.getAnnotation(Searched.class) != null)) {
 				String propertyName = StringUtils.lowerFirstChar(method.getName().substring(3));
-				PropertyInterface property = new Keys.MethodProperty(method.getReturnType(), propertyName, method, null);
+				Property property = new Keys.MethodProperty(method.getReturnType(), propertyName, method, null);
 				try {
 					AnnotationUtil.getSize(property);
 				} catch (IllegalArgumentException x) {
@@ -357,12 +358,12 @@ public class ModelTest {
 		}
 	}
 
-	private void testTypeOfField(Field field) {
+	private void testTypeOfField(Class<?> clazz, Field field) {
 		Class<?> fieldType = field.getType();
 		String messagePrefix = field.getName() + " of " + field.getDeclaringClass().getName();
 
 		if (fieldType == List.class) {
-			testTypeOfListField(field, messagePrefix);
+			testTypeOfListField(clazz, field, messagePrefix);
 		} else if (fieldType == Set.class) {
 			if (!FieldUtils.isFinal(field)) {
 				problems.add(messagePrefix + " must be final (" + fieldType.getSimpleName() + " Fields must be final)");
@@ -373,8 +374,8 @@ public class ModelTest {
 		}
 	}
 
-	private void testTypeOfListField(Field field, String messagePrefix) {
-		Class<?> listType = GenericUtils.getGenericClass(field);
+	private void testTypeOfListField(Class<?> clazz, Field field, String messagePrefix) {
+		Class<?> listType = GenericUtils.getGenericClass(clazz, field);
 		if (listType != null) {
 			if (Modifier.isAbstract(listType.getModifiers())) {
 				problems.add(messagePrefix + " must not be of an abstract Type");
@@ -443,7 +444,7 @@ public class ModelTest {
 	}
 	
 	private void testStringSize(Field field) {
-		PropertyInterface property = Properties.getProperty(field);
+		Property property = Properties.getProperty(field);
 		try {
 			AnnotationUtil.getSize(property);
 		} catch (IllegalArgumentException x) {
@@ -452,7 +453,7 @@ public class ModelTest {
 	}
 	
 	private void testTimeSize(Field field) {
-		PropertyInterface property = Properties.getProperty(field);
+		Property property = Properties.getProperty(field);
 		int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
 		if (size > -1) {
 			if (size != Size.TIME_HH_MM && size != Size.TIME_WITH_SECONDS && size != Size.TIME_WITH_MILLIS) {
@@ -462,7 +463,7 @@ public class ModelTest {
 	}
 		
 	private void testNoMethodsForPublicField(Field field) {
-		PropertyInterface property = Properties.getProperty(field);
+		Property property = Properties.getProperty(field);
 		if (property != null) {
 			if (property.getClass().getSimpleName().startsWith("Method")) {
 				problems.add("A public attribute must not have getter or setter methods: " + field.getDeclaringClass().getName() + "." + field.getName());
@@ -472,41 +473,95 @@ public class ModelTest {
 		}
 	}
 	
+	private void testFieldNotInSuperClass(Field field) {
+		Property property = Properties.getProperty(field);
+		String propertyName = property.getName();
+		Class<?> declaringClass = property.getDeclaringClass();
+		Class<?> superClass = declaringClass.getSuperclass();
+		while (superClass != Object.class) {
+			Property samePropertyInSuperClass = Properties.getProperty(superClass, propertyName);
+			if (samePropertyInSuperClass != null && samePropertyInSuperClass.getDeclaringClass() == superClass) {
+				problems.add("Property " + propertyName + " is declared in " + property.getDeclaringClass().getSimpleName() + " and in it's super class " + superClass.getSimpleName());
+				return;
+			}
+			superClass = superClass.getSuperclass();
+		}
+	}
+	
 	private void testTypeOfTechnicalField(Field field, TechnicalFieldType type) {
 		if (type == TechnicalFieldType.CREATE_DATE || type == TechnicalFieldType.EDIT_DATE) {
 			if (field.getType() != LocalDateTime.class) {
 				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of LocalDateTime, not " + field.getType().getName());
 			} 
 		} else if (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.EDIT_USER) {
-			if (field.getType() != String.class) {
-				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of String, not " + field.getType().getName());
+			if (FieldUtils.isAllowedPrimitive(field.getType()) && field.getType() != String.class) {
+				problems.add("Technical field " + field.getDeclaringClass().getSimpleName() + "." + type.name() + " must be of String or (User) clazz, not " + field.getType().getName());
 			} 
 		}
 	}
 	
 	private void testResources(Class<?> clazz) {
-		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+		for (Property property : FlatProperties.getProperties(clazz).values()) {
 			if (StringUtils.equals(property.getName(), "id", "version")) continue;
 			Resources.getPropertyName(property);
 		}
 	}
 	
 	private void testSelfReferences(Class<?> clazz) {
-		testSelfReferences(clazz, new HashSet<>());
+		testSelfReferences("", clazz, new HashSet<>());
 	}
 	
-	private void testSelfReferences(Class<?> clazz, Set<Class<?>> forbiddenClasses) {
+	private void testSelfReferences(String path, Class<?> clazz, Set<Class<?>> seenClasses) {
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
-			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field)) {
+			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) &!FieldUtils.isTransient(field)) {
 				Class<?> fieldType = field.getType();
-				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class && !Code.class.isAssignableFrom(fieldType)) {
-					if (forbiddenClasses.contains(fieldType)) {
-						problems.add("Self reference cycle with: " + fieldType.getSimpleName());
+				boolean selfReferenceAllowed = AnnotationUtil.isAnnotationPresentOrInherited(fieldType, SelfReferenceAllowed.class);
+				if (!FieldUtils.isAllowedPrimitive(fieldType) && fieldType != List.class && fieldType != Set.class && fieldType != Object.class && !selfReferenceAllowed) {
+					String pathWithField = (path.length() == 0 ? "" : path + ".") + field.getName();
+					if (seenClasses.contains(fieldType)) {
+						problems.add("Self reference cycle: " + pathWithField);
 					} else {
-						forbiddenClasses.add(fieldType);
-						testSelfReferences(fieldType, forbiddenClasses);
-						forbiddenClasses.remove(fieldType);
+						seenClasses.add(fieldType);
+						testSelfReferences(pathWithField, fieldType, seenClasses);
+						seenClasses.remove(fieldType);
+					}
+				}
+			}
+		}
+	}
+	
+	private void testEnums(Collection<Class<?>> mainClasses) {
+		Set<Class<? extends Enum<?>>> enums = new HashSet<>();
+		Set<Class<?>> visited = new HashSet<>();
+		mainClasses.forEach(clazz -> collectEnums(clazz, enums, visited));
+		for (Class<? extends Enum<?>> enm : enums) {
+			for (Class<? extends Enum<?>> enm2 : enums) {
+				if (enm != enm2 && enm.getSimpleName().equals(enm2.getSimpleName())) {
+					problems.add("Two enum classes with same simple name not allowed: " + enm.getName() + " / " + enm2.getName());
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void collectEnums(Class<?> clazz, Set<Class<? extends Enum<?>>> enums, Set<Class<?>> visited) {
+		if (!visited.contains(clazz)) {
+			visited.add(clazz);
+			Field[] fields = clazz.getFields();
+			for (Field field : fields) {
+				if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) &!FieldUtils.isTransient(field)) {
+					Class<?> fieldType = field.getType();
+					if (Collection.class.isAssignableFrom(fieldType)) {
+						fieldType = GenericUtils.getGenericClass(clazz, field);
+					}
+					if (fieldType != null) {
+						if (fieldType.isEnum()) {
+							enums.add((Class<? extends Enum<?>>) fieldType);
+						}
+						if (!fieldType.isPrimitive()) {
+							collectEnums(fieldType, enums, visited);
+						}
 					}
 				}
 			}

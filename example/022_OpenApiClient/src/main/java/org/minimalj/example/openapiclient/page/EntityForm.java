@@ -6,7 +6,7 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.metamodel.model.MjEntity;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public class EntityForm extends Form {
 	private final MjEntity entity;
@@ -25,7 +25,7 @@ public class EntityForm extends Form {
 			if (column == 0) {
 				keys = new Object[columns];
 			}
-			PropertyInterface p = Properties.getProperty(clazz, property.name);
+			Property p = Properties.getProperty(clazz, property.name);
 			if (p == null) {
 				System.out.println("Missing: " + property.name);
 			}

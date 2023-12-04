@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.IdUtils;
@@ -35,7 +35,7 @@ public abstract class SqlDialect {
 		s.append("CREATE TABLE ").append(tableName).append(" (\n");
 	} 
 
-	protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+	protected void addIdColumn(StringBuilder s, Property idProperty) {
 		s.append(" id ");
 		addColumnDefinition(s, idProperty);
 		if (Table.isAutoIncrement(idProperty)) {
@@ -44,7 +44,7 @@ public abstract class SqlDialect {
 		s.append(" NOT NULL");
 	}
 
-	public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+	public void addColumnDefinition(StringBuilder s, Property property) {
 		Class<?> clazz = property.getClazz();
 		
 		if (clazz == Integer.class) {
@@ -89,10 +89,10 @@ public abstract class SqlDialect {
 			}
 		} else {
 			if (IdUtils.hasId(clazz)) {
-				PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id");
+				Property idProperty = FlatProperties.getProperty(clazz, "id");
 				addColumnDefinition(s, idProperty);
 			} else {
-				PropertyInterface idProperty = FlatProperties.getProperty(property.getDeclaringClass(), "id");
+				Property idProperty = FlatProperties.getProperty(property.getDeclaringClass(), "id");
 				addColumnDefinition(s, idProperty);
 			}
 		}
@@ -128,16 +128,20 @@ public abstract class SqlDialect {
 		return s.toString();
 	}
 	
-	public String createUniqueIndex(String tableName, String column) {
-		return "ALTER TABLE " + tableName + " ADD UNIQUE INDEX " + column + " (" + column + ')';
-	}
-	
 	public String limit(int rows, Integer offset) {
 		return "OFFSET " + (offset != null ? offset.toString() : 0) + " ROWS FETCH NEXT " + rows + " ROWS ONLY";
 	}
 	
-	public String createType(Class<?> clazz, String identifier) {
+	public boolean hasEnumTypes() {
+		return false;
+	}
+
+	public String createEnum(Class<?> clazz, String identifier) {
 		return null;
+	}
+
+	public String enumSql(Enum<?> enuum) {
+		return Integer.toString(enuum.ordinal());
 	}
 	
 	public static class MariaSqlDialect extends SqlDialect {
@@ -148,7 +152,7 @@ public abstract class SqlDialect {
 		}
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
@@ -192,7 +196,7 @@ public abstract class SqlDialect {
 			return true;
 		}
 		
-		protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+		protected void addIdColumn(StringBuilder s, Property idProperty) {
 			Class<?> clazz = idProperty.getClazz();
 			if (Table.isAutoIncrement(idProperty)) {
 				if (clazz == Integer.class) {
@@ -213,7 +217,7 @@ public abstract class SqlDialect {
 		}
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				s.append("BYTEA");	
@@ -236,18 +240,7 @@ public abstract class SqlDialect {
 				super.setParameter(preparedStatement, param, value);
 			}
 		}
-		
-		@Override
-		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
-			if (clazz.isArray()) {
-				preparedStatement.setNull(param, Types.ARRAY);			
-			} else if (clazz == Boolean.class) {
-				preparedStatement.setNull(param, Types.BOOLEAN);
-			} else {
-				super.setParameterNull(preparedStatement, param, clazz);
-			}
-		}
-		
+
 		@Override
 		public int getMaxIdentifierLength() {
 			return 63;
@@ -259,9 +252,14 @@ public abstract class SqlDialect {
 		}
 		
 		@Override
-		public String createType(Class<?> clazz, String identifier) {
+		public boolean hasEnumTypes() {
+			return true;
+		}
+		
+		@Override
+		public String createEnum(Class<?> clazz, String identifier) {
 			StringBuilder s = new StringBuilder();
-			s.append("CREATE OR REPLACE TYPE ").append(identifier).append(" AS ENUM ('");
+			s.append("CREATE TYPE ").append(identifier).append(" AS ENUM ('");
 			for (Object e : EnumUtils.valueList((Class<? extends Enum>) clazz)) {
 				s.append(((Enum) e).name()).append("', '");
 			}
@@ -269,12 +267,17 @@ public abstract class SqlDialect {
 			s.append(")");		
 			return s.toString();
 		}
+		
+		@Override
+		public String enumSql(Enum<?> enuum) {
+			return "'" + enuum.name() + "'";
+		}
 	}
 	
 	public static class H2SqlDialect extends SqlDialect {
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (Enum.class.isAssignableFrom(clazz)) {
 				// ENUM('clubs', 'diamonds', 'hearts', 'spades')
@@ -302,12 +305,17 @@ public abstract class SqlDialect {
 			// h2 doesn't really have a maximum identifier length
 			return 256;
 		}
+		
+		@Override
+		public String enumSql(Enum<?> enuum) {
+			return "'" + enuum.name() + "'";
+		}
 	}
 	
 	public static class MsSqlDialect extends SqlDialect {
 
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				int size = AnnotationUtil.getSize(property, AnnotationUtil.OPTIONAL);
@@ -322,7 +330,7 @@ public abstract class SqlDialect {
 			}
 		}
 
-		protected void addIdColumn(StringBuilder s, PropertyInterface idProperty) {
+		protected void addIdColumn(StringBuilder s, Property idProperty) {
 			s.append(" id ");
 			addColumnDefinition(s, idProperty);
 			if (Table.isAutoIncrement(idProperty)) {
@@ -349,6 +357,7 @@ public abstract class SqlDialect {
 		
 		@Override
 		public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
+			// TODO check if this is really necessary anymore
 			if (clazz == LocalTime.class || clazz == LocalDate.class || clazz == LocalDateTime.class) {
 				preparedStatement.setNull(param, Types.CHAR);
 			} else {
@@ -357,7 +366,7 @@ public abstract class SqlDialect {
 		}
 		
 		@Override
-		public void addColumnDefinition(StringBuilder s, PropertyInterface property) {
+		public void addColumnDefinition(StringBuilder s, Property property) {
 			Class<?> clazz = property.getClazz();
 			if (clazz == LocalDate.class) {
 				s.append("CHAR(10)");
@@ -374,11 +383,6 @@ public abstract class SqlDialect {
 			}
 		}
 		
-		@Override
-		public String createUniqueIndex(String tableName, String column) {
-			return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + column + "_UNIQUE UNIQUE (" + column + ')';
-		}
-
 		@Override
 		public int getMaxIdentifierLength() {
 			return 30;
@@ -409,33 +413,7 @@ public abstract class SqlDialect {
 	}
 	
 	public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {
-		if (clazz == String.class) {
-			preparedStatement.setNull(param, Types.VARCHAR);
-		} else if (clazz == UUID.class) {
-			preparedStatement.setNull(param, Types.CHAR);
-		} else if (clazz == Integer.class) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == Boolean.class) {
-			// TODO should this be BIT or BOOLEAN?
-			// if change, adjust PostgresqlDialect and check for all dialects
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == BigDecimal.class || clazz == Long.class) {
-			preparedStatement.setNull(param, Types.DECIMAL);
-		} else if (Enum.class.isAssignableFrom(clazz)) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz == LocalDate.class) {
-			preparedStatement.setNull(param, Types.DATE);
-		} else if (clazz == LocalTime.class) {
-			preparedStatement.setNull(param, Types.TIME);
-		} else if (clazz == LocalDateTime.class) {
-			preparedStatement.setNull(param, Types.DATE);
-		} else if (IdUtils.hasId(clazz)) {
-			preparedStatement.setNull(param, Types.INTEGER);
-		} else if (clazz.isArray()) {
-			preparedStatement.setNull(param, Types.BLOB);			
-		} else {
-			preparedStatement.setNull(param, Types.INTEGER);
-		}
+		preparedStatement.setNull(param, Types.NULL);
 	}
 	
 	protected Object convertToFieldClass(Class<?> fieldClass, Object value) {

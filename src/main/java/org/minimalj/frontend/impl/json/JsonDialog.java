@@ -8,7 +8,7 @@ import org.minimalj.frontend.action.Action;
 public class JsonDialog extends JsonComponent {
 
 	public JsonDialog(String title, IContent content, Action saveAction, Action closeAction, List<Action> actions) {
-		super(content instanceof JsonSearchTable ? "SearchDialog" : "Dialog");
+		super("Dialog");
 		put("title", title);
 		put("content", content);
 

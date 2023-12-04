@@ -4,7 +4,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public class ImageFormElement extends AbstractFormElement<byte[]> {
 
@@ -21,11 +21,11 @@ public class ImageFormElement extends AbstractFormElement<byte[]> {
 		input = Frontend.getInstance().createImage(editable ? new ImageFieldChangeListener() : null);
 	}
 
-	public ImageFormElement(PropertyInterface property, boolean editable) {
+	public ImageFormElement(Property property, boolean editable) {
 		this(property, editable, 3);
 	}
 
-	public ImageFormElement(PropertyInterface property, boolean editable, int size) {
+	public ImageFormElement(Property property, boolean editable, int size) {
 		super(property);
 		this.constraint = new FormElementConstraint(size, size);
 		input = Frontend.getInstance().createImage(editable ? new ImageFieldChangeListener() : null);

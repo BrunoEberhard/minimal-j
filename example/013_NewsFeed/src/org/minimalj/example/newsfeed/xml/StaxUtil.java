@@ -13,7 +13,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 
 /**
@@ -55,7 +55,7 @@ public class StaxUtil {
 	}
 
 	public static void simpleValue(XMLEventReader xml, Object object, Object key) throws XMLStreamException {
-		PropertyInterface property = FlatProperties.getProperties(object.getClass()).get(key);
+		Property property = FlatProperties.getProperties(object.getClass()).get(key);
 		if (property == null) {
 			throw new IllegalArgumentException("Unknown field: " + key);
 		}
@@ -119,11 +119,11 @@ public class StaxUtil {
 	}
 
 	public static void enuum(XMLEventReader xml, Object object, Object key) throws XMLStreamException {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
 		enuum(xml, object, property);
 	}
 	
-	public static void enuum(XMLEventReader xml, Object object, PropertyInterface property) throws XMLStreamException {
+	public static void enuum(XMLEventReader xml, Object object, Property property) throws XMLStreamException {
 		boolean found = false;
 		while (true) {
 			XMLEvent event = xml.nextEvent();
@@ -138,7 +138,7 @@ public class StaxUtil {
 	}
 	
 	// in ech EchCode!!
-	public static <T extends Enum<T>> void enuum(String value, Object object, PropertyInterface property) {
+	public static <T extends Enum<T>> void enuum(String value, Object object, Property property) {
 		@SuppressWarnings("unchecked")
 		Class<T> enumClass = (Class<T>) property.getClazz();
 		List<Enum> values = (List<Enum>) EnumUtils.valueList(enumClass);

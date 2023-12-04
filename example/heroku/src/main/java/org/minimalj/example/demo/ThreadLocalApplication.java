@@ -135,7 +135,7 @@ public class ThreadLocalApplication extends WebApplication {
 		}
 
 		public URL getUrl(String path) throws IOException {
-			return getCurrentApplication().getClass().getResource("web/" + path);
+			return getCurrentApplication().getClass().getResource("web" + (path.startsWith("/") ? "" : "/") + path);
 		}
 
 		private InputStream getInputStream(String path) throws IOException {

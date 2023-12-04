@@ -42,7 +42,7 @@ import org.minimalj.model.Column;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private static final long serialVersionUID = 1L;
@@ -50,7 +50,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjSwingTablePageSize", "1000"));
 	
 	private final Object[] keys;
-	private final List<PropertyInterface> properties;
+	private final List<Property> properties;
 	private final JTable table;
 	private final ItemTableModel tableModel;
 	private final TableActionListener<T> listener;
@@ -107,10 +107,10 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         table.getTableHeader().add(panel, BorderLayout.LINE_END);
 	}
 	
-	private List<PropertyInterface> convert(Object[] keys) {
-		List<PropertyInterface> properties = new ArrayList<>(keys.length);
+	private List<Property> convert(Object[] keys) {
+		List<Property> properties = new ArrayList<>(keys.length);
 		for (Object key : keys) {
-			PropertyInterface property = Keys.getProperty(key);
+			Property property = Keys.getProperty(key);
 			if (property != null) {
 				properties.add(property);
 			} else {
@@ -233,7 +233,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		@Override
 		public String getColumnName(int column) {
-			PropertyInterface property = properties.get(column)
+			Property property = properties.get(column)
 ;			return Column.evalHeader(property);
 		}
 
@@ -241,7 +241,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		public Object getValueAt(int row, int column) {
 			try {
 				Object object = getObject(row);
-				PropertyInterface property = properties.get(column);
+				Property property = properties.get(column);
 				return property.getValue(object);
 			} catch (Exception x) {
 				logger.severe("Couldn't get value for " + row + "/" + column + ": " + x.getMessage());
@@ -282,7 +282,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			Color color = null;
 			String stringValue;
 
-			PropertyInterface property = properties.get(columnIndex);
+			Property property = properties.get(columnIndex);
 
 			if (property instanceof Column) {
 				Column column = (Column) property;
@@ -290,7 +290,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				if (column.isLink(object, value)) {
 					color = Color.BLUE;
 				} else {
-					color = getColor(column.getColor(object, value));
+					color = getColor(Column.getColor(column, object, value));
 				}
 			} else {
 				stringValue = Rendering.toString(value, property);
@@ -312,6 +312,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				case YELLOW: return Color.YELLOW;
 				case GREEN: return Color.GREEN;
 				case BLUE: return Color.BLUE;
+				case GRAY: return Color.GRAY;
 			}
 		}
 		return null;
@@ -327,7 +328,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			if (rowView >= 0 && colView >= 0) {
 				int row = table.convertRowIndexToModel(rowView);
 				int col = table.convertColumnIndexToModel(colView);
-				PropertyInterface property = properties.get(col);
+				Property property = properties.get(col);
 				if (property instanceof Column) {
 					Column column = (Column) property;
 					Object object = ((ItemTableModel) table.getModel()).getObject(row);

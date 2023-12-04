@@ -1,19 +1,21 @@
 package org.minimalj.frontend.impl.vaadin;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.impl.vaadin.toolkit.VaadinDialog;
-import org.minimalj.frontend.page.IDialog;
+import org.minimalj.frontend.impl.vaadin.toolkit.VaadinMenu;
 import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
@@ -44,6 +46,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	private final VerticalLayout menuLayout = new VerticalLayout();
 	private final Authentication authentication = Backend.getInstance().getAuthentication();
 	private final Button loginButton, logoutButton;
+	private final Map<Dialog, VaadinDialog> visibleDialogs = new HashMap<>();
 	
 	public VaadinPageManager() {
 		UI.getCurrent().getSession().setAttribute("pageManager", this);
@@ -109,7 +112,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 			if (action instanceof ActionGroup) {
 				container.add(new Label(action.getName()));
 				VerticalLayout layout = new VerticalLayout();
-				layout.setMargin(true);
+				layout.setMargin(false);
 				layout.setSpacing(false);
 				addActions(layout, ((ActionGroup)action).getItems());
 				container.add(layout);
@@ -144,19 +147,27 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 				if (action instanceof ActionGroup || action instanceof Separator) {
 					continue;
 				}
-				Anchor anchor = new Anchor();
-				anchor.setText(action.getName());
-				anchor.getElement().addEventListener("click", e -> {action.run(); menu.close();} );
-				menu.add(anchor);
+				VaadinMenu.adaptAction(menu, action);
 			}
 		}
 	}
 
 	@Override
-	public IDialog showDialog(String title, IContent content, Action saveAction, Action closeAction, Action... actions) {
-		return new VaadinDialog(title, (Component) content, saveAction, closeAction, actions);
+	public void showDialog(Dialog dialog) {
+		VaadinDialog vaadinDialog = new VaadinDialog(dialog);
+		visibleDialogs.put(dialog, vaadinDialog);
+		vaadinDialog.open();
 	}
-
+	
+	@Override
+	public void closeDialog(Dialog dialog) {
+		VaadinDialog vaadinDialog = visibleDialogs.get(dialog);
+		if (vaadinDialog != null) {
+			vaadinDialog.close();
+			visibleDialogs.remove(dialog);
+		}
+	}
+	
 	@Override
 	public void showMessage(String text) {
 		Notification.show(text);

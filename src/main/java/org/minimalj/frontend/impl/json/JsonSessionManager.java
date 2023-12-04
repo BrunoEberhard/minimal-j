@@ -70,12 +70,6 @@ public class JsonSessionManager extends TimerTask {
 		return handle(data);
 	}
 
-	public String handle(String json) {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> data = (Map<String, Object>) JsonReader.read(json);
-		return handle(data);
-	}
-
 	public String handle(Map<String, Object> data) {
 		JsonPageManager session = getSession(data);
 		JsonInput input = new JsonInput(data);
@@ -87,6 +81,15 @@ public class JsonSessionManager extends TimerTask {
 		return output;
 	}
 
+	public String export(String sessionId, String id) {
+		JsonPageManager session = sessions.get(sessionId);
+		if (session != null) {
+			return session.export(id);
+		} else {
+			return null;
+		}
+	}
+	
 	public static class JsonSessionInfo {
 		public static final JsonSessionInfo $ = Keys.of(JsonSessionInfo.class);
 		
@@ -132,7 +135,7 @@ public class JsonSessionManager extends TimerTask {
 			return Collections.singletonList(new JsonSessionRemoveAction());
 		}
 		
-		private class JsonSessionRemoveAction extends BaseTableSelectionAction<JsonSessionInfo> {
+		private class JsonSessionRemoveAction extends AbstractObjectsAction<JsonSessionInfo> {
 			
 			@Override
 			public void run() {

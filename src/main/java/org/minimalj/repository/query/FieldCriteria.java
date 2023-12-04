@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 import java.time.temporal.Temporal;
 
 import org.minimalj.model.Keys;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.EqualsHelper;
@@ -20,7 +21,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 	private final Object value;
 	private final ClassHolder<?> classHolder;
 
-	private transient PropertyInterface property;
+	private transient Property property;
 	private final String path;
 
 	public FieldCriteria(Object key, Object value) {
@@ -33,7 +34,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		
 		property = Keys.getProperty(key);
 		if (property == null) {
-			throw new IllegalArgumentException("Key must be a field from a $ constant or a " + PropertyInterface.class.getSimpleName());
+			throw new IllegalArgumentException("Key must be a field from a $ constant or a " + Property.class.getSimpleName());
 		}
 		assertValidOperator(property, operator);
 		assertValidValueClass(property, value);
@@ -49,7 +50,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		this.classHolder = classHolder;
 	}
 
-	private void assertValidOperator(PropertyInterface property, FieldOperator operator) {
+	private void assertValidOperator(Property property, FieldOperator operator) {
 		Class<?> clazz = property.getClazz();
 		if (clazz == Integer.class || clazz == Long.class || clazz == BigDecimal.class || Temporal.class.isAssignableFrom(clazz)) return;
 		if (operator == FieldOperator.equal || operator == FieldOperator.notEqual)
@@ -57,9 +58,9 @@ public class FieldCriteria extends Criteria implements Serializable {
 		throw new IllegalArgumentException(operator + " only allowed for Integer, Long and BigDecimal fields");
 	}
 
-	private void assertValidValueClass(PropertyInterface property, Object value) {
+	private void assertValidValueClass(Property property, Object value) {
 		if (value != null) {
-			if (!property.getClazz().isAssignableFrom(value.getClass())) {
+			if (!ViewUtils.resolve(property.getClazz()).isAssignableFrom(ViewUtils.resolve(value.getClass()))) {
 				throw new IllegalArgumentException("Value is " + value.getClass().getName() + " but must be " + property.getClazz().getSimpleName());
 			}
 		}
@@ -76,7 +77,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 	/*
 	 * Only to be used by InMemoryRepository
 	 */
-	public PropertyInterface getProperty() {
+	public Property getProperty() {
 		if (property == null) {
 			property = Properties.getPropertyByPath(classHolder.getClazz(), path);
 		}
@@ -94,7 +95,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 	
 	@Override
 	public boolean test(Object object) {
-		PropertyInterface p = getProperty();
+		Property p = getProperty();
 		object = p.getValue(object);
 		Object value = getValue();
 		if (getOperator() == FieldOperator.equal) {

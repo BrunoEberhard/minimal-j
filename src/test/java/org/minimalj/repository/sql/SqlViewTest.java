@@ -19,6 +19,26 @@ public class SqlViewTest extends SqlTest {
 	}
 
 	@Test
+	public void testReadViewWithDependable() {
+		TestClass test = new TestClass();
+		test.dependable = new B("dependable");
+		Object id = repository.insert(test);
+
+		TestView1 view = repository.read(TestView1.class, id);
+		Assert.assertNotNull(view.dependable);
+	}
+	
+	@Test
+	public void testFindViewWithDependable() {
+		TestClass test = new TestClass();
+		test.dependable = new B("dependable");
+		repository.insert(test);
+		
+		TestView1 view = repository.find(TestView1.class, By.ALL).get(0);
+		Assert.assertNotNull(view.dependable);		
+	}
+	
+	@Test
 	public void testReadViewWithLists() {
 		TestClass test = new TestClass();
 		
@@ -63,6 +83,8 @@ public class SqlViewTest extends SqlTest {
 		public List<G> listWithId = new ArrayList<>();
 
 		public List<B> listWithoutId = new ArrayList<>();
+		
+		public B dependable;
 	}
 	
 	public static class TestView1 implements View<TestClass> {
@@ -76,6 +98,8 @@ public class SqlViewTest extends SqlTest {
 		public List<G> listWithId = new ArrayList<>();
 
 		public List<B> listWithoutId = new ArrayList<>();
+		
+		public B dependable;
 	}
 	
 }

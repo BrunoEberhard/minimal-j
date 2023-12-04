@@ -126,6 +126,7 @@ public abstract class Frontend {
 	}
 	public abstract Input<Boolean> createCheckBox(InputComponentListener changeListener, String text);
 
+	// if nullText != null then an additional item above the items should be shown. Otherwise not.
 	public <T> Input<T> createComboBox(List<T> items, String nullText, InputComponentListener changeListener) {
 		return createComboBox(items, changeListener);
 	}
@@ -164,6 +165,11 @@ public abstract class Frontend {
 	}
 
 	public interface FormContent extends IContent, IComponent {
+		public default void group(String caption) {
+		}
+		public default void setIgnoreCaption(boolean ignoreCaption) {
+		}
+		
 		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);
 		
@@ -180,10 +186,6 @@ public abstract class Frontend {
 	
 	public abstract FormContent createFormContent(int columns, int columnWidth);
 
-	public FormContent createFormContent(List<Integer> columnWidths) {
-		throw new RuntimeException("Not implemented");
-	}
-	
 	public interface SwitchContent extends IContent {
 		public void show(IContent content);
 	}
@@ -194,6 +196,10 @@ public abstract class Frontend {
 		
 		// must keep selection and call selectionListener
 		public void setObjects(List<T> objects);
+		
+		public default void setColumns(Object[] keys) {
+			// throw new RuntimeException("Not implemented");
+		}
 	}
 
 	public interface TableActionListener<U> {
@@ -205,9 +211,8 @@ public abstract class Frontend {
 		}
 	}
 	
-	// experimental. Signature may change. Idea is to have a header or filter above
-	// a table. But the header/filter must not be a growing content
-	public abstract IContent createFormTableContent(FormContent form, ITable<?> table);
+	// this decoration should disable auto filter of decorated table
+	public abstract IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset);
 
 	public abstract <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener);
 
@@ -308,8 +313,6 @@ public abstract class Frontend {
 		getInstance().close(dialog);
 	}
 	
-	public abstract <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener);
-
 	public static void showMessage(String text) {
 		getInstance().doShowMessage(text);
 	}

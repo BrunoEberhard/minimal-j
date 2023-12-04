@@ -1,6 +1,9 @@
 package org.minimalj.frontend.impl.json;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +24,10 @@ import org.minimalj.model.Column.ColumnAlignment;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.Rendering.FontStyle;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
+import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 
@@ -33,61 +38,93 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	private static final int FILTER_LINES = Integer.parseInt(Configuration.get("MjTableFilterLines", "12"));
 
 	private final JsonPageManager pageManager;
-	private final Object[] keys;
-	private final List<PropertyInterface> properties;
 	private final TableActionListener<T> listener;
 	private List<T> objects, visibleObjects;
 	private final List<T> selectedObjects = new ArrayList<>();
 	private int page;
+	
+	private JsonTableModel tableModel;
+	
 	private final List<Object> sortColumns = new ArrayList<>();
 	private final List<Boolean> sortDirections = new ArrayList<>();
-	private final ColumnFilter[] filters;
-	private final IComponent[] headerFilters;
-	private final String[] alignments;
 	
 	public JsonTable(JsonPageManager pageManager, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super("Table");
 		this.pageManager = pageManager;
-		this.keys = keys;
-		this.properties = convert(keys);
 		this.listener = listener;
 
-		List<String> headers = new ArrayList<>();
-		List<String> headerPathes = new ArrayList<>();
-		filters = new ColumnFilter[keys.length];
-		headerFilters = new IComponent[keys.length];
-		alignments = new String[keys.length];
-
-		for (PropertyInterface property : properties) {
-			String header = Column.evalHeader(property);
-			headers.add(header);
-			headerPathes.add(property.getPath());
-			int column = headers.size() - 1;
-			filters[column] = ColumnFilter.createFilter(property);
-			headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
-			alignments[column] = alignment(property);
-		}
-		put("headers", headers);
-		put("headerPathes", headerPathes);
-		put("headerFilters", headerFilters);
-		put("alignments", alignments);
-
+		put("tableModel", tableModel = new JsonTableModel(keys));
+		
 		put("multiSelect", multiSelect);
 		put("tableContent", Collections.emptyList());
 	}
 
-	private String alignment(PropertyInterface property) {
+	public class JsonTableModel extends HashMap<String, Object> {
+		private static final long serialVersionUID = 1L;
+
+		private final Object[] keys;
+		private final List<Property> properties;
+		private final ColumnFilter[] filters;
+		private final IComponent[] headerFilters;
+		private final String[] alignments;
+		
+		public JsonTableModel(Object[] keys) {
+			this.keys = keys;
+			this.properties = convert(keys);
+			List<String> headers = new ArrayList<>();
+			List<String> headerPathes = new ArrayList<>();
+			filters = new ColumnFilter[keys.length];
+			headerFilters = new IComponent[keys.length];
+			alignments = new String[keys.length];
+			Integer[] widths = new Integer[keys.length];
+			Integer[] maxWidths = new Integer[keys.length];
+
+			for (Property property : properties) {
+				String header = Column.evalHeader(property);
+				headers.add(header);
+				headerPathes.add(property.getPath());
+				int column = headers.size() - 1;
+				filters[column] = ColumnFilter.createFilter(property);
+				headerFilters[column] = filters[column].getComponent(new ColumnFilterChangeListener(column));
+				alignments[column] = alignment(property);
+				widths[column] = ListUtil.width(property);
+				maxWidths[column] = ListUtil.maxWidth(property);
+			}
+
+			put("headers", headers);
+			put("headerPathes", headerPathes);
+			put("headerFilters", headerFilters);
+			put("alignments", alignments);
+			put("widths", widths);
+			put("maxWidths", maxWidths);
+		}
+
+		public boolean isFilterVisible() {
+			return Boolean.TRUE.equals(get("filterVisible"));
+		}
+		
+		public boolean hasActiveFilter() {
+			return Arrays.stream(filters).anyMatch(ColumnFilter::active);
+		}
+	}
+	
+	private static String alignment(Property property) {
 		if (property instanceof Column) {
 			ColumnAlignment alignment = ((Column<?, ?>) property).getAlignment();
-			return alignment != null ? alignment.name() : null;
+			if (alignment != null) {
+				return alignment.name();
+			}
+		} 
+		if (Number.class.isAssignableFrom(property.getClazz())) {
+			return ColumnAlignment.end.name();
 		}
 		return null;
 	}
-
-	private static List<PropertyInterface> convert(Object[] keys) {
-		List<PropertyInterface> properties = new ArrayList<>(keys.length);
+	
+	private static List<Property> convert(Object[] keys) {
+		List<Property> properties = new ArrayList<>(keys.length);
 		for (Object key : keys) {
-			PropertyInterface property = Keys.getProperty(key);
+			Property property = Keys.getProperty(key);
 			if (property != null) {
 				properties.add(property);
 			} else {
@@ -103,9 +140,9 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	@Override
 	public void setObjects(List<T> objects) {
 		pageManager.unregister(get("tableContent"));
-		this.objects = objects;
+		this.objects = objects != null ? objects : Collections.emptyList();
 
-		visibleObjects = ListUtil.get(objects, Boolean.TRUE.equals(get("filterVisible")) ? filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(this.objects, tableModel.isFilterVisible() ? tableModel.filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 
 		List<String> selectedRows = new ArrayList<>();
@@ -125,8 +162,8 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		putSilent("selectedRows", null); // always fire this property change
 		put("selectedRows", selectedRows);
 		updatePaging();
-		if (!containsKey("filterVisible")) {
-			put("filterVisible", objects.size() >= FILTER_LINES);
+		if (!tableModel.containsKey("filterVisible")) {
+			tableModel.put("filterVisible", this.objects.size() >= FILTER_LINES);
 		}
 		
 		selectedObjects.clear();
@@ -134,9 +171,24 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		listener.selectionChanged(selectedObjects);
 	}
 	
+	@Override
+	public void setColumns(Object[] keys) {
+		tableModel = new JsonTableModel(keys);
+		put("tableModel", tableModel);
+		refreshTableContent();
+	}
+	
+	private void refreshTableContent() {
+		if (visibleObjects != null) {
+			pageManager.unregister(get("tableContent"));
+			List<List> tableContent = createTableContent(visibleObjects);
+			put("tableContent", tableContent);
+		}
+	}
+	
 	private void updatePaging() {
 		if (objects.size() > PAGE_SIZE) {
-			int count = ListUtil.count(objects, filters);
+			int count = ListUtil.count(objects, tableModel.filters);
 			put("paging", (page * PAGE_SIZE + 1) + " - " + Math.min((page + 1) * PAGE_SIZE, count) + " / " + count);
 		}
 	}
@@ -169,7 +221,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			}
 			break;
 		case "next":
-			if (page < Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE) {
+			if (page < Math.max(ListUtil.count(objects, tableModel.filters) - 1, 0) / PAGE_SIZE) {
 				page = page + 1;
 			} else {
 				return;
@@ -183,7 +235,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			}
 			break;
 		case "last":
-			int max = Math.max(ListUtil.count(objects, filters) - 1, 0) / PAGE_SIZE;
+			int max = Math.max(ListUtil.count(objects, tableModel.filters) - 1, 0) / PAGE_SIZE;
 			if (page < max) {
 				page = max;
 			} else {
@@ -194,7 +246,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 			throw new IllegalArgumentException(direction);
 		}
 		
-		visibleObjects = ListUtil.get(objects, filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
+		visibleObjects = ListUtil.get(objects, tableModel.filters, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
 		List<List> tableContent = createTableContent(visibleObjects);
 		put("tableContent", tableContent);
 
@@ -208,7 +260,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		List<List> tableContent = new ArrayList<>();
 		for (T object : objects) {
 			List rowContent = new ArrayList();
-			for (PropertyInterface property : properties) {
+			for (Property property : tableModel.properties) {
 				Object value = property.getValue(object);
 				if (property instanceof Column) {
 					Column column = (Column) property;
@@ -216,38 +268,44 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					if (column.isLink(object, value)) {
 						rowContent.add(Collections.singletonMap("action", stringValue));
 					} else {
-						ColorName color = column.getColor(object, value);
-						if (color == null) {
-							rowContent.add(stringValue);
-						} else {
-							Map<String, Object> map = new HashMap<>();
-							map.put("value", stringValue);
-							map.put("color", color.name().toLowerCase());
-							rowContent.add(map);
-							// newer Java: rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
-						}
+						ColorName color = Column.getColor(column, object, value);
+						Collection<FontStyle> styles = column.getFontStyles(object, value);
+						rowContent.add(createTableCellContent(color, styles, stringValue));
 					}
 				} else {
 					String stringValue = Rendering.toString(value, property);
 					ColorName color = Rendering.getColor(object, value);
-					if (color == null) {
-						rowContent.add(stringValue);
-					} else {
-						Map<String, Object> map = new HashMap<>();
-						map.put("value", stringValue);
-						map.put("color", color.name().toLowerCase());
-						rowContent.add(map);
-						// newer Java: rowContent.add(Map.of("value", stringValue, "color", color.name().toLowerCase()));
-					}
+					Collection<FontStyle> styles = Rendering.getFontStyles(object, value);
+					rowContent.add(createTableCellContent(color, styles, stringValue));
 				}
 			}
 			tableContent.add(rowContent);
 		}
 		return tableContent;
 	}
+
+	private Object createTableCellContent(ColorName color, Collection<FontStyle> styles, String stringValue) {
+		if (EmptyObjects.isEmpty(stringValue)) {
+			return "";
+		} else if (color == null && styles == null) {
+			return stringValue;
+		} else {
+			Map<String, Object> map = new HashMap<>();
+			map.put("value", stringValue);
+			List<String> classes = new ArrayList<>();
+			if (color != null) {
+				classes.add(color.name().toLowerCase());
+			}
+			if (styles != null) {
+				styles.forEach(style -> classes.add(style.name().toLowerCase()));
+			}
+			map.put("styles", classes);
+			return map;
+		}
+	}
 	
 	public void cellAction(int row, int columnIndex) {
-		PropertyInterface property = properties.get(columnIndex);
+		Property property = tableModel.properties.get(columnIndex);
 		if (property instanceof Column) {
 			Column column = (Column) property;
 			Object object = visibleObjects.get(row);
@@ -269,7 +327,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	}
 
 	public void sort(int column) {
-		Object key = keys[column];
+		Object key = tableModel.keys[column];
 		int size = sortColumns.size();
 		int pos = sortColumns.indexOf(key);
 		if (size > 0 && pos == 0) {
@@ -298,23 +356,74 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		public void changed(IComponent source) {
 			page = 0;
 			setObjects(objects);
-			ValidationMessage validationMessage = filters[column].validate();
-			((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+			ValidationMessage validationMessage = tableModel.filters[column].validate();
+			((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
 		}
 	}
 
 	public void setFilterVisible(boolean visible) {
-		put("filterVisible", visible);
-
-		if (visible) {
-			for (int column = 0; column < filters.length; column++) {
-				ValidationMessage validationMessage = filters[column].validate();
-				((JsonComponent) headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+		boolean previousVisible = tableModel.isFilterVisible();
+		boolean previousVisibleAndActive = previousVisible && tableModel.hasActiveFilter();
+		
+		if (previousVisible != visible) {
+			tableModel.put("filterVisible", visible);
+			
+			if (visible) {
+				for (int column = 0; column < tableModel.filters.length; column++) {
+					ValidationMessage validationMessage = tableModel.filters[column].validate();
+					((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+				}
 			}
 		}
-
-		page = 0;
-		setObjects(objects);
+		if (previousVisibleAndActive != visible) {
+			page = 0;
+			setObjects(objects);
+		}
 	}
 
+	public String export() {
+		StringBuilder s = new StringBuilder(1000);
+		List<String> headers = (List<String>) tableModel.get("headers");
+		for (String header : headers) {
+			s.append(header).append(";");
+		}
+		s.delete(s.length() - 1, s.length());
+		s.append("\n");
+		
+		for (T object : objects) {
+			for (Property property : tableModel.properties) {
+				Object value = property.getValue(object);
+				if (value instanceof BigDecimal) {
+					s.append(((BigDecimal) value).toPlainString());
+				} else if (property instanceof Column) {
+					Column column = (Column) property;
+					append(s, column.render(object, value));
+				} else {
+					append(s, Rendering.render(value, property));
+				}
+				s.append(";");
+			}
+			s.delete(s.length() - 1, s.length());
+			s.append("\n");
+		}
+		
+		return s.toString();
+	}
+	
+	private void append(StringBuilder s, CharSequence sequence) {
+		s.append("\"");
+		if (sequence != null) {
+			for (int i = 0; i<sequence.length(); i++) {
+				char c = sequence.charAt(i);
+				if (c == '"') {
+					s.append('"').append('"');
+				} else if (Character.isWhitespace(c)) {
+					s.append(' ');
+				} else {
+					s.append(c);
+				}
+			}
+		}
+		s.append("\"");
+	}
 }

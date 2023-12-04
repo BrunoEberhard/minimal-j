@@ -9,7 +9,7 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.resources.Resources;
 
 import com.vaadin.data.PropertyDefinition;
@@ -32,7 +32,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	// private Action action_delete = new ShortcutAction("Delete", ShortcutAction.KeyCode.DELETE, null);
 	// private Action action_enter = new ShortcutAction("Enter", ShortcutAction.KeyCode.DELETE, null);
 
-	private PropertyInterface[] properties;
+	private Property[] properties;
 	
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		super(propertySet(keys));
@@ -60,12 +60,12 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private static class MjTablePropertySet<T> implements PropertySet<T> {
 		private static final long serialVersionUID = 1L;
 
-		private final PropertyInterface properties[];
+		private final Property properties[];
 		private final List<PropertyDefinition<T, ?>> defList = new ArrayList<>();
 		
 		public  MjTablePropertySet(Object[] keys) {
 			properties = Keys.getProperties(keys);
-			for (PropertyInterface p : properties) {
+			for (Property p : properties) {
 				defList.add(new MjTablePropertyDefinition(p));
 			}
 		}
@@ -88,9 +88,9 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 		private static class MjTablePropertyDefinition<T> implements PropertyDefinition {
 			private static final long serialVersionUID = 1L;
 
-			private final PropertyInterface property;
+			private final Property property;
 			
-			public MjTablePropertyDefinition(PropertyInterface property) {
+			public MjTablePropertyDefinition(Property property) {
 				this.property = property;
 			}
 
@@ -166,8 +166,8 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 
 		@Override
 		public JsonValue encode(Object value) {
-			PropertyInterface property = null;
-			for (PropertyInterface p : properties) {
+			Property property = null;
+			for (Property p : properties) {
 				if (p.getPath().equals(propertyName)) {
 					property = p;
 					break;

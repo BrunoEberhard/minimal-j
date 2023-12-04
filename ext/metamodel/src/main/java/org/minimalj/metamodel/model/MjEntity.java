@@ -19,6 +19,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
+import org.minimalj.model.annotation.Size;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
@@ -66,6 +67,8 @@ public class MjEntity {
 
 	private final Class<?> clazz;
 
+	public MjEntity superEntity;
+
 	public MjEntity viewedEntity;
 
 	public Boolean validatable;
@@ -75,6 +78,9 @@ public class MjEntity {
 	public List<String> values; // only for enum
 	public String minInclusive, maxInclusive; // only for int / long / temporals
 	public Integer minLength, maxLength; // only for string / bigDecimal / byte[]
+	
+	@Size(1024)
+	public String comment;
 	
 	public MjEntity() {
 		// nur für Keys - Klasse
@@ -92,10 +98,15 @@ public class MjEntity {
 		model.addEntity(this);
 		validatable = Validation.class.isAssignableFrom(clazz);
 		
+		if (clazz.getSuperclass() != Object.class && clazz.getSuperclass() != Enum.class) {
+			System.out.println("super entity: " + clazz.getSimpleName());
+			superEntity = model.getOrCreateEntity(clazz.getSuperclass());
+		}
+		
 		Field[] fields = clazz.getFields();
 		for (Field field : fields) {
 			if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field) && !FieldUtils.isTransient(field) && !StringUtils.equals(field.getName(), "id", "version", "historized")) {
-				properties.add(new MjProperty(model, field));
+				properties.add(new MjProperty(model, clazz, field));
 			}
 		}
 		Method[] methods = clazz.getMethods();
@@ -116,6 +127,8 @@ public class MjEntity {
 			type = MjEntityType.CODE;
 		} else if (View.class.isAssignableFrom(clazz)) {
 			type = MjEntityType.VIEW;
+//			Class<?> viewedClass = GenericUtils.getGenericClass(clazz);
+//			viewedEntity = model.getOrCreateEntity(viewedClass);
 		} else if (IdUtils.hasId(clazz)) {
 			type = MjEntityType.ENTITY;
 		} else {

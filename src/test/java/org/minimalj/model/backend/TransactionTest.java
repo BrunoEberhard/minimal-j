@@ -64,6 +64,9 @@ public class TransactionTest {
 
 		@Override
 		public TestEntityA execute() {
+			// Do a separate transaction. Earlier version of SqlRepository closed the outer transaction together with the nested. So test it. 
+			Backend.count(TestEntityA.class, By.ALL);
+			
 			// insert in repository without separate transaction
 			insert(new TestEntityA());
 			if (Math.random() < 2) {

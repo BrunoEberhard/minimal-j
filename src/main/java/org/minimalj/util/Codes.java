@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.backend.repository.ReadTransaction;
@@ -21,69 +24,111 @@ import org.minimalj.transaction.Isolation.Level;
 
 public class Codes {
 
-	private static HashMap<Class<?>, CodeCacheItem<?>> cache = new HashMap<>();
-	
-	public static <T extends Code> T findCode(Class<T> clazz, String codeId) {
-		return findCode(clazz, (Object) codeId);
+	private static CodeCache codeCache;
+
+	public static void setCache(CodeCache codeCache) {
+		Objects.requireNonNull(codeCache);
+		if (Codes.codeCache != null && Codes.codeCache != codeCache) {
+			throw new IllegalStateException("Not allowed to change instance of " + CodeCache.class.getSimpleName());
+		}
+		Codes.codeCache = codeCache;
 	}
 
-	public static <T extends Code> T findCode(Class<T> clazz, Integer codeId) {
-		return findCode(clazz, (Object) codeId);
+	public static CodeCache getCache() {
+		if (Codes.codeCache == null) {
+			Codes.codeCache = DefaultCodeCache.instance;
+		}
+		return Codes.codeCache;
 	}
 
-	public static <T extends Code> T findCode(Class<T> clazz, Object codeId) {
-		List<T> codes = get(clazz);
-		return findCode(codes, codeId);
+	//
+
+	public static <T extends Code> T get(Class<T> clazz, String codeId) {
+		return get(clazz, (Object) codeId);
 	}
-	
-	public static <T extends Code> T findCode(List<T> codes, Object codeId) {
-		for (T code : codes) {
-			Object aCodeId = IdUtils.getId(code);
-			if (aCodeId == null && codeId == null || aCodeId != null && aCodeId.equals(codeId)) {
-				return code;
+
+	public static <T extends Code> T get(Class<T> clazz, Integer codeId) {
+		return get(clazz, (Object) codeId);
+	}
+
+	public static <T extends Code> T get(Class<T> clazz, Object codeId) {
+		return getCache().getCacheItems(clazz).getCode(codeId);
+	}
+
+	public static <T extends Code> List<T> get(Class<T> clazz) {
+		return getCache().getCacheItems(clazz).getCodes(LocaleContext.getCurrent());
+	}
+
+	public static <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
+		return getCache().getOrInstantiate(clazz, id);
+	}
+
+	public static void invalidateCodeCache(Class<? extends Object> clazz) {
+		getCache().invalidateCodeCache(clazz);
+	}
+
+	//
+
+	public interface CodeCache {
+
+		public <T extends Code> CodeCacheItem<T> getCacheItems(Class<T> clazz);
+
+		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id);
+
+		public void invalidateCodeCache(Class<? extends Object> clazz);
+
+	}
+
+	private static enum DefaultCodeCache implements CodeCache {
+		instance;
+
+		private static Map<Class<?>, CodeCacheItem<?>> cache = Collections.synchronizedMap(new HashMap<>());
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public <T extends Code> CodeCacheItem<T> getCacheItems(Class<T> clazz) {
+			synchronized (clazz) {
+				CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
+				if (cacheItem == null || !cacheItem.isValid()) {
+					CodeCacheItem<T> codeItem = new CodeCacheItem<>();
+					cache.put(clazz, codeItem);
+					List<T> codes = Backend.execute(new ReadCodesTransaction<>(clazz), true);
+					codeItem.setCodes(codes);
+				}
+				return (CodeCacheItem<T>) cache.get(clazz);
 			}
 		}
-		return null;
-	}
 
-	public static boolean isCode(Class<?> clazz) {
-		return Code.class.isAssignableFrom(clazz);
-	}
-
-	@SuppressWarnings("unchecked")
-	public synchronized static <T extends Code> List<T> get(Class<T> clazz) {
-		CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
-		if (cacheItem == null || !cacheItem.isValid()) {
-			updateCode(clazz);
+		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
+			synchronized (clazz) {
+				@SuppressWarnings("unchecked")
+				CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.computeIfAbsent(clazz, newClazz -> new CodeCacheItem<>());
+				return cacheItem.getOrInstantiate(clazz, id);
+			}
 		}
-		cacheItem = (CodeCacheItem<T>) cache.get(clazz);
-		return cacheItem.getCodes(LocaleContext.getCurrent());
+
+		public void invalidateCodeCache(Class<? extends Object> clazz) {
+			synchronized (clazz) {
+				cache.remove(clazz);
+			}
+		}
 	}
-	
-	public static <T extends Code> void removeFromCache(Class<?> clazz) {
-		cache.remove(clazz);
-	}
+
+	//
 
 	private static class CodeComparator implements Comparator<Code> {
 		private final Collator collator;
-		
+
 		public CodeComparator(Locale locale) {
 			this.collator = Collator.getInstance(LocaleContext.getCurrent());
 		}
-		
+
 		@Override
 		public int compare(Code o1, Code o2) {
 			String string1 = Rendering.toString(o1);
 			String string2 = Rendering.toString(o2);
-			return collator.compare(string1, string2);
+			return collator.compare(StringUtils.emptyIfNull(string1), StringUtils.emptyIfNull(string2));
 		}
-	}
-	
-	private static <T extends Code> void updateCode(Class<T> clazz) {
-		CodeCacheItem<T> codeItem = new CodeCacheItem<>();
-		cache.put(clazz, codeItem);
-		List<T> codes = Backend.execute(new ReadCodesTransaction<T>(clazz));
-		codeItem.setCodes(codes);
 	}
 
 	@Isolation(Level.NONE)
@@ -99,58 +144,67 @@ public class Codes {
 			return repository().find(getEntityClazz(), By.ALL);
 		}
 	}
-	
+
 	public static class CodeCacheItem<S extends Code> {
-		private final long timestamp;
-		private List<S> codes;
-		private Map<Locale, List<S>> codesSortedByLocale;
-		
-		public CodeCacheItem() {
-			this.timestamp = System.currentTimeMillis();
-		}
+		private Long timestamp;
+		private Map<Object, S> codeMap = new HashMap<>(100);
+		private Map<Locale, List<S>> codesSortedByLocale = new HashMap<>();
 
 		public boolean isValid() {
-			return (System.currentTimeMillis() - timestamp) / 1000 < 10;
-		}
-		
-		public List<S> getCodes() {
-			return codes;
+			return timestamp == null || (System.currentTimeMillis() - timestamp) / 1000 < 10;
 		}
 
 		public List<S> getCodes(Locale locale) {
-			if (codes != null) {
-				if (!codesSortedByLocale.containsKey(locale)) {
-					List<S> sortedCodes = new ArrayList<>(codes);
-					Collections.sort(sortedCodes, new CodeComparator(locale));
-					codesSortedByLocale.put(locale, sortedCodes);
-				}
-				return codesSortedByLocale.get(locale);
-			} else {
-				return null;
+			synchronized (codesSortedByLocale) {
+				return codesSortedByLocale.computeIfAbsent(locale, newLocacle -> {
+					List<S> sortedCodes = new ArrayList<>(codeMap.values());
+					Collections.sort(sortedCodes, new CodeComparator(newLocacle));
+					return sortedCodes;
+
+				});
 			}
 		}
 
-		public boolean isLoading() {
-			return codes == null;
+		public S getCode(Object id) {
+			return codeMap.get(id);
+		}
+
+		public S getOrInstantiate(Class<S> clazz, Object id) {
+			return codeMap.computeIfAbsent(id, newId -> {
+				S code = CloneHelper.newInstance(clazz);
+				IdUtils.setId(code, newId);
+				codesSortedByLocale = new HashMap<>();
+				return code;
+			});
 		}
 
 		public void setCodes(List<S> codes) {
-			this.codes = codes;
+			this.codeMap = codes.stream().collect(Collectors.toMap(IdUtils::getId, Function.identity()));
 			codesSortedByLocale = new HashMap<>();
+			timestamp = System.currentTimeMillis();
 		}
 	}
+
+	// static helper methods
 
 	public static <T extends Code> List<T> getConstants(Class<T> clazz) {
 		List<T> constants = new ArrayList<>();
 		for (Field field : clazz.getDeclaredFields()) {
-			if (!FieldUtils.isStatic(field)) continue;
-			if (!FieldUtils.isFinal(field)) continue;
-			if (field.getType() != clazz) continue;
+			if (!FieldUtils.isStatic(field))
+				continue;
+			if (!FieldUtils.isFinal(field))
+				continue;
+			if (field.getType() != clazz)
+				continue;
 			T constant = FieldUtils.getStaticValue(field);
-			if (Keys.isKeyObject(constant)) continue;
+			if (Keys.isKeyObject(constant))
+				continue;
 			constants.add(constant);
 		}
 		return constants;
 	}
-	
+
+	public static boolean isCode(Class<?> clazz) {
+		return Code.class.isAssignableFrom(clazz);
+	}
 }

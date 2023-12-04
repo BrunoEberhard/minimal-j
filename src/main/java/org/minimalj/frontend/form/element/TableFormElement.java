@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.SwitchComponent;
@@ -17,7 +16,7 @@ import org.minimalj.frontend.editor.Validator.IndexProperty;
 import org.minimalj.frontend.form.Form;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.ChainedProperty;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 
 public class TableFormElement<T> extends AbstractFormElement<List<T>> {
@@ -26,18 +25,18 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private final SwitchComponent switchComponent;
 	private final boolean editable;
 	private List<T> object;
-	private final List<Form<?>> rowForms = new ArrayList<>();
+	private final List<Form<T>> rowForms = new ArrayList<>();
 	private final Map<T, Form<T>> formByObject = new HashMap<>();
 
 	private final TableRowFormFactory<? super T> formFactory;
 	private final List<Action> actions;
-	private final List<PropertyInterface> propertyAsChain;
+	private final List<Property> propertyAsChain;
 
 	public TableFormElement(List<T> key, List<Object> columns, List<Action> actions, boolean editable) {
 		this(Keys.getProperty(key), columns, actions, editable);
 	}
 
-	public TableFormElement(PropertyInterface property, List<Object> columns, List<Action> actions, boolean editable) {
+	public TableFormElement(Property property, List<Object> columns, List<Action> actions, boolean editable) {
 		this(property, new SimpleTableRowFormFactory<T>(columns), actions, editable);
 	}
 
@@ -45,7 +44,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this(Keys.getProperty(key), formFactory, actions, editable);
 	}
 
-	public TableFormElement(PropertyInterface property, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
+	public TableFormElement(Property property, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
 		super(property);
 		this.editable = editable;
 		this.formFactory = formFactory;
@@ -87,7 +86,21 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	@Override
 	public void setValue(List<T> object) {
 		this.object = object;
-		handleChange();
+		update();
+	}
+	
+	/**
+	 * If an action removes an object the validation message of that object should
+	 * be removed. For this a change must be fired to let the editor do a
+	 * validation. To always fire a change in setValue is not a solution. setValue
+	 * is mainly used by the Editor
+	 * 
+	 * @param object the updated list. Could be the same as before. The FormElement
+	 *               is updated anyway.
+	 */
+	public void setValueAndFireChange(List<T> object) {
+		setValue(object);
+		fireChange();
 	}
 
 	@Override
@@ -100,41 +113,49 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		return null;
 	}
 
-	protected void handleChange() {
-		update();
-		super.fireChange();
-	}
-
 	public void clearFormCache() {
 		formByObject.clear();
 	}
 	
 	private void update() {
-		int rowCount = object.size();
-		if (!actions.isEmpty()) {
-			rowCount = rowCount + 1;
-		}
-		IComponent[] rows = new IComponent[rowCount];
-		if (!actions.isEmpty()) {
-			rows[rowCount - 1] = createActions(actions);
-		}
+		List<IComponent> rows = new ArrayList<>();
 		rowForms.clear();
 		for (int index = 0; index < object.size(); index++) {
 			T rowObject = object.get(index);
 			int i = index;
 			@SuppressWarnings("unchecked")
 			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
-			rowForm = checkNonNull(rowForm, rowObject);
 			rowForms.add(rowForm);
-			rowForm.setChangeListener(form -> super.fireChange());
-			rowForm.setObject(rowObject);
-			rows[index] = rowForm.getContent();
+			if (rowForm != null) {
+				rowForm.setChangeListener(form -> fireChange(i, rowObject, rowForm));
+				rowForm.setObject(rowObject);
+				rows.add(rowForm.getContent());
+			}
 		}
 		List<T> unsedForms = formByObject.entrySet().stream().filter(e -> !rowForms.contains(e.getValue())).map(e -> e.getKey()).collect(Collectors.toList());
 		unsedForms.forEach(formByObject::remove);
 
-		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows);
+		if (!actions.isEmpty()) {
+			rows.add(createActions(actions));
+		}
+		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows.toArray(new IComponent[rows.size()]));
 		switchComponent.show(vertical);
+	}
+	
+	protected void fireChange(int index, T object, Form<T> form) {
+		super.fireChange();
+	}
+	
+	protected void updateValues() {
+		for (int index = 0; index < object.size(); index++) {
+			updateValues(index);
+		}
+	}
+
+	protected void updateValues(int index) {
+		Form<T> rowForm = rowForms.get(index);
+		T rowObject = object.get(index);
+		rowForm.setObject(rowObject);
 	}
 
 	private IComponent createActions(List<Action> actions) {
@@ -145,32 +166,23 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		return Frontend.getInstance().createHorizontalGroup(components);
 	}
 
-	private Form<T> checkNonNull(Form<T> rowForm, T rowObject) {
-		if (rowForm == null) {
-			rowForm = new Form<>();
-			String message = formFactory + " should not return null for " + rowObject;
-			if (Configuration.isDevModeActive()) {
-				rowForm.addTitle("No form for " + rowObject);
-				logger.severe(message);
-			} else {
-				logger.warning(message);
-			}
-		}
-		return rowForm;
-	}
-
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
 		@SuppressWarnings("unchecked")
 		ArrayList<ValidationMessage>[] validationMessagesByRow = new ArrayList[rowForms.size()];
 
 		for (ValidationMessage message : validationMessages) {
-			List<PropertyInterface> messagePropertyAsChain = ChainedProperty.getChain(message.getProperty());
+			List<Property> messagePropertyAsChain = ChainedProperty.getChain(message.getProperty());
 
-			PropertyInterface unchained = ChainedProperty.buildChain(messagePropertyAsChain.subList(propertyAsChain.size() + 1, messagePropertyAsChain.size()));
+			Property unchained = ChainedProperty.buildChain(messagePropertyAsChain.subList(propertyAsChain.size() + 1, messagePropertyAsChain.size()));
 			IndexProperty indexProperty = (IndexProperty) messagePropertyAsChain.get(propertyAsChain.size());
 			int index = indexProperty.getIndex();
 
 			message = new ValidationMessage(unchained, message.getFormattedText());
+			if (index >= validationMessagesByRow.length) {
+				logger.severe("No row for : " + message);
+				continue;
+			}
+			
 			if (validationMessagesByRow[index] == null) {
 				validationMessagesByRow[index] = new ArrayList<>();
 			}
@@ -178,7 +190,9 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		}
 
 		for (int i = 0; i < rowForms.size(); i++) {
-			rowForms.get(i).indicate(validationMessagesByRow[i] != null ? validationMessagesByRow[i] : Collections.emptyList());
+			if (rowForms.get(i) != null) {
+				rowForms.get(i).indicate(validationMessagesByRow[i] != null ? validationMessagesByRow[i] : Collections.emptyList());
+			}
 		}
 	}
 

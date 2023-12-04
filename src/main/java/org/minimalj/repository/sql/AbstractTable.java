@@ -8,23 +8,26 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
-import org.minimalj.model.Keys;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.Dependable;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
+import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.security.Subject;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
@@ -43,7 +46,7 @@ public abstract class AbstractTable<T> {
 	
 	protected final SqlRepository sqlRepository;
 	protected final Class<T> clazz;
-	protected final LinkedHashMap<String, PropertyInterface> columns;
+	protected final LinkedHashMap<String, Property> columns;
 	
 	protected final String name;
 
@@ -91,7 +94,7 @@ public abstract class AbstractTable<T> {
 		return false;
 	}
 	
-	protected LinkedHashMap<String, PropertyInterface> getColumns() {
+	protected LinkedHashMap<String, Property> getColumns() {
 		return columns;
 	}
 
@@ -117,8 +120,6 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected void createTable(SqlDialect dialect) {
-		createEnums(dialect);
-		
 		StringBuilder s = new StringBuilder();
 		dialect.addCreateStatementBegin(s, getTableName());
 		addSpecialColumns(dialect, s);
@@ -131,18 +132,46 @@ public abstract class AbstractTable<T> {
 		createColumnComments();
 	}
 
+
+	@SuppressWarnings("unchecked")
+	public void collectEnums(Set<Class<? extends Enum<?>>> enms) {
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
+			Class<?> propertyClass = property.getClazz();
+			if (propertyClass.isEnum()) {
+				enms.add((Class<? extends Enum<?>>) propertyClass);
+			}
+		}
+	}
+	
 	protected void createTableComment() {
 		Comment commentAnnotation = clazz.getAnnotation(Comment.class);
 		if (commentAnnotation != null) {
-			sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS ?", commentAnnotation.value());
+			if (commentAnnotation != null) {
+				String comment = commentAnnotation.value();
+				if (sqlRepository.getSqlDialect() instanceof PostgresqlDialect) {
+					// Postgresql cannot handle the parameter. Don't know why.
+					comment = comment.replace("'", "''");
+					sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS '" + comment + "'");
+				} else {
+					sqlRepository.execute("COMMENT ON TABLE " + getTableName() + " IS ?", comment);
+				}
+			}
 		}
 	}
 
 	protected void createColumnComments() {
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+		for (Map.Entry<String, Property> entry : columns.entrySet()) {
 			Comment commentAnnotation = entry.getValue().getAnnotation(Comment.class);
 			if (commentAnnotation != null) {
-				sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", commentAnnotation.value());
+				String comment = commentAnnotation.value();
+				if (sqlRepository.getSqlDialect() instanceof PostgresqlDialect) {
+					// Postgresql cannot handle the parameter. Don't know why.
+					comment = comment.replace("'", "''");
+					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS '" + comment + "'");
+				} else {
+					sqlRepository.execute("COMMENT ON COLUMN " + getTableName() +"." + entry.getKey() + " IS ?", comment);
+				}
 			}
 		}
 	}
@@ -159,68 +188,61 @@ public abstract class AbstractTable<T> {
 			execute("ALTER TABLE " + getTableName() + " DROP CONSTRAINT " + constraint);
 		}
 	}
-
-	protected void createEnums(SqlDialect dialect) {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
-			Class<?> propertyClass = property.getClazz();
-			if (propertyClass.isEnum()) {
-				if (!sqlRepository.dbTypes.containsKey(propertyClass)) {
-					StringBuilder s = new StringBuilder();
-					String identifier = sqlRepository.sqlIdentifier.identifier(propertyClass.getSimpleName(), sqlRepository.dbTypes.values());
-					String query = dialect.createType(propertyClass, identifier);
-					if (query != null) {
-						execute(query);
-						sqlRepository.dbTypes.put(propertyClass, identifier);
-					}
-				}
-			}
-		}
-	}
 	
 	protected abstract void addSpecialColumns(SqlDialect dialect, StringBuilder s);
 	
 	protected void addFieldColumns(SqlDialect dialect, StringBuilder s) {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			s.append(",\n ").append(column.getKey()).append(' '); 
-
-			PropertyInterface property = column.getValue();
-			if (sqlRepository.dbTypes.containsKey(property.getClazz())) {
-				s.append(sqlRepository.dbTypes.get(property.getClazz()));
-			} else {
-				dialect.addColumnDefinition(s, property);
-			}
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
+			s.append(",\n ").append(column.getKey()).append(' ').append(getColumnDefinition(dialect, property));
 			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
 			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
 		}
 	}
 
+	protected String getColumnDefinition(SqlDialect dialect, Property property) {
+		if (property.getClazz().isEnum() && dialect.hasEnumTypes()) {
+			return sqlRepository.sqlIdentifier.identifier(property.getClazz().getSimpleName(), Collections.emptyList());
+		} else {
+			StringBuilder s = new StringBuilder();
+			dialect.addColumnDefinition(s, property);
+			return s.toString();
+		}
+	}
+	
 	protected void addPrimaryKey(SqlDialect dialect, StringBuilder s) {
 		dialect.addPrimaryKey(s, "ID");
 	}
 	
 	protected void createIndexes(SqlDialect dialect) {
-		for (String indexedColumn : indexes) {
-			String indexName = sqlRepository.sqlIdentifier.index(getTableName(), indexedColumn);
-			String s = sqlRepository.sqlDialect.createIndex(indexName, getTableName(), indexedColumn, isHistorized());
-			execute(s);
-		}
+		indexes.forEach(this::createIndex);
+	}
+	
+	protected void createIndex(String indexedColumn) {
+		String indexName = sqlRepository.sqlIdentifier.index(getTableName(), indexedColumn);
+		String s = sqlRepository.sqlDialect.createIndex(indexName, getTableName(), indexedColumn, isHistorized());
+		execute(s);
 	}
 	
 	protected void createConstraints(SqlDialect dialect) {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
 			
-			if (IdUtils.hasId(property.getClazz())) {
-				Class<?> fieldClass = property.getClazz();
-				fieldClass = ViewUtil.resolve(fieldClass);
-				AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
-				if (referencedTable.isHistorized()) {
-					continue;
-				}
+			createConstraint(dialect, column.getKey(), property);
+		}
+	}
 
-				createConstraint(dialect, column.getKey(), referencedTable);
+	protected void createConstraint(SqlDialect dialect, String column, Property property) {
+		Class<?> fieldClass = property.getClazz();
+		// TODO Contained könnte noch andere Felder enthalten
+		if (IdUtils.hasId(fieldClass) && !Dependable.class.isAssignableFrom(clazz)) {
+			fieldClass = ViewUtils.resolve(fieldClass);
+			AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
+			if (referencedTable.isHistorized()) {
+				return;
 			}
+
+			createConstraint(dialect, column, referencedTable);
 		}
 	}
 
@@ -242,20 +264,12 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected String findColumn(String fieldPath) {
-		for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+		for (Map.Entry<String, Property> entry : columns.entrySet()) {
 			if (entry.getValue().getPath().equals(fieldPath)) {
 				return entry.getKey();
 			}
 		}
 		return null;
-	}
-
-	public String column(PropertyInterface property) {
-		return findColumn(property.getPath());
-	}
-	
-	public String column(Object key) {
-		return column(Keys.getProperty(key));
 	}
 
 	public String getTableName() {
@@ -267,27 +281,30 @@ public abstract class AbstractTable<T> {
 	}
 	
 	private void findCodes() {
-		for (Map.Entry<String, PropertyInterface> column : getColumns().entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
+			Property property = column.getValue();
 			Class<?> fieldClazz = property.getClazz();
 			if (Code.class.isAssignableFrom(fieldClazz) && fieldClazz != clazz) {
-				sqlRepository.addClass(ViewUtil.resolve(fieldClazz));
+				sqlRepository.addClass(ViewUtils.resolve(fieldClazz));
 			}
 		}
 	}
 	
 	private void findDependables() {
-		for (PropertyInterface property : FlatProperties.getListProperties(getClazz())) {
+		for (Property property : FlatProperties.getListProperties(getClazz())) {
 			Class<?> listType = property.getGenericClass();
+			if (listType == null) {
+				throw new IllegalArgumentException(getClazz().getSimpleName() + "." + property.getPath() + " has no type");
+			}
 			if (IdUtils.hasId(listType)) {
-				sqlRepository.addClass(ViewUtil.resolve(listType));
+				sqlRepository.addClass(ViewUtils.resolve(listType));
 			}
 		}
 	}
 
 	protected void findIndexes() {
-		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : columns.entrySet()) {
+			Property property = column.getValue();
 			if (IdUtils.hasId(property.getClazz())) {
 				addIndex(property, property.getPath());
 			}
@@ -330,13 +347,17 @@ public abstract class AbstractTable<T> {
 	}
 
 	protected List<T> executeSelectAll(PreparedStatement preparedStatement) {
+		return executeSelectAll(preparedStatement, new HashMap<>());
+	}
+	
+	protected List<T> executeSelectAll(PreparedStatement preparedStatement, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		List<T> result = new ArrayList<>();
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next()) {
 				T object = sqlRepository.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
-					((Table<T>) this).loadLists(object);
+					((Table<T>) this).loadLists(object, loadedReferences);
+					((Table<T>) this).loadDependables(IdUtils.getId(object), object, null);
 				}
 				result.add(object);
 			}
@@ -353,33 +374,34 @@ public abstract class AbstractTable<T> {
 	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
 		int parameterPos = 1;
 		boolean insert = mode == ParameterMode.INSERT || mode == ParameterMode.INSERT_AUTO_INCREMENT;
-		for (Map.Entry<String, PropertyInterface> column : columns.entrySet()) {
-			PropertyInterface property = column.getValue();
+		for (Map.Entry<String, Property> column : columns.entrySet()) {
+			Property property = column.getValue();
 			Object value = property.getValue(object);
-			if (value instanceof Code) {
-				value = findId((Code) value);
-			} else if (IdUtils.hasId(property.getClazz())) {
-				if (value != null) {
-					Object referencedId = IdUtils.getId(value);
-					if (referencedId != null) {
-						value = referencedId;
-					} else {
-						Table referencedTable  = sqlRepository.getTable(property.getClazz());
-						value = referencedTable.insert(value);
-					}
-				}
-			} else {
-				TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
-				if (technicalField != null) {
-					TechnicalFieldType type = technicalField.value();
-					if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && insert) {
-						value = LocalDateTime.now();
-					} else if (type == TechnicalFieldType.EDIT_USER || type == TechnicalFieldType.CREATE_USER && insert) {
-						Subject subject = Subject.getCurrent();
-						if (subject != null) {
+			TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
+			if (technicalField != null) {
+				TechnicalFieldType type = technicalField.value();
+				if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && insert) {
+					value = LocalDateTime.now();
+				} else if (type == TechnicalFieldType.EDIT_USER || type == TechnicalFieldType.CREATE_USER && insert) {
+					Subject subject = Subject.getCurrent();
+					if (subject != null) {
+						if (property.getClazz() == String.class) {
 							value = subject.getName();
+						} else {
+							value = subject.getId();
 						}
 					}
+				}
+			} 
+			if (value instanceof Code) {
+				value = IdUtils.getId(value);
+			} else if (value != null && IdUtils.hasId(value.getClass())) {
+				Object referencedId = IdUtils.getId(value);
+				if (referencedId != null) {
+					value = referencedId;
+				} else {
+					Table referencedTable  = sqlRepository.getTable(property.getClazz());
+					value = referencedTable.insert(value);
 				}
 			}
 			if (value != null) {
@@ -431,30 +453,6 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
-	private void setColumnToNull(Object id, String column) {
-		String update = "UPDATE " + getTableName() + " SET " + column + " = NULL WHERE ID = ?";
-		try (PreparedStatement preparedStatement = createStatement(sqlRepository.getConnection(), update, false)) {
-			preparedStatement.setObject(1, id);
-			preparedStatement.execute();
-		} catch (SQLException x) {
-			throw new RuntimeException(x.getMessage());
-		}
-	}
-
-	private Object findId(Code code) {
-		Object id = IdUtils.getId(code);
-		if (id != null) {
-			return id;
-		}
-		List<?> codes = sqlRepository.getCodes(code.getClass());
-		for (Object c : codes) {
-			if (code.equals(c)) {
-				return IdUtils.getId(c);
-			}
-		}
-		return null;
-	}
-			
 	protected abstract String insertQuery();
 
 	protected abstract String updateQuery();
@@ -477,8 +475,8 @@ public abstract class AbstractTable<T> {
 	
 	//
 
-	private void addIndex(PropertyInterface property, String fieldPath) {
-		Map.Entry<String, PropertyInterface> entry = findX(fieldPath);
+	private void addIndex(Property property, String fieldPath) {
+		Map.Entry<String, Property> entry = findX(fieldPath);
 		if (indexes.contains(entry.getKey())) {
 			return;
 		}
@@ -492,9 +490,9 @@ public abstract class AbstractTable<T> {
 		indexes.add(entry.getKey());
 	}
 	
-	private Entry<String, PropertyInterface> findX(String fieldPath) {
+	private Entry<String, Property> findX(String fieldPath) {
 		while (true) {
-			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
+			for (Map.Entry<String, Property> entry : columns.entrySet()) {
 				String columnFieldPath = entry.getValue().getPath();
 				if (columnFieldPath.equals(fieldPath)) {
 					return entry;
@@ -512,7 +510,7 @@ public abstract class AbstractTable<T> {
 	 * @param property the property to check
 	 * @return true if property isn't a base object like String, Integer, Date, enum but a dependable
 	 */
-	public static boolean isDependable(PropertyInterface property) {
+	public static boolean isDependable(Property property) {
 		if (!isDependable(property.getClazz())) return false;
 		if (property.isFinal()) return false;
 		return true;

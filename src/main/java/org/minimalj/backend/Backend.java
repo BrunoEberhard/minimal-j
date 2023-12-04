@@ -12,6 +12,7 @@ import org.minimalj.backend.repository.EntityTransaction;
 import org.minimalj.backend.repository.InsertTransaction;
 import org.minimalj.backend.repository.ReadCriteriaTransaction;
 import org.minimalj.backend.repository.ReadEntityTransaction;
+import org.minimalj.backend.repository.ReadOneTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.backend.repository.WriteTransaction;
@@ -21,8 +22,6 @@ import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Authentication;
 import org.minimalj.security.Subject;
-import org.minimalj.transaction.Isolation;
-import org.minimalj.transaction.Isolation.Level;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.Codes;
 
@@ -115,7 +114,11 @@ public class Backend {
 			throw new IllegalStateException("Repository may only be accessed from within a " + Transaction.class.getSimpleName());
 		}
 		if (repository == null) {
-			repository = Application.getInstance().createRepository();
+			synchronized (this) {
+				if (repository == null) {
+					repository = Application.getInstance().createRepository();
+				}				
+			}
 		}
 		return repository;
 	}
@@ -153,6 +156,14 @@ public class Backend {
 	public static <T> List<T> find(Class<T> clazz, Query query) {
 		return execute(new ReadCriteriaTransaction<>(clazz, query));
 	}
+	
+	public static <T> T findOne(Class<T> clazz, Query query) {
+		return execute(new ReadOneTransaction<>(clazz, query, true));
+	}
+
+	public static <T> T findFirst(Class<T> clazz, Query query) {
+		return execute(new ReadOneTransaction<>(clazz, query, false));
+	}
 
 	public static <T> long count(Class<T> clazz, Criteria criteria) {
 		return execute(new CountTransaction<>(clazz, criteria));
@@ -182,6 +193,14 @@ public class Backend {
 		return getInstance().doExecute(transaction);
 	}
 	
+	public static <T> T execute(Transaction<T> transaction, boolean propagate) {
+		if (propagate && getInstance().isInTransaction()) {
+			return transaction.execute();
+		} else {
+			return execute(transaction);
+		}
+	}
+	
 	public <T> T doExecute(Transaction<T> transaction) {
 		if (isAuthenticationActive()) {
 			if (!transaction.hasAccess(Subject.getCurrent())) {
@@ -192,41 +211,39 @@ public class Backend {
 		Transaction<?> outerTransaction = currentTransaction.get();
 		try {
 			currentTransaction.set(transaction);
+			T result;
 			if (getRepository() instanceof TransactionalRepository) {
 				TransactionalRepository transactionalRepository = (TransactionalRepository) getRepository();
-				return doExecute(transaction, transactionalRepository);
+				result = doExecute(transaction, transactionalRepository);
 			} else {
-				return transaction.execute();
+				result = transaction.execute();
 			}
+			handleCodeCache(transaction);
+			Application.getInstance().transactionCompleted(transaction);
+			return result;
 		} finally {
 			currentTransaction.set(outerTransaction);
-			handleCodeCache(transaction);
 		}
 	}
 
 	protected <T> void handleCodeCache(Transaction<T> transaction) {
 		if (transaction instanceof WriteTransaction || transaction instanceof DeleteEntityTransaction) {
 			// we could check if the transaction is about a code class. But the
-			// removeFromCache method is probably faster than to call 'isCode'
-			Codes.removeFromCache(((EntityTransaction<?, ?>) transaction).getEntityClazz());
+			// invalidateCodeCache method is probably faster than to call 'isCode'
+			Codes.invalidateCodeCache(((EntityTransaction<?, ?>) transaction).getEntityClazz());
 		}
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
-		Isolation.Level isolationLevel = transaction.getIsolation();
-		if (isolationLevel != Level.NONE) {
-			T result;
-			boolean commit = false;
-			try {
-				transactionalRepository.startTransaction(isolationLevel.getLevel());
-				result = transaction.execute();
-				commit = true;
-			} finally {
-				transactionalRepository.endTransaction(commit);
-			}
-			return result;
-		} else {
-			return transaction.execute();
+		T result;
+		boolean commit = false;
+		try {
+			transactionalRepository.startTransaction(transaction.getIsolation().getLevel());
+			result = transaction.execute();
+			commit = true;
+		} finally {
+			transactionalRepository.endTransaction(commit);
 		}
+		return result;
 	}
 }

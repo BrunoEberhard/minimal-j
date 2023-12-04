@@ -14,7 +14,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 public class VaadinTextAreaField extends TextArea implements Input<String>, HasCaption {
 	private static final long serialVersionUID = 1L;
 
-	private Runnable commitListener;
+//	private Runnable commitListener;
 	
 	public VaadinTextAreaField(InputComponentListener changeListener, int maxLength) {
 		this(changeListener, maxLength, null);

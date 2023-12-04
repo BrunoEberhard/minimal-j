@@ -10,7 +10,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.form.element.AbstractFormElement;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.Codes;
 import org.minimalj.util.mock.Mocking;
 
@@ -22,7 +22,7 @@ public class CountryFormElement extends AbstractFormElement<Country> implements 
 		this(Keys.getProperty(key));
 	}
 	
-	public CountryFormElement(PropertyInterface property) {
+	public CountryFormElement(Property property) {
 		super(property);
 		countries = Codes.get(Country.class);
 		lookup = Frontend.getInstance().createLookup(listener(), new CountrySearch(), new Object[] {Country.$.nameDe, Country.$.id});

@@ -24,6 +24,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.json.JsonComponent.JsonPropertyListener;
 import org.minimalj.frontend.impl.json.JsonSessionManager.JsonSessionInfo;
 import org.minimalj.frontend.impl.util.PageAccess;
@@ -32,6 +33,7 @@ import org.minimalj.frontend.impl.util.PageStore;
 import org.minimalj.frontend.page.ExpiredPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.frontend.page.Page.WheelPage;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authentication;
@@ -137,6 +139,20 @@ public class JsonPageManager implements PageManager {
 			JsonOutput output = new JsonOutput();
 			output.add("wait", ++retry);
 			return output;
+		}
+	}
+	
+	public String export(String id) {
+		Object content = componentById.get(id);
+		if (content instanceof JsonTable) {
+			try {
+				Subject.setCurrent(subject);
+				return ((JsonTable<?>) content).export();
+			} finally {
+				Subject.setCurrent(null);
+			}
+		} else {
+			return null;
 		}
 	}
 
@@ -272,6 +288,15 @@ public class JsonPageManager implements PageManager {
 			lookup.showLookupDialog();
 		}
 		
+		Long wheel = (Long) input.getObject("wheel");
+		if (wheel != null) {
+			String pageId = (String) input.getObject("page");
+			Page page = pageStore.get(pageId);
+			if (page instanceof WheelPage) {
+				((WheelPage) page).wheel(wheel.intValue());
+			}
+		}
+		
 		if (input.containsObject("logout")) {
 			if (Subject.getCurrent() != null) {
 				Backend.getInstance().getAuthentication().getLogoutAction().run();
@@ -343,9 +368,15 @@ public class JsonPageManager implements PageManager {
 			visiblePageAndDetailsList.removeAllAfter(masterPageId);
 		}
 
-		String pageId = pageStore.put(page);
-		output.add("showPage", createJson(page, pageId, masterPageId));
+		String pageId = pageStore.getId(page);
+		if (pageId != null && page instanceof WheelPage) {
+			output.add("updatePage", createJson(page, pageId, masterPageId));
+		} else {
+			pageId = pageStore.put(page);
+			output.add("showPage", createJson(page, pageId, masterPageId));
+		}
 		visiblePageAndDetailsList.put(pageId, page);
+		visibleDialogs.clear();
 		return pageId;
 	}
 
@@ -363,6 +394,7 @@ public class JsonPageManager implements PageManager {
 			Page page = pageStore.get(pageId);
 			if (Authorization.hasAccess(Subject.getCurrent(), page)) {
 				visiblePageAndDetailsList.put(pageId, page);
+				visibleDialogs.clear();
 				jsonList.add(createJson(page, pageId, previousId));
 				if (previousId == null) {
 					firstPage = page;
@@ -386,7 +418,7 @@ public class JsonPageManager implements PageManager {
 	
 	@Override
 	public void login(Subject subject) {
-		this.subject = subject;
+		setSubject(subject);
 		Subject.setCurrent(subject);
 		
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
@@ -406,6 +438,10 @@ public class JsonPageManager implements PageManager {
 		} else {
 			Frontend.show(Application.getInstance().createDefaultPage());
 		}
+	}
+	
+	public void setSubject(Subject subject) {
+		this.subject = subject;
 	}
 
 	private void updateTitle(Page page) {
@@ -439,6 +475,8 @@ public class JsonPageManager implements PageManager {
 
 		json.put("minWidth", page.getMinWidth());
 		json.put("maxWidth", page.getMaxWidth());
+
+		json.put("wheel", page instanceof WheelPage);
 
 		return json;
 	}
@@ -546,6 +584,8 @@ public class JsonPageManager implements PageManager {
 			ActionGroup actionGroup = (ActionGroup) action;
 			item = new JsonAction.JsonActionGroup();
 			item.put("items", createActions(actionGroup.getItems()));
+		} else if (action instanceof Separator){
+			item = new JsonComponent("Separator");
 		} else {
 			item = new JsonAction(action);
 		}
@@ -637,6 +677,10 @@ public class JsonPageManager implements PageManager {
 
 	public void show(String url) {
 		output.add("showUrl", url);
+	}
+	
+	public void showNewTab(String url) {
+		output.add("showUrlNewTab", url);
 	}
 
 	public void setRememberMeCookie(String rememberMeCookie) {

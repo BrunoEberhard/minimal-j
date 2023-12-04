@@ -71,20 +71,19 @@ public class ClassGenerator {
 	
 	public void generate(Collection<? extends MjEntity> entities) {
 		for (MjEntity entity : entities) {
-			GeneratorEntity generatorEntity = (GeneratorEntity) entity;
-			if (!generatorEntity.isPrimitiv() || generatorEntity.isEnumeration()) {
-				generateEntity(generatorEntity);
+			if (!entity.isPrimitiv() || entity.isEnumeration()) {
+				generateEntity(entity);
 			}
 		}
 	}
 
-	private void generateEntity(GeneratorEntity entity) {
-		File packageDir = new File(directory, entity.packageName.replace('.', File.separatorChar));
+	private void generateEntity(MjEntity entity) {
+		File packageDir = new File(directory, entity.getPackageName().replace('.', File.separatorChar));
 		packageDir.mkdirs();
 	
 		File javaFile = new File(packageDir, createClassName(entity) + ".java");
 		if (isHandMade(javaFile)) {
-			System.out.println("Not generated: " + entity.name);
+			System.out.println("Not generated: " + entity.getClassName());
 			return;
 		}
 		String java;
@@ -100,9 +99,9 @@ public class ClassGenerator {
 		}
 	}
 
-	private String generateEnum(GeneratorEntity entity) {
+	private String generateEnum(MjEntity entity) {
 		StringBuilder s = new StringBuilder();
-		s.append("package " + entity.packageName + ";\n\n");
+		s.append("package " + entity.getPackageName() + ";\n\n");
 		s.append("import javax.annotation.Generated;\n\n");
 		s.append("@Generated(value=\"" + this.getClass().getName() + "\")\n");
 		indent(s, indent).append("public enum " + createClassName(entity) + " {\n\t");
@@ -113,7 +112,7 @@ public class ClassGenerator {
 		return s.toString();
 	}
 
-	private void generateEnumValues(StringBuilder s, GeneratorEntity entity) {
+	private void generateEnumValues(StringBuilder s, MjEntity entity) {
 		boolean startsWithDigit = entity.values.stream().anyMatch(element -> Character.isDigit(element.charAt(0)));
 		
 		boolean first = true;
@@ -137,8 +136,8 @@ public class ClassGenerator {
 		return element;
 	}
 
-	public String generate(GeneratorEntity entity) {
-		String packageName = entity.packageName;
+	public String generate(MjEntity entity) {
+		String packageName = entity.getPackageName();
 		String className = createClassName(entity);
 
 		StringBuilder s = new StringBuilder();
@@ -150,12 +149,19 @@ public class ClassGenerator {
 			s.insert(0, "\tpublic Object id;\n");
 		}
 		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
+		String classNameWithExtends = className;
+		if (entity.superEntity != null) {
+			classNameWithExtends += " extends " + entity.superEntity.getClassName();
+		}
 		if (entity.type == MjEntityType.CODE) {
-			s.insert(0, "\npublic class " + className + " implements Code {\n");
-		} else if (entity.type == MjEntityType.VIEW) {
-			s.insert(0, "\npublic class " + className + " implements View<" + entity.viewedEntity.getClassName() + "> {\n");			
+			s.insert(0, "\npublic class " + classNameWithExtends + " implements Code {\n");
+		} else if (entity.type == MjEntityType.VIEW && entity.viewedEntity != null) {
+			s.insert(0, "\npublic class " + classNameWithExtends + " implements View<" + entity.viewedEntity.getClassName() + "> {\n");			
 		} else {
-			s.insert(0, "\npublic class " + className + " {\n");
+			s.insert(0, "\npublic class " + classNameWithExtends + " {\n");
+		}
+		if (entity.comment != null) {
+			s.insert(0, "\n@Comment(" + entity.comment + "\")");
 		}
 		s.insert(0, "\n@Generated(value=\"" + this.getClass().getName() + "\")");
 		imprts(s);
@@ -165,7 +171,7 @@ public class ClassGenerator {
 		return s.toString();
 	}
 
-	private void generateProperties(StringBuilder s, GeneratorEntity entity, String packageName, Set<String> forbiddenNames) {
+	private void generateProperties(StringBuilder s, MjEntity entity, String packageName, Set<String> forbiddenNames) {
 		indent++;
 		for (MjProperty property : entity.properties) {
 			generate(s, property, packageName, forbiddenNames);
@@ -194,7 +200,7 @@ public class ClassGenerator {
 				className = className + "_";
 			}
 			forbiddenNames.add(className);
-			generateInnerClass(s, (GeneratorEntity) property.type, className, packageName, forbiddenNames);
+			generateInnerClass(s, property.type, className, packageName, forbiddenNames);
 		} else if ((property.type.type.getJavaClass() == null || property.type.isEnumeration()) && !packageName.equals(property.type.getPackageName())) {
 			className = property.type.getPackageName() + "." + className;
 		}
@@ -211,6 +217,9 @@ public class ClassGenerator {
 		}		
 		if (property.technical != null) {
 			indent(s, indent).append("@TechnicalField(TechnicalFieldType." + property.technical.name() + ")\n");			
+		}
+		if (property.comment != null) {
+			indent(s, indent).append("@Comment(\"" + property.comment + "\")\n");			
 		}
 		if (property.propertyType == MjPropertyType.LIST) {
 			indent(s, indent).append("public List<" + className + "> " + fieldName + ";\n");
@@ -247,7 +256,7 @@ public class ClassGenerator {
 		}
 	}
 	
-	public String generateInnerClass(StringBuilder s, GeneratorEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
+	public String generateInnerClass(StringBuilder s, MjEntity entity, String innerClassName, String packageName, Set<String> forbiddenNames) {
 		if (entity.isEnumeration()) {
 			s.append('\n');
 			indent(s, indent).append("public enum " + innerClassName + " { ");
@@ -280,6 +289,7 @@ public class ClassGenerator {
 		if (java.indexOf("@NotEmpty") > -1) java.insert(0, "import org.minimalj.model.annotation.NotEmpty;\n");
 		if (java.indexOf("@Size") > -1) java.insert(0, "import org.minimalj.model.annotation.Size;\n");
 		if (java.indexOf("@TechnicalField") > -1) java.insert(0, "import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;\nimport org.minimalj.model.annotation.TechnicalField;\n");
+		if (java.indexOf("@Comment") > -1) java.insert(0, "import org.minimalj.model.annotation.Comment;\n");
 		if (java.indexOf("BigDecimal") > -1) java.insert(0, "import java.math.BigDecimal;\n");
 		if (java.indexOf("LocalDate ") > -1) java.insert(0, "import java.time.LocalDate;\n");
 		if (java.indexOf("LocalTime") > -1) java.insert(0, "import java.time.LocalTime;\n");

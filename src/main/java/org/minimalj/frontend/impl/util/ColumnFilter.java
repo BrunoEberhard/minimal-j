@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Column;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.Criteria;
 
@@ -22,7 +22,7 @@ public interface ColumnFilter extends Predicate<Object> {
 
 	public Criteria getCriteria();
 	
-	public static ColumnFilter createFilter(PropertyInterface property) {
+	public static ColumnFilter createFilter(Property property) {
 		if (property instanceof Column) {
 			ColumnFilter filter = ((Column<?, ?>) property).getFilter();
 			if (filter != null) {

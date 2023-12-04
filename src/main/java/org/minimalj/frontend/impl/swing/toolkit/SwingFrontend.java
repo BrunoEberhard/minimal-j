@@ -140,6 +140,11 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
+	public <T> Input<T> createRadioButtons(List<T> items, InputComponentListener changeListener) {
+		return new SwingRadioButtons<>(items, changeListener);
+	}
+	
+	@Override
 	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		return new SwingCheckBox(changeListener, text);
 	}
@@ -207,11 +212,11 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public IContent createFormTableContent(FormContent form, ITable<?> table) {
+	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
 		SwingBorderLayoutContent content = new SwingBorderLayoutContent();
-		if (form != null) {
+		if (filter != null) {
 			JPanel northPanel = new JPanel(new BorderLayout());
-			northPanel.add((Component) form, BorderLayout.LINE_START);
+			northPanel.add((Component) filter, BorderLayout.LINE_START);
 			content.add(northPanel, BorderLayout.NORTH);
 		}
 		if (table != null) {
@@ -225,10 +230,10 @@ public class SwingFrontend extends Frontend {
 		return new SwingTable<>(keys, multiSelect, listener);
 	}
 
-	@Override
-	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		return new SwingSearchPanel<>(search, keys, multiSelect, listener);
-	}
+//	@Override
+//	public <T> IContent createTable(Search<T> search, Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
+//		return new SwingSearchPanel<>(search, keys, multiSelect, listener);
+//	}
 
 	public static final String FX_HTML_CLASS = "org.minimalj.frontend.impl.swing.component.FxHtmlContent";
 

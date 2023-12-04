@@ -3,7 +3,8 @@ package org.minimalj.repository.sql;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
+import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.LoggingRuntimeException;
 
 /**
@@ -14,9 +15,9 @@ import org.minimalj.util.LoggingRuntimeException;
  */
 public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 
-	protected final PropertyInterface parentIdProperty;
+	protected final Property parentIdProperty;
 
-	public DependableTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, PropertyInterface parentIdProperty) {
+	public DependableTable(SqlRepository sqlRepository, String name, Class<ELEMENT> clazz, Property parentIdProperty) {
 		super(sqlRepository, name, clazz);
 
 		this.parentIdProperty = parentIdProperty;
@@ -34,7 +35,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		createConstraint(dialect, "ID", parentTable);
 	}
 
-	public ELEMENT read(Object parentId) {
+	public ELEMENT read(Object parentId, Integer version) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, parentId);
 			ELEMENT object = executeSelect(selectByIdStatement);
@@ -44,7 +45,20 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		}
 	}
 
-	protected void update(Object parentId, ELEMENT object) {
+	protected void update(Object parentId, ELEMENT object, Integer version) {
+		if (object == null) {
+			delete(parentId, version);
+		} else {
+			ELEMENT existing = read(parentId, version);
+			if (existing == null) {
+				insert(parentId, object, version);
+			} else if (!EqualsHelper.equals(existing, object)) {
+				doUpdate(parentId, object, version);
+			}
+		}
+	}
+
+	protected void doUpdate(Object parentId, ELEMENT object, Integer version) {
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
 			setParameters(updateStatement, object, ParameterMode.UPDATE, parentId);
 			updateStatement.execute();
@@ -52,8 +66,8 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 			throw new RuntimeException(x);
 		}
 	}
-
-	protected void insert(Object parentId, ELEMENT object) {
+	
+	protected void insert(Object parentId, ELEMENT object, Integer version) {
 		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
 			setParameters(insertStatement, object, ParameterMode.INSERT, parentId);
 			insertStatement.execute();
@@ -62,7 +76,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		}
 	}
 
-	protected void delete(Object parentId) {
+	protected void delete(Object parentId, Integer version) {
 		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.execute();

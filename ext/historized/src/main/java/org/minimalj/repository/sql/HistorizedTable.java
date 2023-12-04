@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -41,9 +42,9 @@ class HistorizedTable<T> extends Table<T> {
 	
 	@Override
 	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
-		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, Property> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 		int parameterPos = super.setParameters(statement, object, mode, id);
-		for (Map.Entry<String, PropertyInterface> column : columnsWithVersion.entrySet()) {
+		for (Map.Entry<String, Property> column : columnsWithVersion.entrySet()) {
 			Object referencedObject = column.getValue().getValue(object);
 			if (referencedObject != null) {
 				Integer version = IdUtils.getVersion(referencedObject);
@@ -56,7 +57,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	protected SubTable createListTable(PropertyInterface property) {
+	protected SubTable createListTable(Property property) {
 		Class<?> elementClass = property.getGenericClass();
 		if (IdUtils.hasId(elementClass)) {
 			if (FieldUtils.hasValidHistorizedField(elementClass)) {
@@ -67,6 +68,11 @@ class HistorizedTable<T> extends Table<T> {
 		} else {
 			return new HistorizedSubTable(sqlRepository, buildSubTableName(property), elementClass, idProperty);
 		}
+	}
+	
+	@Override
+	protected DependableTable createDependableTable(Property property, String tableName) {
+		return new HistorizedDependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
 	}
 	
 	@Override
@@ -94,7 +100,8 @@ class HistorizedTable<T> extends Table<T> {
 				updateStatement.execute();
 			}
 			
-			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+			updateDependables(object, id, newVersion);
+			for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				((HistorizedListTable) listTableEntry.getValue()).replaceList(object, list, newVersion);
 			}
@@ -118,25 +125,12 @@ class HistorizedTable<T> extends Table<T> {
 		}
 	}
 	
-	@Override
-	public T read(Object id) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, id);
-			T object = executeSelect(selectByIdStatement);
-			if (object != null) {
-				loadLists(object, null);
-			}
-			return object;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
-		}
-	}
-
 	public T read(Object id, int time) {
 		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, id);
 			selectByIdAndTimeStatement.setInt(2, time);
 			T object = executeSelect(selectByIdAndTimeStatement);
+			loadDependables(id, object, time);
 			loadLists(object, time);
 			return object;
 		} catch (SQLException x) {
@@ -150,7 +144,8 @@ class HistorizedTable<T> extends Table<T> {
 			selectByIdAndTimeStatement.setInt(2, time);
 			T object = executeSelect(selectByIdAndTimeStatement, loadedReferences);
 			if (object != null) {
-				loadLists(object);
+				loadDependables(id, object, time);
+				loadLists(object, loadedReferences);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -159,14 +154,14 @@ class HistorizedTable<T> extends Table<T> {
 	}
 
 	@Override
-	protected void loadLists(T object) {
-		loadLists(object, null);
+	protected void loadLists(T object, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+		loadLists(object, (Integer) null);
 	}
 	
 	private void loadLists(T object, Integer time) {
-		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+		for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
 			List values = ((HistorizedListTable) listTableEntry.getValue()).getList(object, time);
-			PropertyInterface listProperty = listTableEntry.getKey();
+			Property listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
 				List list = (List) listProperty.getValue(object);
 				list.clear();
@@ -202,16 +197,20 @@ class HistorizedTable<T> extends Table<T> {
 		return query.toString();
 	}
 	
-	private String insertQuery(boolean withVersion) {
-		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+	private String insertQuery(boolean forUpdate) {
+		HashMap<String, Property> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+
+		Property idProperty = FlatProperties.getProperty(clazz, "id", true);
+		boolean autoIncrementId = idProperty != null && isAutoIncrement(idProperty);
 
 		StringBuilder s = new StringBuilder();
-		
 		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		for (String columnName : getColumns().keySet()) {
 			s.append(columnName).append(", ");
 		}
-		s.append("id, ");
+		if (forUpdate || !autoIncrementId) {
+			s.append("id, ");
+		}
 		for (String columnName : columnsWithVersion.keySet()) {
 			s.append(columnName).append(", ");
 		}
@@ -219,7 +218,10 @@ class HistorizedTable<T> extends Table<T> {
 		for (int i = 0; i < getColumns().size() + columnsWithVersion.size(); i++) {
 			s.append("?, ");
 		}
-		s.append(withVersion ? "?, ?, 0)" : "?, 0, 0)");
+		if (!forUpdate && autoIncrementId) {
+			s.delete(s.length() - 3, s.length());
+		}
+		s.append(forUpdate ? "?, ?, 0)" : "?, 0, 0)");
 
 		return s.toString();
 	}
@@ -260,7 +262,7 @@ class HistorizedTable<T> extends Table<T> {
 	protected void addSpecialColumns(SqlDialect dialect, StringBuilder s) {
 		super.addSpecialColumns(dialect, s);
 		s.append(",\n historized INTEGER NOT NULL");
-		HashMap<String, PropertyInterface> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
+		HashMap<String, Property> columnsWithVersion = ((SqlHistorizedRepository) sqlRepository).findVersionColumns(clazz);
 		for (String columnName : columnsWithVersion.keySet()) {
 			s.append(",\n ").append(columnName).append(" INTEGER DEFAULT 0");
 		}

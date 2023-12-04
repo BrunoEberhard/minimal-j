@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.vaadin.toolkit;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -10,8 +11,9 @@ import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.LazyLoadingList;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.resources.Resources;
 
 import com.vaadin.flow.component.ComponentEventListener;
@@ -22,14 +24,13 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.data.renderer.BasicRenderer;
+import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.selection.SelectionListener;
 
 public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 
-	private final Object[] keys;
 	private final TableActionListener<T> listener;
 	private Class<?> clazz;
 	// private Action action_delete = new ShortcutAction("Delete",
@@ -38,14 +39,22 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 	// ShortcutAction.KeyCode.DELETE, null);
 
 	public VaadinTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		this.keys = keys;
 		for (Object key : keys) {
-			PropertyInterface p = Keys.getProperty(key);
+			Property p = Keys.getProperty(key);
 			if (clazz == null) {
 				clazz = p.getDeclaringClass();
 			}
-			addColumn(new MinimalRenderer(p)).setHeader(Resources.getPropertyName(p)).setComparator((a, b) -> compareMaybeComparables(p.getValue(a), p.getValue(b))).setSortProperty(p.getPath());
-
+			var header = Resources.getPropertyName(p);
+			Comparator<T> comparator = (a, b) -> compareMaybeComparables(p.getValue(a), p.getValue(b));
+			
+			var renderer = LitRenderer.<T>of("${item." + p.getPath() + "}").withProperty(p.getPath(), object -> org.minimalj.model.Rendering.toString(p.getValue(object), p));
+	        
+			var column = addColumn(renderer).setHeader(header).setComparator(comparator).setSortProperty(p.getPath()).setResizable(true);
+			var width = p.getAnnotation(Width.class);
+			if (width != null) {
+				column.setWidth(width.value() + "px");
+			}
+			
 			/*
 			 * add column filters:
 			 * 
@@ -71,22 +80,6 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 
 		for (int i = 0; i < keys.length; i++) {
 			getColumns().get(i).setSortable(true);
-		}
-	}
-
-	private class MinimalRenderer extends BasicRenderer<T, Object> {
-		private static final long serialVersionUID = 1L;
-
-		private final PropertyInterface property;
-
-		protected MinimalRenderer(PropertyInterface property) {
-			super(T -> property.getValue(T));
-			this.property = property;
-		}
-
-		@Override
-		protected String getFormattedValue(Object object) {
-			return org.minimalj.model.Rendering.toString(object, property);
 		}
 	}
 
@@ -117,6 +110,7 @@ public class VaadinTable<T> extends Grid<T> implements ITable<T> {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void setObjects(List<T> objects) {
 		if (objects instanceof LazyLoadingList) {

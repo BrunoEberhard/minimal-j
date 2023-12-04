@@ -1,6 +1,7 @@
 package org.minimalj.repository.sql;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.model.test.ModelTest;
 
 public class TableCreator {
@@ -11,10 +12,8 @@ public class TableCreator {
 		
 		ModelTest.exitIfProblems();
 		
-		SqlRepository repository = (SqlRepository) application.createRepository();
-		repository.createTables();
-		repository.createCodes();
-		repository.afterCreateTables();
+		Configuration.set("schemaPreparation", SchemaPreparation.create.name());
+		application.createRepository();
 	}
 
 }

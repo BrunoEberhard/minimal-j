@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,19 +12,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.minimalj.model.Code;
+import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Keys.MethodProperty;
 import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.properties.FlatProperties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
+import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -31,14 +36,14 @@ import org.minimalj.util.LoggingRuntimeException;
 @SuppressWarnings("rawtypes")
 public class Table<T> extends AbstractTable<T> {
 	
-	protected final PropertyInterface idProperty;
+	protected final Property idProperty;
 	protected final boolean optimisticLocking;
 	protected final boolean autoIncrement;
 
 	protected final String selectAllQuery;
 
-	protected final HashMap<PropertyInterface, DependableTable> dependables;
-	protected final HashMap<PropertyInterface, ListTable> lists;
+	protected final HashMap<Property, DependableTable> dependables;
+	protected final HashMap<Property, ListTable> lists;
 	
 	public Table(SqlRepository sqlRepository, Class<T> clazz) {
 		this(sqlRepository, null, clazz);
@@ -52,14 +57,14 @@ public class Table<T> extends AbstractTable<T> {
 
 		this.optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
 
-		List<PropertyInterface> lists = FlatProperties.getListProperties(clazz);
+		List<Property> lists = FlatProperties.getListProperties(clazz);
 		this.lists = createListTables(lists);
 		this.dependables = createDependableTables();
 		
 		this.selectAllQuery = selectAllQuery();
 	}
 	
-	static boolean isAutoIncrement(PropertyInterface idProperty) {
+	static boolean isAutoIncrement(Property idProperty) {
 		AutoIncrement autoIncrement = idProperty.getAnnotation(AutoIncrement.class);
 		if (autoIncrement != null) {
 			return autoIncrement.value();
@@ -78,10 +83,25 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createTable(dialect);
+			if (!Dependable.class.isAssignableFrom(subTable.clazz)) {
+				subTable.createTable(dialect);
+			}
 		}
 	}
 
+	@Override
+	public void collectEnums(Set<Class<? extends Enum<?>>> enms) {
+		super.collectEnums(enms);
+		for (Object object : dependables.values()) {
+			DependableTable dependableTable = (DependableTable) object;
+			dependableTable.collectEnums(enms);
+		}
+		for (Object object : lists.values()) {
+			AbstractTable subTable = (AbstractTable) object;
+			subTable.collectEnums(enms);
+		}
+	}
+	
 	@Override
 	protected void dropTable(SqlDialect dialect) {
 		for (Object object : dependables.values()) {
@@ -90,7 +110,9 @@ public class Table<T> extends AbstractTable<T> {
 		}
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.dropTable(dialect);
+			if (!Dependable.class.isAssignableFrom(subTable.clazz)) {
+				subTable.dropTable(dialect);
+			}
 		}
 		super.dropTable(dialect);
 	}
@@ -100,7 +122,9 @@ public class Table<T> extends AbstractTable<T> {
 		super.createIndexes(dialect);
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createIndexes(dialect);
+			if (!Dependable.class.isAssignableFrom(subTable.clazz)) {
+				subTable.createIndexes(dialect);
+			}
 		}
 	}
 
@@ -169,22 +193,22 @@ public class Table<T> extends AbstractTable<T> {
 		insertDependables(id, object);
 		insertLists(object);
 		if (object instanceof Code) {
-			sqlRepository.invalidateCodeCache(object.getClass());
+			Codes.invalidateCodeCache(object.getClass());
 		}
 		return id;
 	}
 
 	protected void insertDependables(Object objectId, T object) {
-		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
+		for (Entry<Property, DependableTable> entry : dependables.entrySet()) {
 			Object value = entry.getKey().getValue(object);
 			if (value != null) {
-				entry.getValue().insert(objectId, value);
+				entry.getValue().insert(objectId, value, null);
 			}
 		}
 	}
 	
 	protected void insertLists(T object) {
-		for (Entry<PropertyInterface, ListTable> listEntry : lists.entrySet()) {
+		for (Entry<Property, ListTable> listEntry : lists.entrySet()) {
 			List list = (List) listEntry.getKey().getValue(object);
 			if (list != null && !list.isEmpty()) {
 				listEntry.getValue().addList(object, list);
@@ -198,7 +222,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void deleteById(Object id) {
-		deleteDependables(sqlRepository.read(clazz, id));
+		deleteDependables(id);
 		deleteLists(sqlRepository.read(clazz, id));
 		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
 			updateStatement.setObject(1, id);
@@ -210,7 +234,7 @@ public class Table<T> extends AbstractTable<T> {
 
 	protected void deleteDependables(Object id) {
 		for (DependableTable dependableTable : dependables.values()) {
-			dependableTable.delete(id);
+			dependableTable.delete(id, null);
 		}
 	}
 	
@@ -256,43 +280,59 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	private LinkedHashMap<PropertyInterface, ListTable> createListTables(List<PropertyInterface> listProperties) {
-		LinkedHashMap<PropertyInterface, ListTable> lists = new LinkedHashMap<>();
-		for (PropertyInterface listProperty : listProperties) {
+	private LinkedHashMap<Property, ListTable> createListTables(List<Property> listProperties) {
+		LinkedHashMap<Property, ListTable> lists = new LinkedHashMap<>();
+		for (Property listProperty : listProperties) {
 			ListTable listTable = createListTable(listProperty);
 			lists.put(listProperty, listTable);
 		}
 		return lists;
 	}
 
-	protected ListTable createListTable(PropertyInterface property) {
+	protected ListTable createListTable(Property property) {
 		Class<?> elementClass = property.getGenericClass();
 		String subTableName = buildSubTableName(property);
 		if (IdUtils.hasId(elementClass)) {
-			return new CrossTable<>(sqlRepository, subTableName, elementClass, idProperty);
+			if (!Dependable.class.isAssignableFrom(elementClass)) {
+				return new CrossTable<>(sqlRepository, subTableName, elementClass, idProperty);
+			} else {
+				return new ContainedSubTable<>(sqlRepository, (Class<? extends Dependable>) elementClass);
+			}
 		} else {
-			return new SubTable(sqlRepository, subTableName, elementClass, idProperty);
+			return new SubTable<>(sqlRepository, subTableName, elementClass, idProperty);
 		}
 	}
 	
-	private LinkedHashMap<PropertyInterface, DependableTable> createDependableTables() {
-		LinkedHashMap<PropertyInterface, DependableTable> dependables = new LinkedHashMap<>();
-		for (PropertyInterface property : FlatProperties.getProperties(clazz).values()) {
+	private LinkedHashMap<Property, DependableTable> createDependableTables() {
+		LinkedHashMap<Property, DependableTable> dependables = new LinkedHashMap<>();
+		for (Property property : FlatProperties.getProperties(clazz).values()) {
 			Class<?> fieldClazz = property.getClazz();
 			if (isDependable(property) && fieldClazz != clazz) {
 				String tableName = buildSubTableName(property);
-				DependableTable dependableTable = new DependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
+				DependableTable dependableTable = createDependableTable(property, tableName);
 				dependables.put(property, dependableTable);
 			}
 		}
 		return dependables;
 	}
+
+	protected DependableTable createDependableTable(Property property, String tableName) {
+		return new DependableTable(sqlRepository, tableName, property.getClazz(), idProperty);
+	}
 	
-	public DependableTable getDependableTable(PropertyInterface property) {
+	public DependableTable getDependableTable(Property property) {
 		return dependables.get(property);
 	}	
 	
-	protected String buildSubTableName(PropertyInterface property) {
+	Collection<DependableTable> getDependableTables() {
+		return dependables.values();
+	}
+
+	Collection<ListTable> getListTables() {
+		return lists.values();
+	}
+
+	protected String buildSubTableName(Property property) {
 		return getTableName() + "__" + property.getName();
 	}
 	
@@ -313,42 +353,30 @@ public class Table<T> extends AbstractTable<T> {
 				updateStatement.execute();
 			}
 			
-			updateDependables(object, id);
-			for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
+			updateDependables(object, id, null);
+			for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
 				List list  = (List) listTableEntry.getKey().getValue(object);
 				listTableEntry.getValue().replaceList(object, list);
 			}
 			
 			if (object instanceof Code) {
-				sqlRepository.invalidateCodeCache(object.getClass());
+				Codes.invalidateCodeCache(object.getClass());
 			}
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't update in " + getTableName() + " with " + object);
 		}
 	}
 	
-	protected void updateDependables(T object, Object objectId) {
-		for (Entry<PropertyInterface, DependableTable> entry : dependables.entrySet()) {
-			entry.getValue().delete(objectId);
+	protected void updateDependables(T object, Object objectId, Integer time) {
+		for (Entry<Property, DependableTable> entry : dependables.entrySet()) {
 			Object value = entry.getKey().getValue(object);
-			if (value != null) {
-				entry.getValue().insert(objectId, value);
-			}
+			entry.getValue().update(objectId, value, time);
 		}
 	}
 
 	public T read(Object id) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
-			selectByIdStatement.setObject(1, id);
-			T object = executeSelect(selectByIdStatement);
-			if (object != null) {
-				loadDependables(id, object);
-				loadLists(object);
-			}
-			return object;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id);
-		}
+		Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
+		return read(id, loadedReferences);
 	}
 
 	public T read(Object id, Map<Class<?>, Map<Object, Object>> loadedReferences) {
@@ -356,7 +384,8 @@ public class Table<T> extends AbstractTable<T> {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement, loadedReferences);
 			if (object != null) {
-				loadLists(object);
+				loadDependables(id, object, null);
+				loadLists(object, loadedReferences);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -364,18 +393,28 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	/**
+	 * <i>warning:</i> project specific. Could change or be removed.
+	 * 
+	 * @param id id of entity
+	 * @return entity with loaded dependables but without loading lists of entities with ids
+	 */
+	public T readDontLoadReferences(Object id) {
+		return read(id, SqlRepository.DONT_LOAD_REFERENCES);
+	}
+	
 	protected List<String> getColumns(Object[] keys) {
 		List<String> result = new ArrayList<>();
-		PropertyInterface[] properties = Keys.getProperties(keys);
-		for (PropertyInterface p : properties) {
+		Property[] properties = Keys.getProperties(keys);
+		for (Property p : properties) {
 			if (p instanceof MethodProperty) {
 				throw new IllegalArgumentException("Not possible to query for method properties");
 			} else if (p.getPath().equals("id")) {
 				result.add("id");
 				continue;
 			}
-			for (Map.Entry<String, PropertyInterface> entry : columns.entrySet()) {
-				PropertyInterface property = entry.getValue();
+			for (Map.Entry<String, Property> entry : columns.entrySet()) {
+				Property property = entry.getValue();
 				if (p.getPath().equals(property.getPath())) {
 					result.add(entry.getKey());
 				}
@@ -419,7 +458,7 @@ public class Table<T> extends AbstractTable<T> {
 		return query;
 	}
 	
-	public <S> List<S> find(Query query, Class<S> resultClass) {
+	public <S> List<S> find(Query query, Class<S> resultClass, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		WhereClause<T> whereClause = new WhereClause<>(this, query);
 		String select = getCriteria(query) instanceof RelationCriteria ? select(resultClass, (RelationCriteria) getCriteria(query)) : select(resultClass);
 		String queryString = select + whereClause.getClause();
@@ -427,7 +466,7 @@ public class Table<T> extends AbstractTable<T> {
 			for (int i = 0; i < whereClause.getValueCount(); i++) {
 				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 			}
-			return resultClass == getClazz() ? (List<S>) executeSelectAll(statement) : executeSelectViewAll(resultClass, statement);
+			return resultClass == getClazz() ? (List<S>) executeSelectAll(statement, loadedReferences) : executeSelectViewAll(resultClass, statement);
 		} catch (SQLException e) {
 			throw new LoggingRuntimeException(e, sqlLogger, "read with SimpleCriteria failed");
 		}
@@ -449,7 +488,7 @@ public class Table<T> extends AbstractTable<T> {
 			querySql += "*";
 		} else {
 			querySql += "id";
-			Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
+			Map<String, Property> propertiesByColumns = sqlRepository.findColumns(resultClass);
 			for (String column : propertiesByColumns.keySet()) {
 				querySql += ", "+ column;
 			}
@@ -465,7 +504,7 @@ public class Table<T> extends AbstractTable<T> {
 			querySql += "T.*";
 		} else {
 			querySql += "T.id";
-			Map<String, PropertyInterface> propertiesByColumns = sqlRepository.findColumns(resultClass);
+			Map<String, Property> propertiesByColumns = sqlRepository.findColumns(resultClass);
 			for (String column : propertiesByColumns.keySet()) {
 				querySql += ", T." + column;
 			}
@@ -481,7 +520,7 @@ public class Table<T> extends AbstractTable<T> {
 			while (resultSet.next()) {
 				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
 				loadViewLists(resultObject);
-				// TODO loadDependables?
+				loadViewDependables(resultObject);
 				result.add(resultObject);
 			}
 		}
@@ -493,36 +532,40 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
 				result = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
-				loadViewLists(result);				
+				loadViewLists(result);	
+				loadViewDependables(result);
 			}
 		}
 		return result;
 	}
 	
-	protected void loadDependables(Object id, T object) throws SQLException {
-		for (Entry<PropertyInterface, DependableTable> dependableTableEntry : dependables.entrySet()) {
-			Object value = dependableTableEntry.getValue().read(id);
-			PropertyInterface dependableProperty = dependableTableEntry.getKey();
+	protected void loadDependables(Object id, T object, Integer time) throws SQLException {
+		for (Entry<Property, DependableTable> dependableTableEntry : dependables.entrySet()) {
+			Object value = dependableTableEntry.getValue().read(id, time);
+			Property dependableProperty = dependableTableEntry.getKey();
 			dependableProperty.setValue(object, value);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected void loadLists(T object) throws SQLException {
-		for (Entry<PropertyInterface, ListTable> listTableEntry : lists.entrySet()) {
-			List values = listTableEntry.getValue().getList(object);
-			PropertyInterface listProperty = listTableEntry.getKey();
+	protected void loadLists(T object, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
+		for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
+			if (loadedReferences == SqlRepository.DONT_LOAD_REFERENCES && IdUtils.hasId(listTableEntry.getKey().getGenericClass())) {
+				continue;
+			}
+			List values = listTableEntry.getValue().getList(object, loadedReferences);
+			Property listProperty = listTableEntry.getKey();
 			listProperty.setValue(object, values);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected <S> void loadViewLists(S result) {
-		List<PropertyInterface> viewLists = FlatProperties.getListProperties(result.getClass());
-		for (PropertyInterface viewListProperty : viewLists) {
-			for (Entry<PropertyInterface, ListTable> listPropertyEntry : lists.entrySet()) {
+		List<Property> viewLists = FlatProperties.getListProperties(result.getClass());
+		for (Property viewListProperty : viewLists) {
+			for (Entry<Property, ListTable> listPropertyEntry : lists.entrySet()) {
 				if (viewListProperty.getPath().equals(listPropertyEntry.getKey().getPath())) {
-					List values = listPropertyEntry.getValue().getList(result);
+					List values = listPropertyEntry.getValue().getList(result, null);
 					viewListProperty.setValue(result, values);
 
 					break;
@@ -530,7 +573,19 @@ public class Table<T> extends AbstractTable<T> {
 			}
 		}
 	}
-	
+
+	protected <S> void loadViewDependables(S object) {
+		Collection<Property> properties = FlatProperties.getProperties(object.getClass()).values();
+		for (Entry<Property, DependableTable> dependableTableEntry : dependables.entrySet()) {
+			Property dependableProperty = dependableTableEntry.getKey();
+			Optional<Property> propertyOptional = properties.stream().filter(p -> p.getPath().equals(dependableProperty.getPath())).findFirst();
+			if (propertyOptional.isPresent()) {
+				Object value = dependableTableEntry.getValue().read(IdUtils.getId(object), null);
+				propertyOptional.get().setValue(object, value);
+			}
+		}
+	}
+
 	// Statements
 
 	@Override
@@ -544,7 +599,7 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected String insertQuery() {
-		PropertyInterface idProperty = FlatProperties.getProperty(clazz, "id", true);
+		Property idProperty = FlatProperties.getProperty(clazz, "id", true);
 		// cannot use field autoIncrement because this method is called by the super constructor before initialization
 		boolean autoIncrementId = idProperty != null && isAutoIncrement(idProperty);
 

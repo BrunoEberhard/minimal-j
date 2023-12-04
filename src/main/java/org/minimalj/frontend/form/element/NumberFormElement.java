@@ -2,7 +2,7 @@ package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 
 public abstract class NumberFormElement<T> extends FormatFormElement<T> {
@@ -10,7 +10,7 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 	protected final boolean signed;
 	protected final int size, decimalPlaces, minDecimalPlaces;
 	
-	protected NumberFormElement(PropertyInterface property, boolean editable) {
+	protected NumberFormElement(Property property, boolean editable) {
 		super(property, editable);
 		size = AnnotationUtil.getSize(property);
 		decimalPlaces = AnnotationUtil.getDecimal(property);
@@ -29,7 +29,7 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 	}
 	
 	@Override
-	protected String getAllowedCharacters(PropertyInterface property) {
+	protected String getAllowedCharacters(Property property) {
 		if (decimalPlaces > 0) {
 			return signed ? "-0123456789." : "0123456789.";
 		} else {
@@ -38,7 +38,7 @@ public abstract class NumberFormElement<T> extends FormatFormElement<T> {
 	}
 	
 	@Override
-	protected int getAllowedSize(PropertyInterface property) {
+	protected int getAllowedSize(Property property) {
 		return size + (signed ? 1 : 0) + (decimalPlaces > 0 ? 1 : 0);
 	}
 

@@ -8,29 +8,31 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.minimalj.model.View;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
-public class FieldProperty implements PropertyInterface {
+public class FieldProperty implements Property {
 	private static Logger logger = Logger.getLogger(FieldProperty.class.getName());
 
 	private final Field field;
+	private final Class<?> declaringClass;
 	private final boolean isFinal;
 	private final Class<?> type;
 
-	public FieldProperty(Field field) {
+	public FieldProperty(Field field, Class<?> declaringClass) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
 		this.type = field.getType();
+		this.declaringClass = declaringClass;
 	}
 
 	@Override
 	public Class<?> getDeclaringClass() {
-		return field.getDeclaringClass();
+		return declaringClass;
 	}
 
 	@Override
@@ -82,7 +84,7 @@ public class FieldProperty implements PropertyInterface {
 
 	@Override
 	public Class<?> getGenericClass() {
-		return GenericUtils.getGenericClass(field);
+		return GenericUtils.getGenericClass(declaringClass, field);
 	}
 
 	@Override
@@ -101,8 +103,8 @@ public class FieldProperty implements PropertyInterface {
 	private <T extends Annotation> T _getAnnotation(Class<T> annotationClass) {
 		T annotation = field.getAnnotation(annotationClass);
 		if (annotation == null && View.class.isAssignableFrom(getDeclaringClass())) {
-			Class<?> viewedClass = ViewUtil.getViewedClass(getDeclaringClass());
-			PropertyInterface propertyInterface = Properties.getProperty(viewedClass, getName());
+			Class<?> viewedClass = ViewUtils.getViewedClass(getDeclaringClass());
+			Property propertyInterface = Properties.getProperty(viewedClass, getName());
 			return propertyInterface != null ? propertyInterface.getAnnotation(annotationClass) : null;
 		} else {
 			return annotation;
@@ -115,7 +117,7 @@ public class FieldProperty implements PropertyInterface {
 	public boolean isFinal() {
 		return isFinal;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "[" + field.getDeclaringClass().getSimpleName() + "." + field.getName() + "]";

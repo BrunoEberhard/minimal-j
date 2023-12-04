@@ -1,17 +1,16 @@
 package org.minimalj.frontend.impl.web;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.impl.web.MjHttpExchange.LoggingHttpExchange;
 import org.minimalj.frontend.page.Routing;
+import org.minimalj.util.StringUtils;
 
 /**
  * You only need to extend from WebApplication if you want to serve custom html
@@ -64,20 +63,20 @@ public abstract class WebApplication extends Application {
 		if (handlers == null) {
 			boolean isJsonFrontend = Frontend.getInstance() instanceof JsonFrontend;
 			String mjHandlerPath = WebApplication.mjHandlerPath();
-			
+
 			handlers = new ArrayList<>();
 
 			// intial html and ajax calls
 			if (isJsonFrontend && mjHandlerPath != null) {
 				handlers.add(new ApplicationHttpHandler(mjHandlerPath));
 			}
-			
+
 			// for applications with custom http handler
 			if (Application.getInstance() instanceof WebApplication) {
 				WebApplication webApplication = (WebApplication) Application.getInstance();
 				handlers.add(webApplication.createHttpHandler());
 			}
-			
+
 			// serve the application resources (located in web package)
 			handlers.add(new ResourcesHttpHandler());
 
@@ -100,6 +99,21 @@ public abstract class WebApplication extends Application {
 	}
 
 	public static final boolean callHandlers(MjHttpExchange exchange) {
+		if (MjHttpExchange.LOG_WEB.isLoggable(Level.FINER)) {
+			MjHttpExchange.LOG_WEB.log(Level.FINER, exchange.getPath());
+			long start = System.nanoTime();
+			if (MjHttpExchange.LOG_WEB.isLoggable(Level.FINEST)) {
+				exchange = new LoggingHttpExchange(exchange);
+			}
+			boolean result = doCallHandlers(exchange);
+			MjHttpExchange.LOG_WEB.log(Level.FINER, StringUtils.padLeft("" + ((System.nanoTime() - start) / 1000 / 1000), 5, ' ') + "ms " + exchange.getPath());
+			return result;
+		} else {
+			return doCallHandlers(exchange);
+		}
+	}
+
+	private static final boolean doCallHandlers(MjHttpExchange exchange) {
 		for (MjHttpHandler handler : getHandlers()) {
 			try {
 				handler.handle(exchange);
@@ -107,31 +121,16 @@ public abstract class WebApplication extends Application {
 					return true;
 				}
 			} catch (Exception x) {
-				logger.log(Level.SEVERE,x.getLocalizedMessage(), x);
-				webApplication().sendError(exchange, x);
+				logger.log(Level.WARNING, x.getLocalizedMessage(), x);
 			}
 		}
 		return false;
 	}
 
-	protected void sendError(MjHttpExchange exchange, Exception x) {
-		if (Configuration.isDevModeActive()) {
-			try (StringWriter sw = new StringWriter()) {
-				try (PrintWriter pw = new PrintWriter(sw)) {
-					x.printStackTrace(pw);
-					exchange.sendResponse(500, sw.toString(), "text/plain");
-				}
-			} catch (Exception x2) {
-				logger.log(Level.SEVERE, "Could not send internal server error response", x2);
-			}
-		}
-		exchange.sendResponse(500, "Internal server error", "text/plain");
-	}
-
 	protected void sendNotFound(MjHttpExchange exchange) {
 		sendNotFoundDefault(exchange);
 	}
-	
+
 	private static void sendNotFoundDefault(MjHttpExchange exchange) {
 		exchange.sendResponse(404, "Not found", "text/plain");
 	}

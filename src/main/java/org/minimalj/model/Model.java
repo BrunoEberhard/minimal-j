@@ -5,12 +5,16 @@ import java.util.Collection;
 import java.util.List;
 
 import org.minimalj.model.properties.Properties;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
 public interface Model {
 
+	public default String getName() {
+		return getClass().getSimpleName();
+	}
+	
 	/**
 	 * Defines the (root) entities. These are the classes the are used for a
 	 * repository. View classes should not be listed here.
@@ -41,18 +45,15 @@ public interface Model {
 	static void getClassesRecursive(List<Class<?>> classes, Class<?> clazz, boolean depthFirst, boolean onlyWithId) {
 		if (!classes.contains(clazz)) {
 			classes.add(clazz);
-			for (PropertyInterface property : Properties.getProperties(clazz).values()) {
+			for (Property property : Properties.getProperties(clazz).values()) {
 				Class<?> propertyClass = property.getClazz();
-				if (View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
-					continue;
-				}
 				if (Collection.class.isAssignableFrom(propertyClass)) {
 					propertyClass = property.getGenericClass();
-					if (propertyClass == null) {
-						continue;
-					}
 				}
-				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass) /* && !property.isFinal() */) {
+				if (propertyClass == null || View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
+					continue;
+				}
+				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass)) {
 					getClassesRecursive(classes, propertyClass, depthFirst, onlyWithId);
 				}
 			}

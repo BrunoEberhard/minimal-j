@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
+import org.minimalj.model.Keys;
+import org.minimalj.model.properties.Property;
 
 public class FieldUtils {
 	public static final Logger logger = Logger.getLogger(FieldUtils.class.getName());
@@ -184,6 +186,17 @@ public class FieldUtils {
 			}
 		}
 		return (T) value;
+	}
+	
+	public static <T> void swap(Object object, T key1, T key2) {
+		if (key1 == key2) {
+			throw new IllegalArgumentException();
+		}
+		Property property1 = Keys.getProperty(key1);
+		Property property2 = Keys.getProperty(key2);
+		Object value = property1.getValue(object);
+		property1.setValue(object, property2.getValue(object));
+		property2.setValue(object, value);
 	}
 
 }

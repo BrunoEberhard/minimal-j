@@ -5,11 +5,13 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.minimalj.frontend.impl.util.HtmlString;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 
@@ -35,13 +37,24 @@ public interface Rendering {
 	}
 
 	public enum ColorName {
-		RED, GREEN, BLUE, YELLOW;
+		GRAY, RED, GREEN, BLUE, YELLOW;
 	}
 
 	public default ColorName getColor() {
 		return null;
 	}
 	
+	public enum FontStyle {
+		BOLD, ITALIC, STRIKE;
+	}
+	
+	public static final List<FontStyle> BOLD = Arrays.asList(FontStyle.BOLD);
+	public static final List<FontStyle> ITALIC = Arrays.asList(FontStyle.ITALIC);
+	public static final List<FontStyle> STRIKE = Arrays.asList(FontStyle.STRIKE);
+	
+	public default Collection<FontStyle> getFontStyles() {
+		return null;
+	}
 
 	// helper methods (framework internal)
 
@@ -60,7 +73,7 @@ public interface Rendering {
 		return toString(c);
 	}
 
-	public static String toString(Object o, PropertyInterface property) {
+	public static String toString(Object o, Property property) {
 		CharSequence c = render(o, property);
 		return toString(c);
 	}
@@ -69,8 +82,10 @@ public interface Rendering {
 		return render(o, null);
 	}
 	
-	public static CharSequence render(Object o, PropertyInterface property) {
-		if (o instanceof Rendering) {
+	public static CharSequence render(Object o, Property property) {
+		if (o == null) {
+			return "";
+		} else if (o instanceof Rendering) {
 			return ((Rendering) o).render();
 		} else if (o instanceof Collection) {
 			Collection<?> collection = (Collection<?>) o;
@@ -103,10 +118,8 @@ public interface Rendering {
 			return DateUtils.format((LocalDateTime) o, property);
 		} else if (InvalidValues.isInvalid(o)) {
 			return InvalidValues.getInvalidValue(o);
-		} else if (o != null) {
-			return o.toString();
 		} else {
-			return "";
+			return o.toString();
 		}
 	}
 
@@ -123,4 +136,12 @@ public interface Rendering {
 		return color;
 	}
 
+	public static Collection<FontStyle> getFontStyles(Object object, Object fieldValue) {				
+		Collection<FontStyle> styles = fieldValue instanceof Rendering ? ((Rendering) fieldValue).getFontStyles() : null;
+		if (styles == null && object instanceof Rendering) {
+			styles = ((Rendering) object).getFontStyles();
+		}
+		return styles;
+	}
+	
 }

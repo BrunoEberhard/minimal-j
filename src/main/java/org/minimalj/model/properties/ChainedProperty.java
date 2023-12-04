@@ -5,17 +5,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ChainedProperty implements PropertyInterface {
-	private final PropertyInterface property1;
-	private final PropertyInterface property2;
+public class ChainedProperty implements Property {
+	private final Property property1;
+	private final Property property2;
 
-	public ChainedProperty(PropertyInterface property1, PropertyInterface property2) {
+	public ChainedProperty(Property property1, Property property2) {
 		this.property1 = property1;
 		this.property2 = property2;
 	}
 
-	public List<PropertyInterface> getChain() {
-		List<PropertyInterface> chain = new ArrayList<>();
+	public List<Property> getChain() {
+		List<Property> chain = new ArrayList<>();
 		if (property1 instanceof ChainedProperty) {
 			chain.addAll(((ChainedProperty) property1).getChain());
 		} else {
@@ -29,11 +29,11 @@ public class ChainedProperty implements PropertyInterface {
 		return chain;
 	}
 
-	public static List<PropertyInterface> getChain(PropertyInterface property) {
+	public static List<Property> getChain(Property property) {
 		return property instanceof ChainedProperty ? ((ChainedProperty) property).getChain() : Collections.singletonList(property);
 	}
 
-	public static PropertyInterface buildChain(List<PropertyInterface> chain) {
+	public static Property buildChain(List<Property> chain) {
 		if (chain.size() == 1) {
 			return chain.get(0);
 		} else {

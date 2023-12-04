@@ -3,7 +3,7 @@ package org.minimalj.repository.query;
 import java.io.Serializable;
 
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.PropertyInterface;
+import org.minimalj.model.properties.Property;
 
 public abstract class Query implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -21,7 +21,7 @@ public abstract class Query implements Serializable {
 	}
 
 	public Order order(Object key, boolean ascending) {
-		PropertyInterface property = Keys.getProperty(key);
+		Property property = Keys.getProperty(key);
 		String path = property.getPath();
 		return new Order(this, path, ascending);
 	}

@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.form.element.FormElementConstraint;
+import org.minimalj.util.StringUtils;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 
@@ -16,11 +18,22 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	public static final String MIN_HEIGHT = "minHeight";
 	public static final String MAX_HEIGHT = "maxHeight";
 
+	public static final String GROUP_SINGLE_ROW = "groupSingleRow";
+	public static final String GROUP_START = "groupStart";
+	public static final String GROUP_END = "groupEnd";
+	public static final String GROUP_ROW = "groupRow";
+	
+	public static final String IGNORE_CAPTION = "ignoreCaption";
+
+	
 	private final List<List<JsonComponent>> rows = new ArrayList<>();
 	private final int columns;
+	private final List<String> rowClass = new ArrayList<>();
 	
 	private List<JsonComponent> actualRow = new ArrayList<>();
+	private boolean startGroup = true;
 	private int actualColumn;
+	private boolean ignoreCaption = false;
 	
 	public JsonFormContent(int columns, int columnWidth) {
 		super("Form");
@@ -31,20 +44,36 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		put("columnWidth", columnWidth);
 		
 		put("rows", rows);
-		
-		createNewRow();
-	}
-
-	public JsonFormContent(List<Integer> columnConstraints) {
-		this(columnConstraints.size(), 100);
-		
-		put("columnWidths", columnConstraints);
+		put("rowCss", rowClass);
 	}
 
 	private void createNewRow() {
 		actualRow = new ArrayList<>();
 		rows.add(actualRow);
 		actualColumn = 0;
+		
+		String ignoreCaptionCss = ignoreCaption ? " " + IGNORE_CAPTION : "";
+		if (startGroup) {
+			rowClass.add(GROUP_SINGLE_ROW + ignoreCaptionCss);
+			startGroup = false;
+		} else {
+			int previousIndex = rowClass.size() - 1;
+			String previousRowClass = rowClass.get(previousIndex);
+			previousRowClass = previousRowClass.replace(GROUP_SINGLE_ROW, GROUP_START);
+			previousRowClass = previousRowClass.replace(GROUP_END, GROUP_ROW);
+			rowClass.set(previousIndex, previousRowClass);
+			rowClass.add(GROUP_END + ignoreCaptionCss);
+		}
+	}
+	
+	@Override
+	public void group(String caption) {
+		startGroup = true;
+	}
+	
+	@Override
+	public void setIgnoreCaption(boolean ignoreCaption) {
+		this.ignoreCaption = ignoreCaption;
 	}
 
 	public void add(String caption, IComponent component, FormElementConstraint constraint, int span) {
@@ -53,9 +82,19 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	
 	@Override
 	public void add(String caption, boolean required, IComponent component, FormElementConstraint constraint, int span) {
-		JsonComponent jsonComponent = (JsonComponent) component;
-		if (caption != null) {
+		if (rows.isEmpty()) {
+			createNewRow();
+		}
+		
+		JsonComponent jsonComponent = component != null ? (JsonComponent) component : new JsonComponent("Empty");
+		if (!StringUtils.isBlank(caption)) {
 			jsonComponent.put(CAPTION, caption);
+		} else if (!ignoreCaption && (jsonComponent instanceof JsonText || jsonComponent instanceof Input<?> || jsonComponent instanceof JsonAction)) {
+			// if there is no caption the component needs an offset or would be
+			// displayed too high.
+			// (this is not the case if ignoreCaption is active, then all components are 
+			// on upper edge)
+			jsonComponent.setCssClass("noCaption");
 		}
 		if (required) {
 			jsonComponent.put(REQUIRED, required);
