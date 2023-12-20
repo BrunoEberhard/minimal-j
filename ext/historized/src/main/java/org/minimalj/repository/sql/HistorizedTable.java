@@ -126,16 +126,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 	
 	public T read(Object id, int time) {
-		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
-			selectByIdAndTimeStatement.setObject(1, id);
-			selectByIdAndTimeStatement.setInt(2, time);
-			T object = executeSelect(selectByIdAndTimeStatement);
-			loadDependables(id, object, time);
-			loadLists(object, time);
-			return object;
-		} catch (SQLException x) {
-			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + id + " on time " +  time);
-		}
+		return read(id, time, new HashMap<>());
 	}
 	
 	public T read(Object id, int time, Map<Class<?>, Map<Object, Object>> loadedReferences) {
@@ -144,7 +135,7 @@ class HistorizedTable<T> extends Table<T> {
 			selectByIdAndTimeStatement.setInt(2, time);
 			T object = executeSelect(selectByIdAndTimeStatement, loadedReferences);
 			if (object != null) {
-				loadDependables(id, object, time);
+				loadDependables(id, object, time, loadedReferences);
 				loadLists(object, loadedReferences);
 			}
 			return object;

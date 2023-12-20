@@ -383,8 +383,10 @@ public class Table<T> extends AbstractTable<T> {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement, loadedReferences);
+			Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(clazz, c -> new HashMap<>());
+			loadedReferencesOfClass.put(id, object);
 			if (object != null) {
-				loadDependables(id, object, null);
+				loadDependables(id, object, null, loadedReferences);
 				loadLists(object, loadedReferences);
 			}
 			return object;
@@ -519,8 +521,8 @@ public class Table<T> extends AbstractTable<T> {
 			Map<Class<?>, Map<Object, Object>> loadedReferences = new HashMap<>();
 			while (resultSet.next()) {
 				S resultObject = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
-				loadViewLists(resultObject);
-				loadViewDependables(resultObject);
+				loadViewLists(resultObject, loadedReferences);
+				loadViewDependables(resultObject, loadedReferences);
 				result.add(resultObject);
 			}
 		}
@@ -532,16 +534,16 @@ public class Table<T> extends AbstractTable<T> {
 		try (ResultSet resultSet = preparedStatement.executeQuery()) {
 			if (resultSet.next()) {
 				result = sqlRepository.readResultSetRow(resultClass, resultSet, loadedReferences);
-				loadViewLists(result);	
-				loadViewDependables(result);
+				loadViewLists(result, loadedReferences);	
+				loadViewDependables(result, loadedReferences);
 			}
 		}
 		return result;
 	}
 	
-	protected void loadDependables(Object id, T object, Integer time) throws SQLException {
+	protected void loadDependables(Object id, T object, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		for (Entry<Property, DependableTable> dependableTableEntry : dependables.entrySet()) {
-			Object value = dependableTableEntry.getValue().read(id, time);
+			Object value = dependableTableEntry.getValue().read(id, time, loadedReferences);
 			Property dependableProperty = dependableTableEntry.getKey();
 			dependableProperty.setValue(object, value);
 		}
@@ -560,12 +562,12 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <S> void loadViewLists(S result) {
+	protected <S> void loadViewLists(S result, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		List<Property> viewLists = FlatProperties.getListProperties(result.getClass());
 		for (Property viewListProperty : viewLists) {
 			for (Entry<Property, ListTable> listPropertyEntry : lists.entrySet()) {
 				if (viewListProperty.getPath().equals(listPropertyEntry.getKey().getPath())) {
-					List values = listPropertyEntry.getValue().getList(result, null);
+					List values = listPropertyEntry.getValue().getList(result, loadedReferences);
 					viewListProperty.setValue(result, values);
 
 					break;
@@ -574,13 +576,13 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 
-	protected <S> void loadViewDependables(S object) {
+	protected <S> void loadViewDependables(S object, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		Collection<Property> properties = FlatProperties.getProperties(object.getClass()).values();
 		for (Entry<Property, DependableTable> dependableTableEntry : dependables.entrySet()) {
 			Property dependableProperty = dependableTableEntry.getKey();
 			Optional<Property> propertyOptional = properties.stream().filter(p -> p.getPath().equals(dependableProperty.getPath())).findFirst();
 			if (propertyOptional.isPresent()) {
-				Object value = dependableTableEntry.getValue().read(IdUtils.getId(object), null);
+				Object value = dependableTableEntry.getValue().read(IdUtils.getId(object), null, loadedReferences);
 				propertyOptional.get().setValue(object, value);
 			}
 		}

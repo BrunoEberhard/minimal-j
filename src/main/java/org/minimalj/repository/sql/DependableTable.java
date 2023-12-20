@@ -2,6 +2,8 @@ package org.minimalj.repository.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.EqualsHelper;
@@ -35,10 +37,10 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		createConstraint(dialect, "ID", parentTable);
 	}
 
-	public ELEMENT read(Object parentId, Integer version) {
+	public ELEMENT read(Object parentId, Integer version, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, parentId);
-			ELEMENT object = executeSelect(selectByIdStatement);
+			ELEMENT object = executeSelect(selectByIdStatement, loadedReferences);
 			return object;
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + parentId);
@@ -49,7 +51,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 		if (object == null) {
 			delete(parentId, version);
 		} else {
-			ELEMENT existing = read(parentId, version);
+			ELEMENT existing = read(parentId, version, new HashMap<>());
 			if (existing == null) {
 				insert(parentId, object, version);
 			} else if (!EqualsHelper.equals(existing, object)) {

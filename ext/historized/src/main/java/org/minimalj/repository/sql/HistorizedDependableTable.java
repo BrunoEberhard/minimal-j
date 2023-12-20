@@ -2,6 +2,7 @@ package org.minimalj.repository.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.LoggingRuntimeException;
@@ -35,11 +36,11 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<
 	}
 
 	@Override
-	public ELEMENT read(Object parentId, Integer version) {
+	public ELEMENT read(Object parentId, Integer version, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		if (version == null) {
 			try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 				selectByIdStatement.setObject(1, parentId);
-				ELEMENT object = executeSelect(selectByIdStatement);
+				ELEMENT object = executeSelect(selectByIdStatement, loadedReferences);
 				return object;
 			} catch (SQLException x) {
 				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + parentId);
@@ -49,7 +50,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<
 				selectByIdStatement.setObject(1, parentId);
 				selectByIdStatement.setObject(2, version);
 				selectByIdStatement.setObject(3, version);
-				ELEMENT object = executeSelect(selectByIdStatement);
+				ELEMENT object = executeSelect(selectByIdStatement, loadedReferences);
 				return object;
 			} catch (SQLException x) {
 				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + parentId);

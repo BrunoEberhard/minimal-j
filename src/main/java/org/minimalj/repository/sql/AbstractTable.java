@@ -357,7 +357,7 @@ public abstract class AbstractTable<T> {
 				T object = sqlRepository.readResultSetRow(clazz,  resultSet, loadedReferences);
 				if (this instanceof Table) {
 					((Table<T>) this).loadLists(object, loadedReferences);
-					((Table<T>) this).loadDependables(IdUtils.getId(object), object, null);
+					((Table<T>) this).loadDependables(IdUtils.getId(object), object, null, loadedReferences);
 				}
 				result.add(object);
 			}
