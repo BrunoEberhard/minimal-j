@@ -131,4 +131,11 @@ public class FieldCriteria extends Criteria implements Serializable {
 			}
 		}
 	}
+	
+	@Override
+	public String toString() {
+		Object value = getValue();
+		value = value != null && IdUtils.hasId(value.getClass()) ? IdUtils.getId(value) : value;
+		return getProperty().getName() + " " + operator.getOperatorAsString() + " " + value;
+	}
 }

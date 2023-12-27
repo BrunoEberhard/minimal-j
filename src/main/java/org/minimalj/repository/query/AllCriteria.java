@@ -7,4 +7,9 @@ public class AllCriteria extends Criteria {
 	public boolean test(Object t) {
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		return "all";
+	}
 }

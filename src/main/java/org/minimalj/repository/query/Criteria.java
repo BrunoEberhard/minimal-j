@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.minimalj.repository.query.Criteria.AndCriteria;
+import org.minimalj.repository.query.Criteria.CompoundCriteria;
+import org.minimalj.repository.query.Criteria.OrCriteria;
+
 public abstract class Criteria extends Query implements Predicate<Object> {
 	private static final long serialVersionUID = 1L;
 
@@ -54,6 +58,17 @@ public abstract class Criteria extends Query implements Predicate<Object> {
 		public List<Criteria> getCriterias() {
 			return criterias;
 		}
+		
+		protected String toString(String operator) {
+			StringBuilder s = new StringBuilder();
+			for (Criteria c : getCriterias()) {
+				if (s.length() != 0) {
+					s.append(" ").append(operator).append(" ");
+				}
+				s.append(c.toString());
+			}
+			return s.toString();
+		}
 	}
 	
 	public static class OrCriteria extends CompoundCriteria implements Serializable {
@@ -79,6 +94,11 @@ public abstract class Criteria extends Query implements Predicate<Object> {
 		public boolean test(Object object) {
 			return getCriterias().stream().anyMatch(c -> c.test(object));
 		}
+		
+		@Override
+		public String toString() {
+			return "(" + toString("OR") + ")";
+		}
 	}	
 	
 	public static class AndCriteria extends CompoundCriteria implements Serializable {
@@ -103,6 +123,11 @@ public abstract class Criteria extends Query implements Predicate<Object> {
 		@Override
 		public boolean test(Object object) {
 			return getCriterias().stream().allMatch(c -> c.test(object));
+		}
+		
+		@Override
+		public String toString() {
+			return toString("AND");
 		}
 	}
 	

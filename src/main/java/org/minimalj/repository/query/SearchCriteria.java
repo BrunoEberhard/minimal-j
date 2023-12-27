@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Searched;
@@ -111,5 +112,26 @@ public class SearchCriteria extends Criteria implements Serializable {
 		}
 		sb.append('$');
 		return sb.toString();
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		s.append("query");
+		if (notEqual) {
+			s.append(" not");
+		}
+		s.append(" ").append(query);
+		if (keys != null) {
+			s.append(" in fields [");
+			for (Object key : keys) {
+				if (s.length() != 0) {
+					s.append(", ");
+				}
+				s.append(Keys.getProperty(key).getName());
+			}
+			s.append("]");
+		}
+		return s.toString();
 	}
 }
