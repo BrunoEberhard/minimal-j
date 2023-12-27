@@ -34,4 +34,10 @@ public class SaveTransaction<ENTITY> extends WriteTransaction<ENTITY, ENTITY> {
 		}
 		return (ENTITY) repository.read(unwrapped.getClass(), id);
 	}
+	
+	@Override
+	public String toString() {
+		Object id = IdUtils.getId(getUnwrapped()); 
+		return "Save " + getUnwrapped().getClass().getSimpleName() + " " + (id != null ? id : "(new)");
+	}
 }

@@ -11,4 +11,9 @@ public class InsertTransaction<T> extends WriteTransaction<T, Object> {
 	public Object execute() {
 		return insert(getUnwrapped());
 	}
+	
+	@Override
+	public String toString() {
+		return "Insert " + getUnwrapped().getClass().getSimpleName();
+	}
 }

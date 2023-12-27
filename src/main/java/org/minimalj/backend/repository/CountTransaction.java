@@ -16,4 +16,9 @@ public class CountTransaction<ENTITY> extends ReadTransaction<ENTITY, Long> {
 	public Long execute() {
 		return count(getEntityClazz(), criteria);
 	}
+	
+	@Override
+	public String toString() {
+		return "Count " + getEntityClazz().getSimpleName() + " by " + criteria;
+	}
 }

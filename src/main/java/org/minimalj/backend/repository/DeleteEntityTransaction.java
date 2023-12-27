@@ -42,4 +42,9 @@ public class DeleteEntityTransaction<ENTITY> extends EntityTransaction<ENTITY, V
 		}
 		return null;
 	}
+	
+	@Override
+	public String toString() {
+		return "Delete " + classHolder + " " + id;
+	}
 }

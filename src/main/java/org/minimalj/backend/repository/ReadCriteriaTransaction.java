@@ -19,4 +19,9 @@ public class ReadCriteriaTransaction<ENTITY> extends ReadTransaction<ENTITY, Lis
 		List<ENTITY> result = find(getEntityClazz(), criteria);
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		return "Read " + getEntityClazz().getSimpleName() + " by " + criteria;
+	}
 }

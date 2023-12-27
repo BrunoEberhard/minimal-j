@@ -2,6 +2,8 @@ package org.minimalj.backend;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -70,6 +72,7 @@ public class Backend {
 	private Repository repository = null; 
 	private Boolean authenticationActive = null;
 	private Authentication authentication = null; 
+	private TransactionLogger transactionLogger = new DefaultTransactionLogger();
 	
 	private InheritableThreadLocal<Transaction<?>> currentTransaction = new InheritableThreadLocal<>();
 	
@@ -210,6 +213,7 @@ public class Backend {
 
 		Transaction<?> outerTransaction = currentTransaction.get();
 		try {
+			transactionLogger.logStart(transaction);
 			currentTransaction.set(transaction);
 			T result;
 			if (getRepository() instanceof TransactionalRepository) {
@@ -217,6 +221,7 @@ public class Backend {
 				result = doExecute(transaction, transactionalRepository);
 			} else {
 				result = transaction.execute();
+				transactionLogger.logEnd(transaction, result, null);
 			}
 			handleCodeCache(transaction);
 			Application.getInstance().transactionCompleted(transaction);
@@ -235,7 +240,7 @@ public class Backend {
 	}
 
 	private <T> T doExecute(Transaction<T> transaction, TransactionalRepository transactionalRepository) {
-		T result;
+		T result = null;
 		boolean commit = false;
 		try {
 			transactionalRepository.startTransaction(transaction.getIsolation().getLevel());
@@ -243,7 +248,34 @@ public class Backend {
 			commit = true;
 		} finally {
 			transactionalRepository.endTransaction(commit);
+			transactionLogger.logEnd(transaction, result, commit);
 		}
 		return result;
 	}
+	
+	public interface TransactionLogger {
+		
+		public void logStart(Transaction<?> transaction);
+
+		public void logEnd(Transaction<?> transaction, Object result, Boolean commit);
+	}
+	
+	public static class DefaultTransactionLogger implements TransactionLogger {
+		private static final Logger LOG = Logger.getLogger("Transaction");
+
+		@Override
+		public void logStart(Transaction<?> transaction) {
+			LOG.log(Level.FINER, () -> "start  " + transaction.toString());
+		}
+
+		@Override
+		public void logEnd(Transaction<?> transaction, Object result, Boolean commit) {
+			String verb = commit != null ? (commit ? "commit" : "ROLLBACK") : "end   ";
+			LOG.log(Level.FINER, () -> verb + " " + transaction.toString());
+			if ((commit == null || commit) /* && GenericUtils.getTypeArgument(transaction.getClass(), Transaction.class) != Void.class */) {
+				LOG.log(Level.FINEST, () -> "Result: " + result);
+			}
+		}
+	}
+
 }

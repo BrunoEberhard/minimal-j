@@ -16,4 +16,8 @@ public class ReadEntityTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTIT
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "Read " + getEntityClazz().getSimpleName() + " " + id;
+	}
 }

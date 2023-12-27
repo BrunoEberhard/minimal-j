@@ -33,4 +33,9 @@ public class ReadOneTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTITY> 
 			return result.get(0);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return "Read " + (strictOne ? "" : "max ") + "one " + getEntityClazz().getSimpleName() + " by " + criteria;
+	}
 }

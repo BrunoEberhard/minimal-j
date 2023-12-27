@@ -143,6 +143,11 @@ public class Codes {
 		public List<T> execute() {
 			return repository().find(getEntityClazz(), By.ALL);
 		}
+		
+		@Override
+		public String toString() {
+			return "Read codes " + getEntityClazz().getSimpleName();
+		}
 	}
 
 	public static class CodeCacheItem<S extends Code> {
