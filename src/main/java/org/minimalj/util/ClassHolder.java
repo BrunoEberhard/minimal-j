@@ -30,4 +30,8 @@ public class ClassHolder<CLASS> implements Serializable {
 		return clazz;
 	}
 
+	@Override
+	public String toString() {
+		return className.substring(className.lastIndexOf('.') + 1);
+	}
 }
