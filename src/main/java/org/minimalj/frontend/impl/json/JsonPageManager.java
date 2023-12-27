@@ -187,8 +187,14 @@ public class JsonPageManager implements PageManager {
 				} else {
 					onLogin = () -> show(Application.getInstance().createDefaultPage());
 				}
+			} else if (initialize instanceof String) {
+				String path = (String) initialize;
+				onLogin = () -> {
+					Page page = Routing.createPageSafe(path);
+					show(page != null ? page : Application.getInstance().createDefaultPage());
+				};
 			}
-
+			
 			if (subject == null && authentication instanceof RememberMeAuthentication) {
 				RememberMeAuthentication rememberMeAuthentication = (RememberMeAuthentication) authentication;
 				String token = (String) input.getObject("rememberMeToken");
