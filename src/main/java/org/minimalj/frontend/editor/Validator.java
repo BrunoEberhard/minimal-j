@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Selection;
+import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.ChainedProperty;
@@ -58,7 +59,7 @@ public class Validator {
 				index = index + 1;
 			}
 			return messages;
-		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass()) && !(object instanceof Selection)) {
+		} else if (object != null && !FieldUtils.isAllowedPrimitive(object.getClass()) && !(object instanceof Selection) && !(object instanceof View)) {
 			Collection<Property> valueProperties = Properties.getProperties(object.getClass()).values();
 			List<ValidationMessage> validationMessages = new ArrayList<>();
 			valueProperties.stream().filter(p -> !StringUtils.equals(p.getName(), "id", "version", "historized")).forEach(property -> {
