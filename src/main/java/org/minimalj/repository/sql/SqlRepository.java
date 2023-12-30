@@ -131,6 +131,10 @@ public class SqlRepository implements TransactionalRepository {
 		return SchemaPreparation.none;
 	}
 
+	protected List<String> getSpecialColumnNames() {
+		return Collections.emptyList();
+	}
+	
 	private SqlDialect findDialect(Connection connection) throws SQLException {
 		if (Configuration.available("MjSqlDialect")) {
 			return Configuration.getClazz("MjSqlDialect", SqlDialect.class);

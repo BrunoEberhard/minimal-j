@@ -229,7 +229,7 @@ public enum SchemaPreparation {
 			}
 		}
 		for (String columnName : columnNames) {
-			if (!table.getColumns().containsKey(columnName) && !StringUtils.equals(columnName, "id", "version", "historized", "position")) {
+			if (!table.getColumns().containsKey(columnName) && !StringUtils.equals(columnName, "id", "version", "position")  && !repository.getSpecialColumnNames().contains(columnName)) {
 				logger.info("Drop column: " + table.name + "." + columnName);
 				String s = "ALTER TABLE " + table.name + " DROP COLUMN " + columnName;
 				execute(repository, s, new Serializable[0]);

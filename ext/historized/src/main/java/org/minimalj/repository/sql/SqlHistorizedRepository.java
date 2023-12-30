@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +28,8 @@ import org.minimalj.util.IdUtils;
 
 public class SqlHistorizedRepository extends SqlRepository {
 
+	private static final List<String> SPECIAL_COLUMN_NAMES = Arrays.asList("historized");
+	
 	private Map<Class<?>, HashMap<String, Property>> versionColumnsForClass;
 
 	public SqlHistorizedRepository(DataSource dataSource, Class<?>... classes) {
@@ -210,4 +213,8 @@ public class SqlHistorizedRepository extends SqlRepository {
 		return result;
 	}
 
+	@Override
+	protected List<String> getSpecialColumnNames() {
+		return SPECIAL_COLUMN_NAMES;
+	}
 }
