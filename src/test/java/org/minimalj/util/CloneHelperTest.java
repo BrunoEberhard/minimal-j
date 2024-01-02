@@ -101,8 +101,35 @@ public class CloneHelperTest {
 		
 		Assert.assertEquals(null, clone.empty);
 	}
-	
-	
+
+	@Test public void 
+	should_copy_bytes() throws Exception {
+		CloneHelperTestA a = new CloneHelperTestA();
+		a.bytes = new byte[] { 1, 2	};
+		CloneHelperTestA clone = CloneHelper.clone(a);
+
+		Assert.assertEquals(2, clone.bytes.length);
+	}
+
+	@Test public void 
+	should_copy_chars() throws Exception {
+		CloneHelperTestA a = new CloneHelperTestA();
+		a.chars = new char[] { 'a' };
+		CloneHelperTestA clone = CloneHelper.clone(a);
+
+		Assert.assertEquals(1, clone.chars.length);
+	}
+
+	@Test public void 
+	should_copy_array() throws Exception {
+		CloneHelperTestA a = new CloneHelperTestA();
+		CloneHelperTestB b = new CloneHelperTestB();
+		a.genericArray = new CloneHelperTestB[] { b };
+		CloneHelperTestA clone = CloneHelper.clone(a);
+
+		Assert.assertEquals(1, clone.genericArray.length);
+	}
+
 	public static class CloneHelperTestA {
 		public String a;
 		public final List<CloneHelperTestB> b = new ArrayList<>();
@@ -110,6 +137,9 @@ public class CloneHelperTest {
 		public List<CloneHelperTestC> empty;
 		public transient String t;
 		public final CloneHelperTestB b_inline = new CloneHelperTestB();
+		public byte[] bytes;
+		public char[] chars;
+		public CloneHelperTestB[] genericArray;
 	}
 
 	public static class  CloneHelperTestB {

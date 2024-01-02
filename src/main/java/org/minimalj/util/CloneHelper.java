@@ -1,5 +1,6 @@
 package org.minimalj.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -119,11 +120,10 @@ public class CloneHelper {
 			} else if (FieldUtils.isTransient(field) || fromValue == null) {
 				// note: transient fields are copied but not cloned!
 				field.set(to, fromValue);
-			} else if (fromValue instanceof byte[]) {
-				toValue = ((byte[]) fromValue).clone();
-				field.set(to, toValue);
-			} else if (fromValue instanceof char[]) {
-				toValue = ((char[]) fromValue).clone();
+			} else if (fromValue.getClass().isArray()) {
+				int length = Array.getLength(fromValue);
+				toValue = Array.newInstance(fromValue.getClass().getComponentType(), length);
+				System.arraycopy(fromValue, 0, toValue, 0, length);
 				field.set(to, toValue);
 			} else {
 				toValue = clone(fromValue, originals, copies);
