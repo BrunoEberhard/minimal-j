@@ -100,6 +100,11 @@ public class JsonFrontend extends Frontend {
 	}
 
 	@Override
+	public Input<NamedFile[]> createUpload(InputComponentListener changeListener, boolean multiple) {
+		return new JsonUpload(changeListener, multiple);
+	}
+	
+	@Override
 	public Input<byte[]> createImage(InputComponentListener changeListener) {
 		return new JsonImage(changeListener);
 	};

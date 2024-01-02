@@ -892,19 +892,20 @@ $ICON
 			// this is not used at the moment as IE (before chrome) doesn't support it
 			element = document.createElement("iframe");
 			element.srcdoc = content.htmlOrUrl;
+		} else if (type === "Upload" || type === "Image" && editable) {
+			element = document.createElement("input");
+			element.type = "file";
+			if (content.multiple) {
+				element.setAttribute("multiple", "");
+			}
+			element.setAttribute("onchange", "sendchange(this);");
 		} else if (type === "Image") {
-			if (editable) {
-				element = document.createElement("input");
-				element.type = "file";
-				element.setAttribute("onchange", "sendchange(this);");
-			} else {
-				element = document.createElement("img");
-				if (content.value) {
-					element.src = "data:image;base64, " + content.value;
-				}
-				if (content.maxHeight) {
-					element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
-				}
+			element = document.createElement("img");
+			if (content.value) {
+				element.src = "data:image;base64, " + content.value;
+			}
+			if (content.maxHeight) {
+				element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
 			}
 		} else {
 			element = document.createElement("div");
@@ -1391,18 +1392,24 @@ $ICON
 		} else if (source.type == "password") {
 			changedValue[source.id] = source.value.split("");
 		} else if (source.type == "file") {
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				var binary = "";
-				var bytes = new Uint8Array(reader.result);
-				for (var i = 0; i < bytes.byteLength; i++) {
-					binary += String.fromCharCode(bytes[i]);
+			var value = [];
+			var reader = new FileReader();  
+			function readFile(index) {
+				if (index < source.files.length) {
+					var file = source.files[index];
+					reader.onload = function(e) {  
+						var binaryString = e.target.result;
+						value.push({"content": btoa(binaryString), "name": source.files[index].name});
+						readFile(index+1);
+					}
+					reader.readAsBinaryString(file);
+				} else {
+					changedValue[source.id] =  value;
+					data.changedValue = changedValue;
+					send(data, false);
 				}
-				changedValue[source.id] = btoa(binary);
-				data.changedValue = changedValue;
-				send(data, false);
 			}
-			reader.readAsArrayBuffer(source.files[0]); // readAsBinaryString would be shorter but not supported on IE
+			readFile(0);
 			return;
 		} else {
 			changedValue[source.id] = source.value;

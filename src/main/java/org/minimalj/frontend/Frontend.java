@@ -131,7 +131,19 @@ public abstract class Frontend {
 		return createComboBox(items, changeListener);
 	}
 
-	
+	public static class NamedFile {
+		public String name;
+		public byte[] content;
+	}
+
+	public Input<NamedFile[]> createUpload(InputComponentListener changeListener, boolean multiple) {
+		return null;
+	}
+
+	public Input<List<NamedFile>> createDownload(InputComponentListener changeListener) {
+		return null;
+	}
+
 	public abstract Input<byte[]> createImage(InputComponentListener changeListener);
 
 	public interface SwitchComponent extends IComponent {
