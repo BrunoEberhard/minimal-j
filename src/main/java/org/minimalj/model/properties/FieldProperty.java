@@ -86,6 +86,10 @@ public class FieldProperty implements Property {
 	public Class<?> getGenericClass() {
 		return GenericUtils.getGenericClass(declaringClass, field);
 	}
+	
+	public Field getField() {
+		return field;
+	}
 
 	@Override
 	public Class<?> getClazz() {
