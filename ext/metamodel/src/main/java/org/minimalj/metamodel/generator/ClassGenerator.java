@@ -226,6 +226,7 @@ public class ClassGenerator {
 			indent(s, indent).append("@Comment(\"" + property.comment + "\")\n");			
 		}
 		if (property.propertyType == MjPropertyType.LIST) {
+			appendSize(s, property);
 			indent(s, indent).append("public List<" + className + "> " + fieldName + ";\n");
 		} else if (property.propertyType == MjPropertyType.ENUM_SET) {
 			indent(s, indent).append("public final Set<" + className + "> " + fieldName + " = new TreeSet<>();\n");

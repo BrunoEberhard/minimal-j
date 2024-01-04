@@ -181,6 +181,7 @@ public class OpenAPI {
 		public String title, description;
 		public Type type;
 		public Integer minLength, maxLength; // for type : STRING
+		public Integer maxItems; // for type : ARRAY
 		public String format; // int32, int64, float, double, byte, binary, date, date-time, password, etc...
 		public Schema items; // required for array Property
 		public Boolean nullable;
