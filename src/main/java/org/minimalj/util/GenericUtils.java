@@ -6,18 +6,20 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 public class GenericUtils {
 	private static final Logger logger = Logger.getLogger(GenericUtils.class.getName());
-	
+
 	public static Class<?> getGenericClass(Class<?> c) {
 		return getGenericClass(c, 0);
 	}
-	
+
 	public static Class<?> getGenericClass(Class<?> c, int index) {
 		ParameterizedType type = null;
 		while (c != Object.class) {
@@ -35,10 +37,9 @@ public class GenericUtils {
 		Type[] actualTypeArguments = type.getActualTypeArguments();
 		return actualTypeArguments.length > index ? getClass(actualTypeArguments[index]) : null;
 	}
-	
+
 	/**
-	 * Get the underlying class for a type, or null if the type is a variable
-	 * type.
+	 * Get the underlying class for a type, or null if the type is a variable type.
 	 * 
 	 * @param type the type
 	 * @return the underlying class or <code>null</code>
@@ -57,16 +58,18 @@ public class GenericUtils {
 		}
 		return null;
 	}
-	
+
 	public static boolean declaresInterface(Class<?> clazz, Class<?> interfce) {
 		for (Class<?> i : clazz.getInterfaces()) {
 			if (i == interfce) return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get the actual type argument for a interface with one type
+	 * 
+	 * NOT WORKING YET
 	 * 
 	 * @param clazz the class implementing the interface (directly or by extension)
 	 * @param interfce the interface implemented by clazz. Must have exactly one type
@@ -75,7 +78,7 @@ public class GenericUtils {
 	public static Class<?> getTypeArgument(Class<?> clazz, Class<?> interfce) {
 		Map<Type, Type> resolvedTypes = new HashMap<>();
 		Type type = clazz;
-		
+
 		while (!declaresInterface(getClass(type), interfce)) {
 			if (type instanceof Class) {
 				type = ((Class<?>) type).getGenericSuperclass();
@@ -93,21 +96,9 @@ public class GenericUtils {
 			}
 		}
 
-		Type actualTypeArgument;
-		if (type instanceof Class) {
-			actualTypeArgument = ((Class<?>) type).getTypeParameters()[0];
-		} else {
-			actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
-		}
-		Class<?> typeArgumentAsClass = null;
-		
-		while (resolvedTypes.containsKey(actualTypeArgument)) {
-			actualTypeArgument = resolvedTypes.get(actualTypeArgument);
-		}
-		typeArgumentAsClass = getClass(actualTypeArgument);
-		return typeArgumentAsClass;
+		return null;
 	}
-	  
+
 	public static Class<?> getGenericClass(Type genericSuperclass) {
 		if (!(genericSuperclass instanceof ParameterizedType)) {
 			throw new IllegalArgumentException(genericSuperclass.toString() + " must be parameterized!");
@@ -135,7 +126,32 @@ public class GenericUtils {
 		}
 		return null;
 	}
-	
+
+	public static List<Object> getGenericClasses(Class<?> inClass, Field field) {
+		Type type = field.getGenericType();
+		if (type instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			return getGenericClasses(field, inClass, parameterizedType);
+		}
+		return null;
+	}
+
+	private static List<Object> getGenericClasses(Field field, Class<?> inClass, ParameterizedType parameterizedType) {
+		List<Object> classes = new ArrayList<>();
+		for (Type actualTypeArgument : parameterizedType.getActualTypeArguments()) {
+			if (actualTypeArgument instanceof Class) {
+				classes.add((Class<?>) actualTypeArgument);
+			} else if (actualTypeArgument instanceof TypeVariable) {
+				TypeVariable typeVariable = (TypeVariable) actualTypeArgument;
+				classes.add(getTypeVariableValue(typeVariable.getName(), field.getDeclaringClass(), inClass, Collections.emptyMap()));
+			} else if (actualTypeArgument instanceof ParameterizedType) {
+				ParameterizedType actualTarameterizedType = (ParameterizedType) actualTypeArgument;
+				classes.add(getGenericClasses(field, inClass, actualTarameterizedType));
+			}
+		}
+		return classes;
+	}
+
 	public static Class<?> getGenericClass(Class<?> inClass, Field field) {
 		Type type = field.getGenericType();
 		if (type instanceof ParameterizedType) {
@@ -150,18 +166,18 @@ public class GenericUtils {
 		}
 		return null;
 	}
-	
+
 	private static Class<?> getTypeVariableValue(String name, Class<?> declaringClass, Class<?> inClass, Map<String, Class<?>> names) {
 		if (declaringClass == inClass) {
 			return names.get(name);
 		}
-		
+
 		ParameterizedType ptc = (ParameterizedType) inClass.getGenericSuperclass();
 		Type[] actualTypeArguments = ptc.getActualTypeArguments();
 		TypeVariable<?>[] typeParameters = ((Class<?>) ptc.getRawType()).getTypeParameters();
 
 		Map<String, Class<?>> thisNames = new HashMap<>();
-		for (int i = 0; i<actualTypeArguments.length; i++) {
+		for (int i = 0; i < actualTypeArguments.length; i++) {
 			String typeParameterName = typeParameters[i].getName();
 			Type actualTypeArgument = actualTypeArguments[i];
 			if (actualTypeArgument instanceof Class) {
@@ -174,8 +190,8 @@ public class GenericUtils {
 				throw new IllegalArgumentException(actualTypeArgument.toString());
 			}
 		}
-		
+
 		return getTypeVariableValue(name, declaringClass, (Class<?>) ptc.getRawType(), thisNames);
 	}
-	
+
 }
