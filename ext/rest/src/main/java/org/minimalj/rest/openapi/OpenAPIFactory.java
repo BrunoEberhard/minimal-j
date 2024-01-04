@@ -53,7 +53,7 @@ public class OpenAPIFactory {
 			api.openapi = "3.0.0";
 			api.components = new OpenAPI.Components();
 		} else {
-			api.swagger = "2.0";
+			api.setSwagger("2.0");
 		}
 		
 		api.info = new OpenAPI.Info();
@@ -131,7 +131,7 @@ public class OpenAPIFactory {
 
 	public void addSchema(OpenAPI api, MjEntity entity) {
 		String entityName = entity.getClassName();	
- 		if (api.components.schemas.containsKey(entityName) || api.definitions.containsKey(entityName)) {
+ 		if (api.components.schemas.containsKey(entityName)) {
  			return;
 		}
 		
@@ -147,11 +147,7 @@ public class OpenAPIFactory {
 		}
 		
 		if (schema != null) {
-	 		if (this.api == API.OpenAPI3) {
-				api.components.schemas.put(entityName, schema);
-			} else {
-				api.definitions.put(entityName, schema);
-			}
+			api.components.schemas.put(entityName, schema);
 		}
 	}
 

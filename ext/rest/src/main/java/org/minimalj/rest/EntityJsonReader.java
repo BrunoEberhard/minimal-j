@@ -3,17 +3,23 @@ package org.minimalj.rest;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.minimalj.frontend.impl.json.JsonReader;
 import org.minimalj.model.Code;
+import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
+import org.minimalj.rest.openapi.model.OpenAPI.StringValue;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.GenericUtils;
 import org.minimalj.util.StringUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -48,7 +54,7 @@ public class EntityJsonReader {
 	private static <T> List<T> convertList(Class<T> clazz, List list) {
 		List convertedList = new ArrayList<>();
 		for (Object item : list) {
-			convertedList.add(convert(clazz, (Map<String, Object>) item));
+			convertedList.add(convert(clazz, item));
 		}
 		return convertedList;
 	}
@@ -63,20 +69,57 @@ public class EntityJsonReader {
 		}
 	}
 
+	private static <T> T convert(Class<T> clazz, Object values) {
+		if (clazz == StringValue.class) {
+			var stringValue = new StringValue();
+			stringValue.value = (String) values;
+			return (T) stringValue;
+		} else if (clazz == String.class) {
+			return (T) values;
+		} else{
+			return convert(clazz, (Map<String, Object>) values);
+		}
+	}
+	
 	private static <T> T convert(Class<T> clazz, Map<String, Object> values) {
-		T entity = CloneHelper.newInstance(clazz);
+		T entity = clazz == Map.class ? (T) new LinkedHashMap() : CloneHelper.newInstance(clazz);
 		return convert(entity, values);
+	}
+	
+	private static Map convert(List<Object> genericClasses, Map input) {
+		if (genericClasses.get(1) instanceof List) {
+			List<Object> innerGenericClasses = (List<Object>) genericClasses.get(1);
+			return ((Map<String, Map>) input).entrySet().stream() //
+					.collect(Collectors.toMap(e -> (String) e.getKey(), e -> convert(innerGenericClasses, e.getValue())));
+		} else if (genericClasses.get(1) instanceof Class) {
+			return ((Map<String, Map<String, Map>>) input).entrySet().stream() //
+					.collect(Collectors.toMap(e -> (String) e.getKey(), e -> convert((Class) genericClasses.get(1), e.getValue())));
+		} else {
+			throw new IllegalArgumentException("" + genericClasses);
+		}
 	}
 	
 	private static <T> T convert(T entity, Map<String, Object> values) {
 		Map<String, Property> properties = FlatProperties.getProperties(entity.getClass());
 		for (Map.Entry<String, Object> entry : values.entrySet()) {
-			Property property = properties.get(entry.getKey());
-			if (property == null) {
-				continue;
-			}
+			String key = entry.getKey();
 			Object value = entry.getValue();
+			if (key.equals("enum")) {
+				key = "eNum";
+			}
+			Property property = properties.get(key);
+			if (property == null) {
+				// FlatProperties doesn't support MethodProperties
+				property = Properties.getMethodProperty(entity.getClass(), key);
+				if (property == null) {
+					System.out.println("Not found: " + entity.getClass().getSimpleName() + "." + key + " for " + value);
+					continue;
+				}
+			}
 			if (property.getClazz() == List.class) {
+				if (!(value instanceof List)) {
+					System.out.println(property.getDeclaringClass().getSimpleName() + "." + property.getName() + " must be list, but is " + value);
+				}
 				List list = (List) value;
 				value = convertList(property.getGenericClass(), list);
 				property.setValue(entity, value);
@@ -90,7 +133,7 @@ public class EntityJsonReader {
 					if (propertyClazz != String.class) {
 						if (Code.class.isAssignableFrom(propertyClazz)) {
 							value = Codes.get((Class) propertyClazz, value);
-						} else {
+						} else if (propertyClazz != Object.class) {
 							value = FieldUtils.parse(string, propertyClazz);
 						}
 					}
@@ -117,12 +160,21 @@ public class EntityJsonReader {
 				property.setValue(entity, value);
 			} else if (value instanceof Map) {
 				Map map = (Map) value;
-				Class c2 = property.getClazz();
-				value = convert(c2, map);
+				if (property instanceof FieldProperty) {
+					FieldProperty fieldProperty = (FieldProperty) property;
+					List<Object> genericClasses = GenericUtils.getGenericClasses(fieldProperty.getDeclaringClass(), fieldProperty.getField());
+					if (genericClasses != null) {
+						// with this Map<String, Map<String, CLAZZ>> works
+						value = convert(genericClasses, map);
+					} else {
+						Class c2 = property.getClazz();
+						value = convert(c2, map);
+					}
+				}
 				property.setValue(entity, value);
 			}
 		}
 		return entity;
 	}
-	
+
 }

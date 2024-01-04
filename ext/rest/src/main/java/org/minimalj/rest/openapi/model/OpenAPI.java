@@ -8,20 +8,18 @@ import java.util.Map;
 import javax.security.auth.callback.Callback;
 
 import org.minimalj.model.annotation.NotEmpty;
+import org.minimalj.util.StringUtils;
 
 public class OpenAPI {
 
 	@NotEmpty
 	public String openapi;
-	// V2
-	public String swagger;
 	public Info info;
 	public List<Server> servers = new ArrayList<>();
+	public List<Tag> tags = new ArrayList<>();
 	public Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
-	public Components components;
-	// V2
-	public Map<String, Schema> definitions = new LinkedHashMap<>();
-
+	public Components components = new Components();
+	
 	public static class Info {
 		@NotEmpty
 		public String title;
@@ -33,6 +31,12 @@ public class OpenAPI {
 		public String version;
 	}
 
+	public static class Tag {
+		public String name;
+		public String description;
+		public ExternalDocs externalDocs;
+	}
+	
 	public static class Contact {
 		public String name;
 		public String url;
@@ -67,11 +71,11 @@ public class OpenAPI {
 	
 	public static class Components {
 		public Map<String, Schema> schemas = new LinkedHashMap<>();
-//		public List<Response> responses = new ArrayList<>();
-		public Map<String, Schema> parameters = new LinkedHashMap<>();
+		public Map<String, Response> responses = new LinkedHashMap<>();
+		public Map<String, Parameter> parameters = new LinkedHashMap<>();
 //		public List<Examples> examples = new ArrayList<>();
 //		public List<requestBody> requestBodies = new ArrayList<>();
-//		public List<Header> headers = new ArrayList<>();
+		public Map<String, Header> headers = new LinkedHashMap<>();
 //		public List<SecuritySchema> securitySchemes = new ArrayList<>();
 //		public List<Link> links = new ArrayList<>();
 		public List<Callback> callbacks = new ArrayList<>();
@@ -98,7 +102,7 @@ public class OpenAPI {
 	}
 
 	public static class Parameter {
-		public String ref;
+		public String $ref;
 
 		@NotEmpty
 		public String name;
@@ -122,7 +126,10 @@ public class OpenAPI {
 	}
 	
 	public static class Response {
+		public String $ref;
+
 		public String description;
+		public Map<String, Header> headers = new LinkedHashMap<>();
 		public Map<String, Content> content = new LinkedHashMap<>();
 
 		// v2 / !v3
@@ -143,13 +150,24 @@ public class OpenAPI {
 		public Object value;
 		public String externalValue;
 	}
+	
+	public static class Header {
+		public String $ref;
+
+		public String description;
+		public Schema schema;
+	}
 
 	public static class Schema {
+		public String $ref;
+
 		public Type type;
 		public String name;
+		public String title, description;
 		public List<String> required = new ArrayList<>();
+		public Integer maxLength; // for type : STRING
 		public Map<String, Property> properties = new LinkedHashMap<>();
-		public String $ref;
+		public Object example;
 		
 		// V2 / V3 for arrays
 		public Schema items;
@@ -158,10 +176,13 @@ public class OpenAPI {
 	}
 
 	public static class Property {
+		public String $ref;
+
+		public String title, description;
 		public Type type;
+		public Integer minLength, maxLength; // for type : STRING
 		public String format; // int32, int64, float, double, byte, binary, date, date-time, password, etc...
 		public Schema items; // required for array Property
-		public String $ref;
 		public Boolean nullable;
 		public String discriminator;
 		public Boolean readOnly, writeOnly;
@@ -169,14 +190,45 @@ public class OpenAPI {
 		public ExternalDocs externalDocs;
 		public Object example;
 		public Boolean deprecated;
+		public String pattern;
 		
 		// V2
 		public List<String> eNum;
+		
+		public String getComment() {
+			if (!StringUtils.isEmpty(title)) {
+				if (example != null) {
+					return title + ", example: " + example;
+				} else {
+					return title;
+				}
+			} else if (example != null) {
+				return "example: " + example;
+			}
+			return null;
+		}
 	}
 	
 	public static enum Type {
 		INTEGER, NUMBER, STRING, BOOLEAN, ARRAY, OBJECT;
 	}
 	
+	// V2
+	
+	public String getSwagger() {
+		return openapi;
+	}
+	
+	public void setSwagger(String swagger) {
+		this.openapi = swagger;
+	}
+	
+	public Map<String, Schema> getDefinitions() {
+		return components.schemas;
+	}
+	
+	public void setDefinitions(Map<String, Schema> definitions) {
+		components.schemas = definitions;
+	}
     
 }
