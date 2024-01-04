@@ -6,7 +6,8 @@ public class GeneratorEntity extends MjEntity {
 
 	public String name;
 	public String packageName;
-
+	public Boolean noId = false;
+	
 	public GeneratorEntity() {
 		this.type = MjEntityType.ENTITY;
 	}

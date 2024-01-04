@@ -31,7 +31,7 @@ public class ClassGenerator {
 		delete(directory);
 	}
 	
-	static boolean delete(File directory) {
+	static void delete(File directory) {
 		for (File file : directory.listFiles()) {
 			if (file.isDirectory()) {
 				delete(file);
@@ -39,7 +39,6 @@ public class ClassGenerator {
 				file.delete();
 			}
 		}
-		return directory.delete();
 	}
 	
 	private static boolean isHandMade(File file) {
@@ -145,7 +144,11 @@ public class ClassGenerator {
 		forbiddenNames.add(className);
 		generateProperties(s, entity, packageName, forbiddenNames);
 		
-		if (entity.type == MjEntityType.ENTITY || entity.type == MjEntityType.VIEW || entity.type == MjEntityType.CODE && entity.properties.stream().noneMatch(p -> p.name.equals("id"))) {
+		boolean id = entity.type == MjEntityType.ENTITY || entity.type == MjEntityType.VIEW || entity.type == MjEntityType.CODE && entity.properties.stream().noneMatch(p -> p.name.equals("id"));
+		if (entity instanceof GeneratorEntity && ((GeneratorEntity) entity).noId) {
+			id = false;
+		}
+		if (id) {
 			s.insert(0, "\tpublic Object id;\n");
 		}
 		s.insert(0, "\tpublic static final " + className + " $ = Keys.of(" + className + ".class);\n\n");
@@ -161,7 +164,7 @@ public class ClassGenerator {
 			s.insert(0, "\npublic class " + classNameWithExtends + " {\n");
 		}
 		if (entity.comment != null) {
-			s.insert(0, "\n@Comment(" + entity.comment + "\")");
+			s.insert(0, "\n@Comment(\"" + entity.comment + "\")");
 		}
 		s.insert(0, "\n@Generated(value=\"" + this.getClass().getName() + "\")");
 		imprts(s);
@@ -175,6 +178,7 @@ public class ClassGenerator {
 		indent++;
 		for (MjProperty property : entity.properties) {
 			generate(s, property, packageName, forbiddenNames);
+			s.append("\n");
 		}
 		indent--;
 	}
