@@ -383,8 +383,10 @@ public class Table<T> extends AbstractTable<T> {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement, loadedReferences);
-			Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(clazz, c -> new HashMap<>());
-			loadedReferencesOfClass.put(id, object);
+			if (loadedReferences != SqlRepository.DONT_LOAD_REFERENCES) {
+				Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(clazz, c -> new HashMap<>());
+				loadedReferencesOfClass.put(id, object);
+			}
 			if (object != null) {
 				loadDependables(id, object, null, loadedReferences);
 				loadLists(object, loadedReferences);
