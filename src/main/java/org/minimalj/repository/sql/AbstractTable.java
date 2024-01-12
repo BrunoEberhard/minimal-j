@@ -90,6 +90,10 @@ public abstract class AbstractTable<T> {
 		return name;
 	}
 	
+	public String getName() {
+		return name;
+	}
+	
 	public boolean isHistorized() {
 		return false;
 	}

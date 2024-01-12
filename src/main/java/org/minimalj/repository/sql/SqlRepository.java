@@ -745,6 +745,19 @@ public class SqlRepository implements TransactionalRepository {
 				return entry.getKey();
 			}
 		}
+		Table table = getTable(declaringClass);
+		if (List.class.isAssignableFrom(property.getClazz())) {
+			for (Map.Entry<Property, ListTable> entry : ((HashMap<Property, ListTable>) table.lists).entrySet()) {
+				if (StringUtils.equals(entry.getKey().getPath(), property.getPath())) {
+					return entry.getValue().getName();
+				}
+			}
+		}
+		for (Map.Entry<Property, DependableTable> entry : ((HashMap<Property, DependableTable>) table.dependables).entrySet()) {
+			if (StringUtils.equals(entry.getKey().getPath(), property.getPath())) {
+				return entry.getValue().getName();
+			}
+		}
 		return null;
 	}
 	
