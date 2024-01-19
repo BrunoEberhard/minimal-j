@@ -120,9 +120,11 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private void update() {
 		List<IComponent> rows = new ArrayList<>();
 		rowForms.clear();
+		boolean structuralChange = false;
 		for (int index = 0; index < object.size(); index++) {
 			T rowObject = object.get(index);
 			int i = index;
+			structuralChange |= !formByObject.containsKey(rowObject);
 			@SuppressWarnings("unchecked")
 			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
 			rowForms.add(rowForm);
@@ -130,16 +132,20 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 				rowForm.setChangeListener(form -> fireChange(i, rowObject, rowForm));
 				rowForm.setObject(rowObject);
 				rows.add(rowForm.getContent());
+				
 			}
 		}
 		List<T> unsedForms = formByObject.entrySet().stream().filter(e -> !rowForms.contains(e.getValue())).map(e -> e.getKey()).collect(Collectors.toList());
 		unsedForms.forEach(formByObject::remove);
+		structuralChange |= !unsedForms.isEmpty();
 
-		if (!actions.isEmpty()) {
-			rows.add(createActions(actions));
+		if (structuralChange) {
+			if (!actions.isEmpty()) {
+				rows.add(createActions(actions));
+			}
+			IComponent vertical = Frontend.getInstance().createVerticalGroup(rows.toArray(new IComponent[rows.size()]));
+			switchComponent.show(vertical);
 		}
-		IComponent vertical = Frontend.getInstance().createVerticalGroup(rows.toArray(new IComponent[rows.size()]));
-		switchComponent.show(vertical);
 	}
 	
 	protected void fireChange(int index, T object, Form<T> form) {
