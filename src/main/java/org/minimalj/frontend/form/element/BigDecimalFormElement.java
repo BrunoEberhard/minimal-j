@@ -65,7 +65,9 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	
 	@Override
 	public String render(BigDecimal number) {
-		if (number != null) {
+		if (InvalidValues.isInvalid(number)) {
+			return InvalidValues.getInvalidValue(number);
+		} else if (number != null) {
 			BigDecimal correctScale = number.setScale(format.getMaximumFractionDigits(), RoundingMode.DOWN);
 			return format.format(correctScale);
 		} else {
