@@ -32,7 +32,9 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 		super(new FilteredDocument(maxLength, allowedCharacters), null, 0);
 
 		this.changeListener = changeListener;
-		getDocument().addDocumentListener(new TextFieldChangeListener());
+		if (changeListener != null) {
+			getDocument().addDocumentListener(new TextFieldChangeListener());
+		}
 
 		setInheritsPopupMenu(true);
 
