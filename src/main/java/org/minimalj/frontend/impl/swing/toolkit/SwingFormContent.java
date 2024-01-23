@@ -54,6 +54,11 @@ public class SwingFormContent extends JPanel implements FormContent {
 			swingCaption.setValidationMessages(validationMessages);
 		}
 	}
+	
+	@Override
+	public void setVisible(IComponent component, boolean visible) {
+		((Component) component).setVisible(visible);
+	}
 
 	private static class GridFormLayoutConstraint {
 	
