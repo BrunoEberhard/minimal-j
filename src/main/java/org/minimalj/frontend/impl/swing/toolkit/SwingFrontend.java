@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
@@ -438,6 +439,9 @@ public class SwingFrontend extends Frontend {
 		if (object instanceof EventObject) {
 			object = ((EventObject) object).getSource();
 		}
+		if (object instanceof ActionEvent) {
+			object = ((ActionEvent) object).getSource();
+		}
 		while (!(object instanceof SwingFrame) && object != null) {
 			if (object instanceof JPopupMenu) {
 				object = ((JPopupMenu) object).getInvoker();
@@ -512,7 +516,7 @@ public class SwingFrontend extends Frontend {
 			panel.add((Component) dialog.getContent(), BorderLayout.CENTER);
 			panel.add(checkBoxNewWindow, BorderLayout.SOUTH);
 			SwingLoginAction loginAction = new SwingLoginAction(dialog.getSaveAction(), checkBoxNewWindow);
-			JComponent contentComponent = new SwingEditorPanel(panel, actions);
+			JComponent contentComponent = new SwingEditorPanel(panel, Collections.singletonList(loginAction));
 			swingDialog = new SwingDialog(findFrame(pageManager), dialog, contentComponent, loginAction, null);
 		}
 		skipLoginAction.setDialog(swingDialog);
@@ -552,7 +556,14 @@ public class SwingFrontend extends Frontend {
 		
 		@Override
 		public void run() {
-			SwingFrontend.run(this, action);
+			if (checkBoxNewWindow != null && checkBoxNewWindow.isSelected()) {
+				SwingFrame frame = FrameManager.getInstance().openFrame();
+				SwingUtilities.invokeLater(() -> {
+					SwingFrontend.run(frame, () -> action.run());
+				});
+			} else {
+				action.run();
+			}
 		}
 	}
 	
