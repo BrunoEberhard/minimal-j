@@ -90,27 +90,23 @@ public class Codes {
 			synchronized (clazz) {
 				CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
 				if (cacheItem == null || !cacheItem.isValid()) {
-					CodeCacheItem<T> codeItem = new CodeCacheItem<>();
-					cache.put(clazz, codeItem);
+					cacheItem = new CodeCacheItem<>();
+					cache.put(clazz, cacheItem);
 					List<T> codes = Backend.execute(new ReadCodesTransaction<>(clazz), true);
-					codeItem.setCodes(codes);
+					cacheItem.setCodes(codes);
 				}
-				return (CodeCacheItem<T>) cache.get(clazz);
+				return cacheItem;
 			}
 		}
 
 		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
-			synchronized (clazz) {
-				@SuppressWarnings("unchecked")
-				CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.computeIfAbsent(clazz, newClazz -> new CodeCacheItem<>());
-				return cacheItem.getOrInstantiate(clazz, id);
-			}
+			@SuppressWarnings("unchecked")
+			CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.computeIfAbsent(clazz, newClazz -> new CodeCacheItem<>());
+			return cacheItem.getOrInstantiate(clazz, id);
 		}
 
 		public void invalidateCodeCache(Class<? extends Object> clazz) {
-			synchronized (clazz) {
-				cache.remove(clazz);
-			}
+			cache.remove(clazz);
 		}
 	}
 
