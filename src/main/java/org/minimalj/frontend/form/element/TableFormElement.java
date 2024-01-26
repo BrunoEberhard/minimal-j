@@ -107,6 +107,11 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	public IComponent getComponent() {
 		return switchComponent;
 	}
+	
+	@Override
+	public FormElementConstraint getConstraint() {
+		return new FormElementConstraint(1, FormElementConstraint.MAX);
+	}
 
 	@Override
 	public String getCaption() {

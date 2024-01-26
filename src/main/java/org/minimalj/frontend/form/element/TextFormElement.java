@@ -64,7 +64,7 @@ public class TextFormElement implements FormElement<Object> {
 	@Override
 	public FormElementConstraint getConstraint() {
 		if (lines != 1) {
-			return new FormElementConstraint(lines, lines);
+			return new FormElementConstraint(1, lines);
 		} else {
 			return null;
 		}

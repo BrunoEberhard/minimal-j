@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -22,7 +21,7 @@ public class SwingCaption extends JPanel {
 	
 	public SwingCaption(Component component, String caption) {
 		super(new BorderLayout());
-		setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+		setBorder(null);
 		
 		captionLabel = new CaptionLabel(caption);
 		

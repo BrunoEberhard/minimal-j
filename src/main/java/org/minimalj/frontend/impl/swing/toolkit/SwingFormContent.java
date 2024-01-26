@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Insets;
 import java.awt.LayoutManager2;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -12,7 +13,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -26,7 +29,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 	
 	public SwingFormContent(int columns, int columnWidthPercentage) {
 		int columnWidth = getColumnWidth() * columnWidthPercentage / 100;
-		setLayout(new GridFormLayoutManager(columns, columnWidth, 5));
+		setLayout(new GridFormLayoutManager(columns, columnWidth));
 		setBorder(null);
 	}
 	
@@ -87,24 +90,44 @@ public class SwingFormContent extends JPanel implements FormContent {
 			return formElementConstraint != null ? formElementConstraint.max : 1;
 		}
 		
+		public int getMin() {
+			return formElementConstraint != null ? Math.max(formElementConstraint.min, 1) : 1;
+		}
+		
+	}
+	
+	public static int getFixHeight() {
+		return GridFormLayoutManager.fixHeightWithoutCaption;
 	}
 	
 	private static class GridFormLayoutManager implements LayoutManager2 {
 
+		private static int fixHeight, fixHeightWithoutCaption;
+		
+		static {
+			updateFixHeight();
+			UIManager.addPropertyChangeListener(evt -> updateFixHeight());
+		}
+		
+		static void updateFixHeight() {
+			fixHeight = new SwingCaption(new JComboBox<>(), "X").getPreferredSize().height;
+			fixHeightWithoutCaption = new JComboBox<>().getPreferredSize().height;
+		}
+		
 		private final int columns;
 		private final int minColumnWidth;
-		private final int ins;
 		private final List<List<Component>> rows = new LinkedList<>();
 		private final Map<Component, GridFormLayoutConstraint> constraints = new HashMap<>();
+		private int padding = 5;
 		
 		private Dimension size;
 		private Rectangle lastParentBounds = null;
 		private int column = Integer.MAX_VALUE;
+		private Insets insets;
 		
-		public GridFormLayoutManager(int columns, int minColumnWidth, int ins) {
+		public GridFormLayoutManager(int columns, int minColumnWidth) {
 			this.columns = columns;
 			this.minColumnWidth = minColumnWidth;
-			this.ins = ins;
 		}
 
 		@Override
@@ -126,62 +149,41 @@ public class SwingFormContent extends JPanel implements FormContent {
 			}
 			lastParentBounds = parent.getBounds();
 			
-			int fixHeight = calcFixHeight(true);
-			int fixHeightWithoutCaption = calcFixHeight(false);
-			
-			int y = ins;
-			int width = parent.getWidth();
-			int widthWithoutIns = width - 2 * ins;
+			insets = parent.getInsets();
+			int y = insets.top;
+			int width = parent.getWidth() - insets.left - insets.right;
 			
 			for (List<Component> row : rows) {
-				int height;
 				boolean hasCaption = hasCaption(row);
-				if (isRowVerticallyGrowing(row)) {
-					height = Math.max(getHeight(row, fixHeight), fixHeight);
-				} else {
-					height = hasCaption ? fixHeight : fixHeightWithoutCaption;
-				}
-				layoutRow(widthWithoutIns, row, y, height, hasCaption ? fixHeight : fixHeightWithoutCaption);
-				y += height;
+				int height = layoutRow(width, row, y, hasCaption);
+				y += height + padding;
 			}
-			y+= ins;
-			size = new Dimension(Math.max(minColumnWidth * columns, width), y);
+			y+= padding;
+			size = new Dimension(Math.max(minColumnWidth * columns, width), Math.max(25, y));
 		}
 
-		private void layoutRow(int width, List<Component> row, int y, int height, int minimalHeight) {
-			int x = ins;
+		private int layoutRow(int width, List<Component> row, int y, boolean hasCaption) {
+			int rowHeight = 0;
+			int column = 0;
 			for (Component component : row) {
+				int x = insets.left + column * (width + padding) / columns;
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
-				int componentWidth = constraint.isCompleteRow() ? width : constraint.getSpan() * width / columns;
-				x += componentWidth;
-				if (constraint.isVerticallyGrowing()) {
-					component.setSize(componentWidth, height);
-				} else {
-					// even non growing components are stretched to fixHeight (they should no collapse to 0 height)
-					component.setSize(componentWidth, Math.max(component.getPreferredSize().height, minimalHeight));
+				int componentWidth = constraint.isCompleteRow() ? width : (constraint.getSpan() * width + padding) / columns - padding;
+				
+				int height = component instanceof SwingCaption ? fixHeight : fixHeightWithoutCaption;
+				int minHeight = height + (constraint.getMin() -1) * fixHeightWithoutCaption;
+				int maxHeight = height + (constraint.getMax() -1) * fixHeightWithoutCaption;
+
+				Dimension preferredSize = component.getPreferredSize();
+				height = Math.min(Math.max(minHeight, preferredSize.height), maxHeight);
+				component.setSize(componentWidth, height);
+				if (height > rowHeight) {
+					rowHeight = height;
 				}
+				column += constraint.getSpan();
 			}
-		}
-		
-		private int getHeight(List<Component> row, int fixHeight) {
-			int height = 0;
-			for (Component component : row) {
-				GridFormLayoutConstraint constraint = constraints.get(component);
-				int componentHeight = Math.min(component.getPreferredSize().height, constraint.getMax() * fixHeight);
-				height = Math.max(height, componentHeight);
-			}
-			return height;
-		}
-		
-		private boolean isRowVerticallyGrowing(List<Component> row) {
-			for (Component component : row) {
-				GridFormLayoutConstraint constraint = constraints.get(component);
-				if (constraint.isVerticallyGrowing()) {
-					return true;
-				}
-			}
-			return false;
+			return rowHeight;
 		}
 
 		private boolean hasCaption(List<Component> row) {
@@ -193,22 +195,6 @@ public class SwingFormContent extends JPanel implements FormContent {
 			return false;
 		}
 		
-		private int calcFixHeight(boolean caption) {
-			int height = 0;
-			for (List<Component> row : rows) {
-				for (Component component : row) {
-					GridFormLayoutConstraint constraint = constraints.get(component);
-					if (!constraint.isVerticallyGrowing()) {
-						boolean hasCaption = component instanceof SwingCaption;
-						if (hasCaption == caption) {
-							height = Math.max(height, component.getPreferredSize().height);
-						}
-					}
-				}
-			}
-			return height;
-		}
-
 		@Override
 		public void addLayoutComponent(Component comp, Object constraint) {
 			GridFormLayoutConstraint formConstraint = (GridFormLayoutConstraint) constraint;

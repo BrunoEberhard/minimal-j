@@ -30,6 +30,10 @@ public class SwingEditorPanel extends JPanel {
 	
 	public SwingEditorPanel(Component content, List<org.minimalj.frontend.action.Action> actions) {
 		super(new BorderLayout());
+		if (content instanceof JComponent) {
+			((JComponent) content).setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		}
+		
 		JScrollPane scrollPane = new JScrollPane(new ScrollablePanel(content));
 		scrollPane.setBorder(new TopBottomBorder(scrollPane.getBorder()));
 		add(scrollPane, BorderLayout.CENTER);

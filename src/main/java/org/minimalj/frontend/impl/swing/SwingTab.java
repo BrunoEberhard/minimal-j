@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -26,6 +27,7 @@ import org.minimalj.frontend.action.Separator;
 import org.minimalj.frontend.impl.swing.component.EditablePanel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
 import org.minimalj.frontend.impl.swing.toolkit.SwingEditorPanel;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFormContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingProgressInternalFrame;
 import org.minimalj.frontend.impl.util.History;
@@ -286,6 +288,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 			JPopupMenu menu = createMenu(PageAccess.getActions(page));
 			content.setComponentPopupMenu(menu);
 			setInheritMenu(content);
+			if (content instanceof SwingFormContent) {
+				content.setBorder(BorderFactory.createEmptyBorder(10, 8, 4, 8));
+			}
 		} else {
 			content = new JPanel();
 		}
