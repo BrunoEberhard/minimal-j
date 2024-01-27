@@ -15,7 +15,7 @@ import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 
 public class VaadinFormContent extends FormLayout implements FormContent, VaadinComponentWithWidth {
 	private static final long serialVersionUID = 1L;
@@ -87,7 +87,7 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
         if (component != null) {
         	super.add(component, span);
         } else {
-        	super.add(new Label(), span);
+        	super.add(new NativeLabel(""), span);
         }
 	}
 

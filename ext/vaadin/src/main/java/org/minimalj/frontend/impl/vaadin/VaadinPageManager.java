@@ -30,7 +30,7 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -110,7 +110,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 	private void addActions(HasComponents container, List<Action> actions) {
 		for (Action action : actions) {
 			if (action instanceof ActionGroup) {
-				container.add(new Label(action.getName()));
+				container.add(new NativeLabel(action.getName()));
 				VerticalLayout layout = new VerticalLayout();
 				layout.setMargin(false);
 				layout.setSpacing(false);
