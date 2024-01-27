@@ -100,8 +100,7 @@ public class Codes {
 		}
 
 		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
-			@SuppressWarnings("unchecked")
-			CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.computeIfAbsent(clazz, newClazz -> new CodeCacheItem<>());
+			CodeCacheItem<T> cacheItem = getCacheItems((Class<T>) clazz);
 			return cacheItem.getOrInstantiate(clazz, id);
 		}
 
@@ -148,7 +147,7 @@ public class Codes {
 
 	public static class CodeCacheItem<S extends Code> {
 		private Long timestamp;
-		private Map<Object, S> codeMap = new HashMap<>(100);
+		private Map<Object, S> codes = new HashMap<>(100);
 		private Map<Locale, List<S>> codesSortedByLocale = new HashMap<>();
 
 		public boolean isValid() {
@@ -158,7 +157,7 @@ public class Codes {
 		public List<S> getCodes(Locale locale) {
 			synchronized (codesSortedByLocale) {
 				return codesSortedByLocale.computeIfAbsent(locale, newLocacle -> {
-					List<S> sortedCodes = new ArrayList<>(codeMap.values());
+					List<S> sortedCodes = new ArrayList<>(codes.values());
 					Collections.sort(sortedCodes, new CodeComparator(newLocacle));
 					return sortedCodes;
 
@@ -167,11 +166,11 @@ public class Codes {
 		}
 
 		public S getCode(Object id) {
-			return codeMap.get(id);
+			return codes.get(id);
 		}
 
 		public S getOrInstantiate(Class<S> clazz, Object id) {
-			return codeMap.computeIfAbsent(id, newId -> {
+			return codes.computeIfAbsent(id, newId -> {
 				S code = CloneHelper.newInstance(clazz);
 				IdUtils.setId(code, newId);
 				codesSortedByLocale = new HashMap<>();
@@ -180,7 +179,7 @@ public class Codes {
 		}
 
 		public void setCodes(List<S> codes) {
-			this.codeMap = codes.stream().collect(Collectors.toMap(IdUtils::getId, Function.identity()));
+			this.codes = codes.stream().collect(Collectors.toMap(IdUtils::getId, Function.identity()));
 			codesSortedByLocale = new HashMap<>();
 			timestamp = System.currentTimeMillis();
 		}
