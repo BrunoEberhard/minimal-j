@@ -34,7 +34,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 		
 		property = Keys.getProperty(key);
 		if (property == null) {
-			throw new IllegalArgumentException("Key must be a field from a $ constant or a " + Property.class.getSimpleName());
+			throw new IllegalArgumentException("Key must be a field from a $ constant or a " + Property.class.getSimpleName() + " not: " + key);
 		}
 		assertValidOperator(property, operator);
 		assertValidValueClass(property, value);
