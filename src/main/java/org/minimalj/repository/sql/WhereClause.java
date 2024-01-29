@@ -1,6 +1,7 @@
 package org.minimalj.repository.sql;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -111,6 +112,10 @@ public class WhereClause<T> {
 
 	public Object getValue(int index) {
 		return values.get(index);
+	}
+	
+	public List<Object> getValues() {
+		return Collections.unmodifiableList(values);
 	}
 
 	private void add(WhereClause<T> whereClause) {
