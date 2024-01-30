@@ -34,6 +34,7 @@ import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.security.Subject;
+import org.minimalj.security.model.UserData;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
@@ -45,6 +46,8 @@ public class InMemoryRepository implements Repository {
 	private static final Logger logger = Logger.getLogger(InMemoryRepository.class.getName());
 	
 	private Map<Class<?>, Map<String, Object>> memory = new HashMap<>();
+	private Map<Class<?>, Integer> nextId = new HashMap<>();
+	private Map<Class<?>, Long> nextLongId = new HashMap<>();
 	
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 	
@@ -173,6 +176,9 @@ public class InMemoryRepository implements Repository {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void order(Order order, List l) {
+		if (l.isEmpty()) {
+			return;
+		}
 		String path = order.getPath();
 		int factor = order.isAscending() ? 1 : -1;
 		Property property = Properties.getPropertyByPath(l.get(0).getClass(), path);
@@ -239,7 +245,7 @@ public class InMemoryRepository implements Repository {
 		object = CloneHelper.clone(object);
 		Object id = IdUtils.getId(object);
 		if (id == null) {
-			id = UUID.randomUUID();
+			id = createId(object);
 			IdUtils.setId(object, id);
 		}
 		Map<String, Object> objects = objects(object.getClass());
@@ -259,6 +265,21 @@ public class InMemoryRepository implements Repository {
 			}
 		});
 		return object;
+	}
+
+	protected Object createId(Object object) {
+		Class<?> clazz = IdUtils.getIdClass(object.getClass());
+		if (clazz == Integer.class) {
+			int id = nextId.computeIfAbsent(clazz, newClazz -> 1);
+			nextId.put(clazz, id + 1);
+			return id;
+		} else if (clazz == Long.class) {
+			long id = nextLongId.computeIfAbsent(clazz, newClazz -> 1L);
+			nextLongId.put(clazz, id + 1);
+			return id;
+		} else {
+			return UUID.randomUUID();
+		}
 	}
 	
 	private Object get(Object value) {
@@ -296,9 +317,20 @@ public class InMemoryRepository implements Repository {
 				} else if (technicalField.value() == TechnicalFieldType.EDIT_DATE) {
 					property.setValue(object, LocalDateTime.now());
 				} else if (technicalField.value() == TechnicalFieldType.CREATE_USER && value == null || technicalField.value() == TechnicalFieldType.EDIT_USER) {
-					Subject currentSubject = Subject.getCurrent();
-					if (currentSubject != null) {
-						property.setValue(object, currentSubject.getName());
+					Subject subject = Subject.getCurrent();
+					if (subject != null) {
+						UserData userData = subject.getUser();
+						Class<?> propertyClass = property.getClazz();
+						if (propertyClass.isAssignableFrom(userData.getClass())) {
+							property.setValue(object, userData);
+						} else if (propertyClass == String.class) {
+							property.setValue(object, userData.getName());
+						} else if (View.class.isAssignableFrom(propertyClass)) {
+							Object view = ViewUtils.view(userData, CloneHelper.newInstance(propertyClass));
+							property.setValue(object, view);
+						} else {
+							throw new IllegalArgumentException("Not a valid USER field: " + property);
+						}
 					}
 				}
 			}
