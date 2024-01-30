@@ -98,13 +98,14 @@ public class FieldCriteria extends Criteria implements Serializable {
 		Property p = getProperty();
 		object = p.getValue(object);
 		Object value = getValue();
-		if (getOperator() == FieldOperator.equal) {
+		boolean equal = getOperator() == FieldOperator.equal;
+		if (equal || getOperator() == FieldOperator.notEqual) {
 			if (IdUtils.hasId(p.getClazz())) {
 				Object objectId = object != null ? IdUtils.getId(object) : null;
 				Object valueId = object != null ? IdUtils.getId(value) : null;
-				return EqualsHelper.equals(valueId, objectId);
+				return equal == EqualsHelper.equals(valueId, objectId);
 			} else {
-				return EqualsHelper.equals(value, object);
+				return equal == EqualsHelper.equals(value, object);
 			}
 		} else {
 			if (object == null) {
@@ -127,7 +128,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 			case greaterOrEqual:
 				return sign >= 0;
 			default:
-				throw new RuntimeException();
+				throw new RuntimeException("Invalid Operator: " + getOperator());
 			}
 		}
 	}
