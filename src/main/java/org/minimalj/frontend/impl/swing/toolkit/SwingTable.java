@@ -140,8 +140,9 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		
 		this.page = page;
 		
-		tableModel.setObjects(ListUtil.get(list, new ColumnFilter[0], sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE));
-		nextButton.setVisible(list.size() > (page + 1) * PAGE_SIZE);
+		List<T> objects = ListUtil.get(list, new ColumnFilter[0], sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
+		tableModel.setObjects(objects);
+		nextButton.setVisible(objects.size() > (page + 1) * PAGE_SIZE);
 		prevButton.setVisible(page > 0);
 		
 		// redo selection
