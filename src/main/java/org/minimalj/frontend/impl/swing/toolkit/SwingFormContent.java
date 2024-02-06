@@ -154,14 +154,20 @@ public class SwingFormContent extends JPanel implements FormContent {
 			int width = parent.getWidth() - insets.left - insets.right;
 			
 			for (List<Component> row : rows) {
-				boolean hasCaption = hasCaption(row);
-				int height = layoutRow(width, row, y, hasCaption);
-				y += height + padding;
+				if (isRowVisible(row)) {
+					boolean hasCaption = hasCaption(row);
+					int height = layoutRow(width, row, y, hasCaption);
+					y += height + padding;
+				}
 			}
 			y+= padding;
 			size = new Dimension(Math.max(minColumnWidth * columns, width), Math.max(25, y));
 		}
 
+		private boolean isRowVisible(List<Component> row) {
+			return row.stream().anyMatch(c -> c.isVisible());
+		}
+		
 		private int layoutRow(int width, List<Component> row, int y, boolean hasCaption) {
 			int rowHeight = 0;
 			int column = 0;

@@ -30,6 +30,11 @@ public class SwingCaption extends JPanel {
 		
 		((JComponent) component).putClientProperty(SwingCaption.class, this);
 	}
+	
+	@Override
+	public boolean isVisible() {
+		return getComponent(1).isVisible();
+	}
 
 	public void setValidationMessages(List<String> validationMessages) {
 		if (!validationMessages.isEmpty()) {
