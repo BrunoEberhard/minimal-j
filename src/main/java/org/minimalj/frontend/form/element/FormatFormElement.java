@@ -3,6 +3,8 @@ package org.minimalj.frontend.form.element;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.SwingConstants;
+
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -11,6 +13,7 @@ import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonTextField;
+import org.minimalj.frontend.impl.swing.toolkit.SwingTextField;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
@@ -82,6 +85,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				}
 				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
 					((JsonComponent) textField).setCssClass("textAlignRight");
+				}
+			} else if (textField instanceof SwingTextField) {
+				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
+					((SwingTextField) textField).setHorizontalAlignment(SwingConstants.RIGHT);
 				}
 			}
 
