@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -57,6 +58,7 @@ public class FrameManager {
 		SwingFrame frame = new SwingFrame();
 		frame.setVisible(true);
 		navigationFrames.add(frame);
+		SwingFrontend.frameOpened(frame);
 		return frame;
 	}
 	

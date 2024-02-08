@@ -56,7 +56,6 @@ import org.minimalj.frontend.impl.swing.component.QueryLayout;
 import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.Page.Dialog;
-import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
@@ -311,7 +310,7 @@ public class SwingFrontend extends Frontend {
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setDialogTitle(title);
-		if (JFileChooser.APPROVE_OPTION == chooser.showDialog((Component) getPageManager(), approveButtonText)) {
+		if (JFileChooser.APPROVE_OPTION == chooser.showDialog(getPageManager(), approveButtonText)) {
 			return chooser.getSelectedFile();
 		} else {
 			return null;
@@ -414,22 +413,33 @@ public class SwingFrontend extends Frontend {
 		return null;
 	}
 
-	private static SwingTab pageManager;
+	private static ThreadLocal<SwingTab> pageManager = new ThreadLocal<>();
 
 	// TODO move to SwingFrame
 	public static void run(Object source, Runnable r) {
-		if (!hasContext()) {
-			try {
-				SwingFrame frame = findFrame(source);
+		if (SwingUtilities.isEventDispatchThread()) {
+			SwingFrame frame = findFrame(source);
+			
+			Thread thread = new Thread(() -> {
+				SwingTab tab = null;
 				if (frame != null) {
-					pageManager = frame.getVisibleTab();
+					tab = frame.getVisibleTab();
+					pageManager.set(tab);
 					Subject.setCurrent(frame.getSubject());
+					tab.setEnabled(false);
 				}
-				r.run();
-			} finally {
-				pageManager = null;
-				Subject.setCurrent(null);
-			}
+				try {
+					r.run();
+				} finally {
+					pageManager.set(null);
+					Subject.setCurrent(null);
+					if (tab != null) {
+						tab.setEnabled(true);
+					}
+				}
+			});
+			
+			thread.start();
 		} else {
 			r.run();
 		}
@@ -455,20 +465,23 @@ public class SwingFrontend extends Frontend {
 	}
 
 	public static boolean hasContext() {
-		return pageManager != null;
+		return pageManager.get() != null;
 	}
 
-	
 	@Override
-	public PageManager getPageManager() {
-		return pageManager;
+	public SwingTab getPageManager() {
+		return pageManager.get();
+	}
+	
+	public static void frameOpened(SwingFrame frame) {
+		pageManager.set(frame.getVisibleTab());
 	}
 	
 	@Override
 	public void login(Subject subject) {
 		SwingFrame frame;
 		if (hasContext()) {
-			frame = pageManager.getFrame();
+			frame = getPageManager().getFrame();
 		} else {
 			frame = FrameManager.getInstance().openFrame();
 		}
@@ -517,7 +530,7 @@ public class SwingFrontend extends Frontend {
 			panel.add(checkBoxNewWindow, BorderLayout.SOUTH);
 			SwingLoginAction loginAction = new SwingLoginAction(dialog.getSaveAction(), checkBoxNewWindow);
 			JComponent contentComponent = new SwingEditorPanel(panel, Collections.singletonList(loginAction));
-			swingDialog = new SwingDialog(findFrame(pageManager), dialog, contentComponent, loginAction, null);
+			swingDialog = new SwingDialog(findFrame(getPageManager()), dialog, contentComponent, loginAction, null);
 		}
 		skipLoginAction.setDialog(swingDialog);
 		return true;
