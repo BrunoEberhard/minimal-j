@@ -85,8 +85,12 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 
 	@Override
 	public void setValue(List<T> object) {
-		this.object = object;
-		update();
+		if (this.object != object) {
+			this.object = object;
+			update();
+		} else if (object != null) {
+			logger.finer(getClass().getSimpleName() + ".setValue called with existing value");
+		}
 	}
 	
 	/**
