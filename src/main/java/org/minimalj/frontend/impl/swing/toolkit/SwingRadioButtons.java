@@ -26,7 +26,7 @@ public class SwingRadioButtons<T> extends JPanel implements Input<T> {
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	
 	public SwingRadioButtons(List<T> objects, InputComponentListener listener) {
-		super(new FlowLayout());
+		super(new FlowLayout(FlowLayout.LEADING));
 
 		ItemListener buttonListener = new ItemListener() {
 			@Override
