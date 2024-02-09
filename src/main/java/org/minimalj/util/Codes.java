@@ -18,6 +18,7 @@ import org.minimalj.backend.repository.ReadTransaction;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
+import org.minimalj.repository.Repository;
 import org.minimalj.repository.query.By;
 import org.minimalj.transaction.Isolation;
 import org.minimalj.transaction.Isolation.Level;
@@ -52,15 +53,15 @@ public class Codes {
 	}
 
 	public static <T extends Code> T get(Class<T> clazz, Object codeId) {
-		return getCache().getCacheItems(clazz).getCode(codeId);
+		return getCache().getCacheItems(null, clazz).getCode(codeId);
 	}
 
 	public static <T extends Code> List<T> get(Class<T> clazz) {
-		return getCache().getCacheItems(clazz).getCodes(LocaleContext.getCurrent());
+		return getCache().getCacheItems(null, clazz).getCodes(LocaleContext.getCurrent());
 	}
 
-	public static <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
-		return getCache().getOrInstantiate(clazz, id);
+	public static <T extends Code> T getOrInstantiate(Repository repository, Class<T> clazz, Object id) {
+		return getCache().getOrInstantiate(repository, clazz, id);
 	}
 
 	public static void invalidateCodeCache(Class<? extends Object> clazz) {
@@ -71,9 +72,9 @@ public class Codes {
 
 	public interface CodeCache {
 
-		public <T extends Code> CodeCacheItem<T> getCacheItems(Class<T> clazz);
+		public <T extends Code> CodeCacheItem<T> getCacheItems(Repository repository, Class<T> clazz);
 
-		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id);
+		public <T extends Code> T getOrInstantiate(Repository repository, Class<T> clazz, Object id);
 
 		public void invalidateCodeCache(Class<? extends Object> clazz);
 
@@ -86,21 +87,21 @@ public class Codes {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T extends Code> CodeCacheItem<T> getCacheItems(Class<T> clazz) {
+		public <T extends Code> CodeCacheItem<T> getCacheItems(Repository repository, Class<T> clazz) {
 			synchronized (clazz) {
 				CodeCacheItem<T> cacheItem = (CodeCacheItem<T>) cache.get(clazz);
 				if (cacheItem == null || !cacheItem.isValid()) {
 					cacheItem = new CodeCacheItem<>();
 					cache.put(clazz, cacheItem);
-					List<T> codes = Backend.execute(new ReadCodesTransaction<>(clazz), true);
+					List<T> codes = repository != null ? repository.find(clazz, By.ALL) : Backend.execute(new ReadCodesTransaction<>(clazz), true);
 					cacheItem.setCodes(codes);
 				}
 				return cacheItem;
 			}
 		}
 
-		public <T extends Code> T getOrInstantiate(Class<T> clazz, Object id) {
-			CodeCacheItem<T> cacheItem = getCacheItems((Class<T>) clazz);
+		public <T extends Code> T getOrInstantiate(Repository repository, Class<T> clazz, Object id) {
+			CodeCacheItem<T> cacheItem = getCacheItems(repository, (Class<T>) clazz);
 			return cacheItem.getOrInstantiate(clazz, id);
 		}
 
