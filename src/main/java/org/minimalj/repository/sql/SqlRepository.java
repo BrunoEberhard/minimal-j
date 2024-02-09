@@ -548,7 +548,7 @@ public class SqlRepository implements TransactionalRepository {
 			IdUtils.setId(result, id);
 		} else {
 			// Self reference is allowed for Codes. Use a previously referenced instance.
-			result = (R) Codes.getOrInstantiate((Class<? extends Code>) clazz, id);
+			result = (R) Codes.getOrInstantiate(this, (Class<? extends Code>) clazz, id);
 		}
 		if (version != null) {
 			IdUtils.setVersion(result, version);

@@ -182,7 +182,7 @@ public class SqlHistorizedRepository extends SqlRepository {
 				Class<?> fieldClass = property.getClazz();
 				if (Code.class.isAssignableFrom(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = Codes.getOrInstantiate(codeClass, value);
+					value = Codes.getOrInstantiate(this, codeClass, value);
 				} else if (View.class.isAssignableFrom(fieldClass)) {
 					Class<?> viewedClass = ViewUtils.getViewedClass(fieldClass);
 					Table<?> referenceTable = getTable(viewedClass);
