@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -39,9 +40,11 @@ import org.minimalj.frontend.impl.swing.component.SwingDecoration;
 import org.minimalj.frontend.impl.util.ColumnFilter;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Column;
+import org.minimalj.model.Column.ColumnAlignment;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
+import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.Property;
 
 public class SwingTable<T> extends JScrollPane implements ITable<T> {
@@ -105,6 +108,15 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         nextButton.setVisible(false);
 		panel.add(nextButton);
         table.getTableHeader().add(panel, BorderLayout.LINE_END);
+        
+        for (int i = 0; i<properties.size(); i++) {
+        	Width widthAnnotation = properties.get(i).getAnnotation(Width.class);
+        	int width = widthAnnotation != null ? widthAnnotation.value() : Width.DEFAULT;
+        	table.getColumnModel().getColumn(i).setPreferredWidth(width);
+        	if (width < Width.DEFAULT) {
+        		table.getColumnModel().getColumn(i).setMaxWidth(width * 2);
+        	}
+        }
 	}
 	
 	private List<Property> convert(Object[] keys) {
@@ -293,16 +305,47 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				} else {
 					color = getColor(Column.getColor(column, object, value));
 				}
+				ColumnAlignment alignment = column.getAlignment();
+				if (alignment == ColumnAlignment.center) {
+					setHorizontalAlignment(JLabel.CENTER);
+				} else if (alignment == ColumnAlignment.end) {
+					setHorizontalAlignment(JLabel.TRAILING);
+				} else {
+					setHorizontalAlignment(JLabel.LEADING);
+				}
 			} else {
 				stringValue = Rendering.toString(value, property);
 				color = getColor(Rendering.getColor(object, value));
+				if (Number.class.isAssignableFrom(property.getClazz())) {
+					setHorizontalAlignment(JLabel.TRAILING);
+				} else {
+					setHorizontalAlignment(JLabel.LEADING);
+				}
 			}
 
 			if (!Objects.equals(getForeground(), color)) {
 				setForeground(color);
 			}
-
-			return super.getTableCellRendererComponent(table, stringValue, isSelected, hasFocus, row, columnIndex);
+			
+			Component c = super.getTableCellRendererComponent(table, stringValue, isSelected, hasFocus, row, columnIndex);
+			if (property instanceof Column) {
+				Column column = (Column) property;
+				ColumnAlignment alignment = column.getAlignment();
+				if (alignment == ColumnAlignment.center) {
+					setHorizontalAlignment(JLabel.CENTER);
+				} else if (alignment == ColumnAlignment.end) {
+					setHorizontalAlignment(JLabel.TRAILING);
+				} else {
+					setHorizontalAlignment(JLabel.LEADING);
+				}
+			} else {
+				if (Number.class.isAssignableFrom(property.getClazz())) {
+					setHorizontalAlignment(JLabel.TRAILING);
+				} else {
+					setHorizontalAlignment(JLabel.LEADING);
+				}
+			}
+			return c;
 		}
 	}
 	
