@@ -87,7 +87,7 @@ public class SwingMenuBar extends JMenuBar {
 
 	private JMenu createLookAndFeeldMenu() {
 		JMenu menu = menu("lookAndFeel");
-		menu.add(new JMenuItem(new LookAndFeelAction("system")));
+		menu.add(new JMenuItem(new LookAndFeelAction(LookAndFeelAction.SYSTEM)));
 		menu.add(new JMenuItem(new LookAndFeelAction("highContrast", TerminalLookAndFeel.class.getName())));
 		menu.add(new JMenuItem(new LookAndFeelAction("highContrastLarge", TerminalLargeFontLookAndFeel.class.getName())));
 		menu.add(new JMenuItem(new LookAndFeelAction("print", PrintLookAndFeel.class.getName())));
