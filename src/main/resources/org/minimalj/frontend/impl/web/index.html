@@ -429,6 +429,12 @@ $ICON
 			}
 			pageElement.addEventListener("wheel", wheelListener);
 		}
+		
+		if (page.heightBasis != undefined) {
+			pageElement.style.flexBasis = page.heightBasis + "px";
+		}
+		pageElement.style.flexGrow = page.heightGrow;
+		pageElement.style.flexShrink = page.heightShrink;
 	}
 	
 	function hidePage(page) {

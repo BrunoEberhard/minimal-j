@@ -102,6 +102,18 @@ public interface Page extends AccessControl {
 		return Integer.MAX_VALUE;
 	}
 	
+	public default Integer getHeightBasis() {
+		return null;
+	}
+
+	public default float getHeightGrow() {
+		return 1f;
+	}
+
+	public default float getHeightShrink() {
+		return 1f;
+	}
+
 	/**
 	 * A dialog blocks the page navigation
 	 *
