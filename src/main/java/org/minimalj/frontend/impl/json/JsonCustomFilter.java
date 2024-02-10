@@ -5,12 +5,11 @@ import java.util.List;
 
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IContent;
-import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.action.Action;
 
 public class JsonCustomFilter extends JsonComponent implements IContent {
 
-	public JsonCustomFilter(FormContent filter, ITable<?> table, Action search, Action reset) {
+	public JsonCustomFilter(FormContent filter, Object table, Action search, Action reset) {
 		super("CustomFilter");
 
 		put("filter", filter);
@@ -26,7 +25,9 @@ public class JsonCustomFilter extends JsonComponent implements IContent {
 		}
 
 		// With a custom filter the auto filter of the table should be disabled
-		((JsonTable<?>) table).setFilterVisible(false);
+		if (table instanceof JsonTable) {
+			((JsonTable<?>) table).setFilterVisible(false);
+		}
 		put("table", table);
 	}
 }
