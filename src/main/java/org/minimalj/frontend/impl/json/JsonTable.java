@@ -173,7 +173,9 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	
 	@Override
 	public void setColumns(Object[] keys) {
+		JsonTableModel oldModel = tableModel;
 		tableModel = new JsonTableModel(keys);
+		oldModel.entrySet().stream().filter(e -> !tableModel.containsKey(e.getKey())).forEach(e -> tableModel.put(e.getKey(), e.getValue()));
 		put("tableModel", tableModel);
 		refreshTableContent();
 	}
@@ -365,7 +367,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		boolean previousVisible = tableModel.isFilterVisible();
 		boolean previousVisibleAndActive = previousVisible && tableModel.hasActiveFilter();
 		
-		if (previousVisible != visible) {
+		if (previousVisible != visible || !tableModel.containsKey("filterVisible")) {
 			tableModel.put("filterVisible", visible);
 			
 			if (visible) {
