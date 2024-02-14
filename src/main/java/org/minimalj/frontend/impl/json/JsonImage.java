@@ -33,7 +33,7 @@ public class JsonImage extends JsonInputComponent<byte[]> implements Input<byte[
 					Map<String, Object> map = (Map<String, Object>) o;
 					if (map.containsKey("content")) {
 						String contentString = (String) map.get("content");
-						super.changedValue(Base64.getDecoder().decode(contentString));
+						super.changedValue(contentString);
 					}
 				} else {
 					throw new IllegalArgumentException("Should be a Map: " + o);
