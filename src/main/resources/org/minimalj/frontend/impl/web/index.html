@@ -926,6 +926,9 @@ $ICON
 		if (content.cssClass) {
 			element.classList.add(content.cssClass);
 		}
+		if (content.noCaption) {
+			element.classList.add("noCaption");
+		}
 		if (content.validationMessage != undefined && content.validationMessage.length > 0) {
 			element.title = content.validationMessage;
 		}
