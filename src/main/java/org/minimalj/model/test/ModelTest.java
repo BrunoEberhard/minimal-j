@@ -7,7 +7,6 @@ import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -23,12 +22,14 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
+import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.SelfReferenceAllowed;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
+import org.minimalj.model.annotation.Visible;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
@@ -57,17 +58,13 @@ public class ModelTest {
 		this(model.getEntityClasses());
 	}
 	
-	public ModelTest(Class<?>... modelClasses) {
-		this(Arrays.asList(modelClasses));
-	}
-	
-	public ModelTest(Collection<Class<?>> mainClasses) {
-		this.mainClasses = mainClasses;
+	public ModelTest(Class<?>... mainClasses) {
+		this.mainClasses = Model.getEntityClassesRecursive(mainClasses);
 
-		for (Class<?> clazz : mainClasses) {
+		for (Class<?> clazz : this.mainClasses) {
 			testClass(clazz);
 		}
-		testEnums(mainClasses);
+		testEnums(this.mainClasses);
 	}
 	
 	/**
@@ -286,6 +283,8 @@ public class ModelTest {
 		}
 		if (FieldUtils.isPublic(field) && !FieldUtils.isStatic(field)) {
 			testFieldNotInSuperClass(field);
+			testEnable(field);
+			testVisible(field);
 		}
 	}
 	
@@ -461,7 +460,42 @@ public class ModelTest {
 			}
 		}
 	}
-		
+
+	private void testEnable(Field field) {
+		Enabled enabled = field.getAnnotation(Enabled.class);
+		if (enabled != null) {
+			testCondition("enable", field, enabled.value());
+		}
+	}
+
+	private void testVisible(Field field) {
+		Visible visible = field.getAnnotation(Visible.class);
+		if (visible != null) {
+			testCondition("visible", field, visible.value());
+		}
+	}
+
+	private void testCondition(String annotationName, Field field, String conditionMethod) {
+		if (StringUtils.equals(conditionMethod, "true", "false")) {
+			return;
+		}
+		Property property = Properties.getProperty(field);
+		if (conditionMethod.startsWith("!")) {
+			conditionMethod = conditionMethod.substring(1);
+		}
+		try {
+			Class<?> clazz = field.getDeclaringClass();
+			Method method = clazz.getMethod(conditionMethod);
+			if (method.getReturnType() != Boolean.TYPE) {
+				problems.add("Condition: " + conditionMethod + " used in " + annotationName + " for " + property.getDeclaringClass().getName() + "." + property.getPath() + " does not return a boolean");
+			}
+		} catch (NoSuchMethodException x) {
+			problems.add("Unknown condition: " + conditionMethod + " used in " + annotationName + " for " + property.getDeclaringClass().getName() + "." + property.getPath());
+		} catch (Exception x) {
+			throw new RuntimeException(x);
+		}
+	}
+	
 	private void testNoMethodsForPublicField(Field field) {
 		Property property = Properties.getProperty(field);
 		if (property != null) {
