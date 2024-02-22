@@ -538,7 +538,6 @@ public class SqlRepository implements TransactionalRepository {
 			} else {
 				value = resultSet.getObject(columnIndex);
 			}
-			if (value == null) continue;
 			values.put(property, value);
 		}
 		
@@ -568,8 +567,11 @@ public class SqlRepository implements TransactionalRepository {
 		
 		for (Map.Entry<Property, Object> entry : values.entrySet()) {
 			Property property = entry.getKey();
+			if (property instanceof MethodProperty) {
+				continue;
+			}
 			Object value = entry.getValue();
-			if (value != null && !(property instanceof MethodProperty)) {
+			if (value != null) {
 				Class<?> fieldClass = property.getClazz();
 				if (Codes.isCode(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
@@ -586,8 +588,8 @@ public class SqlRepository implements TransactionalRepository {
 				} else {
 					value = sqlDialect.convertToFieldClass(fieldClass, value);
 				}
-				property.setValue(result, value);
 			}
+			property.setValue(result, value);
 		}
 		return result;
 	}
