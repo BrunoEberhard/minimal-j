@@ -189,10 +189,7 @@ public class JsonPageManager implements PageManager {
 				}
 			} else if (initialize instanceof String) {
 				String path = (String) initialize;
-				onLogin = () -> {
-					Page page = Routing.createPageSafe(path);
-					show(page != null ? page : Application.getInstance().createDefaultPage());
-				};
+				onLogin = () -> show(Routing.createPageSafe(path));
 			}
 			
 			if (subject == null && authentication instanceof RememberMeAuthentication) {
@@ -416,7 +413,9 @@ public class JsonPageManager implements PageManager {
 			updateTitle(firstPage != null ? firstPage : null);
 		} else if (loginNotAuthorized) {
 			onLogin = () -> show(pageIds, false);
-			authentication.showLogin();
+			if (authentication != null) {
+				authentication.showLogin();
+			}
 		} else {
 			show(Application.getInstance().createDefaultPage());
 		}
