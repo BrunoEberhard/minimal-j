@@ -31,15 +31,19 @@ public enum SchemaPreparation {
 
 	// TODO remove unused tables
 	public void prepare(SqlRepository repository) throws SQLException {
+		if (this != SchemaPreparation.none) {
+			repository.beforeSchemaPreparation(this);
+		}
 		if (this == SchemaPreparation.create) {
-			repository.beforeCreateTables();
 			createEnums(repository);
 			createTables(repository);
 			createCodes(repository);
-			repository.afterCreateTables();
 		} else if (this != SchemaPreparation.none) {
 			updateEnums(repository, this);
 			updateTables(repository, this);
+		}
+		if (this != SchemaPreparation.none) {
+			repository.afterSchemaPreparation(this);
 		}
 	}
 

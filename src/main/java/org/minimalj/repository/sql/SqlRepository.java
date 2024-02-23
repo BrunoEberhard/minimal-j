@@ -645,15 +645,15 @@ public class SqlRepository implements TransactionalRepository {
 		return new Table<>(this, clazz);
 	}
 	
-	protected void beforeCreateTables() {
+	protected void beforeSchemaPreparation(SchemaPreparation schemaPreparation) {
 		// for extensions
 	}
 	
-	void afterCreateTables() {
-		afterCreateTables(Collections.unmodifiableCollection(tables.values()));
+	void afterSchemaPreparation(SchemaPreparation schemaPreparation) {
+		afterSchemaPreparation(schemaPreparation, Collections.unmodifiableCollection(tables.values()));
 	}
 	
-	protected void afterCreateTables(Collection<AbstractTable<?>> tables) {
+	protected void afterSchemaPreparation(SchemaPreparation schemaPreparation, Collection<AbstractTable<?>> tables) {
 		// for extensions
 	}
 	
