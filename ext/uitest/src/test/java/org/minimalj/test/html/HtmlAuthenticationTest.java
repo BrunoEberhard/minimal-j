@@ -1,8 +1,8 @@
 package org.minimalj.test.html;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
@@ -13,7 +13,7 @@ import org.minimalj.test.web.WebTest;
 
 public class HtmlAuthenticationTest extends WebTest {
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestUtil.shutdown();
 	}
@@ -27,8 +27,8 @@ public class HtmlAuthenticationTest extends WebTest {
 		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
 
 		PageTestFacade page = pageContainer.getPage();
-		Assert.assertTrue(page.contains("TestPage"));
-		Assert.assertTrue(page.contains("Subject: test"));
+		Assertions.assertTrue(page.contains("TestPage"));
+		Assertions.assertTrue(page.contains("Subject: test"));
 		
 		pageContainer.logout();
 	}
@@ -47,13 +47,13 @@ public class HtmlAuthenticationTest extends WebTest {
 		login();
 
 		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
-		Assert.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
+		Assertions.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
 		pageContainer.logout();
 		
 		login();
 
 		pageContainer = ui().getCurrentPageContainerTestFacade();
-		Assert.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
+		Assertions.assertEquals(TestApplication.TEST_PAGE_TITLE, pageContainer.getPage().getTitle());
 		pageContainer.logout();
 	}
 
@@ -65,11 +65,11 @@ public class HtmlAuthenticationTest extends WebTest {
 
 		PageContainerTestFacade pageContainer = ui().getCurrentPageContainerTestFacade();
 		PageTestFacade page = pageContainer.getPage();
-		Assert.assertTrue(page.contains("TestPage"));
+		Assertions.assertTrue(page.contains("TestPage"));
 
 		ui().getCurrentPageContainerTestFacade().getNavigation().get("Other Page").run();
 		page = pageContainer.getPage();
-		Assert.assertTrue(page.contains("Page 2"));
+		Assertions.assertTrue(page.contains("Page 2"));
 
 		pageContainer.logout();
 		
@@ -78,7 +78,7 @@ public class HtmlAuthenticationTest extends WebTest {
 		login();
 
 		page = pageContainer.getPage();
-		Assert.assertTrue(page.contains("Page 2"));
+		Assertions.assertTrue(page.contains("Page 2"));
 
 		pageContainer.logout();
 	}
@@ -87,7 +87,7 @@ public class HtmlAuthenticationTest extends WebTest {
 	public void testAuthenticatonModeSuggested() {
 		start(new TestApplication(AuthenticatonMode.SUGGESTED));
 		
-		Assert.assertTrue(ui().getLoginTestFacade().hasSkipLogin());
+		Assertions.assertTrue(ui().getLoginTestFacade().hasSkipLogin());
 	}
 
 //	@Test
@@ -127,24 +127,24 @@ public class HtmlAuthenticationTest extends WebTest {
 //	}
 //	
 //	private void loginShouldBeShown() {
-//		Assert.assertEquals(Resources.getString("Login.title"), driver.getTitle());
+//		Assertions.assertEquals(Resources.getString("Login.title"), driver.getTitle());
 //	}
 //
 //
 	//	private void startWithoutLoginShouldBePossible() {
-//		Assert.assertTrue(driver.findElements(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")).isEmpty());
+//		Assertions.assertTrue(driver.findElements(By.xpath("//button[text()='" + Resources.getString("SkipLoginAction") + "']")).isEmpty());
 //	}
 //	
 //	private void shouldBeVisible(String id, boolean visible) {
-//		Assert.assertEquals(visible, !"none".equals(driver.findElementById(id).getCssValue("display")));	
+//		Assertions.assertEquals(visible, !"none".equals(driver.findElementById(id).getCssValue("display")));	
 //	}
 //
 //	private void textShouldBeDisplayed(String text) {
-//		Assert.assertTrue(text + " should be displayed", driver.getPageSource().contains(text));
+//		Assertions.assertTrue(text + " should be displayed", driver.getPageSource().contains(text));
 //		WebElement iframeElement = driver.findElement(By.xpath("//iframe"));        
 //		driver.switchTo().frame(iframeElement);
 //		
-//		Assert.assertTrue(text + " should be displayed", driver.findElement(By.xpath("//*[text()='"+ text + "']")) != null);
+//		Assertions.assertTrue(text + " should be displayed", driver.findElement(By.xpath("//*[text()='"+ text + "']")) != null);
 //		
 //		driver.switchTo().parentFrame();
 //	}

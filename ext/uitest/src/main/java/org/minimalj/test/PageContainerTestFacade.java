@@ -2,7 +2,7 @@ package org.minimalj.test;
 
 import java.util.List;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.StringUtils;
@@ -30,7 +30,7 @@ public interface PageContainerTestFacade {
 
 	public default PageTestFacade getPage() {
 		List<PageTestFacade> pages = getPages();
-		Assert.assertEquals("Exact one page should be visible", 1, pages.size());
+		Assertions.assertEquals(1, pages.size(), "Exact one page should be visible");
 		return pages.get(0);
 	}
 	
@@ -108,7 +108,7 @@ public interface PageContainerTestFacade {
 		
 		public default void assertMandatory(Object key) {
 			element(key).setText("");
-			Assert.assertNotNull(Resources.getPropertyName(Keys.getProperty(key)) + " must be mandatory", element(key).getValidation());
+			Assertions.assertNotNull(element(key).getValidation(), Resources.getPropertyName(Keys.getProperty(key)) + " must be mandatory");
 		}
 
 	}

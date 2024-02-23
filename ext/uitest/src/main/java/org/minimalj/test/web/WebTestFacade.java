@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.minimalj.application.Configuration;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
@@ -49,8 +49,8 @@ public class WebTestFacade implements UiTestFacade {
 		window.setPosition(new Point(0, 0));
 		window.setSize(new Dimension(1600, 900));
 		
-		Assert.assertEquals(1600, window.getSize().width);
-		Assert.assertEquals(900, window.getSize().height);
+		Assertions.assertEquals(1600, window.getSize().width);
+		Assertions.assertEquals(900, window.getSize().height);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
 		return driver;
@@ -73,7 +73,7 @@ public class WebTestFacade implements UiTestFacade {
 
 	@Override
 	public UserPasswordLoginTestFacade getLoginTestFacade() {
-		Assert.assertEquals(Resources.getString("Login.title"), driver.getTitle());
+		Assertions.assertEquals(Resources.getString("Login.title"), driver.getTitle());
 
 		return new HtmlLoginTestFacade();
 	}
@@ -596,7 +596,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public DialogTestFacade filterLookup(int column) {
 			WebElement columnFilter = getColumnFilter(column);
-			WebElement lookupButton = columnFilter.findElement(By.className("lookupbutton"));
+			WebElement lookupButton = columnFilter.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
@@ -609,7 +609,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		public HtmlSearchTableTestFacade(WebElement dialog) {
 			super(null, dialog);
-			Assert.assertEquals("SearchDialog", dialog.getAttribute("type"));
+			Assertions.assertEquals("SearchDialog", dialog.getAttribute("type"));
 		}
 
 		public void search(String text) {

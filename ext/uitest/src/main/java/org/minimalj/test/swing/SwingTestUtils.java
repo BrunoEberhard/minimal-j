@@ -17,7 +17,7 @@ import javax.swing.JMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.minimalj.frontend.impl.swing.component.SwingCaption;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -68,13 +68,13 @@ public class SwingTestUtils {
 	
 	private static AbstractButton findButton(Component c, String caption) {
 		Component button = SwingTestUtils.getComponent(c, caption);
-		Assert.assertNotNull("No found: " + caption, button);
+		Assertions.assertNotNull(button, "Button not found: " + caption);
 		return (AbstractButton) button;
 	}
 
 	private static JTextField findTextField(Component c, String caption) {
 		Component input = SwingTestUtils.getComponent(c, caption);
-		Assert.assertNotNull("No found: " + caption, input);
+		Assertions.assertNotNull(input, "Input not found: " + input);
 		return (JTextField) input;
 	}
 	
