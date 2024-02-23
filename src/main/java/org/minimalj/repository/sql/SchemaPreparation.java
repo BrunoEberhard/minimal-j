@@ -105,7 +105,9 @@ public enum SchemaPreparation {
 			if (Code.class.isAssignableFrom(t.getClazz())) {
 				Table<Code> table = (Table<Code>) t;
 				List<? extends Code> constants = Codes.getConstants(table.getClazz());
-				insertMissingCodes(table, constants);
+				if (!constants.isEmpty()) {
+					insertMissingCodes(table, constants);
+				}
 			}
 		}
 	}
