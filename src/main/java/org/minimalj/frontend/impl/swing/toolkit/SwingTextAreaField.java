@@ -26,6 +26,8 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 		
 		this.changeListener = changeListener;
 		
+		setOpaque(false);
+		textArea.setOpaque(false);
 		// not yet supported
 //		textArea.addActionListener(new ActionListener() {
 //			@Override

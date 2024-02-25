@@ -1,12 +1,17 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
 import java.awt.LayoutManager2;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -61,6 +67,19 @@ public class SwingFormContent extends JPanel implements FormContent {
 	@Override
 	public void setVisible(IComponent component, boolean visible) {
 		((Component) component).setVisible(visible);
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		Graphics2D g2 = (Graphics2D)g.create();
+	    RenderingHints qualityHints =
+	      new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+	    g2.setRenderingHints(qualityHints);
+	    
+		g.setColor(new Color( ((int)(Math.random() * 255)), ((int)(Math.random() * 255)), ((int)(Math.random() * 255)) ));
+		g.fillRoundRect(20, 20, g.getClipBounds().width - 40, g.getClipBounds().height - 40, 20, 20);
+		// super.paintComponent(g);
 	}
 
 	private static class GridFormLayoutConstraint {
@@ -176,6 +195,17 @@ public class SwingFormContent extends JPanel implements FormContent {
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
 				int componentWidth = constraint.isCompleteRow() ? width : (constraint.getSpan() * width + padding) / columns - padding;
+				JComponent j = (JComponent) component;
+				if (j instanceof SwingCaption) {
+					j = (JComponent) ((SwingCaption) j).getComponent(1);
+				}
+				Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+				while (focusOwner != null && focusOwner != component) {
+					focusOwner = focusOwner.getParent();
+				}
+				if ("Article".equals(j.getClientProperty("CssClass")) && focusOwner == component) {
+					componentWidth = 300;
+				}
 				
 				int height = component instanceof SwingCaption ? fixHeight : fixHeightWithoutCaption;
 				int minHeight = height + (constraint.getMin() -1) * fixHeightWithoutCaption;

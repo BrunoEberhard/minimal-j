@@ -1,6 +1,8 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
 import java.awt.Component;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.CloneHelper;
 
-public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
+public class SwingComboBox<T> extends JComboBox<T> implements Input<T>, FocusListener {
 	private static final long serialVersionUID = 1L;
 	
 	private final InputComponentListener listener;
@@ -35,6 +37,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		setInheritsPopupMenu(true);
 		model = new NullableComboBoxModel<>(objects);
 		setModel(model);
+		addFocusListener(this);
 	}
 	
 	@Override
@@ -50,6 +53,31 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 	@Override
 	public void setEditable(boolean enabled) {
 		super.setEnabled(enabled);
+	}
+	
+	@Override
+	public void focusGained(FocusEvent e) {
+		// textOnFocusLost = getText();
+		a();
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		a();
+	}
+	
+	private void a() {
+		boolean article = false;
+		Component c = this;
+		while (!(c instanceof SwingFormContent)) {
+			System.out.println(c.getClass());
+			article |= "Article".equals(getClientProperty("CssClass"));
+			c = c.getParent();
+		}
+		if (article) {
+			c.invalidate();
+			c.repaint();
+		}
 	}
 	
 	//

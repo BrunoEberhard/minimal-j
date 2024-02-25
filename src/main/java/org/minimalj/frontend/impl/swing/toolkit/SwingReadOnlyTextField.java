@@ -1,8 +1,6 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.UIManager;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.util.StringUtils;
@@ -16,9 +14,9 @@ public class SwingReadOnlyTextField extends JLabel implements Input<String> {
 	@Override
 	public void updateUI() {
 		super.updateUI();
-		setBackground(UIManager.getColor("TextField.background"));
-		setBorder(BorderFactory.createEmptyBorder());
-		setOpaque(true);
+		// setBackground(UIManager.getColor("TextField.background"));
+		// setBorder(null);
+		// setOpaque(true);
 	}
 
 	@Override
