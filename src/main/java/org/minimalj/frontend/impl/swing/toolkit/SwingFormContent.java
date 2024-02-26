@@ -8,7 +8,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.KeyboardFocusManager;
 import java.awt.LayoutManager2;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -32,10 +30,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
 
 	private final Map<IComponent, SwingCaption> captionByComponent = new HashMap<>();
+	private List<Integer> groupedRows = new ArrayList<>();
+	private final GridFormLayoutManager layoutManager;
 	
 	public SwingFormContent(int columns, int columnWidthPercentage) {
 		int columnWidth = getColumnWidth() * columnWidthPercentage / 100;
-		setLayout(new GridFormLayoutManager(columns, columnWidth));
+		setLayout(layoutManager = new GridFormLayoutManager(columns, columnWidth));
 		setBorder(null);
 	}
 	
@@ -57,6 +57,11 @@ public class SwingFormContent extends JPanel implements FormContent {
 	}
 	
 	@Override
+	public void group(String caption) {
+		groupedRows.add(layoutManager.getRowCount());
+	}
+	
+	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
 		SwingCaption swingCaption = captionByComponent.get(component);
 		if (swingCaption != null) {
@@ -71,6 +76,43 @@ public class SwingFormContent extends JPanel implements FormContent {
 	
 	@Override
 	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+//		g.setColor(Color.WHITE);
+//		g.fillRoundRect(0, 0, g.getClipBounds().width, g.getClipBounds().height, 15, 15);
+//
+//
+//		try {
+//			System.out.println("-----------------------");
+//			int start = 0;
+//			int end = 0;
+//			int i = 0;
+//			do {
+//				if (groupedRows.size() < i + 2) {
+//					end = layoutManager.getRowCount();
+//				} else {
+//					i = i + 1;
+//					end = groupedRows.get(i) + 1;
+//				}
+//				paintGroupBackground(g, start, end);
+//				start = end;
+//			} while (end < layoutManager.getRowCount());
+//		} catch (Exception x) {
+//			x.printStackTrace();
+//		}
+	}
+	
+	private void paintGroupBackground(Graphics g, int startRow, int endRow) {
+		int i = 0;
+		int y = 0;
+		while (i < startRow) {
+			y += layoutManager.getRowHeights().get(i++);
+		}
+		int height = 0;
+		while (i < endRow) {
+			height += layoutManager.getRowHeights().get(i++);
+		}
+		System.out.println(y + ", height " + height);
+		
 		Graphics2D g2 = (Graphics2D)g.create();
 	    RenderingHints qualityHints =
 	      new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -78,8 +120,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 	    g2.setRenderingHints(qualityHints);
 	    
 		g.setColor(new Color( ((int)(Math.random() * 255)), ((int)(Math.random() * 255)), ((int)(Math.random() * 255)) ));
-		g.fillRoundRect(20, 20, g.getClipBounds().width - 40, g.getClipBounds().height - 40, 20, 20);
-		// super.paintComponent(g);
+		g.fillRoundRect(20, y, g.getClipBounds().width - 40, height, 20, 20);
 	}
 
 	private static class GridFormLayoutConstraint {
@@ -143,12 +184,21 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private Rectangle lastParentBounds = null;
 		private int column = Integer.MAX_VALUE;
 		private Insets insets;
+		private List<Integer> rowHeights = new ArrayList<>();
 		
 		public GridFormLayoutManager(int columns, int minColumnWidth) {
 			this.columns = columns;
 			this.minColumnWidth = minColumnWidth;
 		}
 
+		public int getRowCount() {
+			return rows.size();
+		}
+		
+		public List<Integer> getRowHeights() {
+			return rowHeights;
+		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent) {
 			layoutContainer(parent);
@@ -167,15 +217,17 @@ public class SwingFormContent extends JPanel implements FormContent {
 				return;
 			}
 			lastParentBounds = parent.getBounds();
+			rowHeights.clear();
 			
 			insets = parent.getInsets();
-			int y = insets.top;
-			int width = parent.getWidth() - insets.left - insets.right;
+			int y = insets.top + 5;
+			int width = parent.getWidth() - insets.left - insets.right - 10;
 			
 			for (List<Component> row : rows) {
 				if (isRowVisible(row)) {
 					boolean hasCaption = hasCaption(row);
 					int height = layoutRow(width, row, y, hasCaption);
+					rowHeights.add(height);
 					y += height + padding;
 				}
 			}
@@ -191,22 +243,10 @@ public class SwingFormContent extends JPanel implements FormContent {
 			int rowHeight = 0;
 			int column = 0;
 			for (Component component : row) {
-				int x = insets.left + column * (width + padding) / columns;
+				int x = insets.left + column * (width + padding) / columns + 5;
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
-				int componentWidth = constraint.isCompleteRow() ? width : (constraint.getSpan() * width + padding) / columns - padding;
-				JComponent j = (JComponent) component;
-				if (j instanceof SwingCaption) {
-					j = (JComponent) ((SwingCaption) j).getComponent(1);
-				}
-				Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-				while (focusOwner != null && focusOwner != component) {
-					focusOwner = focusOwner.getParent();
-				}
-				if ("Article".equals(j.getClientProperty("CssClass")) && focusOwner == component) {
-					componentWidth = 300;
-				}
-				
+				int componentWidth = constraint.isCompleteRow() ? width : (constraint.getSpan() * width + padding) / columns - padding;				
 				int height = component instanceof SwingCaption ? fixHeight : fixHeightWithoutCaption;
 				int minHeight = height + (constraint.getMin() -1) * fixHeightWithoutCaption;
 				int maxHeight = height + (constraint.getMax() -1) * fixHeightWithoutCaption;
