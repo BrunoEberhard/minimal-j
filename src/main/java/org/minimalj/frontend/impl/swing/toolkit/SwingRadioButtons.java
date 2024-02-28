@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JPanel;
@@ -26,7 +27,7 @@ public class SwingRadioButtons<T> extends JPanel implements Input<T> {
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	
 	public SwingRadioButtons(List<T> objects, InputComponentListener listener) {
-		super(new FlowLayout(FlowLayout.LEADING));
+		super(new FlowLayout(FlowLayout.LEADING, 2, 2));
 
 		ItemListener buttonListener = new ItemListener() {
 			@Override
@@ -37,6 +38,7 @@ public class SwingRadioButtons<T> extends JPanel implements Input<T> {
 		
 		for (T object : objects) {
 			JRadioButton radioButton = new JRadioButton(Rendering.toString(object));
+			radioButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
 			String description = Rendering.toDescriptionString(object);
 			if (!StringUtils.isEmpty(description)) {
 				radioButton.setToolTipText(description);
