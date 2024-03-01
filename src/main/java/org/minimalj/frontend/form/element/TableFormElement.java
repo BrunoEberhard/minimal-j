@@ -39,11 +39,6 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this(property, new SimpleTableRowFormFactory<T>(columns, actions), editable);
 	}
 
-	@Deprecated // actions not used anymore, RowFormFactory provides footer
-	public TableFormElement(List<T> key, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
-		this(key, formFactory, editable);
-	}	
-	
 	public TableFormElement(List<T> key, TableRowFormFactory<? super T> formFactory, boolean editable) {
 		this(Keys.getProperty(key), formFactory, editable);
 	}
