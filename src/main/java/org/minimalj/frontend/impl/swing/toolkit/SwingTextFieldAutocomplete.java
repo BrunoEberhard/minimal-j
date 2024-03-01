@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -19,6 +20,10 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.util.StringUtils;
 
+import com.formdev.flatlaf.ui.FlatComboBoxUI;
+
+// TODO REMOVE
+@Deprecated
 public class SwingTextFieldAutocomplete extends JComboBox<String> implements Input<String>, PopupMenuListener {
 	private static final long serialVersionUID = -1;
 
@@ -28,6 +33,28 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Inp
 	public SwingTextFieldAutocomplete(InputComponentListener changeListener, Search<String> suggestionSearch) {
 		super(new SearchListDataModel());
 		this.suggestionSearch = suggestionSearch;
+		setUI(new FlatComboBoxUI() {
+			{
+				buttonStyle = "none";	
+			}
+			
+			@Override
+			protected JButton createArrowButton() {
+				JButton button = new JButton() {
+					public int getWidth() {
+						return 0;
+					}
+				};
+				return button;
+			}
+			
+			@Override
+			protected void installDefaults() {
+				super.installDefaults();
+				buttonStyle = "none";
+			}
+		});
+//		((FlatComboBoxUI) getUI()).. putClientProperty("ComboBox.buttonStyle", "none");
 		setEditable(true);
 		Component c = getEditor().getEditorComponent();
 		if (c instanceof JTextComponent) {
@@ -57,6 +84,8 @@ public class SwingTextFieldAutocomplete extends JComboBox<String> implements Inp
 		}
 		addPopupMenuListener(this);
 	}
+	
+	
 	
 	private boolean adjusting = false;
 	

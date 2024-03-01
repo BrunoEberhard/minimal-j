@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>minimalj</artifactId>
-	<version>2.2.2-SNAPSHOT</version>
+	<version>2.3-SNAPSHOT</version>
 	<name>Minimal-J</name>
 	<description>A java framework aiming for a minimal programming style. Includes GUI and persistence layer.</description>
 	<url>http://minimalj.org/</url>
@@ -267,6 +267,17 @@
 		</dependency>
 -->
 
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>flatlaf</artifactId>
+			<version>3.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.fifesoft</groupId>
+		    <artifactId>autocomplete</artifactId>
+		    <version>3.3.1</version>
+		</dependency>
+	
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

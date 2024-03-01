@@ -5,8 +5,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
 
 import org.minimalj.frontend.Frontend.IComponent;
 
@@ -16,18 +16,12 @@ public class SwingVerticalGroup extends JPanel implements IComponent {
 	
 	public SwingVerticalGroup(IComponent... components) {
 		setLayout(new VerticalLayoutManager());
-		setOpaque(false);
 
-		for (IComponent component : components) {
-			add((Component) component);
+		for (IComponent c : components) {
+			JComponent component = (JComponent)c;
+			component.setOpaque(false);
+			add(component);
 		}
-	}
-	
-	@Override
-	public void updateUI() {
-		super.updateUI();
-		setBackground(UIManager.getColor("TextField.background"));
-		setOpaque(true);
 	}
 
 	private static class VerticalLayoutManager implements LayoutManager {

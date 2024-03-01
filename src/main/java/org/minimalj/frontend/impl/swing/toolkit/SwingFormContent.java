@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -37,6 +38,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 	public SwingFormContent(int columns, int columnWidthPercentage) {
 		int columnWidth = getColumnWidth() * columnWidthPercentage / 100;
 		setLayout(layoutManager = new GridFormLayoutManager(columns, columnWidth));
+		setOpaque(true);
 	}
 	
 	@Override
@@ -63,7 +65,8 @@ public class SwingFormContent extends JPanel implements FormContent {
 		if (layoutManager.getGroupedRows().isEmpty()) {
 			layoutManager.group(null);
 		}
-		Component component = c != null ? (Component) c : new JPanel();
+		JComponent component = c != null ? (JComponent) c : new JPanel();
+		component.setOpaque(false);
 		if (caption != null) {
 			SwingCaption swingCaption = new SwingCaption(component, caption);
 			captionByComponent.put(c, swingCaption);
@@ -88,32 +91,54 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 	@Override
 	public void setVisible(IComponent component, boolean visible) {
-		((Component) component).setVisible(visible);
+		if (visible != ((Component) component).isVisible()) {
+			((Component) component).setVisible(visible);
+			invalidate();
+			repaint();
+		}
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-
 		if (!nested) {
-			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, g.getClipBounds().width, g.getClipBounds().height);
-			g.setColor(getBackground());
+			super.paintComponent(g);
+
+			Graphics2D g2 = (Graphics2D) g.create();
+			RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g2.setRenderingHints(qualityHints);
+
+			g.setColor(getGroupColor());
 			
-			try {
-				if (layoutManager.getGroupedRows().isEmpty()) {
-					paintGroupBackground(g, 0, 0, layoutManager.getRowCount());
-				} else {
-					for (int i = 0; i < layoutManager.getGroupedRows().size() - 1; i++) {
-						paintGroupBackground(g, i, layoutManager.getGroupedRows().get(i), layoutManager.getGroupedRows().get(i + 1));
-					}
-					int i = layoutManager.getGroupedRows().size() - 1;
-					paintGroupBackground(g, i, layoutManager.getGroupedRows().get(i), layoutManager.getRowCount());
+			if (layoutManager.getGroupedRows().isEmpty()) {
+				paintGroupBackground(g, 0, 0, layoutManager.getRowCount());
+			} else {
+				for (int i = 0; i < layoutManager.getGroupedRows().size() - 1; i++) {
+					paintGroupBackground(g, i, layoutManager.getGroupedRows().get(i), layoutManager.getGroupedRows().get(i + 1));
 				}
-			} catch (Exception x) {
-				x.printStackTrace();
+				int i = layoutManager.getGroupedRows().size() - 1;
+				paintGroupBackground(g, i, layoutManager.getGroupedRows().get(i), layoutManager.getRowCount());
 			}
+		} else {
+			g.setColor(getGroupColor());
+			g.fillRect(0, 0, g.getClipBounds().width, g.getClipBounds().height);
 		}
+	}
+	
+	private Color getGroupColor() {
+		Color background = getBackground();
+		int backgroundBrightness = (background.getRed() + background.getGreen() + background.getBlue()) / 3;
+		if (backgroundBrightness > 200) {
+			return new Color(250, 250, 250);
+		} else if (backgroundBrightness > 120) {
+			return new Color(mixIn(background.getRed(), 255), mixIn(background.getGreen(), 255), mixIn(background.getBlue(), 255));
+		} else {
+			return new Color(mixIn(background.getRed(), 0), mixIn(background.getGreen(), 0), mixIn(background.getBlue(), 0));		
+		}
+	}
+	
+	private int mixIn(int start, int to) {
+		return (1 * start + to) / 2;
 	}
 
 	private void paintGroupBackground(Graphics g, int group, int startRow, int endRow) {
@@ -134,14 +159,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 		while (i < endRow) {
 			height += layoutManager.getRowHeights().get(i++);
 		}
+		
+		g.setColor(getGroupColor());
+		g.fillRoundRect(getInsets().left, y, g.getClipBounds().width - getInsets().left - getInsets().right, height, 12, 12);
 
-		Graphics2D g2 = (Graphics2D) g.create();
-		RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g2.setRenderingHints(qualityHints);
-
-//		g.setColor(new Color(((int) (Math.random() * 255)), ((int) (Math.random() * 255)), ((int) (Math.random() * 255))));
-		g.fillRoundRect(getInsets().left, y, g.getClipBounds().width - getInsets().left - getInsets().right, height, 20, 20);
+		g.setColor(new Color(225, 225, 225));
+		g.drawRoundRect(getInsets().left, y, g.getClipBounds().width - getInsets().left - getInsets().right, height, 12, 12);
 	}
 
 	private static class GridFormLayoutConstraint {

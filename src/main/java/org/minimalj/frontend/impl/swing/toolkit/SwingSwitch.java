@@ -35,6 +35,7 @@ public class SwingSwitch extends JPanel implements SwitchContent, SwitchComponen
 		if (shownComponent != component) {
 			removeAll();
 			if (component != null) {
+				component.setOpaque(false);
 				add(component, BorderLayout.CENTER);
 			}
 			refresh(this);

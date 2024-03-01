@@ -8,17 +8,6 @@ import org.minimalj.util.StringUtils;
 public class SwingReadOnlyTextField extends JLabel implements Input<String> {
 	private static final long serialVersionUID = 1L;
 
-	public SwingReadOnlyTextField() {
-	}
-
-	@Override
-	public void updateUI() {
-		super.updateUI();
-		// setBackground(UIManager.getColor("TextField.background"));
-		// setBorder(null);
-		// setOpaque(true);
-	}
-
 	@Override
 	public void setValue(String string) {
 		if (string != null) {

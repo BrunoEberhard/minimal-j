@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EventObject;
@@ -42,6 +43,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.BasicCompletion;
+import org.fife.ui.autocomplete.Completion;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.Frontend;
@@ -59,6 +64,8 @@ import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
+
+import com.formdev.flatlaf.FlatClientProperties;
 
 public class SwingFrontend extends Frontend {
 
@@ -86,6 +93,7 @@ public class SwingFrontend extends Frontend {
 			setText(action.getName());
 			setToolTipText(action.getDescription());
 
+			setOpaque(false);
 			setForeground(Color.BLUE);
 			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			addMouseListener(new MouseAdapter() {
@@ -112,11 +120,40 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
-		if (suggestionSearch == null) {
-			return new SwingTextField(changeListener, maxLength, allowedCharacters);
-		} else {
-			return new SwingTextFieldAutocomplete(changeListener, suggestionSearch);
+		SwingTextField textField = new SwingTextField(changeListener, maxLength, allowedCharacters);
+		if (suggestionSearch != null) {
+			DefaultCompletionProvider acp = new DefaultCompletionProvider() {
+				@Override
+				public boolean isAutoActivateOkay(JTextComponent tc) {
+					return true;
+				}				
+				
+				@Override
+				protected List<Completion> getCompletionsImpl(JTextComponent comp) {
+					List<Completion> retVal = new ArrayList<>();
+					String text = getAlreadyEnteredText(comp);
+
+					if (text != null) {
+						List<String> suggestions = suggestionSearch.search(text);
+						for (String s : suggestions) {
+							retVal.add(new BasicCompletion(this, s));
+						}
+					}
+
+					return retVal;
+				}
+			};
+//			acp.addCompletion(new BasicCompletion(acp, "Test"));
+//			acp.addCompletion(new BasicCompletion(acp, "Test2"));
+//			acp.addCompletion(new BasicCompletion(acp, "Fasel"));
+			AutoCompletion ac = new AutoCompletion(acp);
+			ac.setAutoCompleteEnabled(true);
+			ac.setAutoActivationDelay(100);
+			ac.setAutoActivationEnabled(true);
+			ac.setAutoCompleteSingleChoices(false);
+			ac.install(textField);
 		}
+		return textField;
 	}
 
 	@Override
@@ -291,18 +328,56 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
-		return new SwingLookup(stringInput, event -> SwingFrontend.run(event, lookup::run));
+		if (stringInput instanceof JTextField) {
+			JButton button = new JButton("...");
+			((JComponent) stringInput).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
+					button);
+			button.addActionListener(event -> SwingFrontend.run(event, lookup));
+			return stringInput;
+		} else if (stringInput instanceof SwingTextAreaField) {
+			((SwingTextAreaField) stringInput).addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent event) {
+					SwingFrontend.run(event, lookup);
+				}
+			});
+			return stringInput;
+		} else {
+			return new SwingLookup(stringInput, event -> SwingFrontend.run(event, lookup::run));
+		}
 	}
 
 	@Override
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
-		((JComponent) input).setComponentPopupMenu(SwingTab.createMenu(actions.getItems()));
-		ActionListener actionListener = event -> {
-			JPopupMenu popupMenu = ((JComponent) input).getComponentPopupMenu();
-			JComponent c = (JComponent) event.getSource();
-			popupMenu.show(c, 0, c.getHeight());
-		};
-		return new SwingLookup(input, actionListener);
+		JPopupMenu popupMenu = SwingTab.createMenu(actions.getItems());
+		if (input instanceof JTextField) {
+			JButton button = new JButton("...");
+			((JComponent) input).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
+					button);
+			button.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent event) {
+					popupMenu.show(((Component) input), event.getX(), event.getY());
+				};
+			});
+			return input;
+		} else {
+			((JComponent) input).setComponentPopupMenu(popupMenu);
+			if (input instanceof SwingTextAreaField) {
+				((SwingTextAreaField) input).addMouseListener(new MouseAdapter() {
+					public void mouseClicked(MouseEvent event) {
+						popupMenu.show(((Component) input), event.getX(), event.getY());
+					}
+				});				
+				return input;
+			} else {
+				ActionListener actionListener = event -> {
+					JComponent c = (JComponent) event.getSource();
+					popupMenu.show(c, 0, c.getHeight());
+				};
+				return new SwingLookup(input, actionListener);
+			}
+		}
 	}
 
 	public File showFileDialog(String title, String approveButtonText) {

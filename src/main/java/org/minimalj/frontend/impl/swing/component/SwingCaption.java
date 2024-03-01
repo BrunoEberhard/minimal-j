@@ -22,6 +22,7 @@ public class SwingCaption extends JPanel {
 	public SwingCaption(Component component, String caption) {
 		super(new BorderLayout());
 		setBorder(null);
+		setOpaque(false);
 		
 		captionLabel = new CaptionLabel(caption);
 		
