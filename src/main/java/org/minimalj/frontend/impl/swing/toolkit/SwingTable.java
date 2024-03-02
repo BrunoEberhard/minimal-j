@@ -24,6 +24,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.RowSorterEvent;
@@ -77,7 +79,13 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		table.setRowSelectionAllowed(true);
 		table.setFillsViewportHeight(true);
 		
-		setBorder(BorderFactory.createEmptyBorder());
+		int borderSize = UIManager.getInt("Group.BorderSize");
+		Border emptyBorder = BorderFactory.createEmptyBorder(borderSize, borderSize, borderSize, borderSize);
+		Border lineBorder = BorderFactory.createLineBorder(UIManager.getColor("Group.BorderColor"));
+		setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
+
+		table.setShowHorizontalLines(true);
+		table.setShowVerticalLines(true);
 		
 		RenderingTableCellRenderer renderer = new RenderingTableCellRenderer();
 		table.setDefaultRenderer(Boolean.class, renderer);

@@ -254,12 +254,6 @@
 
 <!--
 		<dependency>
-			<groupId>com.formdev</groupId>
-			<artifactId>flatlaf</artifactId>
-			<version>3.3</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.marvinformatics.apgdiff</groupId>
 			<artifactId>apgdiff</artifactId>
 			<version>2.5.0.20160618</version>
@@ -271,11 +265,13 @@
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf</artifactId>
 			<version>3.4</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>com.fifesoft</groupId>
 		    <artifactId>autocomplete</artifactId>
 		    <version>3.3.1</version>
+		    <scope>provided</scope>
 		</dependency>
 	
 	</dependencies>

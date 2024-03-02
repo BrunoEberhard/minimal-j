@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,7 +34,9 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -66,10 +69,38 @@ import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.util.SystemInfo;
 
 public class SwingFrontend extends Frontend {
 
 	private final Map<Dialog, SwingDialog> visibleDialogs = new HashMap<>();
+	
+	public SwingFrontend() {
+		FlatLightLaf.setup();
+
+		if (SystemInfo.isMacOS) {
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			System.setProperty("apple.awt.application.name", Application.getInstance().getName());
+			System.setProperty("apple.awt.application.appearance", "system");
+		}
+
+		if (SystemInfo.isLinux) {
+			JFrame.setDefaultLookAndFeelDecorated(true);
+			JDialog.setDefaultLookAndFeelDecorated(true);
+		}
+		
+		UIManager.put("Group.Background", new Color(250, 250, 250));
+		UIManager.put("Group.BorderColor", new Color(225, 225, 225));
+		UIManager.put("Group.BorderSize", 8);
+		UIManager.put("Group.MarginSize", 16);
+		UIManager.put("Group.ArcSize", 12);
+		
+		UIManager.put("Table.background", new Color(250, 250, 250));
+		UIManager.put("Table.gridColor", new Color(230, 230, 230));
+		
+		UIManager.put("TableHeader.cellMargins", new Insets(2,1,2,1));
+	}
 	
 	@Override
 	public IComponent createText(String string) {

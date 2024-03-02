@@ -1,6 +1,5 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -50,7 +49,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			nested |= parent instanceof SwingFormContent;
 			parent = parent.getParent();
 		}
-		int border = nested ? 0 : 8;
+		int border = nested ? 0 : UIManager.getInt("Group.BorderSize");
 		layoutManager.setBorder(border);
 		setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
 	}
@@ -93,7 +92,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 	public void setVisible(IComponent component, boolean visible) {
 		if (visible != ((Component) component).isVisible()) {
 			((Component) component).setVisible(visible);
-			invalidate();
+			revalidate();
 			repaint();
 		}
 	}
@@ -102,14 +101,14 @@ public class SwingFormContent extends JPanel implements FormContent {
 	protected void paintComponent(Graphics g) {
 		if (!nested) {
 			super.paintComponent(g);
-
+			
+			doLayout();
+			
 			Graphics2D g2 = (Graphics2D) g.create();
 			RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 			g2.setRenderingHints(qualityHints);
 
-			g.setColor(getGroupColor());
-			
 			if (layoutManager.getGroupedRows().isEmpty()) {
 				paintGroupBackground(g, 0, 0, layoutManager.getRowCount());
 			} else {
@@ -120,53 +119,49 @@ public class SwingFormContent extends JPanel implements FormContent {
 				paintGroupBackground(g, i, layoutManager.getGroupedRows().get(i), layoutManager.getRowCount());
 			}
 		} else {
-			g.setColor(getGroupColor());
+			g.setColor(UIManager.getColor("Group.Background"));
 			g.fillRect(0, 0, g.getClipBounds().width, g.getClipBounds().height);
 		}
 	}
 	
-	private Color getGroupColor() {
-		Color background = getBackground();
-		int backgroundBrightness = (background.getRed() + background.getGreen() + background.getBlue()) / 3;
-		if (backgroundBrightness > 200) {
-			return new Color(250, 250, 250);
-		} else if (backgroundBrightness > 120) {
-			return new Color(mixIn(background.getRed(), 255), mixIn(background.getGreen(), 255), mixIn(background.getBlue(), 255));
-		} else {
-			return new Color(mixIn(background.getRed(), 0), mixIn(background.getGreen(), 0), mixIn(background.getBlue(), 0));		
-		}
-	}
-	
-	private int mixIn(int start, int to) {
-		return (1 * start + to) / 2;
-	}
-
 	private void paintGroupBackground(Graphics g, int group, int startRow, int endRow) {
 		if (!layoutManager.getGroupVisible().get(group)) {
 			return;
 		}
 		int i = 0;
-		int y = getInsets().top + startRow * layoutManager.getPadding();
+		int y = getInsets().top;
 		for (int gr = 0; gr<group; gr++) {
 			if (layoutManager.getGroupVisible().get(gr)) {
 				y += 2 * layoutManager.getBorder();
 			}
 		}
 		while (i < startRow) {
+			if (layoutManager.getRowVisible().get(i)) {
+				y+= layoutManager.getPadding();
+			}
 			y += layoutManager.getRowHeights().get(i++);
 		}
-		int height = (endRow - startRow - 1) * layoutManager.getPadding() + 2 * layoutManager.getBorder();
+		int height = 2 * layoutManager.getBorder() - layoutManager.getPadding();
 		while (i < endRow) {
+			if (layoutManager.getRowVisible().get(i)) {
+				height+= layoutManager.getPadding();
+			}
 			height += layoutManager.getRowHeights().get(i++);
 		}
 		
-		g.setColor(getGroupColor());
-		g.fillRoundRect(getInsets().left, y, g.getClipBounds().width - getInsets().left - getInsets().right, height, 12, 12);
+		int arcSize = UIManager.getInt("Group.ArcSize");
+		g.setColor(UIManager.getColor("Group.Background"));
+		g.fillRoundRect(getInsets().left, y, getWidth() - getInsets().left - getInsets().right, height, arcSize, arcSize);
 
-		g.setColor(new Color(225, 225, 225));
-		g.drawRoundRect(getInsets().left, y, g.getClipBounds().width - getInsets().left - getInsets().right, height, 12, 12);
+		g.setColor(UIManager.getColor("Group.BorderColor"));
+		g.drawRoundRect(getInsets().left, y, getWidth() - getInsets().left - getInsets().right, height, arcSize, arcSize);
 	}
 
+	public void invalidate() {
+		super.invalidate();
+		layoutManager.lastParentBounds = null;
+	}
+	
 	private static class GridFormLayoutConstraint {
 
 		private final int span;
@@ -222,7 +217,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private final int minColumnWidth;
 		private final List<List<Component>> rows = new LinkedList<>();
 		private final Map<Component, GridFormLayoutConstraint> constraints = new HashMap<>();
-		private int padding = 5;
+		private int padding = 8;
 		private int border = 8;
 
 		private Dimension size;
@@ -233,14 +228,17 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 		private List<Integer> groupedRows = new ArrayList<>();
 		private List<Boolean> groupVisible = new ArrayList<>();
-
+		private List<Boolean> rowVisible = new ArrayList<>();
+		
 		public GridFormLayoutManager(int columns, int minColumnWidth) {
 			this.columns = columns;
 			this.minColumnWidth = minColumnWidth;
 		}
 
 		public void group(String caption) {
-			groupedRows.add(getRowCount());
+			if (!groupedRows.contains(getRowCount())) {
+				groupedRows.add(getRowCount());
+			}
 		}
 
 		public List<Integer> getGroupedRows() {
@@ -249,6 +247,10 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 		public List<Boolean> getGroupVisible() {
 			return groupVisible;
+		}
+		
+		public List<Boolean> getRowVisible() {
+			return rowVisible;
 		}
 		
 		public int getRowCount() {
@@ -299,8 +301,11 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 			boolean addBorder = false;
 			groupVisible.clear();
+			rowVisible.clear();
 			for (List<Component> row : rows) {
-				if (isRowVisible(row)) {
+				boolean isRowVisible = isRowVisible(row);
+				rowVisible.add(isRowVisible);
+				if (isRowVisible) {
 					boolean hasCaption = hasCaption(row);
 					int height = layoutRow(width, row, y, hasCaption);
 					rowHeights.add(height);
@@ -319,6 +324,9 @@ public class SwingFormContent extends JPanel implements FormContent {
 			groupVisible.add(addBorder);
 			y += padding;
 			size = new Dimension(Math.max(minColumnWidth * columns, width), Math.max(25, y));
+			
+			// TODO this seems wrong place to repaint but background sometimes needs repainting
+			parent.repaint();
 		}
 
 		private boolean isRowVisible(List<Component> row) {

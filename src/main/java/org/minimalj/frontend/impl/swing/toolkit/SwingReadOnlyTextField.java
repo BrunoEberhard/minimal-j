@@ -1,6 +1,7 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.util.StringUtils;
@@ -12,6 +13,9 @@ public class SwingReadOnlyTextField extends JLabel implements Input<String> {
 	public void setValue(String string) {
 		if (string != null) {
 			if (string.contains("\n")) {
+				setVerticalAlignment(SwingConstants.TOP);
+				setVerticalTextPosition(SwingConstants.TOP);
+				
 				string = StringUtils.escapeHTML(string);
 				string = string.replaceAll("\n", "<br>");
 				setText("<html><body>" + string + "</body></html>");
