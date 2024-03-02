@@ -381,6 +381,15 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
 		JPopupMenu popupMenu = SwingTab.createMenu(actions.getItems());
+		if (input instanceof JLabel) {
+			JLabel label = (JLabel) input;
+			SwingTextField textField = new SwingTextField(null, Integer.MAX_VALUE);
+			textField.setEditable(false);
+			// TODO value change of label is not propagated
+			textField.setValue(label.getText());
+			input = textField;
+		}
+		Component inputFinal = (Component) input;
 		if (input instanceof JTextField) {
 			JButton button = new JButton("...");
 			((JComponent) input).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
@@ -388,7 +397,7 @@ public class SwingFrontend extends Frontend {
 			button.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent event) {
-					popupMenu.show(((Component) input), event.getX(), event.getY());
+					popupMenu.show(inputFinal, event.getX(), event.getY());
 				};
 			});
 			return input;
@@ -397,7 +406,7 @@ public class SwingFrontend extends Frontend {
 			if (input instanceof SwingTextAreaField) {
 				((SwingTextAreaField) input).addMouseListener(new MouseAdapter() {
 					public void mouseClicked(MouseEvent event) {
-						popupMenu.show(((Component) input), event.getX(), event.getY());
+						popupMenu.show(inputFinal, event.getX(), event.getY());
 					}
 				});				
 				return input;
