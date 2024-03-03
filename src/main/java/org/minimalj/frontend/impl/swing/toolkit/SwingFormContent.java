@@ -33,6 +33,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 	private final Map<IComponent, SwingCaption> captionByComponent = new HashMap<>();
 	private final GridFormLayoutManager layoutManager;
 	private boolean nested = false;
+	private boolean ignoreCaption = false;
 
 	public SwingFormContent(int columns, int columnWidthPercentage) {
 		int columnWidth = getColumnWidth() * columnWidthPercentage / 100;
@@ -58,6 +59,11 @@ public class SwingFormContent extends JPanel implements FormContent {
 		FontMetrics fm = getFontMetrics(getFont());
 		return (int) fm.getStringBounds("The quick brown fox jumps over the lazy dog", getGraphics()).getWidth();
 	}
+	
+	@Override
+	public void setIgnoreCaption(boolean ignoreCaption) {
+		this.ignoreCaption = ignoreCaption;
+	}
 
 	@Override
 	public void add(String caption, IComponent c, FormElementConstraint constraint, int span) {
@@ -66,8 +72,8 @@ public class SwingFormContent extends JPanel implements FormContent {
 		}
 		JComponent component = c != null ? (JComponent) c : new JPanel();
 		component.setOpaque(false);
-		if (caption != null) {
-			SwingCaption swingCaption = new SwingCaption(component, caption);
+		if (!ignoreCaption) {
+			SwingCaption swingCaption = new SwingCaption(component, caption != null ? caption : " ");
 			captionByComponent.put(c, swingCaption);
 			add(swingCaption, new GridFormLayoutConstraint(span, constraint));
 		} else {
