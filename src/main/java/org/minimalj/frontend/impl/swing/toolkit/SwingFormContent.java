@@ -217,7 +217,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private final int minColumnWidth;
 		private final List<List<Component>> rows = new LinkedList<>();
 		private final Map<Component, GridFormLayoutConstraint> constraints = new HashMap<>();
-		private int padding = 8;
+		private int padding = 2;
 		private int border = 8;
 
 		private Dimension size;

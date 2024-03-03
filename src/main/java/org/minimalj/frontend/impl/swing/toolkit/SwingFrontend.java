@@ -92,7 +92,7 @@ public class SwingFrontend extends Frontend {
 		
 		UIManager.put("Group.Background", new Color(250, 250, 250));
 		UIManager.put("Group.BorderColor", new Color(225, 225, 225));
-		UIManager.put("Group.BorderSize", 8);
+		UIManager.put("Group.BorderSize", 16);
 		UIManager.put("Group.MarginSize", 16);
 		UIManager.put("Group.ArcSize", 12);
 		
