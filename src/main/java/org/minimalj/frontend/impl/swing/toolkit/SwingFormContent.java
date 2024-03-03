@@ -50,9 +50,11 @@ public class SwingFormContent extends JPanel implements FormContent {
 			nested |= parent instanceof SwingFormContent;
 			parent = parent.getParent();
 		}
-		int border = nested ? 0 : UIManager.getInt("Group.BorderSize");
-		layoutManager.setBorder(border);
-		setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
+		int borderTopBottom = nested ? 0 : UIManager.getInt("Group.BorderTopBottom");
+		int borderLeftRight = nested ? 0 : UIManager.getInt("Group.BorderLeftRight");
+		layoutManager.setBorderLeftRight(borderLeftRight);
+		layoutManager.setBorderTopBottom(borderTopBottom);
+		setBorder(BorderFactory.createEmptyBorder(borderTopBottom, borderLeftRight, borderTopBottom, borderLeftRight));
 	}
 
 	private int getColumnWidth() {
@@ -138,7 +140,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		int y = getInsets().top;
 		for (int gr = 0; gr<group; gr++) {
 			if (layoutManager.getGroupVisible().get(gr)) {
-				y += 2 * layoutManager.getBorder();
+				y += 2 * layoutManager.borderTopBottom;
 			}
 		}
 		while (i < startRow) {
@@ -147,7 +149,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			}
 			y += layoutManager.getRowHeights().get(i++);
 		}
-		int height = 2 * layoutManager.getBorder() - layoutManager.getPadding();
+		int height = 2 * layoutManager.borderTopBottom - layoutManager.getPadding();
 		while (i < endRow) {
 			if (layoutManager.getRowVisible().get(i)) {
 				height+= layoutManager.getPadding();
@@ -224,7 +226,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private final List<List<Component>> rows = new LinkedList<>();
 		private final Map<Component, GridFormLayoutConstraint> constraints = new HashMap<>();
 		private int padding = 2;
-		private int border = 8;
+		private int borderLeftRight, borderTopBottom;
 
 		private Dimension size;
 		private Rectangle lastParentBounds = null;
@@ -270,13 +272,14 @@ public class SwingFormContent extends JPanel implements FormContent {
 		public int getPadding() {
 			return padding;
 		}
-
-		public int getBorder() {
-			return border;
+		
+		public void setBorderTopBottom(int borderTopBottom) {
+			this.borderTopBottom = borderTopBottom;
+			lastParentBounds = null;
 		}
-
-		public void setBorder(int border) {
-			this.border = border;
+		
+		public void setBorderLeftRight(int borderLeftRight) {
+			this.borderLeftRight = borderLeftRight;
 			lastParentBounds = null;
 		}
 
@@ -302,8 +305,8 @@ public class SwingFormContent extends JPanel implements FormContent {
 			rowHeights.clear();
 
 			insets = parent.getInsets();
-			int y = insets.top + border;
-			int width = parent.getWidth() - insets.left - insets.right - 2 * border;
+			int y = insets.top + borderTopBottom;
+			int width = parent.getWidth() - insets.left - insets.right - 2 * borderLeftRight;
 
 			boolean addBorder = false;
 			groupVisible.clear();
@@ -323,7 +326,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 				if (groupedRows.contains(rowHeights.size())) {
 					groupVisible.add(addBorder);
 					if (addBorder) {
-						y += 2 * border;
+						y += 2 * borderTopBottom;
 					}
 				}
 			}
@@ -343,7 +346,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			int rowHeight = 0;
 			int column = 0;
 			for (Component component : row) {
-				int x = insets.left + border + column * (width + padding) / columns;
+				int x = insets.left + borderLeftRight + column * (width + padding) / columns;
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
 				int componentWidth = constraint.isCompleteRow() ? width : (constraint.getSpan() * width + padding) / columns - padding;
