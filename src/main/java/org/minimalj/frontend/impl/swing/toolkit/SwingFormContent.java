@@ -50,11 +50,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 			nested |= parent instanceof SwingFormContent;
 			parent = parent.getParent();
 		}
-		int borderTopBottom = nested ? 0 : UIManager.getInt("Group.BorderTopBottom");
-		int borderLeftRight = nested ? 0 : UIManager.getInt("Group.BorderLeftRight");
-		layoutManager.setBorderLeftRight(borderLeftRight);
-		layoutManager.setBorderTopBottom(borderTopBottom);
-		setBorder(BorderFactory.createEmptyBorder(borderTopBottom, borderLeftRight, borderTopBottom, borderLeftRight));
+		int inset = nested ? 0 : UIManager.getInt("Group.Inset");
+		int MarginTopBottom = nested ? 0 : UIManager.getInt("Group.MarginTopBottom");
+		int MarginLeftRight = nested ? 0 : UIManager.getInt("Group.MarginLeftRight");
+		layoutManager.setMarginLeftRight(MarginLeftRight);
+		layoutManager.setMarginTopBottom(MarginTopBottom);
+		setBorder(BorderFactory.createEmptyBorder(inset, inset, inset, inset));
 	}
 
 	private int getColumnWidth() {
@@ -140,7 +141,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		int y = getInsets().top;
 		for (int gr = 0; gr<group; gr++) {
 			if (layoutManager.getGroupVisible().get(gr)) {
-				y += 2 * layoutManager.borderTopBottom;
+				y += 2 * layoutManager.marginTopBottom;
 			}
 		}
 		while (i < startRow) {
@@ -149,7 +150,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			}
 			y += layoutManager.getRowHeights().get(i++);
 		}
-		int height = 2 * layoutManager.borderTopBottom - layoutManager.getPadding();
+		int height = 2 * layoutManager.marginTopBottom - layoutManager.getPadding();
 		while (i < endRow) {
 			if (layoutManager.getRowVisible().get(i)) {
 				height+= layoutManager.getPadding();
@@ -226,7 +227,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private final List<List<Component>> rows = new LinkedList<>();
 		private final Map<Component, GridFormLayoutConstraint> constraints = new HashMap<>();
 		private int padding = 2;
-		private int borderLeftRight, borderTopBottom;
+		private int marginLeftRight, marginTopBottom;
 
 		private Dimension size;
 		private Rectangle lastParentBounds = null;
@@ -273,13 +274,13 @@ public class SwingFormContent extends JPanel implements FormContent {
 			return padding;
 		}
 		
-		public void setBorderTopBottom(int borderTopBottom) {
-			this.borderTopBottom = borderTopBottom;
+		public void setMarginTopBottom(int marginTopBottom) {
+			this.marginTopBottom = marginTopBottom;
 			lastParentBounds = null;
 		}
 		
-		public void setBorderLeftRight(int borderLeftRight) {
-			this.borderLeftRight = borderLeftRight;
+		public void setMarginLeftRight(int marginLeftRight) {
+			this.marginLeftRight = marginLeftRight;
 			lastParentBounds = null;
 		}
 
@@ -305,8 +306,8 @@ public class SwingFormContent extends JPanel implements FormContent {
 			rowHeights.clear();
 
 			insets = parent.getInsets();
-			int y = insets.top + borderTopBottom;
-			int width = parent.getWidth() - insets.left - insets.right - 2 * borderLeftRight;
+			int y = insets.top + marginTopBottom;
+			int width = parent.getWidth() - insets.left - insets.right - 2 * marginLeftRight;
 
 			boolean addBorder = false;
 			groupVisible.clear();
@@ -326,7 +327,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 				if (groupedRows.contains(rowHeights.size())) {
 					groupVisible.add(addBorder);
 					if (addBorder) {
-						y += 2 * borderTopBottom;
+						y += 2 * marginTopBottom;
 					}
 				}
 			}
@@ -346,7 +347,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			int rowHeight = 0;
 			int column = 0;
 			for (Component component : row) {
-				int x = insets.left + borderLeftRight + column * (width + padding) / columns;
+				int x = insets.left + marginLeftRight + column * (width + padding) / columns;
 				component.setLocation(x, y);
 				GridFormLayoutConstraint constraint = constraints.get(component);
 				int componentWidth = constraint.isCompleteRow() ? width : (constraint.getSpan() * width + padding) / columns - padding;

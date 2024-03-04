@@ -79,8 +79,8 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		table.setRowSelectionAllowed(true);
 		table.setFillsViewportHeight(true);
 		
-		int borderSize = UIManager.getInt("Group.BorderSize");
-		Border emptyBorder = BorderFactory.createEmptyBorder(borderSize, borderSize, borderSize, borderSize);
+		int inset = UIManager.getInt("Group.Inset");
+		Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
 		Border lineBorder = BorderFactory.createLineBorder(UIManager.getColor("Group.BorderColor"));
 		setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
 
