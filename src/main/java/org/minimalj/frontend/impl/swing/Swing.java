@@ -26,7 +26,7 @@ public class Swing implements Runnable {
 		if (Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
 			Backend.getInstance().getAuthentication().getLoginAction().run();
 		} else {
-			Frontend.getInstance().login(null);
+			FrameManager.getInstance().openFrame();
 		}
 	}
 
