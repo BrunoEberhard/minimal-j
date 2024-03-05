@@ -82,6 +82,8 @@ public class SwingFormContent extends JPanel implements FormContent {
 		} else {
 			add(component, new GridFormLayoutConstraint(span, constraint));
 		}
+		revalidate();
+		repaint();
 	}
 
 	@Override
