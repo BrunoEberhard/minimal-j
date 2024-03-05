@@ -340,7 +340,15 @@ public class SwingFormContent extends JPanel implements FormContent {
 		}
 
 		private boolean isRowVisible(List<Component> row) {
-			return row.stream().anyMatch(c -> c.isVisible());
+			return row.stream().anyMatch(c -> c.isVisible() && !isEmpty(c));
+		}
+
+		private boolean isEmpty(Component c) {
+			if (c instanceof SwingCaption) {
+				SwingCaption swingCaption = (SwingCaption) c;
+				return swingCaption.isEmpty();
+			}
+			return false;
 		}
 
 		private int layoutRow(int width, List<Component> row, int y, boolean hasCaption) {
