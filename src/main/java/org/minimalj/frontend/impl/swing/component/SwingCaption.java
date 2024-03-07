@@ -53,15 +53,14 @@ public class SwingCaption extends JPanel {
 		} else if (component instanceof JLabel) {
 			return StringUtils.isBlank(((JLabel) component).getText());
 		} else if (component instanceof JTextField) {
-			return StringUtils.isBlank(((JTextField) component).getText());
+			return !((JTextField) component).isEditable() && StringUtils.isBlank(((JTextField) component).getText());
 		} else {
 			return false;
 		}
 	}
 	
 	public boolean isEmpty() {
-		Component component = getComponent(1);
-		return isEmpty(component);
+		return StringUtils.isBlank(captionLabel.getText()) && isEmpty(getComponent(1));
 	}
 
 	public void setValidationMessages(List<String> validationMessages) {
