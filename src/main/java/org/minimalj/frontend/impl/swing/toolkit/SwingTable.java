@@ -19,7 +19,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter.SortKey;
@@ -49,10 +48,14 @@ import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.Property;
 
-public class SwingTable<T> extends JScrollPane implements ITable<T> {
+import com.formdev.flatlaf.extras.components.FlatScrollPane;
+
+public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(SwingTable.class.getName());
 	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjSwingTablePageSize", "1000"));
+	
+	private RenderingTableCellRenderer renderer;
 	
 	private final Object[] keys;
 	private final List<Property> properties;
@@ -79,15 +82,12 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		table.setRowSelectionAllowed(true);
 		table.setFillsViewportHeight(true);
 		
-		int inset = UIManager.getInt("Group.Inset");
-		Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
-		Border lineBorder = BorderFactory.createLineBorder(UIManager.getColor("Group.BorderColor"));
-		setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
+		updateBorder();
 
 		table.setShowHorizontalLines(true);
 		table.setShowVerticalLines(true);
 		
-		RenderingTableCellRenderer renderer = new RenderingTableCellRenderer();
+		renderer = new RenderingTableCellRenderer();
 		table.setDefaultRenderer(Boolean.class, renderer);
 		table.setDefaultRenderer(Object.class, renderer);
 		table.setDefaultRenderer(Number.class, renderer);
@@ -125,6 +125,13 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         		table.getColumnModel().getColumn(i).setMaxWidth(width * 2);
         	}
         }
+	}
+
+	protected void updateBorder() {
+		int inset = UIManager.getInt("Group.Inset");
+		Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
+		Border lineBorder = BorderFactory.createLineBorder(UIManager.getColor("Group.BorderColor"));
+		setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
 	}
 	
 	private List<Property> convert(Object[] keys) {
@@ -291,6 +298,19 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 	
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		updateBorder();
+		if (renderer != null) {
+			renderer.updateUI();
+		}
+		if (table != null) {
+			table.setBackground(UIManager.getColor("Table.background"));
+			table.setGridColor(UIManager.getColor("Table.gridColor"));
+		}
+	}
+	
 	private class RenderingTableCellRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
@@ -355,6 +375,12 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				}
 			}
 			return c;
+		}
+	
+		@Override
+		public void updateUI() {
+			super.updateUI();
+			actionColor = UIManager.getColor("Action.forground");
 		}
 	}
 	
