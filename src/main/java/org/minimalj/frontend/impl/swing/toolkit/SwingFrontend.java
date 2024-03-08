@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -8,6 +9,8 @@ import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.MouseInfo;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -102,6 +105,25 @@ public class SwingFrontend extends Frontend {
 		UIManager.put("Group.ArcSize", 12);
 
 		UIManager.put("TableHeader.cellMargins", new Insets(2,1,2,1));
+		
+		if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled() && MouseInfo.getNumberOfButtons() > 3) {
+		    Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
+		        if (event instanceof MouseEvent) {
+		            MouseEvent mouseEvent = (MouseEvent) event;
+		            if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED && mouseEvent.getButton() > 3) {
+		            	Window window = SwingUtilities.getWindowAncestor(mouseEvent.getComponent());
+		            	if (window instanceof SwingFrame) {
+		            		SwingFrame frame = (SwingFrame) window;
+			                if (mouseEvent.getButton() == 4) {
+			                	frame.previous();
+			                } else if (mouseEvent.getButton() == 5) {
+			                	frame.next();
+			                }
+		            	}
+		            }
+		        }
+		    }, AWTEvent.MOUSE_EVENT_MASK);
+		}
 	}
 	
 	public static void setUIManagerProperties() {

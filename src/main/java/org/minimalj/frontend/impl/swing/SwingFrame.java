@@ -325,6 +325,20 @@ public class SwingFrame extends JFrame {
 			setJMenuBar(menuBar);
 		}
 	}
+	
+	public void previous() {
+		SwingTab tab = getVisibleTab();
+		if (tab != null && tab.hasPast()) {
+			tab.previous();
+		}
+	}
+
+	public void next() {
+		SwingTab tab = getVisibleTab();
+		if (tab != null && tab.hasFuture()) {
+			tab.next();
+		}
+	}
 
 	private class SwingLoginAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
