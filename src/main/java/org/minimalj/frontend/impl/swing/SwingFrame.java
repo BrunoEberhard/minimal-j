@@ -47,14 +47,15 @@ public class SwingFrame extends JFrame {
 	private JScrollPane navigationScrollPane;
 	private SwingToolBar toolBar;
 	private SwingMenuBar menuBar;
-	private JTabbedPane navigationTabbedPane;
+	private FlatTabbedPane navigationTabbedPane;
 	private JSplitPane splitPane;
 
 	public static SwingFrame activeFrameOverride = null;
 
 	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction;
 	final CloseTabAction closeTabAction;
-	public final Action navigationAction, toolbarAction;
+	public final NavigationAction navigationAction;
+	public final Action toolbarAction;
 
 	public SwingFrame() {
 		AuthenticatonMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
@@ -115,14 +116,11 @@ public class SwingFrame extends JFrame {
 
 		navigationScrollPane = new JScrollPane();
 		navigationScrollPane.setBorder(BorderFactory.createEmptyBorder());
-//		ActionListener navigationClosedListener = e -> {
-//			navigationAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
-//			navigationAction.actionPerformed(e);
-//		};
-//		decoratedNavigationPane = new SwingDecoration(Application.getInstance().getName(), navigationScrollPane, SwingDecoration.HIDE_MINIMIZE, navigationClosedListener);
-		navigationTabbedPane = new JTabbedPane();
+		navigationTabbedPane = new FlatTabbedPane();
+		navigationTabbedPane.setTabsClosable(true);
 		navigationTabbedPane.addTab(Application.getInstance().getName(), navigationScrollPane);
-
+		navigationTabbedPane.setTabCloseCallback((tab, index) -> navigationAction.close());
+		
 		splitPane = new JSplitPane();
 		splitPane.setBorder(BorderFactory.createEmptyBorder());
 		getContentPane().add(splitPane, BorderLayout.CENTER);
@@ -401,7 +399,7 @@ public class SwingFrame extends JFrame {
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent unsed) {
 			if (Boolean.TRUE.equals(getValue(Action.SELECTED_KEY))) {
 				splitPane.setLeftComponent(navigationTabbedPane);
 				splitPane.setDividerSize((Integer) UIManager.get("SplitPane.dividerSize"));
@@ -413,6 +411,11 @@ public class SwingFrame extends JFrame {
 				splitPane.setDividerSize(0);
 				tabbedPane.setHideTabAreaWithOneTab(true);
 			}
+		}
+		
+		public void close() {
+			putValue(Action.SELECTED_KEY, false);
+			actionPerformed(null);
 		}
 	}
 
