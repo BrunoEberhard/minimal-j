@@ -54,7 +54,7 @@ public class SwingFrame extends JFrame {
 
 	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction;
 	final CloseTabAction closeTabAction;
-	public final Action navigationAction;
+	public final Action navigationAction, toolbarAction;
 
 	public SwingFrame() {
 		AuthenticatonMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
@@ -67,6 +67,7 @@ public class SwingFrame extends JFrame {
 		newWindowAction = new NewWindowAction();
 		newTabAction = new NewTabAction();
 		navigationAction = new NavigationAction();
+		toolbarAction = new ToolbarAction();
 
 		tabbedPane.setHideTabAreaWithOneTab(false);
 		tabbedPane.setTabCloseCallback(closeTabAction);
@@ -411,6 +412,23 @@ public class SwingFrame extends JFrame {
 				splitPane.setLeftComponent(null);
 				splitPane.setDividerSize(0);
 				tabbedPane.setHideTabAreaWithOneTab(true);
+			}
+		}
+	}
+
+	private class ToolbarAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		public ToolbarAction() {
+			putValue(Action.SELECTED_KEY, Boolean.TRUE);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Boolean.TRUE.equals(getValue(Action.SELECTED_KEY))) {
+				toolBar.setVisible(true);
+			} else {
+				toolBar.setVisible(false);
 			}
 		}
 	}

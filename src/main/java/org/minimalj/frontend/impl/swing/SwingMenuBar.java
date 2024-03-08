@@ -14,10 +14,7 @@ import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Separator;
-import org.minimalj.frontend.impl.swing.lookAndFeel.LookAndFeelAction;
-import org.minimalj.frontend.impl.swing.lookAndFeel.PrintLookAndFeel;
-import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
-import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLookAndFeel;
+import org.minimalj.frontend.impl.swing.lookAndFeel.SwingFlatThemeAction;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.util.StringUtils;
@@ -90,6 +87,7 @@ public class SwingMenuBar extends JMenuBar {
 		menu.add(itemRefresh);
 		menu.addSeparator();
 		menu.add(new JCheckBoxMenuItem(frame.navigationAction));
+		menu.add(new JCheckBoxMenuItem(frame.toolbarAction));
 		menu.addSeparator();
 		menu.add(createLookAndFeeldMenu());
 		return menu;
@@ -97,10 +95,12 @@ public class SwingMenuBar extends JMenuBar {
 
 	protected JMenu createLookAndFeeldMenu() {
 		JMenu menu = menu("lookAndFeel");
-		menu.add(new JMenuItem(new LookAndFeelAction(LookAndFeelAction.SYSTEM)));
-		menu.add(new JMenuItem(new LookAndFeelAction("highContrast", TerminalLookAndFeel.class.getName())));
-		menu.add(new JMenuItem(new LookAndFeelAction("highContrastLarge", TerminalLargeFontLookAndFeel.class.getName())));
-		menu.add(new JMenuItem(new LookAndFeelAction("print", PrintLookAndFeel.class.getName())));
+//		menu.add(new JMenuItem(new LookAndFeelAction(LookAndFeelAction.SYSTEM)));
+//		menu.add(new JMenuItem(new LookAndFeelAction("highContrast", TerminalLookAndFeel.class.getName())));
+//		menu.add(new JMenuItem(new LookAndFeelAction("highContrastLarge", TerminalLargeFontLookAndFeel.class.getName())));
+//		menu.add(new JMenuItem(new LookAndFeelAction("print", PrintLookAndFeel.class.getName())));
+		menu.add(new JMenuItem(new SwingFlatThemeAction(true)));
+		menu.add(new JMenuItem(new SwingFlatThemeAction(false)));
 		return menu;
 	}
 

@@ -42,6 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
@@ -69,8 +70,10 @@ import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.util.SystemInfo;
 
 public class SwingFrontend extends Frontend {
@@ -79,6 +82,7 @@ public class SwingFrontend extends Frontend {
 	
 	public SwingFrontend() {
 		FlatLightLaf.setup();
+		setUIManagerProperties();
 
 		if (SystemInfo.isMacOS) {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -90,18 +94,30 @@ public class SwingFrontend extends Frontend {
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			JDialog.setDefaultLookAndFeelDecorated(true);
 		}
-		
-		UIManager.put("Group.Background", new Color(250, 250, 250));
+
 		UIManager.put("Group.Inset", 8);
-		UIManager.put("Group.BorderColor", new Color(225, 225, 225));
 		UIManager.put("Group.MarginLeftRight", 16);
 		UIManager.put("Group.MarginTopBottom", 8);
 		UIManager.put("Group.ArcSize", 12);
-		
-		UIManager.put("Table.background", new Color(250, 250, 250));
-		UIManager.put("Table.gridColor", new Color(230, 230, 230));
-		
+
 		UIManager.put("TableHeader.cellMargins", new Insets(2,1,2,1));
+	}
+	
+	public static void setUIManagerProperties() {
+		LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
+		if (lookAndFeel instanceof FlatDarkLaf || lookAndFeel instanceof FlatMacDarkLaf) {
+			UIManager.put("Group.Background", new Color(70, 70, 70));
+			UIManager.put("Group.BorderColor", new Color(100, 100, 100));
+			
+			UIManager.put("Table.background", new Color(2,2,2));
+			UIManager.put("Table.gridColor", new Color(50, 50, 50));
+		} else {
+			UIManager.put("Group.Background", new Color(250, 250, 250));
+			UIManager.put("Group.BorderColor", new Color(225, 225, 225));
+			
+			UIManager.put("Table.background", new Color(250, 250, 250));
+			UIManager.put("Table.gridColor", new Color(230, 230, 230));
+		}
 	}
 	
 	@Override
