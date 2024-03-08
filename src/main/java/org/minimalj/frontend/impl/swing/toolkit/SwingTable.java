@@ -294,6 +294,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private class RenderingTableCellRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
+		private Color actionColor = UIManager.getColor("Action.forground");
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
@@ -309,7 +310,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 				Column column = (Column) property;
 				stringValue = Rendering.toString(column.render(object, value));
 				if (column.isLink(object, value)) {
-					color = Color.BLUE;
+					color = actionColor;
 				} else {
 					color = getColor(Column.getColor(column, object, value));
 				}

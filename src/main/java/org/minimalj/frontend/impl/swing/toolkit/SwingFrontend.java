@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -109,14 +110,18 @@ public class SwingFrontend extends Frontend {
 			UIManager.put("Group.Background", new Color(70, 70, 70));
 			UIManager.put("Group.BorderColor", new Color(100, 100, 100));
 			
-			UIManager.put("Table.background", new Color(2,2,2));
+			UIManager.put("Table.background", new Color(20, 20, 20));
 			UIManager.put("Table.gridColor", new Color(50, 50, 50));
+			
+			UIManager.put("Action.forground", new Color(100, 120, 255));
 		} else {
 			UIManager.put("Group.Background", new Color(250, 250, 250));
 			UIManager.put("Group.BorderColor", new Color(225, 225, 225));
 			
 			UIManager.put("Table.background", new Color(250, 250, 250));
 			UIManager.put("Table.gridColor", new Color(230, 230, 230));
+
+			UIManager.put("Action.forground", Color.BLUE);
 		}
 	}
 	
@@ -143,7 +148,6 @@ public class SwingFrontend extends Frontend {
 			setToolTipText(action.getDescription());
 
 			setOpaque(false);
-			setForeground(Color.BLUE);
 			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			addMouseListener(new MouseAdapter() {
 				@Override
@@ -151,6 +155,12 @@ public class SwingFrontend extends Frontend {
 					run(e, action);
 				}
 			});
+		}
+		
+		@Override
+		public void paint(Graphics g) {
+			setForeground(UIManager.getColor("Action.forground"));
+			super.paint(g);
 		}
 	}
 
