@@ -236,6 +236,7 @@ public class SwingFrame extends JFrame {
 
 	void onHistoryChanged() {
 		updateTitle();
+		updateWindowTitle();
 	}
 
 	public void setSubject(Subject subject) {
@@ -285,8 +286,13 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void updateWindowTitle() {
-		String title = Application.getInstance().getName();
-		if (subject != null && !StringUtils.isEmpty(subject.getName())) {
+		String title;
+		if (tabbedPane.isHideTabAreaWithOneTab() && tabbedPane.getTabCount() == 1) {
+			title = tabbedPane.getTitleAt(0);
+		} else {
+			title = Application.getInstance().getName();
+		}
+		if (Backend.getInstance().isAuthenticationActive() && subject != null && !StringUtils.isEmpty(subject.getName())) {
 			title = title + " - " + subject.getName();
 		}
 		setTitle(title);
@@ -425,6 +431,7 @@ public class SwingFrame extends JFrame {
 				splitPane.setDividerSize(0);
 				tabbedPane.setHideTabAreaWithOneTab(true);
 			}
+			updateWindowTitle();
 		}
 		
 		public void close() {
