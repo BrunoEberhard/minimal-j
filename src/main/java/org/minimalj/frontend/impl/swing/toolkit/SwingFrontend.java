@@ -70,6 +70,7 @@ import org.minimalj.util.resources.Resources;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.SystemInfo;
 
 public class SwingFrontend extends Frontend {
@@ -521,9 +522,13 @@ public class SwingFrontend extends Frontend {
 	public static Icon getIcon(String resourceName) {
 		if (Resources.isAvailable(resourceName)) {
 			String filename = Resources.getString(resourceName);
-			URL url = Swing.class.getResource(filename);
-			if (url != null) {
-				return new ImageIcon(url);
+			if (filename.endsWith(".svg")) {
+				return new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/" + filename);
+			} else {
+				URL url = Swing.class.getResource(filename);
+				if (url != null) {
+					return new ImageIcon(url);
+				}
 			}
 		}
 		return null;
@@ -531,33 +536,53 @@ public class SwingFrontend extends Frontend {
 
 	private static ThreadLocal<SwingTab> pageManager = new ThreadLocal<>();
 
-	// TODO move to SwingFrame
+	public static void runInBackground(Object source, Runnable r) {
+		run(source, r, true);
+	}
+
 	public static void run(Object source, Runnable r) {
-		if (SwingUtilities.isEventDispatchThread()) {
-			SwingFrame frame = findFrame(source);
+		run(source, r, false);
+	}
+	
+	public static void run(Object source, Runnable r, boolean background) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalStateException();
+		}
+		
+		SwingFrame frame = findFrame(source);
+		
+		Runnable runnable = () -> {
+			SwingTab tab;
 			
-			Thread thread = new Thread(() -> {
-				SwingTab tab = null;
-				if (frame != null) {
-					tab = frame.getVisibleTab();
-					pageManager.set(tab);
-					Subject.setCurrent(frame.getSubject());
-					tab.setEnabled(false);
-				}
-				try {
-					r.run();
-				} finally {
-					pageManager.set(null);
-					Subject.setCurrent(null);
-					if (tab != null) {
-						tab.setEnabled(true);
-					}
-				}
-			});
+			SwingTab savedTab = pageManager.get();
+			Subject savedSubject = Subject.getCurrent();
+			boolean savedEnabled;
 			
-			thread.start();
+			if (frame != null) {
+				tab = frame.getVisibleTab();
+				savedEnabled = tab.isEnabled();
+				pageManager.set(tab);
+				Subject.setCurrent(frame.getSubject());
+				tab.setEnabled(false);
+			} else {
+				tab = null;
+				savedEnabled = true;
+			}
+			try {
+				r.run();
+			} finally {
+				pageManager.set(savedTab);
+				Subject.setCurrent(savedSubject);
+				if (tab != null) {
+					tab.setEnabled(savedEnabled);
+				}
+			}
+		};
+		
+		if (background) {
+			new Thread(runnable).start();
 		} else {
-			r.run();
+			runnable.run();
 		}
 	}
 

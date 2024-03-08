@@ -10,6 +10,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Separator;
@@ -25,18 +26,20 @@ import org.minimalj.util.resources.Resources;
 public class SwingMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	
-	private final SwingFrame frame;
+	protected final SwingFrame frame;
 	private JMenu menuFavorite;
 	private final JMenuItem itemPrevious = new JMenuItem();
 	private final JMenuItem itemNext = new JMenuItem();
 	private final JMenuItem itemRefresh = new JMenuItem();
-	private final JMenuItem itemFavorite = new JMenuItem();
 	private SwingTab activeTab;
 
 	public SwingMenuBar(SwingFrame frame) {
 		super();
 		this.frame = frame;
+		createMenus();
+	}
 
+	protected void createMenus() {
 		add(createWindowMenu());
 		add(createViewMenu());
 		if (Routing.available()) {
@@ -45,15 +48,17 @@ public class SwingMenuBar extends JMenuBar {
 	}
 	
 	public void setActiveTab(SwingTab tab) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalStateException();
+		}
 		this.activeTab = tab;
 
 		itemPrevious.setAction(tab.previousAction);
 		itemNext.setAction(tab.nextAction);
 		itemRefresh.setAction(tab.refreshAction);
-		itemFavorite.setAction(tab.favoriteAction);
 	}
-
-	private JMenu createWindowMenu() {
+	
+	protected JMenu createWindowMenu() {
 		JMenu menu = menu("window");
 		
 		menu.add(new JMenuItem(frame.newWindowAction));
@@ -73,7 +78,12 @@ public class SwingMenuBar extends JMenuBar {
 		return menu;
 	}
 	
-	private JMenu createViewMenu() {
+	
+	protected void addWindowMenuApplicationActions(JMenu menu) {
+		//
+	}
+
+	protected JMenu createViewMenu() {
 		JMenu menu = menu("view");
 		menu.add(itemPrevious);
 		menu.add(itemNext);
@@ -85,7 +95,7 @@ public class SwingMenuBar extends JMenuBar {
 		return menu;
 	}
 
-	private JMenu createLookAndFeeldMenu() {
+	protected JMenu createLookAndFeeldMenu() {
 		JMenu menu = menu("lookAndFeel");
 		menu.add(new JMenuItem(new LookAndFeelAction(LookAndFeelAction.SYSTEM)));
 		menu.add(new JMenuItem(new LookAndFeelAction("highContrast", TerminalLookAndFeel.class.getName())));
@@ -94,7 +104,7 @@ public class SwingMenuBar extends JMenuBar {
 		return menu;
 	}
 
-	private JMenu createFavoriteMenu() {
+	protected JMenu createFavoriteMenu() {
 		menuFavorite = menu("favorites");
 		LinkedHashMap<String, String> favorites = frame.favorites.getFavorites();
 		updateFavorites(favorites);
@@ -133,7 +143,7 @@ public class SwingMenuBar extends JMenuBar {
 	
 	//
 	
-	private JMenu menu(String resourceName) {
+	protected JMenu menu(String resourceName) {
 		String text = Resources.getString("Menu." + resourceName);
 		JMenu menu = new JMenu(text);
 		Integer mnemonic = SwingResourceAction.getKeyCode("Menu." + resourceName + ".mnemonic");
@@ -158,5 +168,10 @@ public class SwingMenuBar extends JMenuBar {
 				menu.add(new JMenuItem(SwingFrontend.adaptAction(action)));
 			}
 		}
+	}
+	
+	public static interface SwingMenuBarProvider {
+		
+		public SwingMenuBar createMenuBar(SwingFrame frame);
 	}
 }	

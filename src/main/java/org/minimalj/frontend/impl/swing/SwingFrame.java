@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -19,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
@@ -26,11 +28,14 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.impl.swing.SwingMenuBar.SwingMenuBarProvider;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+
+import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -38,7 +43,7 @@ public class SwingFrame extends JFrame {
 	private Subject subject;
 	final SwingFavorites favorites = new SwingFavorites(this::onFavoritesChange);
 
-	private final JTabbedPane tabbedPane = new JTabbedPane();
+	private final FlatTabbedPane tabbedPane = new FlatTabbedPane();
 	private JScrollPane navigationScrollPane;
 	private SwingToolBar toolBar;
 	private SwingMenuBar menuBar;
@@ -47,7 +52,9 @@ public class SwingFrame extends JFrame {
 
 	public static SwingFrame activeFrameOverride = null;
 
-	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction, closeTabAction, navigationAction;
+	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction;
+	final CloseTabAction closeTabAction;
+	public final Action navigationAction;
 
 	public SwingFrame() {
 		AuthenticatonMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
@@ -61,6 +68,8 @@ public class SwingFrame extends JFrame {
 		newTabAction = new NewTabAction();
 		navigationAction = new NavigationAction();
 
+		tabbedPane.setHideTabAreaWithOneTab(false);
+		tabbedPane.setTabCloseCallback(closeTabAction);
 		tabbedPane.getModel().addChangeListener(this::tabSelectionChanged);
 
 		setDefaultSize();
@@ -68,6 +77,7 @@ public class SwingFrame extends JFrame {
 		addWindowListener();
 		createContent();
 
+		updateMenuBar();
 		addTab();
 
 		updateIcon();
@@ -97,9 +107,6 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void createContent() {
-		menuBar = new SwingMenuBar(this);
-		setJMenuBar(menuBar);
-
 		getContentPane().setLayout(new BorderLayout());
 
 		toolBar = new SwingToolBar();
@@ -125,13 +132,19 @@ public class SwingFrame extends JFrame {
 		splitPane.setDividerLocation(200);
 	}
 
-	private void tabSelectionChanged(ChangeEvent event) {
-		toolBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
-		menuBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
+	private void tabSelectionChanged(ChangeEvent e) {
+		SwingUtilities.invokeLater(() -> tabSelectionChanged((SwingTab) tabbedPane.getSelectedComponent()));
+		closeTabAction.setEnabled(tabbedPane.getTabCount() > 1);
+		tabbedPane.setTabsClosable(tabbedPane.getTabCount() > 1);
+	}
+
+	private void tabSelectionChanged(SwingTab tab) {
+		toolBar.setActiveTab(tab);
+		menuBar.setActiveTab(tab);
 		// TODO resuse NavigationTree
 		updateNavigation();
 	}
-
+	
 	public void updateNavigation() {
 		SwingFrontend.run(this, () -> {
 			navigationScrollPane.setViewportView(new NavigationTree(Application.getInstance().getNavigation()));
@@ -227,6 +240,9 @@ public class SwingFrame extends JFrame {
 	}
 
 	public void setSubject(Subject subject) {
+		if (!SwingUtilities.isEventDispatchThread()) 
+			throw new RuntimeException();
+		
 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
 			SwingTab swingTab = (SwingTab) tabbedPane.getComponentAt(i);
 			swingTab.setSubject(subject);
@@ -242,11 +258,16 @@ public class SwingFrame extends JFrame {
 		}
 
 		SwingFrontend.run(this, () -> {
+			if (!SwingUtilities.isEventDispatchThread()) {
+				throw new IllegalStateException();
+			}
+
 			favorites.setUser(subject != null ? subject.getName() : null);
 			setSearchEnabled(Application.getInstance().hasSearch());
 
 			updateNavigation();
 			updateWindowTitle();
+			updateMenuBar();
 
 			Frontend.show(Application.getInstance().createDefaultPage());
 		});
@@ -293,6 +314,16 @@ public class SwingFrame extends JFrame {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+		}
+	}
+
+	protected void updateMenuBar() {
+		if (Application.getInstance() instanceof SwingMenuBarProvider) {
+			menuBar = ((SwingMenuBarProvider) Application.getInstance()).createMenuBar(this);
+			setJMenuBar(menuBar);
+		} else if (menuBar != null) {
+			menuBar = new SwingMenuBar(this);
+			setJMenuBar(menuBar);
 		}
 	}
 
@@ -374,17 +405,23 @@ public class SwingFrame extends JFrame {
 				splitPane.setLeftComponent(navigationTabbedPane);
 				splitPane.setDividerSize((Integer) UIManager.get("SplitPane.dividerSize"));
 				splitPane.setDividerLocation(lastDividerLocation);
+				tabbedPane.setHideTabAreaWithOneTab(false);
 			} else {
 				lastDividerLocation = splitPane.getDividerLocation();
 				splitPane.setLeftComponent(null);
 				splitPane.setDividerSize(0);
+				tabbedPane.setHideTabAreaWithOneTab(true);
 			}
 		}
 	}
 
-	private class CloseTabAction extends SwingResourceAction {
+	private class CloseTabAction extends SwingResourceAction implements BiConsumer<JTabbedPane, Integer> {
 		private static final long serialVersionUID = 1L;
 
+		public CloseTabAction() {
+			setEnabled(false);
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// first try to close detail,
@@ -394,8 +431,16 @@ public class SwingFrame extends JFrame {
 				if (tabbedPane.getTabCount() > 1) {
 					tabbedPane.remove(tabbedPane.getSelectedIndex());
 				} else {
+					// at the moment this should not happen as CloseTabAction is only enabled if tabCount > 1
 					tryToCloseWindow();
 				}
+			}
+		}
+		
+		@Override
+		public void accept(JTabbedPane t, Integer index) {
+			if (!getVisibleTab().close()) {
+				tabbedPane.remove(index);
 			}
 		}
 	}
