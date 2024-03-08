@@ -20,7 +20,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTabbedPane;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Separator;
@@ -40,6 +39,8 @@ import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
+
+import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 
 public class SwingTab extends EditablePanel implements PageManager {
 	private static final long serialVersionUID = 1L;
@@ -299,8 +300,10 @@ public class SwingTab extends EditablePanel implements PageManager {
 		if (verticalPanel.getComponentCount() == 0) {
 			verticalPanel.add(content, "");
 		} else {
-			JTabbedPane tabbedPane = new JTabbedPane();
+			FlatTabbedPane tabbedPane = new FlatTabbedPane();
+			tabbedPane.setTabsClosable(true);
 			tabbedPane.addTab(page.getTitle(), content);
+			tabbedPane.setTabCloseCallback((tab, index) -> removeDetails(visiblePageAndDetailsList.indexOf(page)));
 			verticalPanel.add(tabbedPane, "");
 		}
 		verticalPanel.revalidate();
