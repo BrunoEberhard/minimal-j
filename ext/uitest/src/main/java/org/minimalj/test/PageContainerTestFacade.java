@@ -123,6 +123,10 @@ public interface PageContainerTestFacade {
 
 		public SearchTableTestFacade lookup();
 		
+		public default void action(String text) {
+			//TODO
+		}
+		
 		public List<String> getComboBoxValues();
 		
 		public String getLine(int line);

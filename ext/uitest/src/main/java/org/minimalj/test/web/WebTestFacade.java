@@ -434,13 +434,24 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public SearchTableTestFacade lookup() {
-			WebElement lookupButton = formElement.findElement(By.className("lookupbutton"));
+			WebElement lookupButton = formElement.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
 			return new HtmlSearchTableTestFacade(dialogs.get(dialogs.size() - 1));
 		}
 
+		@Override
+		public void action(String text) {
+			WebElement dropdownButton = formElement.findElement(By.cssSelector("div.dropdownButton"));
+			dropdownButton.click();
+			waitScript();
+			WebElement actionMenu = formElement.findElement(By.cssSelector("div.dropdown"));
+			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+			item.click();
+			waitScript();
+		}
+		
 		@Override
 		public String getLine(int line) {
 			WebElement divGroupVertical = formElement.findElement(By.className("groupVertical"));
