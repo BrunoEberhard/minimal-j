@@ -19,6 +19,7 @@ import javax.swing.ListCellRenderer;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.form.element.ComboBoxFormElement;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.CloneHelper;
 
@@ -28,12 +29,12 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 	private final InputComponentListener listener;
 	private final NullableComboBoxModel<T> model;
 	
-	public SwingComboBox(List<T> objects, InputComponentListener listener) {
+	public SwingComboBox(List<T> objects, String nullText, InputComponentListener listener) {
 		this.listener = listener;
 		setRenderer(new CodeItemRenderer(getRenderer()));
 		addItemListener(new ComboBoxChangeListener());
 		setInheritsPopupMenu(true);
-		model = new NullableComboBoxModel<>(objects);
+		model = new NullableComboBoxModel<>(objects, nullText != ComboBoxFormElement.NO_NULL_STRING);
 		setModel(model);
 	}
 	
@@ -79,42 +80,43 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 			SwingFrontend.run(SwingComboBox.this, this::fireChangeEvent);
 		}
 	}
-	
+
 	private static class NullableComboBoxModel<T> extends AbstractListModel<T> implements ComboBoxModel<T> {
 		private static final long serialVersionUID = 1L;
 		private final List<T> objects;
 		private T setObject;
-		private T selectedObject;
 		private boolean setObjectInObjects;
+		private final boolean hasNull;
+		private final int nullCount;
 		
-		public NullableComboBoxModel(List<T> objects) {
+		public NullableComboBoxModel(List<T> objects, boolean hasNull) {
 			this.objects = new ArrayList<>(Objects.requireNonNull(objects));
+			this.hasNull = hasNull;
+			this.nullCount = hasNull ? 1 : 0;
 		}
 
 		@Override
 		public int getSize() {
 			if (setObjectInObjects) {
-				return objects.size() + 1;
+				return objects.size() + nullCount;
 			} else {
-				return objects.size() + 2;
+				return objects.size() + 1 + nullCount;
 			}
 		}
 
 		@Override
 		public T getElementAt(int index) {
+			if (index == 0 && hasNull) {
+				return null;
+			}
+			index = index - nullCount;
 			if (setObjectInObjects) {
-				if (index == 0) {
-					return null;
-				} else {
-					return objects.get(index-1);
-				}
+				return objects.get(index);
 			} else {
 				if (index == 0) {
-					return null;
-				} else if (index == 1) {
 					return setObject;
 				} else {
-					return objects.get(index-2);
+					return objects.get(index - 1);
 				}
 			}
 		}
@@ -122,20 +124,20 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void setSelectedItem(Object anObject) {
-			if (selectedObject != null && !selectedObject.equals(anObject) || selectedObject == null
-					&& anObject != null) {
-				selectedObject = (T) anObject;
+			setObject = (T) anObject;
+			if (!setObjectInObjects) {
+				setObjectInObjects = true;
 				fireContentsChanged(this, -1, -1);
 			}
 		}
 
 		@Override
 		public Object getSelectedItem() {
-			return selectedObject;
+			return setObject;
 		}
 
 		protected T getSelectedObject() {
-			return selectedObject;
+			return setObject;
 		}
 		
 		protected void setObject(T object) {
@@ -146,13 +148,16 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 				// CodeItem cannot be cloned, but changeable (domain) objects have to because they could be changed after the set
 				this.setObject = object;
 			}
-			this.selectedObject = object;
+			this.setObject = object;
+			boolean setObjectInObjects = this.setObjectInObjects;
 			updateSetObjectInObjects();
-			fireContentsChanged(this, -1, -1);
+			if (setObjectInObjects != this.setObjectInObjects) {
+				fireContentsChanged(this, -1, -1);
+			}
 		}
 		
 		private void updateSetObjectInObjects() {
-			setObjectInObjects = setObject == null || objects.contains(setObject);
+			setObjectInObjects = hasNull && setObject == null || objects.contains(setObject);
 		}
 	}
 	

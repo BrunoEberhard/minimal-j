@@ -61,6 +61,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.form.element.ComboBoxFormElement;
 import org.minimalj.frontend.impl.swing.FrameManager;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.swing.SwingFrame;
@@ -254,7 +255,7 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {
-		return new SwingComboBox<>(objects, changeListener);
+		return createComboBox(objects, ComboBoxFormElement.EMPTY_NULL_STRING, changeListener);
 	}
 
 	@Override
@@ -265,6 +266,11 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public Input<Boolean> createCheckBox(InputComponentListener changeListener, String text) {
 		return new SwingCheckBox(changeListener, text);
+	}
+	
+	@Override
+	public <T> Input<T> createComboBox(List<T> items, String nullText, InputComponentListener changeListener) {
+		return new SwingComboBox<T>(items, nullText, changeListener);
 	}
 
 	@Override
