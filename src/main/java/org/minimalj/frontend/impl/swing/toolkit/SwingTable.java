@@ -57,8 +57,6 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	
 	private RenderingTableCellRenderer renderer;
 	
-	private final Object[] keys;
-	private final List<Property> properties;
 	private final JTable table;
 	private final ItemTableModel tableModel;
 	private final TableActionListener<T> listener;
@@ -70,12 +68,9 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	private boolean[] sortDirections = new boolean[0];
 	
 	public SwingTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		this.keys = keys;
 		this.listener = listener;
 		
-		this.properties = convert(keys);
-		
-		tableModel = new ItemTableModel();
+		tableModel = new ItemTableModel(keys);
 		table = new JTable(tableModel);
 
 		table.setSelectionMode(multiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
@@ -117,6 +112,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 		panel.add(nextButton);
         table.getTableHeader().add(panel, BorderLayout.LINE_END);
         
+        List<Property> properties = getProperties();
         for (int i = 0; i<properties.size(); i++) {
         	Width widthAnnotation = properties.get(i).getAnnotation(Width.class);
         	int width = widthAnnotation != null ? widthAnnotation.value() : Width.DEFAULT;
@@ -127,6 +123,19 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
         }
 	}
 
+	@Override
+	public void setColumns(Object[] keys) {
+		tableModel.setColumns(keys);
+	}
+
+	private Object[] getKeys() {
+		return tableModel.keys;
+	}
+	
+	private List<Property> getProperties() {
+		return tableModel.properties;
+	}
+	
 	protected void updateBorder() {
 		int inset = UIManager.getInt("Group.Inset");
 		Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
@@ -224,7 +233,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
         		sortDirections = new boolean[sortKeys.size()];
         		int index = 0;
         		for (SortKey s : sortKeys) {
-        			sortColumns[index] = SwingTable.this.keys[s.getColumn()];
+        			sortColumns[index] = getKeys()[s.getColumn()];
         			sortDirections[index] = s.getSortOrder() == SortOrder.ASCENDING;
         			index++;
         		}
@@ -236,14 +245,25 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	public class ItemTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
+		private Object[] keys;
+		private List<Property> properties;
+
 		private List<T> objects = Collections.emptyList();
 		
-		public ItemTableModel() {
+		public ItemTableModel(Object[] keys) {
+			this.keys = keys;
+			this.properties = convert(keys);
 		}
 
 		public void setObjects(List<T> objects) {
 			this.objects = objects;
 			fireTableDataChanged();
+		}
+
+		public void setColumns(Object[] keys) {
+			this.keys = keys;
+			this.properties = convert(keys);
+			fireTableStructureChanged();
 		}
 		
 		public List<T> getObjects() {
@@ -324,7 +344,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 			Color color = null;
 			String stringValue;
 
-			Property property = properties.get(columnIndex);
+			Property property = getProperties().get(columnIndex);
 
 			if (property instanceof Column) {
 				Column column = (Column) property;
@@ -407,7 +427,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 			if (rowView >= 0 && colView >= 0) {
 				int row = table.convertRowIndexToModel(rowView);
 				int col = table.convertColumnIndexToModel(colView);
-				Property property = properties.get(col);
+				Property property = getProperties().get(col);
 				if (property instanceof Column) {
 					Column column = (Column) property;
 					Object object = ((ItemTableModel) table.getModel()).getObject(row);
