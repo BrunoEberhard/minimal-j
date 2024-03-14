@@ -18,6 +18,7 @@
  */
 package org.minimalj.application;
 
+import java.awt.Dimension;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -198,6 +199,16 @@ public abstract class Application implements Model {
 			icon = getClass().getResourceAsStream("/application_16.png");
 		}		
 		return icon;
+	}
+	
+	public Dimension getFameSize(Dimension screenSize) {
+		if (screenSize.width < 1280 || screenSize.height < 950) {
+			return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		} else {
+			int width = Math.min(screenSize.width - 80, 1300);
+			int height = Math.min(screenSize.height - 80, 1000);
+			return new Dimension(width, height);
+		}
 	}
 	
 	public Routing createRouting() {

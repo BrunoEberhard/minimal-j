@@ -87,13 +87,12 @@ public class SwingFrame extends JFrame {
 
 	protected void setDefaultSize() {
 		Dimension screenSize = getToolkit().getScreenSize();
-		if (screenSize.width < 1280 || screenSize.height < 1024) {
+		Dimension frameSize = Application.getInstance().getFameSize(screenSize);
+		if (frameSize.width == Integer.MAX_VALUE || frameSize.height == Integer.MAX_VALUE) {
 			setExtendedState(MAXIMIZED_BOTH);
 			setSize(screenSize.width - 20, screenSize.height - 40);
 		} else {
-			int width = Math.min(screenSize.width - 40, 1300);
-			int height = Math.min(screenSize.height - 40, 1000);
-			setSize(width, height);
+			setSize(frameSize);
 		}
 	}
 
