@@ -201,7 +201,7 @@ public abstract class Application implements Model {
 		return icon;
 	}
 	
-	public Dimension getFameSize(Dimension screenSize) {
+	public Dimension getFrameSize(Dimension screenSize) {
 		if (screenSize.width < 1280 || screenSize.height < 950) {
 			return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
 		} else {
