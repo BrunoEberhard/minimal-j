@@ -50,6 +50,7 @@ public interface PageContainerTestFacade {
 
 		public default void run(String text) {
 			Runnable runnable = get(text);
+			Assertions.assertNotNull(runnable, "There should be a navigation action '" + text + "'");
 			runnable.run();
 		}
 	}
@@ -90,13 +91,25 @@ public interface PageContainerTestFacade {
 			action.run();
 		}
 		
+		public default FormTestFacade form() {
+			return getForm();
+		}
 	}
 	
 	public interface FormTestFacade {
 
 		public FormElementTestFacade getElement(String caption);
 
+		public default FormElementTestFacade getElement(String caption, int index) {
+			return null;
+		}
+
+		
 		public default FormElementTestFacade getElement(int row, int column) {
+			return null;
+		}
+		
+		public default ActionTestFacade getAction(String label) {
 			return null;
 		}
 
@@ -110,7 +123,18 @@ public interface PageContainerTestFacade {
 			element(key).setText("");
 			Assertions.assertNotNull(element(key).getValidation(), Resources.getPropertyName(Keys.getProperty(key)) + " must be mandatory");
 		}
+		
+		public default void set(String caption, String value) {
+			FormElementTestFacade element = getElement(caption);
+			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
+			element.setText(value);
+		}
 
+		public default void set(String caption, boolean checked) {
+			FormElementTestFacade element = getElement(caption);
+			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
+			element.setChecked(checked);
+		}
 	}
 	
 	public interface FormElementTestFacade {

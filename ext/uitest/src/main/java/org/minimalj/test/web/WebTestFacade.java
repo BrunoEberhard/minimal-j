@@ -359,7 +359,12 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public FormElementTestFacade getElement(String caption) {
-			WebElement label = form.findElement(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]"));
+			return getElement(caption, 0);
+		}
+		
+		@Override
+		public FormElementTestFacade getElement(String caption, int index) {
+			WebElement label = form.findElements(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]")).get(index);
 			String id = label.getAttribute("for");
 			WebElement element = form.findElement(By.id(id));
 			return new HtmlFormElementTestFacade(element);
@@ -370,6 +375,12 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement rowElement = form.findElements(By.xpath("./div")).get(row);
 			WebElement element = rowElement.findElements(By.xpath("./div")).get(column);
 			return new HtmlFormElementTestFacade(element);
+		}
+		
+		@Override
+		public ActionTestFacade getAction(String label) {
+			WebElement rowElement = form.findElement(By.xpath(".//div[text()=" + WebTest.escapeXpath(label) + "]"));
+			return new HtmlActionTestFacade(rowElement);
 		}
 	}
 
@@ -555,8 +566,7 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			Actions action = new Actions(driver);
-			// TODO understand and fix this 'td'
-			action.click(tr.findElement(By.tagName("td"))).perform();
+			action.click(tr).perform();
 			waitScript();
 		}
 		
