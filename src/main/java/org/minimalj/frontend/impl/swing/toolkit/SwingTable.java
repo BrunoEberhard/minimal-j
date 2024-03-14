@@ -439,16 +439,18 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public void mouseClicked(java.awt.event.MouseEvent evt) {
-			int rowView = table.rowAtPoint(evt.getPoint());
-			int colView = table.columnAtPoint(evt.getPoint());
-			if (rowView >= 0 && colView >= 0) {
-				int row = table.convertRowIndexToModel(rowView);
-				int col = table.convertColumnIndexToModel(colView);
-				Property property = getProperties().get(col);
-				if (property instanceof Column) {
-					Column column = (Column) property;
-					Object object = ((ItemTableModel) table.getModel()).getObject(row);
-					SwingFrontend.run(table, () -> column.run(object));
+			if (evt.getButton() == MouseEvent.BUTTON1) {
+				int rowView = table.rowAtPoint(evt.getPoint());
+				int colView = table.columnAtPoint(evt.getPoint());
+				if (rowView >= 0 && colView >= 0) {
+					int row = table.convertRowIndexToModel(rowView);
+					int col = table.convertColumnIndexToModel(colView);
+					Property property = getProperties().get(col);
+					if (property instanceof Column) {
+						Column column = (Column) property;
+						Object object = ((ItemTableModel) table.getModel()).getObject(row);
+						SwingFrontend.run(table, () -> column.run(object));
+					}
 				}
 			}
 		}

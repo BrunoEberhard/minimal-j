@@ -175,7 +175,9 @@ public class SwingFrontend extends Frontend {
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					run(e, action);
+					if (e.getButton() == MouseEvent.BUTTON1) {
+						run(e, action);
+					}
 				}
 			});
 		}
