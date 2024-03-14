@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
@@ -49,6 +50,7 @@ import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.Property;
 
 import com.formdev.flatlaf.extras.components.FlatScrollPane;
+import com.formdev.flatlaf.util.UIScale;
 
 public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	private static final long serialVersionUID = 1L;
@@ -247,12 +249,14 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 		private static final long serialVersionUID = 1L;
 		private Object[] keys;
 		private List<Property> properties;
+		private int width;
 
 		private List<T> objects = Collections.emptyList();
 		
 		public ItemTableModel(Object[] keys) {
 			this.keys = keys;
 			this.properties = convert(keys);
+			updateWidth();
 		}
 
 		public void setObjects(List<T> objects) {
@@ -263,7 +267,20 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 		public void setColumns(Object[] keys) {
 			this.keys = keys;
 			this.properties = convert(keys);
+			updateWidth();
 			fireTableStructureChanged();
+		}
+		
+		private void updateWidth() {
+			width = 0;
+			for (Property property : properties) {
+				Width widthAnnotation = property.getAnnotation(Width.class);
+				if (widthAnnotation != null) {
+					width += widthAnnotation.value();
+				} else {
+					width += Width.DEFAULT;
+				}
+			}
 		}
 		
 		public List<T> getObjects() {
@@ -445,13 +462,15 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 
 	@Override
 	public Dimension getPreferredSize() {
+		Rectangle bounds = getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds();
 		Dimension minimum = getMinimumSize();
-		return new Dimension(30000, minimum.height);
+		return new Dimension(Math.min(tableModel.width, UIScale.scale(bounds.width) - 100), minimum.height);
 	}
 	
 	@Override
 	public Dimension getMaximumSize() {
-		return new Dimension(30000, 30000);
+		Rectangle bounds = getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds();
+		return new Dimension(Math.min(tableModel.width, UIScale.scale(bounds.width) - 100), UIScale.scale(bounds.height) - 100);
 	};
 
 }
