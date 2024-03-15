@@ -29,8 +29,8 @@ public class SwingToolBar extends JToolBar {
 	public void setActiveTab(SwingTab tab) {
 		this.activeTab = tab;
 
-		buttonPrevious.setAction(tab.previousAction);
-		buttonNext.setAction(tab.nextAction);
+		buttonPrevious.setAction(tab.backAction);
+		buttonNext.setAction(tab.forwardAction);
 		buttonRefresh.setAction(tab.refreshAction);
 		buttonFavorite.setAction(tab.favoriteAction);
 	}

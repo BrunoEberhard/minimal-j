@@ -25,8 +25,8 @@ public class SwingMenuBar extends JMenuBar {
 	
 	protected final SwingFrame frame;
 	private JMenu menuFavorite;
-	private final JMenuItem itemPrevious = new JMenuItem();
-	private final JMenuItem itemNext = new JMenuItem();
+	private final JMenuItem itemBack = new JMenuItem();
+	private final JMenuItem itemForward = new JMenuItem();
 	private final JMenuItem itemRefresh = new JMenuItem();
 	private SwingTab activeTab;
 
@@ -50,8 +50,8 @@ public class SwingMenuBar extends JMenuBar {
 		}
 		this.activeTab = tab;
 
-		itemPrevious.setAction(tab.previousAction);
-		itemNext.setAction(tab.nextAction);
+		itemBack.setAction(tab.backAction);
+		itemForward.setAction(tab.forwardAction);
 		itemRefresh.setAction(tab.refreshAction);
 	}
 	
@@ -82,8 +82,8 @@ public class SwingMenuBar extends JMenuBar {
 
 	protected JMenu createViewMenu() {
 		JMenu menu = menu("view");
-		menu.add(itemPrevious);
-		menu.add(itemNext);
+		menu.add(itemBack);
+		menu.add(itemForward);
 		menu.add(itemRefresh);
 		menu.addSeparator();
 		menu.add(new JCheckBoxMenuItem(frame.navigationAction));

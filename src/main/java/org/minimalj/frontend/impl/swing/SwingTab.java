@@ -49,7 +49,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 	public static final int MAX_PAGES_ADPATIV = -1;
 
 	final SwingFrame frame;
-	final Action previousAction, nextAction, refreshAction, favoriteAction;
+	final Action backAction, forwardAction, refreshAction, favoriteAction;
 
 	private final JPanel verticalPanel;
 
@@ -70,8 +70,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		visiblePageAndDetailsList = new ArrayList<>();
 
-		previousAction = new PreviousPageAction();
-		nextAction = new NextPageAction();
+		backAction = new BackPageAction();
+		forwardAction = new ForwardPageAction();
 		refreshAction = new RefreshAction();
 		favoriteAction = new FavoriteAction();
 
@@ -96,8 +96,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 	protected void updateActions() {
 		favoriteAction.putValue(Action.LARGE_ICON_KEY, favorite_no_icon);
 		if (getVisiblePage() != null) {
-			previousAction.setEnabled(hasPast());
-			nextAction.setEnabled(hasFuture());
+			backAction.setEnabled(hasPast());
+			forwardAction.setEnabled(hasFuture());
 			String route = Routing.getRouteSafe(getVisiblePage());
 			if (route != null) {
 				favoriteAction.setEnabled(true);
@@ -109,8 +109,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 				favoriteAction.setEnabled(false);
 			}
 		} else {
-			previousAction.setEnabled(false);
-			nextAction.setEnabled(false);
+			backAction.setEnabled(false);
+			forwardAction.setEnabled(false);
 			favoriteAction.setEnabled(false);
 		}
 	}
@@ -121,7 +121,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 	//
 
-	protected class PreviousPageAction extends SwingResourceAction {
+	protected class BackPageAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -130,7 +130,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		}
 	}
 
-	protected class NextPageAction extends SwingResourceAction {
+	protected class ForwardPageAction extends SwingResourceAction {
 		private static final long serialVersionUID = 1L;
 
 		@Override
