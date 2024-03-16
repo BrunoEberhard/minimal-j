@@ -20,6 +20,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Separator;
@@ -34,6 +36,7 @@ import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.impl.util.PageAccess;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.frontend.page.Page.WheelPage;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.frontend.page.Routing;
@@ -49,8 +52,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 	public static final int MAX_PAGES_ADPATIV = -1;
 
 	final SwingFrame frame;
-	final Action backAction, forwardAction, refreshAction, favoriteAction;
-
+	final Action backAction, forwardAction, refreshAction, previousAction, nextAction, favoriteAction;
+	final PlainDocument indexDocument = new PlainDocument();
+	
 	private final JPanel verticalPanel;
 
 	private Subject subject;
@@ -73,6 +77,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 		backAction = new BackPageAction();
 		forwardAction = new ForwardPageAction();
 		refreshAction = new RefreshAction();
+		previousAction = new PreviousAction();
+		nextAction = new NextAction();
 		favoriteAction = new FavoriteAction();
 
 		verticalPanel = new JPanel(new VerticalLayoutManager());
@@ -113,8 +119,35 @@ public class SwingTab extends EditablePanel implements PageManager {
 			forwardAction.setEnabled(false);
 			favoriteAction.setEnabled(false);
 		}
+		updateWheelActions();
+	}
+	
+	protected void updateWheelActions() {
+		Page visiblePage = getVisiblePage();
+		if (visiblePage instanceof WheelPage) {
+			WheelPage wheelPage = (WheelPage) visiblePage;
+			nextAction.setEnabled(wheelPage.hasNext());
+			previousAction.setEnabled(wheelPage.hasPrevious());
+			Integer currentIndex = wheelPage.getCurrentWheelIndex();
+			if (currentIndex != null) {
+				Integer maxIndex = wheelPage.getMaxIndex();
+				setIndexDocument("(" + (currentIndex + 1) + (maxIndex != null ? "/" + maxIndex.toString() : "") + ")");
+			}
+		} else {
+			nextAction.setEnabled(false);
+			previousAction.setEnabled(false);
+			setIndexDocument(null);
+		}
 	}
 
+	private void setIndexDocument(String text) {
+		try {
+			indexDocument.replace(0, indexDocument.getLength(), text, null);
+		} catch (BadLocationException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public void updateFavorites(LinkedHashMap<String, String> newFavorites) {
 		updateActions();
 	}
@@ -162,6 +195,36 @@ public class SwingTab extends EditablePanel implements PageManager {
 			String route = Routing.getRouteSafe(page);
 			if (route != null) {
 				frame.favorites.toggleFavorite(route, page.getTitle());
+			}
+		}
+	}
+
+	protected class PreviousAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Page visiblePage = getVisiblePage();
+			if (visiblePage instanceof WheelPage) {
+				WheelPage wheelPage = (WheelPage) visiblePage;
+				wheelPage.wheel(-1);
+				updateWheelActions();
+				frame.updateTitle();
+			}
+		}
+	}
+
+	protected class NextAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Page visiblePage = getVisiblePage();
+			if (visiblePage instanceof WheelPage) {
+				WheelPage wheelPage = (WheelPage) visiblePage;
+				wheelPage.wheel(+1);
+				updateWheelActions();
+				frame.updateTitle();
 			}
 		}
 	}

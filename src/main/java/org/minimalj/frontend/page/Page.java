@@ -141,5 +141,23 @@ public interface Page extends AccessControl {
 	
 	public interface WheelPage extends Page, WheelListener {
 		
+		public default boolean hasPrevious() {
+			Integer wheelIndex = getCurrentWheelIndex();
+			return wheelIndex == null || wheelIndex > 0;
+		}
+
+		public default boolean hasNext() {
+			Integer wheelIndex = getCurrentWheelIndex();
+			Integer maxIndex = getMaxIndex();
+			return wheelIndex == null || maxIndex == null || wheelIndex < maxIndex - 1;
+		}
+
+		public default Integer getCurrentWheelIndex() {
+			return null;
+		}
+		
+		public default Integer getMaxIndex() {
+			return null;
+		}
 	}
 }
