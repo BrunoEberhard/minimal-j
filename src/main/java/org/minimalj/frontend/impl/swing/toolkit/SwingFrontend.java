@@ -18,6 +18,7 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.URL;
@@ -69,7 +70,9 @@ import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.component.QueryLayout;
 import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
+import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.frontend.page.Page.WheelPage;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
@@ -84,6 +87,7 @@ import com.formdev.flatlaf.util.SystemInfo;
 public class SwingFrontend extends Frontend {
 
 	private final Map<Dialog, SwingDialog> visibleDialogs = new HashMap<>();
+	private double wheelRotation = 0;
 	
 	public SwingFrontend() {
 		FlatLightLaf.setup();
@@ -125,6 +129,27 @@ public class SwingFrontend extends Frontend {
 		        }
 		    }, AWTEvent.MOUSE_EVENT_MASK);
 		}
+	    Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
+	        if (event instanceof MouseWheelEvent) {
+	        	MouseWheelEvent mouseWheelEvent = (MouseWheelEvent) event;
+	        	if (mouseWheelEvent.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+		        	Window window = SwingUtilities.getWindowAncestor(mouseWheelEvent.getComponent());
+	            	if (window instanceof SwingFrame) {
+	            		SwingFrame frame = (SwingFrame) window;
+	            		Page page = frame.getVisiblePage();
+	            		if (page instanceof WheelPage) {
+	            			wheelRotation += mouseWheelEvent.getPreciseWheelRotation();
+	            			double wheel = wheelRotation > 0 ? Math.floor(wheelRotation) : Math.ceil(wheelRotation);
+	            			if (wheel != 0) {
+		            			wheelRotation -= wheel;
+		            			frame.getVisibleTab().wheel((int) wheel);
+	            			}
+	            		}
+	            	}
+	        	}
+	        }
+	    }, AWTEvent.MOUSE_WHEEL_EVENT_MASK);
+
 	}
 	
 	public static void setUIManagerProperties() {

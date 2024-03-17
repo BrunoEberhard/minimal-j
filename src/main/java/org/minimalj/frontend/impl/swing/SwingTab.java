@@ -204,13 +204,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Page visiblePage = getVisiblePage();
-			if (visiblePage instanceof WheelPage) {
-				WheelPage wheelPage = (WheelPage) visiblePage;
-				wheelPage.wheel(-1);
-				updateWheelActions();
-				frame.updateTitle();
-			}
+			wheel(-1);
 		}
 	}
 
@@ -219,16 +213,20 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Page visiblePage = getVisiblePage();
-			if (visiblePage instanceof WheelPage) {
-				WheelPage wheelPage = (WheelPage) visiblePage;
-				wheelPage.wheel(+1);
-				updateWheelActions();
-				frame.updateTitle();
-			}
+			wheel(1);
 		}
 	}
 
+	public void wheel(int amount) {
+		Page visiblePage = getVisiblePage();
+		if (visiblePage instanceof WheelPage) {
+			WheelPage wheelPage = (WheelPage) visiblePage;
+			wheelPage.wheel(amount);
+			updateWheelActions();
+			frame.updateTitle();
+		}
+	}
+	
 	public boolean close() {
 		if (visiblePageAndDetailsList.size() > 1) {
 			removeDetails(visiblePageAndDetailsList.size() - 1);
