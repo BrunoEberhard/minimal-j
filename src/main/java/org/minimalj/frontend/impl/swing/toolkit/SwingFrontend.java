@@ -86,6 +86,9 @@ import com.formdev.flatlaf.util.SystemInfo;
 
 public class SwingFrontend extends Frontend {
 
+	private final Icon ICON_FIELD_ACTION = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldAction.svg");
+	private final Icon ICON_FIELD_MENU = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldMenu.svg");
+
 	private final Map<Dialog, SwingDialog> visibleDialogs = new HashMap<>();
 	private double wheelRotation = 0;
 	
@@ -443,7 +446,7 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
 		if (stringInput instanceof JTextField) {
-			JButton button = new JButton("...");
+			JButton button = new JButton(ICON_FIELD_ACTION);
 			((JComponent) stringInput).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
 					button);
 			button.addActionListener(event -> SwingFrontend.run(event, lookup));
@@ -474,7 +477,7 @@ public class SwingFrontend extends Frontend {
 		}
 		Component inputFinal = (Component) input;
 		if (input instanceof JTextField) {
-			JButton button = new JButton("...");
+			JButton button = new JButton(ICON_FIELD_MENU);
 			((JComponent) input).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
 					button);
 			button.addMouseListener(new MouseAdapter() {
