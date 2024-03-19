@@ -5,12 +5,15 @@ import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
 import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Routing;
+
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 public class SwingToolBar extends JToolBar {
 	private static final long serialVersionUID = 1L;
@@ -21,11 +24,13 @@ public class SwingToolBar extends JToolBar {
 	private final JButton buttonRefresh = new JButton();
 	private final JButton buttonPrevious = new JButton();
 	private final JButton buttonNext = new JButton();
+	private final JToggleButton buttonFilter = new JToggleButton();
 	private final JButton buttonFavorite = new JButton();
 	private final JTextField indexLabel = new JTextField();
 	
 	public SwingToolBar() {
 		setFloatable(false);
+		buttonFilter.setSelectedIcon(new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/filterActive.svg"));
 		indexLabel.setMinimumSize(new Dimension(80, 10));
 		indexLabel.setMaximumSize(new Dimension(200, indexLabel.getMaximumSize().height));
 		indexLabel.setEditable(false);
@@ -41,6 +46,7 @@ public class SwingToolBar extends JToolBar {
 		buttonFavorite.setAction(tab.favoriteAction);
 		buttonPrevious.setAction(tab.previousAction);
 		buttonNext.setAction(tab.nextAction);
+		buttonFilter.setAction(tab.filterAction);
 		indexLabel.setDocument(tab.indexDocument);
 	}
 
@@ -50,7 +56,7 @@ public class SwingToolBar extends JToolBar {
 		if (Routing.available()) {
 			fillToolBarFavorite();
 		}
-		fillToolBarWheeling();
+		fillToolBarTable();
 		add(Box.createHorizontalGlue());
 		fillToolBarSearch();
 	}
@@ -68,7 +74,8 @@ public class SwingToolBar extends JToolBar {
 		add(buttonFavorite);
 	}
 	
-	protected void fillToolBarWheeling() {
+	protected void fillToolBarTable() {
+		add(buttonFilter);
 		add(buttonPrevious);
 		add(buttonNext);
 		add(indexLabel);

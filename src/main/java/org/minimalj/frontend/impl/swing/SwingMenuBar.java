@@ -30,6 +30,7 @@ public class SwingMenuBar extends JMenuBar {
 	private final JMenuItem itemRefresh = new JMenuItem();
 	private final JMenuItem itemPrevious = new JMenuItem();
 	private final JMenuItem itemNext = new JMenuItem();
+	private final JMenuItem itemFilter = new JMenuItem();
 	private SwingTab activeTab;
 
 	public SwingMenuBar(SwingFrame frame) {

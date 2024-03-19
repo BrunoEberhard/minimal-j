@@ -288,6 +288,6 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 			TablePage.this.refresh();
 			TablePage.this.selectionChanged(Collections.emptyList());
 		}
-	}	
-	
+	}
+
 }

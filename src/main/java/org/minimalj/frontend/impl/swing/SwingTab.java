@@ -20,6 +20,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JToggleButton;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
@@ -31,6 +32,7 @@ import org.minimalj.frontend.impl.swing.toolkit.SwingEditorPanel;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFormContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingProgressInternalFrame;
+import org.minimalj.frontend.impl.swing.toolkit.SwingTable;
 import org.minimalj.frontend.impl.util.History;
 import org.minimalj.frontend.impl.util.History.HistoryListener;
 import org.minimalj.frontend.impl.util.PageAccess;
@@ -40,6 +42,7 @@ import org.minimalj.frontend.page.Page.WheelPage;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.frontend.page.ProgressListener;
 import org.minimalj.frontend.page.Routing;
+import org.minimalj.frontend.page.TablePage;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
 
@@ -52,7 +55,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 	public static final int MAX_PAGES_ADPATIV = -1;
 
 	final SwingFrame frame;
-	final Action backAction, forwardAction, refreshAction, previousAction, nextAction, favoriteAction;
+	final Action backAction, forwardAction, refreshAction, previousAction, nextAction, filterAction, favoriteAction;
 	final PlainDocument indexDocument = new PlainDocument();
 	
 	private final JPanel verticalPanel;
@@ -79,6 +82,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		refreshAction = new RefreshAction();
 		previousAction = new PreviousAction();
 		nextAction = new NextAction();
+		filterAction = new FilterAction();
 		favoriteAction = new FavoriteAction();
 
 		verticalPanel = new JPanel(new VerticalLayoutManager());
@@ -101,7 +105,8 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 	protected void updateActions() {
 		favoriteAction.putValue(Action.LARGE_ICON_KEY, favorite_no_icon);
-		if (getVisiblePage() != null) {
+		Page visiblePage = getVisiblePage();
+		if (visiblePage != null) {
 			backAction.setEnabled(hasPast());
 			forwardAction.setEnabled(hasFuture());
 			String route = Routing.getRouteSafe(getVisiblePage());
@@ -118,6 +123,10 @@ public class SwingTab extends EditablePanel implements PageManager {
 			backAction.setEnabled(false);
 			forwardAction.setEnabled(false);
 			favoriteAction.setEnabled(false);
+		}
+		filterAction.setEnabled(visiblePage instanceof TablePage);
+		if (!filterAction.isEnabled()) {
+			// filterAction.setSelect(false);
 		}
 		updateWheelActions();
 	}
@@ -214,6 +223,28 @@ public class SwingTab extends EditablePanel implements PageManager {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			wheel(1);
+		}
+	}
+	
+
+	protected class FilterAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			boolean filterVisible = ((JToggleButton) e.getSource()).isSelected();
+			setFilterVisible(frame, filterVisible);
+		}
+
+		private void setFilterVisible(Object content, boolean filterVisible) {
+			if (content instanceof SwingTable) {
+				((SwingTable<?>) content).setFilterVisible(filterVisible);
+			} else if (content instanceof Container) {
+				Container container = (Container) content;
+				for (Component c : container.getComponents()) {
+					setFilterVisible(c, filterVisible);
+				}
+			}
 		}
 	}
 
