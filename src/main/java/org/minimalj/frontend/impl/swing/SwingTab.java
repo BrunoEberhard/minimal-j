@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
+import javax.swing.JToggleButton.ToggleButtonModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
@@ -57,6 +58,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 	final SwingFrame frame;
 	final Action backAction, forwardAction, refreshAction, previousAction, nextAction, filterAction, favoriteAction;
 	final PlainDocument indexDocument = new PlainDocument();
+	final ToggleButtonModel filterTogggleButtonModel = new ToggleButtonModel();
 	
 	private final JPanel verticalPanel;
 
@@ -83,6 +85,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 		previousAction = new PreviousAction();
 		nextAction = new NextAction();
 		filterAction = new FilterAction();
+		filterAction.setEnabled(false);
 		favoriteAction = new FavoriteAction();
 
 		verticalPanel = new JPanel(new VerticalLayoutManager());
@@ -125,9 +128,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 			favoriteAction.setEnabled(false);
 		}
 		filterAction.setEnabled(visiblePage instanceof TablePage);
-		if (!filterAction.isEnabled()) {
-			// filterAction.setSelect(false);
-		}
+		filterTogggleButtonModel.setSelected(filterAction.isEnabled() && hasVisibleFilter());
 		updateWheelActions();
 	}
 	
@@ -235,19 +236,37 @@ public class SwingTab extends EditablePanel implements PageManager {
 			boolean filterVisible = ((JToggleButton) e.getSource()).isSelected();
 			setFilterVisible(frame, filterVisible);
 		}
+	}
 
-		private void setFilterVisible(Object content, boolean filterVisible) {
-			if (content instanceof SwingTable) {
-				((SwingTable<?>) content).setFilterVisible(filterVisible);
-			} else if (content instanceof Container) {
-				Container container = (Container) content;
-				for (Component c : container.getComponents()) {
-					setFilterVisible(c, filterVisible);
-				}
+	private void setFilterVisible(Object content, boolean filterVisible) {
+		if (content instanceof SwingTable) {
+			((SwingTable<?>) content).setFilterVisible(filterVisible);
+		} else if (content instanceof Container) {
+			Container container = (Container) content;
+			for (Component c : container.getComponents()) {
+				setFilterVisible(c, filterVisible);
 			}
 		}
 	}
 
+	private boolean hasVisibleFilter() {
+		return hasVisibleFilter(this);
+	}
+	
+	private boolean hasVisibleFilter(Object content) {
+		if (content instanceof SwingTable) {
+			return ((SwingTable<?>) content).isFilterVisible();
+		} else if (content instanceof Container) {
+			Container container = (Container) content;
+			for (Component c : container.getComponents()) {
+				if (hasVisibleFilter(c)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public void wheel(int amount) {
 		Page visiblePage = getVisiblePage();
 		if (visiblePage instanceof WheelPage) {

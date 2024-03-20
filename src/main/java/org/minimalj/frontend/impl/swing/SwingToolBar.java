@@ -47,6 +47,7 @@ public class SwingToolBar extends JToolBar {
 		buttonPrevious.setAction(tab.previousAction);
 		buttonNext.setAction(tab.nextAction);
 		buttonFilter.setAction(tab.filterAction);
+		buttonFilter.setModel(tab.filterTogggleButtonModel);
 		indexLabel.setDocument(tab.indexDocument);
 	}
 

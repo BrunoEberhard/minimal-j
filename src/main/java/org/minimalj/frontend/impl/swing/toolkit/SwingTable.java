@@ -128,7 +128,11 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	
 	public void setFilterVisible(boolean filterVisible) {
 		tableModel.setFilterVisible(filterVisible);
-	}	
+	}
+	
+	public boolean isFilterVisible() {
+		return tableModel.filterVisible;
+	}
 
 	@Override
 	public void setColumns(Object[] keys) {
@@ -278,7 +282,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 		private ColumnFilter[] filters;
 		private TableCellEditor[] tableCellEditors;
 		private int width;
-		private boolean filterVisible = true;
+		private boolean filterVisible = false;
 		
 		private List<T> objects = Collections.emptyList();
 		
@@ -288,8 +292,10 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 
 		public void setFilterVisible(boolean filterVisible) {
 			if (this.filterVisible != filterVisible) {
+				table.removeEditor();
 				this.filterVisible = filterVisible;
-				fireTableDataChanged();
+				page = 0;
+				setObjects(filterObjects());
 			}
 		}
 
@@ -303,14 +309,42 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 
 			@Override
 			public void changed(IComponent source) {
-				page = 0;
-				List<T> objects = ListUtil.get(list, tableModel.filters, sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
-				setObjects(objects);
+				updateObjects();
 				ValidationMessage validationMessage = column.validate();
 				// ((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
 			}
+
+			private void updateObjects() {
+				page = 0;
+				List<T> objects = filterObjects();
+ 				if (!filterVisible) {
+					setObjects(objects);
+				} else {
+					int oldRows = ItemTableModel.this.objects != null ? ItemTableModel.this.objects.size() : 0;
+					int newRows = objects.size();
+					ItemTableModel.this.objects = objects;
+					if (newRows < oldRows) {
+						fireTableRowsDeleted(newRows + 1, oldRows);
+					} else if (newRows > oldRows) {
+						fireTableRowsInserted(oldRows + 1, newRows);
+					}
+					int rows = Math.min(newRows, oldRows);
+					if (rows > 0) {
+						fireTableRowsUpdated(1, rows);
+					}
+				}
+			}
+
 		}
-		
+
+		private List<T> filterObjects() {
+			if (!filterVisible) {
+				return ListUtil.get(list, ColumnFilter.NO_FILTER, sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
+			} else {
+				return ListUtil.get(list, tableModel.filters, sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
+			}
+		}
+
 		public void setObjects(List<T> objects) {
 			this.objects = objects;
 			fireTableDataChanged();
