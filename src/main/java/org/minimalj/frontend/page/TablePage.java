@@ -15,6 +15,8 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.editor.Result;
+import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.model.Keys;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.resources.Resources;
@@ -85,11 +87,16 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 	@Override
 	public IContent getContent() {
 		ITable<T> table = this.table != null ? this.table.get() : null;
-		if (table == null || multiSelect != allowMultiselect() || !Arrays.equals(columns, getColumns())) {
-			this.columns = getColumns();
+		Object[] columns = getColumns();
+		// Only SwingFrontend and JsonFrontend implement table.setColumns at the moment
+		if ((table == null || multiSelect != allowMultiselect() || !(Frontend.getInstance() instanceof SwingFrontend || Frontend.getInstance() instanceof JsonFrontend))) {
+			this.columns = columns;
 			this.multiSelect = allowMultiselect();
 			table = Frontend.getInstance().createTable(columns, multiSelect, this);
 			this.table = new SoftReference<>(table);
+		} else if (!Arrays.equals(this.columns, columns)) {
+			this.columns = columns;
+			table.setColumns(columns);
 		}
 		refresh();
 
