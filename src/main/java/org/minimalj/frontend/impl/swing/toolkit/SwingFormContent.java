@@ -334,7 +334,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 				}
 			}
 			groupVisible.add(addBorder);
-			y += padding;
+			y += insets.bottom;
 			size = new Dimension(Math.max(minColumnWidth * columns, width), Math.max(25, y));
 			
 			// TODO this seems wrong place to repaint but background sometimes needs repainting
