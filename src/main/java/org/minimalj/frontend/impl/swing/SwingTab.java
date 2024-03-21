@@ -141,7 +141,12 @@ public class SwingTab extends EditablePanel implements PageManager {
 			Integer currentIndex = wheelPage.getCurrentWheelIndex();
 			if (currentIndex != null) {
 				Integer maxIndex = wheelPage.getMaxIndex();
-				setIndexDocument("(" + (currentIndex + 1) + (maxIndex != null ? "/" + maxIndex.toString() : "") + ")");
+				if (maxIndex > 1) {
+					setIndexDocument("(" + (currentIndex + 1) + (maxIndex != null ? "/" + maxIndex.toString() : "") + ")");
+				} else {
+					setIndexDocument(null);
+				}
+				
 			}
 		} else {
 			nextAction.setEnabled(false);
