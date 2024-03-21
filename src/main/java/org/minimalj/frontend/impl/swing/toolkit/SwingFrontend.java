@@ -8,6 +8,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.MouseInfo;
 import java.awt.Toolkit;
@@ -369,8 +371,20 @@ public class SwingFrontend extends Frontend {
 	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
 		SwingBorderLayoutContent content = new SwingBorderLayoutContent();
 		if (filter != null) {
-			JPanel northPanel = new JPanel(new BorderLayout());
-			northPanel.add((Component) filter, BorderLayout.LINE_START);
+			JPanel northPanel = new JPanel(new GridBagLayout());
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridx = c.gridy = 0;
+			c.anchor = GridBagConstraints.NORTHWEST;
+			northPanel.add((Component) filter, c);
+			if (search != null) {
+				JButton buttonSearch = new JButton(SwingFrontend.adaptAction(search));
+				c.gridx = 1;
+				c.anchor = GridBagConstraints.SOUTH;
+				northPanel.add(buttonSearch, c);
+			}
+			c.gridx = 2;
+			c.weightx = 1;
+			northPanel.add(new JPanel(), c);
 			content.add(northPanel, BorderLayout.NORTH);
 		}
 		if (table != null) {
