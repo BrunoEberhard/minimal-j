@@ -276,9 +276,11 @@ public class SwingTab extends EditablePanel implements PageManager {
 		Page visiblePage = getVisiblePage();
 		if (visiblePage instanceof WheelPage) {
 			WheelPage wheelPage = (WheelPage) visiblePage;
-			wheelPage.wheel(amount);
-			updateWheelActions();
-			frame.updateTitle();
+			SwingFrontend.run(this, () -> {
+				wheelPage.wheel(amount);
+				updateWheelActions();
+				frame.updateTitle();
+			});
 		}
 	}
 	
