@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing;
 
+import java.awt.Window;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.SwingUtilities;
@@ -20,11 +21,10 @@ public class Swing implements Runnable {
 	public void run() {
 		Frontend.setInstance(new SwingFrontend());
 
-		FrameManager.setSystemLookAndFeel();
-		
 		if (Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
 			Backend.getInstance().getAuthentication().getLoginAction().run();
-		} else {
+		} else if (Window.getWindows().length == 0) {
+			// Only open frame if initFrontend() in setInstance() has not opened anything
 			FrameManager.getInstance().openFrame();
 		}
 	}

@@ -75,6 +75,7 @@ import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.Page.WheelPage;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.security.Subject;
 import org.minimalj.util.resources.Resources;
@@ -816,6 +817,17 @@ public class SwingFrontend extends Frontend {
 			} else {
 				action.run();
 			}
+		}
+	}
+	
+	@Override
+	protected void open(Dialog dialog) {
+		PageManager pageManager = getPageManager();
+		if (pageManager != null) {
+			pageManager.showDialog(dialog);
+		} else {
+			JComponent contentComponent = new SwingEditorPanel(dialog.getContent(), dialog.getActions());
+			new SwingDialog(null, dialog, contentComponent, dialog.getSaveAction(), dialog.getCancelAction());
 		}
 	}
 	
