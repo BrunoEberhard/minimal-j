@@ -827,7 +827,7 @@ public class SwingFrontend extends Frontend {
 			pageManager.showDialog(dialog);
 		} else {
 			JComponent contentComponent = new SwingEditorPanel(dialog.getContent(), dialog.getActions());
-			new SwingDialog(null, dialog, contentComponent, dialog.getSaveAction(), dialog.getCancelAction());
+			new SwingFrameDialog(dialog, contentComponent, dialog.getSaveAction(), dialog.getCancelAction());
 		}
 	}
 	
@@ -836,6 +836,11 @@ public class SwingFrontend extends Frontend {
 		for (Window window : Window.getWindows()) {
 			if (window instanceof SwingDialog) {
 				SwingDialog swingDialog = (SwingDialog) window;
+				if (swingDialog.getDialog() == dialog) {
+					swingDialog.closeDialog();
+				}
+			} else if (window instanceof SwingFrameDialog) {
+				SwingFrameDialog swingDialog = (SwingFrameDialog) window;
 				if (swingDialog.getDialog() == dialog) {
 					swingDialog.closeDialog();
 				}
