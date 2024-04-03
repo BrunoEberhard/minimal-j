@@ -31,7 +31,7 @@ public class Configuration {
 			try (FileInputStream fis = new FileInputStream(configFileName)) {
 				configFileProperties.load(fis);
 			} catch (FileNotFoundException e) {
-				logger.log(Level.SEVERE, "Config file not found: " + configFileName, e);
+				logger.log(Level.SEVERE, "Config file not found: " + configFileName);
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Unable to read Config file: " + configFileName, e);
 			}
