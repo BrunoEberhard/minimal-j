@@ -178,7 +178,7 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog, Result
 		}
 	}
 	
-	private void cancel() {
+	protected void cancel() {
 		Frontend.closeDialog(this);
 	}
 
