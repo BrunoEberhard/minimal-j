@@ -16,7 +16,10 @@ public class ResourcesTest {
 	private ResourceBundleAccess resourceAccess = new ResourceBundleAccess(ResourceBundle.getBundle(ResourcesTest.class.getName()));
 	
 	public ResourcesTest1 fullQualified;
+	
 	public ResourcesTest2 normal;
+	public ResourcesTest2 normalReplaced;
+	public ResourcesTest2 normalReplacedInMiddle;
 	
 	public ResourcesTest3 byFieldClass;
 	public ResourcesTest4 byFullQualifiedFieldClass;
@@ -33,6 +36,8 @@ public class ResourcesTest {
 	@Test
 	public void should_find_name_of_normal_field() throws Exception {
 		Assert.assertEquals("Test2", getFieldName($.normal));
+		Assert.assertEquals("Test2", getFieldName($.normalReplaced));
+		Assert.assertEquals("A Test2 B", getFieldName($.normalReplacedInMiddle));
 	}
 	
 	@Test
