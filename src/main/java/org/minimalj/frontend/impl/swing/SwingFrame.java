@@ -28,7 +28,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
-import org.minimalj.frontend.impl.swing.SwingMenuBar.SwingMenuBarProvider;
+import org.minimalj.frontend.impl.swing.SwingMenuBar.SwingBarProvider;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
@@ -110,7 +110,7 @@ public class SwingFrame extends JFrame {
 	protected void createContent() {
 		getContentPane().setLayout(new BorderLayout());
 
-		toolBar = new SwingToolBar();
+		toolBar = createToolBar();
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 
 		navigationScrollPane = new JScrollPane();
@@ -322,12 +322,20 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void updateMenuBar() {
-		if (Application.getInstance() instanceof SwingMenuBarProvider) {
-			menuBar = ((SwingMenuBarProvider) Application.getInstance()).createMenuBar(this);
+		if (Application.getInstance() instanceof SwingBarProvider) {
+			menuBar = ((SwingBarProvider) Application.getInstance()).createMenuBar(this);
 			setJMenuBar(menuBar);
 		} else if (menuBar != null) {
 			menuBar = new SwingMenuBar(this);
 			setJMenuBar(menuBar);
+		}
+	}
+	
+	protected SwingToolBar createToolBar() {
+		if (Application.getInstance() instanceof SwingBarProvider) {
+			return ((SwingBarProvider) Application.getInstance()).createToolBar(this);
+		} else {
+			return new SwingToolBar();
 		}
 	}
 	

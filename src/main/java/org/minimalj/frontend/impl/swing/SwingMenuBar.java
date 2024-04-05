@@ -178,8 +178,10 @@ public class SwingMenuBar extends JMenuBar {
 		}
 	}
 	
-	public static interface SwingMenuBarProvider {
-		
+	public static interface SwingBarProvider {
+
 		public SwingMenuBar createMenuBar(SwingFrame frame);
+
+		public SwingToolBar createToolBar(SwingFrame frame);
 	}
 }	
