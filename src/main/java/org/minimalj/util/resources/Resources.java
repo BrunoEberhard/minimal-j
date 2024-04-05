@@ -246,9 +246,16 @@ public class Resources {
 					return c.getName();
 				}
 
-				if (isAvailable(c.getSimpleName())) {
-					return c.getSimpleName();
+				String simpleName = c.getSimpleName();
+				if (isAvailable(simpleName)) {
+					return simpleName;
 				}
+				
+				simpleName = StringUtils.lowerFirstChar(c.getSimpleName());
+				if (isAvailable(simpleName)) {
+					return StringUtils.lowerFirstChar(simpleName);
+				}
+				
 				c = c.getSuperclass();
 			}
 
