@@ -459,23 +459,26 @@ public class SwingFrontend extends Frontend {
 	}
 
 	@Override
-	public Input<String> createLookup(Input<String> stringInput, Runnable lookup) {
-		if (stringInput instanceof JTextField) {
+	public Input<String> createLookup(Input<String> input, Runnable lookup) {
+		if (input instanceof JLabel) {
+			input = adaptLabel((JLabel) input);
+		}
+		if (input instanceof JTextField) {
 			JButton button = new JButton(ICON_FIELD_ACTION);
-			((JComponent) stringInput).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
+			((JComponent) input).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
 					button);
 			button.addActionListener(event -> SwingFrontend.run(event, lookup));
-			return stringInput;
-		} else if (stringInput instanceof SwingTextAreaField) {
-			((SwingTextAreaField) stringInput).addMouseListener(new MouseAdapter() {
+			return input;
+		} else if (input instanceof SwingTextAreaField) {
+			((SwingTextAreaField) input).addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent event) {
 					SwingFrontend.run(event, lookup);
 				}
 			});
-			return stringInput;
+			return input;
 		} else {
-			return new SwingLookup(stringInput, event -> SwingFrontend.run(event, lookup::run));
+			return new SwingLookup(input, event -> SwingFrontend.run(event, lookup::run));
 		}
 	}
 
@@ -483,12 +486,7 @@ public class SwingFrontend extends Frontend {
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
 		JPopupMenu popupMenu = SwingTab.createMenu(actions.getItems());
 		if (input instanceof JLabel) {
-			JLabel label = (JLabel) input;
-			SwingTextField textField = new SwingTextField(null, Integer.MAX_VALUE);
-			textField.setEditable(false);
-			// TODO value change of label is not propagated
-			textField.setValue(label.getText());
-			input = textField;
+			input = adaptLabel((JLabel) input);
 		}
 		Component inputFinal = (Component) input;
 		if (input instanceof JTextField) {
@@ -519,6 +517,14 @@ public class SwingFrontend extends Frontend {
 				return new SwingLookup(input, actionListener);
 			}
 		}
+	}
+	
+	private SwingTextField adaptLabel(JLabel label) {
+		SwingTextField textField = new SwingTextField(null, Integer.MAX_VALUE);
+		textField.setEditable(false);
+		textField.setValue(label.getText());
+		label.addPropertyChangeListener("text", evt -> textField.setText(label.getText()));
+		return textField;
 	}
 
 	public File showFileDialog(String title, String approveButtonText) {
