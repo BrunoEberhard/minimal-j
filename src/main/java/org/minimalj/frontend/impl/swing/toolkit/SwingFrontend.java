@@ -89,8 +89,8 @@ import com.formdev.flatlaf.util.SystemInfo;
 
 public class SwingFrontend extends Frontend {
 
-	private final Icon ICON_FIELD_ACTION = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldAction.svg");
-	private final Icon ICON_FIELD_MENU = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldMenu.svg");
+	private static final Icon ICON_FIELD_ACTION = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldAction.svg");
+	private static final Icon ICON_FIELD_MENU = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldMenu.svg");
 
 	private final Map<Dialog, SwingDialog> visibleDialogs = new HashMap<>();
 	private double wheelRotation = 0;
@@ -460,9 +460,6 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public Input<String> createLookup(Input<String> input, Runnable lookup) {
-		if (input instanceof JLabel) {
-			input = adaptLabel((JLabel) input);
-		}
 		if (input instanceof JTextField) {
 			JButton button = new JButton(ICON_FIELD_ACTION);
 			((JComponent) input).putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT,
@@ -485,9 +482,6 @@ public class SwingFrontend extends Frontend {
 	@Override
 	public Input<String> createLookup(Input<String> input, ActionGroup actions) {
 		JPopupMenu popupMenu = SwingTab.createMenu(actions.getItems());
-		if (input instanceof JLabel) {
-			input = adaptLabel((JLabel) input);
-		}
 		Component inputFinal = (Component) input;
 		if (input instanceof JTextField) {
 			JButton button = new JButton(ICON_FIELD_MENU);
@@ -518,14 +512,6 @@ public class SwingFrontend extends Frontend {
 			}
 		}
 	}
-	
-	private SwingTextField adaptLabel(JLabel label) {
-		SwingTextField textField = new SwingTextField(null, Integer.MAX_VALUE);
-		textField.setEditable(false);
-		textField.setValue(label.getText());
-		label.addPropertyChangeListener("text", evt -> textField.setText(label.getText()));
-		return textField;
-	}
 
 	public File showFileDialog(String title, String approveButtonText) {
 		JFileChooser chooser = new JFileChooser();
@@ -548,12 +534,20 @@ public class SwingFrontend extends Frontend {
 		public SwingLookup(Input<String> stringInput, ActionListener actionListener) {
 			super(new BorderLayout());
 			this.stringInput = stringInput;
-
+			
+			setBorder(UIManager.getBorder("TextField.border"));
+			setBackground(UIManager.getColor("TextField.background"));
+			Insets margin = UIManager.getInsets("TextField.margin");
+			if (margin != null) {
+				((JComponent) stringInput).setBorder(BorderFactory.createEmptyBorder(margin.top, margin.left, margin.bottom, margin.right));
+			} else {
+				((JComponent) stringInput).setBorder(null);
+			}
 			add((Component) stringInput, BorderLayout.CENTER);
 
 			// TODO momentan der Button einfach quadratisch gemacht
 			// es sollte wohl das Form Layout angepasst werden
-			this.lookupButton = new JButton(" ... ") {
+			this.lookupButton = new JButton(ICON_FIELD_ACTION) {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -563,11 +557,11 @@ public class SwingFrontend extends Frontend {
 					return d;
 				}
 			};
-			lookupButton.setContentAreaFilled(false);
 			lookupButton.addActionListener(actionListener);
-			lookupButton.setBorder(BorderFactory.createLineBorder(UIManager.getColor("TextField.shadow"), 1));
+			lookupButton.setBorder(null);
+			lookupButton.setBackground(UIManager.getColor("TextField.background"));
 			JPanel buttonPanel = new JPanel(new BorderLayout());
-			buttonPanel.add(lookupButton, BorderLayout.PAGE_START);
+			buttonPanel.add(lookupButton, BorderLayout.CENTER);
 			add(buttonPanel, BorderLayout.AFTER_LINE_ENDS);
 		}
 
