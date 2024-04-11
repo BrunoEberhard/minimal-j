@@ -76,6 +76,7 @@ public class SqlRepository implements TransactionalRepository {
 	protected final DataSource dataSource;
 	
 	private Connection autoCommitConnection;
+	private final List<Connection> connections = new ArrayList<>();
 	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private final ThreadLocal<Stack<Connection>> threadLocalTransactionConnection = new ThreadLocal<>();
 
@@ -237,7 +238,7 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			try {
 				if (!valid) {
-					connection = dataSource.getConnection();
+					connections.add(connection = dataSource.getConnection());
 				}
 				if (transactionIsolationLevel != Connection.TRANSACTION_NONE) {
 					connection.setTransactionIsolation(transactionIsolationLevel);
@@ -266,8 +267,24 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	/**
-	 * Use with care. Removes all content of all tables. Should only
-	 * be used for JUnit tests.
+	 * Use with care. Closes all connections. Should only be used for Tests or
+	 * special startups.
+	 */
+	public void closeAllConnections() {
+		try {
+			getAutoCommitConnection().close();
+			for (Connection c : connections) {
+				c.close();
+			}
+			connections.clear();
+		} catch (SQLException x) {
+			throw new RuntimeException(x);
+		}
+	}
+	
+	/**
+	 * Use with care. Removes all content of all tables. Should only be used for
+	 * tests.
 	 */
 	public void clear() {
 		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
