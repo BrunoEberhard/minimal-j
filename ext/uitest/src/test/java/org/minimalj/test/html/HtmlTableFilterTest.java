@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.EmptyPage;
@@ -28,12 +28,12 @@ import org.minimalj.util.resources.Resources;
 
 public class HtmlTableFilterTest extends WebTest {
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestUtil.shutdown();
 	}
 
-	@Before
+	@BeforeEach
 	public void startApplication() {
 		start(new TableFilterTestApplication());
 	}	
@@ -48,40 +48,40 @@ public class HtmlTableFilterTest extends WebTest {
 		table.setFilterVisible(true);
 
 		table.setFilter(0, "8.10.2020");
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals(1, table.getRowCount());
 
 		table.setFilter(0, "7.10.2020");
-		Assert.assertEquals(0, table.getRowCount());
+		Assertions.assertEquals(0, table.getRowCount());
 
 		table.setFilter(0, "> 7.10.2020");
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals(1, table.getRowCount());
 
 		table.setFilter(0, "< 7.10.2020");
-		Assert.assertEquals(0, table.getRowCount());
+		Assertions.assertEquals(0, table.getRowCount());
 
 		table.setFilter(0, ">9.10.2020");
-		Assert.assertEquals(0, table.getRowCount());
+		Assertions.assertEquals(0, table.getRowCount());
 
 		table.setFilter(0, "<9.10.2020");
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals(1, table.getRowCount());
 
 		table.setFilter(0, "7.10.2020-9.10.2020");
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals(1, table.getRowCount());
 
 		table.setFilter(0, "9.10.2020-11.10.2020");
-		Assert.assertEquals(0, table.getRowCount());
+		Assertions.assertEquals(0, table.getRowCount());
 
 		table.setFilter(0, "9.13.2020");
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals(1, table.getRowCount());
 
 		table.setFilter(0, "9.13.2020-11.10.2020");
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals(1, table.getRowCount());
 
 		table.setFilter(0, "2020");
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals(1, table.getRowCount());
 
 		table.setFilter(0, "2021");
-		Assert.assertEquals(0, table.getRowCount());
+		Assertions.assertEquals(0, table.getRowCount());
 	}
 
 	@Test
@@ -97,16 +97,16 @@ public class HtmlTableFilterTest extends WebTest {
 		DialogTestFacade dialog = table.filterLookup(0);
 
 		FormElementTestFacade filterSelectionElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter"));
-		Assert.assertEquals(Resources.getString("EqualsFilterPredicate"), filterSelectionElement.getText());
+		Assertions.assertEquals(Resources.getString("EqualsFilterPredicate"), filterSelectionElement.getText());
 
 		FormElementTestFacade filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("8.10.2020", filterStringElement.getText());
+		Assertions.assertEquals("8.10.2020", filterStringElement.getText());
 
 		filterStringElement.setText("9.10.2020");
 		dialog.save();
 
-		Assert.assertEquals("9.10.2020", table.getFilter(0));
-		Assert.assertEquals(0, table.getRowCount());
+		Assertions.assertEquals("9.10.2020", table.getFilter(0));
+		Assertions.assertEquals(0, table.getRowCount());
 
 		//
 
@@ -114,16 +114,16 @@ public class HtmlTableFilterTest extends WebTest {
 		dialog = table.filterLookup(0);
 
 		filterSelectionElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter"));
-		Assert.assertEquals(Resources.getString("MaxFilterPredicate"), filterSelectionElement.getText());
+		Assertions.assertEquals(Resources.getString("MaxFilterPredicate"), filterSelectionElement.getText());
 
 		filterSelectionElement.setText(Resources.getString("MinFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("7.10.2020", filterStringElement.getText());
+		Assertions.assertEquals("7.10.2020", filterStringElement.getText());
 
 		dialog.save();
 
-		Assert.assertEquals("> 7.10.2020", table.getFilter(0));
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals("> 7.10.2020", table.getFilter(0));
+		Assertions.assertEquals(1, table.getRowCount());
 
 		//
 
@@ -134,15 +134,15 @@ public class HtmlTableFilterTest extends WebTest {
 		FormElementTestFacade filterStringElement1 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1"));
 		FormElementTestFacade filterStringElement2 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue2"));
 
-		Assert.assertEquals("7.10.2020", filterStringElement1.getText());
-		Assert.assertEquals("", filterStringElement2.getText());
+		Assertions.assertEquals("7.10.2020", filterStringElement1.getText());
+		Assertions.assertEquals("", filterStringElement2.getText());
 
 		filterStringElement1.setText("6.10.2020");
 		filterStringElement2.setText("8.10.2020");
 		dialog.save();
 
-		Assert.assertEquals("6.10.2020 - 8.10.2020", table.getFilter(0));
-		Assert.assertEquals(1, table.getRowCount());
+		Assertions.assertEquals("6.10.2020 - 8.10.2020", table.getFilter(0));
+		Assertions.assertEquals(1, table.getRowCount());
 		
 		//
 		
@@ -153,8 +153,8 @@ public class HtmlTableFilterTest extends WebTest {
 		filterStringElement2 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue2"));
 
 		filterStringElement1.setText("1.13.2020");
-		Assert.assertFalse(dialog.getAction(Resources.getString("SaveAction")).isEnabled());
- 		Assert.assertFalse(StringUtils.isEmpty(dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1")).getValidation()));
+		Assertions.assertFalse(dialog.getAction(Resources.getString("SaveAction")).isEnabled());
+ 		Assertions.assertFalse(StringUtils.isEmpty(dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1")).getValidation()));
  		
  		dialog.getAction(Resources.getString("CancelAction")).run();
 	}
@@ -170,40 +170,40 @@ public class HtmlTableFilterTest extends WebTest {
 
 		DialogTestFacade dialog = table.filterLookup(0);
 		FormElementTestFacade filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("", filterStringElement.getText());
+		Assertions.assertEquals("", filterStringElement.getText());
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("MaxFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("", filterStringElement.getText());
+		Assertions.assertEquals("", filterStringElement.getText());
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("MinFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("", filterStringElement.getText());
+		Assertions.assertEquals("", filterStringElement.getText());
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("RangeFilterPredicate"));
 		FormElementTestFacade filterStringElement1 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1"));
 		FormElementTestFacade filterStringElement2 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue2"));
-		Assert.assertEquals("", filterStringElement1.getText());
-		Assert.assertEquals("", filterStringElement2.getText());
+		Assertions.assertEquals("", filterStringElement1.getText());
+		Assertions.assertEquals("", filterStringElement2.getText());
 		
 		filterStringElement1.setText("6.10.2020");
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("MinFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("6.10.2020", filterStringElement.getText());
+		Assertions.assertEquals("6.10.2020", filterStringElement.getText());
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("MaxFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("6.10.2020", filterStringElement.getText());
+		Assertions.assertEquals("6.10.2020", filterStringElement.getText());
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("EqualsFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assert.assertEquals("6.10.2020", filterStringElement.getText());
+		Assertions.assertEquals("6.10.2020", filterStringElement.getText());
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("RangeFilterPredicate"));
 		filterStringElement1 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1"));
 		filterStringElement2 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue2"));
-		Assert.assertEquals("6.10.2020", filterStringElement1.getText());
-		Assert.assertEquals("", filterStringElement2.getText());
+		Assertions.assertEquals("6.10.2020", filterStringElement1.getText());
+		Assertions.assertEquals("", filterStringElement2.getText());
 	}
 	
 	@Test
@@ -220,9 +220,9 @@ public class HtmlTableFilterTest extends WebTest {
 
 		page = pageContainer.getPage();
 		table = page.getTable();
-		Assert.assertEquals("When navigating back to a table with set filter the filter should be active", 0, table.getRowCount());
-		Assert.assertEquals("When navigating back to a table with set filter the filter should be keep value", "2.10.2020", table.getFilter(0));
-		Assert.assertTrue("When navigating back to a table with set filter the filter should be visible", table.isFilterVisible());
+		Assertions.assertEquals(0, table.getRowCount(), "When navigating back to a table with set filter the filter should be active");
+		Assertions.assertEquals("2.10.2020", table.getFilter(0), "When navigating back to a table with set filter the filter should be keep value");
+		Assertions.assertTrue(table.isFilterVisible(), "When navigating back to a table with set filter the filter should be visible");
 	}
 
 	public static class TableFilterTestApplication extends Application {

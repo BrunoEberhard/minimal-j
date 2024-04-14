@@ -125,11 +125,13 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected void validate() {
-			if (!valid()) {
-				String name = "TODO";
-				formContent.setValidationMessages(input, Collections.singletonList(MessageFormat.format(Resources.getString("ObjectValidator.message"), name)));
-			} else {
-				formContent.setValidationMessages(input, Collections.emptyList());
+			if (formContent != null) {
+				if (!valid()) {
+					String name = "TODO";
+					formContent.setValidationMessages(input, Collections.singletonList(MessageFormat.format(Resources.getString("ObjectValidator.message"), name)));
+				} else {
+					formContent.setValidationMessages(input, Collections.emptyList());
+				}
 			}
 		}
 
@@ -378,11 +380,13 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		protected void validate() {
-			if (!valid()) {
-				String name = "TODO";
-				formContent.setValidationMessages(input1, Collections.singletonList(MessageFormat.format(Resources.getString("ColumnFilterModel.filterValue1"), name)));
-			} else {
-				formContent.setValidationMessages(input1, Collections.emptyList());
+			if (formContent != null) {
+				if (!valid()) {
+					String name = "TODO";
+					formContent.setValidationMessages(input1, Collections.singletonList(MessageFormat.format(Resources.getString("ColumnFilterModel.filterValue1"), name)));
+				} else {
+					formContent.setValidationMessages(input1, Collections.emptyList());
+				}
 			}
 		}
 

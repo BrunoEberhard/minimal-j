@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import org.minimalj.frontend.action.Action;
@@ -18,13 +19,22 @@ public class NavigationTree extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	public NavigationTree(List<Action> actions) {
+		this(actions, true);
+	}
+	
+	public NavigationTree(List<Action> actions, boolean root) {
 		super(new VerticalLayoutManager());
+		if (root) {
+			setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 0));
+		} else {
+			setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 0));
+		}
 		
 		for (Action action : actions) {
 			if (action instanceof ActionGroup) {
 				add(new SwingText(action.getName()));
 				ActionGroup actionGroup = (ActionGroup) action;
-				add(new NavigationTree(actionGroup.getItems()));
+				add(new NavigationTree(actionGroup.getItems(), false));
 			} else {
 				add(new SwingActionText(action));
 			}
@@ -52,13 +62,13 @@ public class NavigationTree extends JPanel {
 
 		@Override
 		public void layoutContainer(Container parent) {
-			int y = 0;
-			int x = 10;
+			int y = parent.getInsets().top;
+			int x = parent.getInsets().left;
 			int width = parent.getWidth();
 			for (Component component : parent.getComponents()) {
 				int height = component.getPreferredSize().height;
 				component.setBounds(x, y, width, height);
-				y += 3 + height;
+				y += 4 + height;
 			}
 			preferredSize = new Dimension(100, y);
 		}

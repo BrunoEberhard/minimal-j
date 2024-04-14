@@ -10,13 +10,11 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Separator;
-import org.minimalj.frontend.impl.swing.lookAndFeel.LookAndFeelAction;
-import org.minimalj.frontend.impl.swing.lookAndFeel.PrintLookAndFeel;
-import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLargeFontLookAndFeel;
-import org.minimalj.frontend.impl.swing.lookAndFeel.TerminalLookAndFeel;
+import org.minimalj.frontend.impl.swing.lookAndFeel.SwingFlatThemeAction;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.Routing;
 import org.minimalj.util.StringUtils;
@@ -25,18 +23,23 @@ import org.minimalj.util.resources.Resources;
 public class SwingMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
 	
-	private final SwingFrame frame;
+	protected final SwingFrame frame;
 	private JMenu menuFavorite;
+	private final JMenuItem itemBack = new JMenuItem();
+	private final JMenuItem itemForward = new JMenuItem();
+	private final JMenuItem itemRefresh = new JMenuItem();
 	private final JMenuItem itemPrevious = new JMenuItem();
 	private final JMenuItem itemNext = new JMenuItem();
-	private final JMenuItem itemRefresh = new JMenuItem();
-	private final JMenuItem itemFavorite = new JMenuItem();
+	private final JMenuItem itemFilter = new JMenuItem();
 	private SwingTab activeTab;
 
 	public SwingMenuBar(SwingFrame frame) {
 		super();
 		this.frame = frame;
+		createMenus();
+	}
 
+	protected void createMenus() {
 		add(createWindowMenu());
 		add(createViewMenu());
 		if (Routing.available()) {
@@ -45,15 +48,19 @@ public class SwingMenuBar extends JMenuBar {
 	}
 	
 	public void setActiveTab(SwingTab tab) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalStateException();
+		}
 		this.activeTab = tab;
 
+		itemBack.setAction(tab.backAction);
+		itemForward.setAction(tab.forwardAction);
+		itemRefresh.setAction(tab.refreshAction);
 		itemPrevious.setAction(tab.previousAction);
 		itemNext.setAction(tab.nextAction);
-		itemRefresh.setAction(tab.refreshAction);
-		itemFavorite.setAction(tab.favoriteAction);
 	}
-
-	private JMenu createWindowMenu() {
+	
+	protected JMenu createWindowMenu() {
 		JMenu menu = menu("window");
 		
 		menu.add(new JMenuItem(frame.newWindowAction));
@@ -73,28 +80,39 @@ public class SwingMenuBar extends JMenuBar {
 		return menu;
 	}
 	
-	private JMenu createViewMenu() {
+	
+	protected void addWindowMenuApplicationActions(JMenu menu) {
+		//
+	}
+
+	protected JMenu createViewMenu() {
 		JMenu menu = menu("view");
-		menu.add(itemPrevious);
-		menu.add(itemNext);
+		menu.add(itemBack);
+		menu.add(itemForward);
 		menu.add(itemRefresh);
 		menu.addSeparator();
+		menu.add(itemPrevious);
+		menu.add(itemNext);
+		menu.addSeparator();
 		menu.add(new JCheckBoxMenuItem(frame.navigationAction));
+		menu.add(new JCheckBoxMenuItem(frame.toolbarAction));
 		menu.addSeparator();
 		menu.add(createLookAndFeeldMenu());
 		return menu;
 	}
 
-	private JMenu createLookAndFeeldMenu() {
+	protected JMenu createLookAndFeeldMenu() {
 		JMenu menu = menu("lookAndFeel");
-		menu.add(new JMenuItem(new LookAndFeelAction(LookAndFeelAction.SYSTEM)));
-		menu.add(new JMenuItem(new LookAndFeelAction("highContrast", TerminalLookAndFeel.class.getName())));
-		menu.add(new JMenuItem(new LookAndFeelAction("highContrastLarge", TerminalLargeFontLookAndFeel.class.getName())));
-		menu.add(new JMenuItem(new LookAndFeelAction("print", PrintLookAndFeel.class.getName())));
+		menu.add(new JMenuItem(new SwingFlatThemeAction(true)));
+		menu.add(new JMenuItem(new SwingFlatThemeAction(false)));
+		// menu.add(new JSeparator());
+		// menu.add(new JMenuItem(new LookAndFeelAction("highContrast", TerminalLookAndFeel.class.getName())));
+		// menu.add(new JMenuItem(new LookAndFeelAction("highContrastLarge", TerminalLargeFontLookAndFeel.class.getName())));
+		// menu.add(new JMenuItem(new LookAndFeelAction("print", PrintLookAndFeel.class.getName())));
 		return menu;
 	}
 
-	private JMenu createFavoriteMenu() {
+	protected JMenu createFavoriteMenu() {
 		menuFavorite = menu("favorites");
 		LinkedHashMap<String, String> favorites = frame.favorites.getFavorites();
 		updateFavorites(favorites);
@@ -133,7 +151,7 @@ public class SwingMenuBar extends JMenuBar {
 	
 	//
 	
-	private JMenu menu(String resourceName) {
+	protected JMenu menu(String resourceName) {
 		String text = Resources.getString("Menu." + resourceName);
 		JMenu menu = new JMenu(text);
 		Integer mnemonic = SwingResourceAction.getKeyCode("Menu." + resourceName + ".mnemonic");
@@ -158,5 +176,12 @@ public class SwingMenuBar extends JMenuBar {
 				menu.add(new JMenuItem(SwingFrontend.adaptAction(action)));
 			}
 		}
+	}
+	
+	public static interface SwingBarProvider {
+
+		public SwingMenuBar createMenuBar(SwingFrame frame);
+
+		public SwingToolBar createToolBar(SwingFrame frame);
 	}
 }	

@@ -9,10 +9,12 @@ import java.util.WeakHashMap;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.LabelUI;
 
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.util.StringUtils;
 
 public class SwingCaption extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -22,6 +24,7 @@ public class SwingCaption extends JPanel {
 	public SwingCaption(Component component, String caption) {
 		super(new BorderLayout());
 		setBorder(null);
+		setOpaque(false);
 		
 		captionLabel = new CaptionLabel(caption);
 		
@@ -34,6 +37,30 @@ public class SwingCaption extends JPanel {
 	@Override
 	public boolean isVisible() {
 		return getComponent(1).isVisible();
+	}
+	
+	private boolean isEmpty(Component component) {
+		if (!component.isVisible()) {
+			return true;
+		} else if (component instanceof JPanel) {
+			JPanel panel = (JPanel) component;
+			for (int i = 0; i<panel.getComponentCount(); i++) {
+				if (!isEmpty(panel.getComponent(i))) {
+					return false;
+				}
+			}
+			return true;
+		} else if (component instanceof JLabel) {
+			return StringUtils.isBlank(((JLabel) component).getText());
+		} else if (component instanceof JTextField) {
+			return !((JTextField) component).isEditable() && StringUtils.isBlank(((JTextField) component).getText());
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean isEmpty() {
+		return StringUtils.isBlank(captionLabel.getText()) && isEmpty(getComponent(1));
 	}
 
 	public void setValidationMessages(List<String> validationMessages) {

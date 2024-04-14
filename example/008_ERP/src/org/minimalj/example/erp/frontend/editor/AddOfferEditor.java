@@ -8,7 +8,7 @@ import org.minimalj.example.erp.model.CustomerView;
 import org.minimalj.example.erp.model.Offer;
 import org.minimalj.frontend.editor.Editor;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.model.ViewUtil;
+import org.minimalj.model.ViewUtils;
 
 public class AddOfferEditor extends Editor<Offer, Void> {
 
@@ -29,7 +29,7 @@ public class AddOfferEditor extends Editor<Offer, Void> {
 
 		Offer offer = new Offer();
 		if (startWithCustomer != null) {
-			offer.customer = ViewUtil.view(startWithCustomer, new CustomerView());
+			offer.customer = ViewUtils.view(startWithCustomer, new CustomerView());
 		}
 		return offer;
 	}

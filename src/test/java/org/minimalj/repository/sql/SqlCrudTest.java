@@ -15,7 +15,7 @@ public class SqlCrudTest extends SqlTest {
 	
 	@Override
 	public Class<?>[] getEntityClasses() {
-		return new Class<?>[] { A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class };
+		return new Class<?>[] { A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class, TestEntityInitializedField.class };
 	}
 
 	@Test
@@ -158,6 +158,17 @@ public class SqlCrudTest extends SqlTest {
 		repository.delete(m);
 	}
 
+	@Test
+	public void testInitializedField() {
+		TestEntityInitializedField entity = new TestEntityInitializedField();
+		entity.testElement = null;
+		
+		Object id = repository.insert(entity);
+		entity = repository.read(TestEntityInitializedField.class, id);
+		
+		Assert.assertNull("An initialized field should be set back to null if value in database is null", entity.testElement);
+	}
+	
 	//
 	
 	public static class TestElement {
@@ -197,6 +208,19 @@ public class SqlCrudTest extends SqlTest {
 		public List<TestElement> testElementList = new ArrayList<>();
 
 		public TestElement testElementReference;
+	}
+
+	public static class TestEntityInitializedField {
+		public static final TestEntityInitializedField $ = Keys.of(TestEntityInitializedField.class);
+		
+		public TestEntityInitializedField() {
+			// needed for reflection constructor
+		}
+
+		public Object id;
+
+		@Size(20)
+		public String testElement = "init";
 	}
 
 }

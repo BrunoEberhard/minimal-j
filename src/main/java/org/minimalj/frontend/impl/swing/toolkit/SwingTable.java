@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
@@ -15,15 +16,17 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.RowSorterEvent;
@@ -31,9 +34,13 @@ import javax.swing.event.RowSorterEvent.Type;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.ITable;
+import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.impl.swing.component.SwingDecoration;
@@ -46,16 +53,23 @@ import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.Property;
+import org.minimalj.model.validation.ValidationMessage;
 
-public class SwingTable<T> extends JScrollPane implements ITable<T> {
+import com.formdev.flatlaf.extras.components.FlatScrollPane;
+import com.formdev.flatlaf.util.UIScale;
+
+//import net.coderazzi.filters.gui.TableFilterHeader;
+
+public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(SwingTable.class.getName());
 	private static final int PAGE_SIZE = Integer.parseInt(Configuration.get("MjSwingTablePageSize", "1000"));
 	
-	private final Object[] keys;
-	private final List<Property> properties;
+	private RenderingTableCellRenderer renderer;
+	
 	private final JTable table;
 	private final ItemTableModel tableModel;
+//	private final TableFilterHeader filterHeader;
 	private final TableActionListener<T> listener;
 	private final JButton nextButton, prevButton;
 	
@@ -65,21 +79,22 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private boolean[] sortDirections = new boolean[0];
 	
 	public SwingTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
-		this.keys = keys;
 		this.listener = listener;
 		
-		this.properties = convert(keys);
-		
-		tableModel = new ItemTableModel();
+		tableModel = new ItemTableModel(keys);
 		table = new JTable(tableModel);
+		tableModel.updateColumns();
 
 		table.setSelectionMode(multiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
 		table.setRowSelectionAllowed(true);
 		table.setFillsViewportHeight(true);
 		
-		setBorder(BorderFactory.createEmptyBorder());
+		updateBorder();
+
+		table.setShowHorizontalLines(true);
+		table.setShowVerticalLines(true);
 		
-		RenderingTableCellRenderer renderer = new RenderingTableCellRenderer();
+		renderer = new RenderingTableCellRenderer();
 		table.setDefaultRenderer(Boolean.class, renderer);
 		table.setDefaultRenderer(Object.class, renderer);
 		table.setDefaultRenderer(Number.class, renderer);
@@ -95,6 +110,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         table.getRowSorter().addRowSorterListener(new SwingTableRowSortingListener());
         table.addMouseListener(new TableMouseListener());
         
+//        filterHeader = new TableFilterHeader(table);
         table.getTableHeader().setLayout(new BorderLayout());
         
         JPanel panel = new JPanel(new FlowLayout());
@@ -108,15 +124,35 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         nextButton.setVisible(false);
 		panel.add(nextButton);
         table.getTableHeader().add(panel, BorderLayout.LINE_END);
-        
-        for (int i = 0; i<properties.size(); i++) {
-        	Width widthAnnotation = properties.get(i).getAnnotation(Width.class);
-        	int width = widthAnnotation != null ? widthAnnotation.value() : Width.DEFAULT;
-        	table.getColumnModel().getColumn(i).setPreferredWidth(width);
-        	if (width < Width.DEFAULT) {
-        		table.getColumnModel().getColumn(i).setMaxWidth(width * 2);
-        	}
-        }
+	}
+	
+	public void setFilterVisible(boolean filterVisible) {
+		tableModel.setFilterVisible(filterVisible);
+	}
+	
+	public boolean isFilterVisible() {
+		return tableModel.filterVisible;
+	}
+
+	@Override
+	public void setColumns(Object[] keys) {
+		tableModel.setColumns(keys);
+		tableModel.updateColumns();
+	}
+
+	private Object[] getKeys() {
+		return tableModel.keys;
+	}
+	
+	private List<Property> getProperties() {
+		return tableModel.properties;
+	}
+	
+	protected void updateBorder() {
+		int inset = UIManager.getInt("Group.Inset");
+		Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
+		Border lineBorder = BorderFactory.createLineBorder(UIManager.getColor("Group.BorderColor"));
+		setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
 	}
 	
 	private List<Property> convert(Object[] keys) {
@@ -152,14 +188,18 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		
 		this.page = page;
 		
-		List<T> objects = ListUtil.get(list, new ColumnFilter[0], sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
+		List<T> objects = ListUtil.get(list, tableModel.filters, sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
 		tableModel.setObjects(objects);
 		nextButton.setVisible(objects.size() > (page + 1) * PAGE_SIZE);
 		prevButton.setVisible(page > 0);
 		
 		// redo selection
-		for (int i = 0; i < table.getRowCount(); i++) {
-			T object = tableModel.getObject(table.convertRowIndexToModel(i));
+		for (int i = 0; i < table.getRowCount() - (tableModel.filterVisible ? 1 : 0); i++) {
+			int modelIndex = convertRowIndexToModel(i);
+			if (modelIndex < 0) {
+				continue;
+			}
+			T object = tableModel.getObject(modelIndex);
 			for (T selectedObject : selectedObjects) {
 				if (JsonTable.equalsByIdOrContent(object, selectedObject)) {
 					table.setRowSelectionInterval(i, i);
@@ -171,21 +211,37 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	private List<T> getSelectedObjects() {
 		List<T> selectedObjects = new ArrayList<>(table.getSelectedRowCount());
 		for (int row : table.getSelectedRows()) {
-			int rowInModel = table.convertRowIndexToModel(row);
-			selectedObjects.add(tableModel.getObject(rowInModel));
+			int rowInModel = convertRowIndexToModel(row);
+			T object = tableModel.getObject(rowInModel);
+			if (object != null) {
+				selectedObjects.add(object);
+			}
 		}
 		return selectedObjects;
 	}
 
+    public int convertRowIndexToModel(int index) {
+    	if (tableModel.filterVisible) {
+    		index--;
+    	}
+//    	if (index >= 0) {
+//    		index = table.convertRowIndexToModel(index);
+//    	}
+    	return index;
+    }
+    
 	private class SwingTableMouseListener extends MouseAdapter {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() >= 2 && listener != null) {
 		        int row = table.rowAtPoint(e.getPoint());
-		        if (e.getClickCount() == 2 && row >= 0) {
-		        	int rowInModel = table.convertRowIndexToModel(row);
-					SwingFrontend.run(SwingTable.this, () -> listener.action(tableModel.getObject(rowInModel)));
+		        if (e.getClickCount() == 2) {
+		        	int rowInModel = convertRowIndexToModel(row);
+		        	T object = tableModel.getObject(rowInModel);
+		        	if (object != null) {
+						SwingFrontend.run(SwingTable.this, () -> listener.action(object));
+		        	}
 		        }
 			}
 		}
@@ -209,7 +265,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
         		sortDirections = new boolean[sortKeys.size()];
         		int index = 0;
         		for (SortKey s : sortKeys) {
-        			sortColumns[index] = SwingTable.this.keys[s.getColumn()];
+        			sortColumns[index] = getKeys()[s.getColumn()];
         			sortDirections[index] = s.getSortOrder() == SortOrder.ASCENDING;
         			index++;
         		}
@@ -221,14 +277,145 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 	public class ItemTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
+		private Object[] keys;
+		private List<Property> properties;
+		private ColumnFilter[] filters;
+		private TableCellEditor[] tableCellEditors;
+		private int width;
+		private boolean filterVisible = false;
+		
 		private List<T> objects = Collections.emptyList();
 		
-		public ItemTableModel() {
+		public ItemTableModel(Object[] keys) {
+			setKeys(keys);
+		}
+
+		public void setFilterVisible(boolean filterVisible) {
+			if (this.filterVisible != filterVisible) {
+				table.removeEditor();
+				this.filterVisible = filterVisible;
+				page = 0;
+				setObjects(filterObjects());
+			}
+		}
+
+		public class ColumnFilterChangeListener implements InputComponentListener {
+
+			private final ColumnFilter column;
+
+			public ColumnFilterChangeListener(ColumnFilter column) {
+				this.column = column;
+			}
+
+			@Override
+			public void changed(IComponent source) {
+				updateObjects();
+				ValidationMessage validationMessage = column.validate();
+				// ((JsonComponent) tableModel.headerFilters[column]).put(JsonFormContent.VALIDATION_MESSAGE, validationMessage != null ? validationMessage.getFormattedText() : "");
+			}
+
+			private void updateObjects() {
+				page = 0;
+				List<T> objects = filterObjects();
+ 				if (!filterVisible) {
+					setObjects(objects);
+				} else {
+					int oldRows = ItemTableModel.this.objects != null ? ItemTableModel.this.objects.size() : 0;
+					int newRows = objects.size();
+					ItemTableModel.this.objects = objects;
+					if (newRows < oldRows) {
+						fireTableRowsDeleted(newRows + 1, oldRows);
+					} else if (newRows > oldRows) {
+						fireTableRowsInserted(oldRows + 1, newRows);
+					}
+					int rows = Math.min(newRows, oldRows);
+					if (rows > 0) {
+						fireTableRowsUpdated(1, rows);
+					}
+				}
+			}
+
+		}
+
+		private List<T> filterObjects() {
+			if (!filterVisible) {
+				return ListUtil.get(list, ColumnFilter.NO_FILTER, sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
+			} else {
+				return ListUtil.get(list, tableModel.filters, sortColumns, sortDirections, page * PAGE_SIZE, PAGE_SIZE);
+			}
 		}
 
 		public void setObjects(List<T> objects) {
 			this.objects = objects;
 			fireTableDataChanged();
+		}
+
+		public void setColumns(Object[] keys) {
+			setKeys(keys);
+			fireTableStructureChanged();
+		}
+		
+		private void setKeys(Object[] keys) {
+			this.keys = keys;
+			this.properties = convert(keys);
+		}
+		
+		private void updateColumns() {
+			width = 0;
+			for (Property property : properties) {
+				Width widthAnnotation = property.getAnnotation(Width.class);
+				if (widthAnnotation != null) {
+					width += widthAnnotation.value();
+				} else {
+					width += Width.DEFAULT;
+				}
+			}
+
+			filters = new ColumnFilter[keys.length];
+			tableCellEditors = new TableCellEditor[keys.length];
+			int column = 0;
+			for (Property property : properties) {
+				filters[column] = ColumnFilter.createFilter(property);
+				tableCellEditors[column] = new ColumnTableCellEditor(filters[column]);
+				table.getColumnModel().getColumn(column).setCellEditor(tableCellEditors[column]);
+				column++;
+			}
+			
+	        for (int i = 0; i<properties.size(); i++) {
+	        	Width widthAnnotation = properties.get(i).getAnnotation(Width.class);
+	        	int width = widthAnnotation != null ? widthAnnotation.value() : Width.DEFAULT;
+	        	table.getColumnModel().getColumn(i).setPreferredWidth(width);
+	        	if (width < Width.DEFAULT) {
+	        		table.getColumnModel().getColumn(i).setMaxWidth(width * 2);
+	        	}
+	        }
+		}
+		
+		private class ColumnTableCellEditor extends AbstractCellEditor implements TableCellEditor, TableCellRenderer {
+			private static final long serialVersionUID = 1L;
+
+			private final ColumnFilter columnFilter;
+			private final Component editor;
+			
+			public ColumnTableCellEditor(ColumnFilter columnFilter) {
+				this.columnFilter = columnFilter;
+				this.editor = (Component) columnFilter.getComponent(new ColumnFilterChangeListener(columnFilter));
+			}
+			
+			@Override
+			public Object getCellEditorValue() {
+				return null;
+			}
+			
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+				return editor;
+			}
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				return editor;
+			}
 		}
 		
 		public List<T> getObjects() {
@@ -236,12 +423,16 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 		
 		public T getObject(int index) {
-			return objects.get(index);
+			if (index >= 0 && index < objects.size()) {
+				return objects.get(index);
+			} else {
+				return null;
+			}
 		}
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			return false;
+			return row == 0 && tableModel.filterVisible;
 		}
 
 		@Override
@@ -252,8 +443,12 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		@Override
 		public Object getValueAt(int row, int column) {
+			row = convertRowIndexToModel(row);
 			try {
 				Object object = getObject(row);
+				if (object == null) {
+					return null;
+				}
 				Property property = properties.get(column);
 				return property.getValue(object);
 			} catch (Exception x) {
@@ -264,7 +459,7 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 		@Override
 		public int getRowCount() {
-			return objects.size();
+			return objects.size() + (filterVisible ? 1 : 0);
 		}
 
 		@Override
@@ -283,25 +478,50 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		}
 	}
 	
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		updateBorder();
+		if (renderer != null) {
+			renderer.updateUI();
+		}
+		if (table != null) {
+			table.setBackground(UIManager.getColor("Table.background"));
+			table.setGridColor(UIManager.getColor("Table.gridColor"));
+		}
+	}
+	
 	private class RenderingTableCellRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
+		private Color actionColor = UIManager.getColor("Action.forground");
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int columnIndex) {
-			Object object = ((ItemTableModel) table.getModel()).getObject(table.convertRowIndexToModel(row));
-
+		public Component getTableCellRendererComponent(JTable table, Object cellValue, boolean isSelected, boolean hasFocus, int row, int columnIndex) {
+			if (tableModel.filterVisible && row == 0) {
+				return tableModel.tableCellEditors[table.convertColumnIndexToModel(columnIndex)].getTableCellEditorComponent(table, cellValue, isSelected, row, columnIndex);
+			}
+			int modelIndex = convertRowIndexToModel(row);
+			
+			Object object = ((ItemTableModel) table.getModel()).getObject(modelIndex);
+			if (object == null) {
+				setText(row + " / " + columnIndex);
+				return this;
+			}
+			
 			Color color = null;
 			String stringValue;
 
-			Property property = properties.get(columnIndex);
-
+			int columIndexModel = table.convertColumnIndexToModel(columnIndex);
+			Property property = getProperties().get(columIndexModel);
+			Object value = property.getValue(object);
+			
 			if (property instanceof Column) {
 				Column column = (Column) property;
 				stringValue = Rendering.toString(column.render(object, value));
 				if (column.isLink(object, value)) {
-					color = Color.BLUE;
+					color = actionColor;
 				} else {
 					color = getColor(Column.getColor(column, object, value));
 				}
@@ -347,6 +567,12 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 			}
 			return c;
 		}
+	
+		@Override
+		public void updateUI() {
+			super.updateUI();
+			actionColor = UIManager.getColor("Action.forground");
+		}
 	}
 	
 	private static Color getColor(ColorName colorName) {
@@ -367,16 +593,18 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public void mouseClicked(java.awt.event.MouseEvent evt) {
-			int rowView = table.rowAtPoint(evt.getPoint());
-			int colView = table.columnAtPoint(evt.getPoint());
-			if (rowView >= 0 && colView >= 0) {
-				int row = table.convertRowIndexToModel(rowView);
-				int col = table.convertColumnIndexToModel(colView);
-				Property property = properties.get(col);
-				if (property instanceof Column) {
-					Column column = (Column) property;
-					Object object = ((ItemTableModel) table.getModel()).getObject(row);
-					SwingFrontend.run(table, () -> column.run(object));
+			if (evt.getButton() == MouseEvent.BUTTON1) {
+				int rowView = table.rowAtPoint(evt.getPoint());
+				int rowModel = convertRowIndexToModel(rowView);
+				int colView = table.columnAtPoint(evt.getPoint());
+				if (rowModel >= 0 && colView >= 0) {
+					int col = table.convertColumnIndexToModel(colView);
+					Property property = getProperties().get(col);
+					if (property instanceof Column) {
+						Column column = (Column) property;
+						Object object = ((ItemTableModel) table.getModel()).getObject(rowModel);
+						SwingFrontend.run(table, () -> column.run(object));
+					}
 				}
 			}
 		}
@@ -390,13 +618,15 @@ public class SwingTable<T> extends JScrollPane implements ITable<T> {
 
 	@Override
 	public Dimension getPreferredSize() {
+		Rectangle bounds = getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds();
 		Dimension minimum = getMinimumSize();
-		return new Dimension(30000, minimum.height);
+		return new Dimension(Math.min(tableModel.width, UIScale.scale(bounds.width) - 100), minimum.height);
 	}
 	
 	@Override
 	public Dimension getMaximumSize() {
-		return new Dimension(30000, 30000);
+		Rectangle bounds = getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds();
+		return new Dimension(Math.min(tableModel.width, UIScale.scale(bounds.width) - 100), UIScale.scale(bounds.height) - 100);
 	};
 
 }

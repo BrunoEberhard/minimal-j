@@ -76,6 +76,7 @@ public class SqlRepository implements TransactionalRepository {
 	protected final DataSource dataSource;
 	
 	private Connection autoCommitConnection;
+	private final List<Connection> connections = new ArrayList<>();
 	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
 	private final ThreadLocal<Stack<Connection>> threadLocalTransactionConnection = new ThreadLocal<>();
 
@@ -237,7 +238,7 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			try {
 				if (!valid) {
-					connection = dataSource.getConnection();
+					connections.add(connection = dataSource.getConnection());
 				}
 				if (transactionIsolationLevel != Connection.TRANSACTION_NONE) {
 					connection.setTransactionIsolation(transactionIsolationLevel);
@@ -266,8 +267,24 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	/**
-	 * Use with care. Removes all content of all tables. Should only
-	 * be used for JUnit tests.
+	 * Use with care. Closes all connections. Should only be used for Tests or
+	 * special startups.
+	 */
+	public void closeAllConnections() {
+		try {
+			getAutoCommitConnection().close();
+			for (Connection c : connections) {
+				c.close();
+			}
+			connections.clear();
+		} catch (SQLException x) {
+			throw new RuntimeException(x);
+		}
+	}
+	
+	/**
+	 * Use with care. Removes all content of all tables. Should only be used for
+	 * tests.
 	 */
 	public void clear() {
 		List<AbstractTable<?>> tableList = new ArrayList<>(tables.values());
@@ -538,7 +555,6 @@ public class SqlRepository implements TransactionalRepository {
 			} else {
 				value = resultSet.getObject(columnIndex);
 			}
-			if (value == null) continue;
 			values.put(property, value);
 		}
 		
@@ -568,8 +584,11 @@ public class SqlRepository implements TransactionalRepository {
 		
 		for (Map.Entry<Property, Object> entry : values.entrySet()) {
 			Property property = entry.getKey();
+			if (property instanceof MethodProperty) {
+				continue;
+			}
 			Object value = entry.getValue();
-			if (value != null && !(property instanceof MethodProperty)) {
+			if (value != null) {
 				Class<?> fieldClass = property.getClazz();
 				if (Codes.isCode(fieldClass)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
@@ -586,8 +605,8 @@ public class SqlRepository implements TransactionalRepository {
 				} else {
 					value = sqlDialect.convertToFieldClass(fieldClass, value);
 				}
-				property.setValue(result, value);
 			}
+			property.setValue(result, value);
 		}
 		return result;
 	}
@@ -643,15 +662,15 @@ public class SqlRepository implements TransactionalRepository {
 		return new Table<>(this, clazz);
 	}
 	
-	protected void beforeCreateTables() {
+	protected void beforeSchemaPreparation(SchemaPreparation schemaPreparation) {
 		// for extensions
 	}
 	
-	void afterCreateTables() {
-		afterCreateTables(Collections.unmodifiableCollection(tables.values()));
+	void afterSchemaPreparation(SchemaPreparation schemaPreparation) {
+		afterSchemaPreparation(schemaPreparation, Collections.unmodifiableCollection(tables.values()));
 	}
 	
-	protected void afterCreateTables(Collection<AbstractTable<?>> tables) {
+	protected void afterSchemaPreparation(SchemaPreparation schemaPreparation, Collection<AbstractTable<?>> tables) {
 		// for extensions
 	}
 	

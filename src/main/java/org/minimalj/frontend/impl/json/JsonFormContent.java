@@ -94,7 +94,7 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 			// displayed too high.
 			// (this is not the case if ignoreCaption is active, then all components are 
 			// on upper edge)
-			jsonComponent.setCssClass("noCaption");
+			jsonComponent.setNoCaption();
 		}
 		if (required) {
 			jsonComponent.put(REQUIRED, required);

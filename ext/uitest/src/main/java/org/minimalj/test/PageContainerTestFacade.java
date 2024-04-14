@@ -2,7 +2,7 @@ package org.minimalj.test;
 
 import java.util.List;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.StringUtils;
@@ -30,7 +30,7 @@ public interface PageContainerTestFacade {
 
 	public default PageTestFacade getPage() {
 		List<PageTestFacade> pages = getPages();
-		Assert.assertEquals("Exact one page should be visible", 1, pages.size());
+		Assertions.assertEquals(1, pages.size(), "Exact one page should be visible");
 		return pages.get(0);
 	}
 	
@@ -50,6 +50,7 @@ public interface PageContainerTestFacade {
 
 		public default void run(String text) {
 			Runnable runnable = get(text);
+			Assertions.assertNotNull(runnable, "There should be a navigation action '" + text + "'");
 			runnable.run();
 		}
 	}
@@ -90,13 +91,25 @@ public interface PageContainerTestFacade {
 			action.run();
 		}
 		
+		public default FormTestFacade form() {
+			return getForm();
+		}
 	}
 	
 	public interface FormTestFacade {
 
 		public FormElementTestFacade getElement(String caption);
 
+		public default FormElementTestFacade getElement(String caption, int index) {
+			return null;
+		}
+
+		
 		public default FormElementTestFacade getElement(int row, int column) {
+			return null;
+		}
+		
+		public default ActionTestFacade getAction(String label) {
 			return null;
 		}
 
@@ -108,9 +121,20 @@ public interface PageContainerTestFacade {
 		
 		public default void assertMandatory(Object key) {
 			element(key).setText("");
-			Assert.assertNotNull(Resources.getPropertyName(Keys.getProperty(key)) + " must be mandatory", element(key).getValidation());
+			Assertions.assertNotNull(element(key).getValidation(), Resources.getPropertyName(Keys.getProperty(key)) + " must be mandatory");
+		}
+		
+		public default void set(String caption, String value) {
+			FormElementTestFacade element = getElement(caption);
+			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
+			element.setText(value);
 		}
 
+		public default void set(String caption, boolean checked) {
+			FormElementTestFacade element = getElement(caption);
+			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
+			element.setChecked(checked);
+		}
 	}
 	
 	public interface FormElementTestFacade {
@@ -122,6 +146,10 @@ public interface PageContainerTestFacade {
 		public String getValidation();
 
 		public SearchTableTestFacade lookup();
+		
+		public default void action(String text) {
+			//TODO
+		}
 		
 		public List<String> getComboBoxValues();
 		

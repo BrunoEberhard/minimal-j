@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.minimalj.frontend.impl.swing.NavigationTree;
 import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
@@ -23,7 +23,6 @@ import org.minimalj.frontend.impl.swing.SwingToolBar;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
 import org.minimalj.frontend.impl.swing.toolkit.SwingDialog;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend.SwingActionText;
-import org.minimalj.test.UiTestFacade;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
@@ -32,6 +31,7 @@ import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
+import org.minimalj.test.UiTestFacade;
 import org.minimalj.util.resources.Resources;
 
 public class SwingTestFacade implements UiTestFacade {
@@ -51,15 +51,25 @@ public class SwingTestFacade implements UiTestFacade {
 		waitForEDT();
 		
 		Optional<SwingDialog> loginDialog = Arrays.stream(JDialog.getWindows()).filter(SwingDialog.class::isInstance).map(SwingDialog.class::cast).filter(w -> w.isVisible()).findFirst();
-		Assert.assertTrue(loginDialog.isPresent());
+		Assertions.assertTrue(loginDialog.isPresent());
 		
 		return new SwingLoginTestFacade(loginDialog.get());
 	}
 	
 	@Override
 	public PageContainerTestFacade getCurrentPageContainerTestFacade() {
-		Optional<SwingFrame> frame = Arrays.stream(JFrame.getWindows()).filter(SwingFrame.class::isInstance).map(SwingFrame.class::cast).filter(w -> w.isVisible()).findFirst();
-		Assert.assertTrue(frame.isPresent());
+		Optional<SwingFrame> frame = Optional.empty();
+		int count = 0;
+		while (!frame.isPresent() && count < 5) {
+			frame = Arrays.stream(JFrame.getWindows()).filter(SwingFrame.class::isInstance).map(SwingFrame.class::cast).filter(w -> w.isVisible()).findFirst();
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			count++;
+		}
+		Assertions.assertTrue(frame.isPresent());
 		
 		return new SwingFrameTestFacade(frame.get());
 	}
@@ -70,7 +80,7 @@ public class SwingTestFacade implements UiTestFacade {
 		public SwingLoginTestFacade(SwingDialog swingDialog) {
 			this.swingDialog = swingDialog;
 			
-			Assert.assertEquals(Resources.getString("Login.title"), swingDialog.getTitle());
+			Assertions.assertEquals(Resources.getString("Login.title"), swingDialog.getTitle());
 		}
 
 		@Override

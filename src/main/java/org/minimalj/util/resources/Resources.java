@@ -9,6 +9,8 @@ import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -19,6 +21,7 @@ import org.minimalj.model.ViewUtils;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.StringUtils;
 
 public class Resources {
 	private static final Logger logger = Logger.getLogger(Resources.class.getName());
@@ -100,7 +103,7 @@ public class Resources {
 
 		Integer getInteger(String resourceName, boolean reportIfMissing) {
 			if (isAvailable(resourceName)) {
-				String integerString = getString(resourceName);
+				String integerString = doGetString(resourceName);
 				try {
 					return Integer.parseInt(integerString);
 				} catch (NumberFormatException nfe) {
@@ -119,13 +122,18 @@ public class Resources {
 
 		String getString(String resourceName, boolean reportIfMissing) {
 			if (isAvailable(resourceName)) {
-				return resourceBundle.getString(resourceName);
+				return doGetString(resourceName);
 			} else {
 				reportMissing(resourceName, reportIfMissing);
 				return "'" + resourceName + "'";
 			}
 		}
 
+		private String doGetString(String resourceName) {
+			logger.finest(resourceName);
+			return fillPlaceHolder(resourceBundle.getString(resourceName));
+		}
+		
 		String getString(Class<?> clazz) {
 			String result = getStringOrNull(clazz);
 			if (result != null) {
@@ -139,6 +147,8 @@ public class Resources {
 				return getString(clazz.getName());
 			} else if (isAvailable(clazz.getSimpleName())) {
 				return getString(clazz.getSimpleName());
+			} else if (isAvailable(StringUtils.lowerFirstChar(clazz.getSimpleName()))) {
+				return getString(StringUtils.lowerFirstChar(clazz.getSimpleName()));				
 			} else if (View.class.isAssignableFrom(clazz) && !Code.class.isAssignableFrom(clazz)) {
 				Class<?> viewedClass = ViewUtils.getViewedClass(clazz);
 				String byViewedClass = getStringOrNull(viewedClass);
@@ -185,13 +195,13 @@ public class Resources {
 			// completeQualifiedKey example: "ch.openech.model.Person.nationality"
 			String completeQualifiedKey = declaringClass.getName() + "." + fieldName;
 			if (resourceBundle.containsKey(completeQualifiedKey)) {
-				return resourceBundle.getString(completeQualifiedKey);
+				return doGetString(completeQualifiedKey);
 			}
 
 			// qualifiedKey example: "Person.nationality"
 			String qualifiedKey = declaringClass.getSimpleName() + "." + fieldName;
 			if (resourceBundle.containsKey(qualifiedKey)) {
-				return resourceBundle.getString(qualifiedKey);
+				return doGetString(qualifiedKey);
 			}
 
 			// if declaring class is a view check to viewed class
@@ -208,7 +218,7 @@ public class Resources {
 
 			// unqualifiedKey example: "nationality"
 			if (resourceBundle.containsKey(fieldName)) {
-				return resourceBundle.getString(fieldName);
+				return doGetString(fieldName);
 			}
 			
 			// class of same name
@@ -236,13 +246,37 @@ public class Resources {
 					return c.getName();
 				}
 
-				if (isAvailable(c.getSimpleName())) {
-					return c.getSimpleName();
+				String simpleName = c.getSimpleName();
+				if (isAvailable(simpleName)) {
+					return simpleName;
 				}
+				
+				simpleName = StringUtils.lowerFirstChar(c.getSimpleName());
+				if (isAvailable(simpleName)) {
+					return StringUtils.lowerFirstChar(simpleName);
+				}
+				
 				c = c.getSuperclass();
 			}
 
 			return clazz.getSimpleName();
+		}
+		
+		private Pattern pattern = Pattern.compile("\\$\\{([\\w\\.]+)\\}");
+
+		private String fillPlaceHolder(String text) {
+			if (text.contains("${")) {
+				StringBuffer sb = new StringBuffer();
+				Matcher matcher = pattern.matcher(text);
+				while (matcher.find()) {
+					String replacement = getString(matcher.group(1));
+					matcher.appendReplacement(sb, replacement);
+				}
+				matcher.appendTail(sb);
+				return sb.toString();
+			} else {
+				return text;
+			}
 		}
 	}
 

@@ -35,6 +35,22 @@ public abstract class SearchPage<T> implements Page, TableActionListener<T> {
 			this.query = query;
 		}
 	}
+	
+	public boolean showTableOrDetail(boolean showEmptyPage) {
+		long count = getCount();
+		if (count == 1) {
+			Page detailPage = createDetailPage(getList().get(0));
+			if (detailPage != null) {
+				Frontend.show(detailPage);
+				return true;
+			}
+		}
+		if (count > 0 || showEmptyPage) {
+			Frontend.show(this);
+			return true;
+		}
+		return false;
+	}
 
 	protected abstract List<T> load(String query);
 	

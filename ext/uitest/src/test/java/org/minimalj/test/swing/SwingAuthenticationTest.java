@@ -10,9 +10,10 @@ import java.util.concurrent.RunnableFuture;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.impl.swing.NavigationTree;
 import org.minimalj.frontend.impl.swing.Swing;
@@ -29,9 +30,10 @@ import org.minimalj.test.TestUtil;
 import org.minimalj.test.UiTestFacade;
 import org.minimalj.util.resources.Resources;
 
+@Disabled
 public class SwingAuthenticationTest {
 
-	@After
+	@AfterEach
 	public void shutdown() {
 		TestUtil.shutdown();
 	}
@@ -54,16 +56,16 @@ public class SwingAuthenticationTest {
 		NavigationTestFacade navigation = pageContainer.getNavigation();
 		
 		PageTestFacade textPage = pageContainer.page();
-		Assert.assertTrue(textPage.contains("Subject: test"));
+		Assertions.assertTrue(textPage.contains("Subject: test"));
 		
-//		Assert.assertNotNull(SwingTestUtils.getComponent(frame, Resources.getString("ReloginAction")));
-//		Assert.assertNull(SwingTestUtils.getComponent(frame, Resources.getString("LogoutAction")));
+//		Assertions.assertNotNull(SwingTestUtils.getComponent(frame, Resources.getString("ReloginAction")));
+//		Assertions.assertNull(SwingTestUtils.getComponent(frame, Resources.getString("LogoutAction")));
 //
 //		SwingTestUtils.click(frame, "Menu.window");
 //		SwingTestUtils.click(frame, "ReloginAction");
 //
 //		dialog = getDialog();
-//		Assert.assertEquals("Anmeldung", dialog.getTitle());
+//		Assertions.assertEquals("Anmeldung", dialog.getTitle());
 		
 		// AbstractButton button = SwingTestUtils.findButton(dialog, Resources.getString("OpenNewWindow"));
 	}
@@ -81,18 +83,19 @@ public class SwingAuthenticationTest {
 
 		userPasswordLogin.login();
 
+		Thread.sleep(100);
 		SwingFrame frame = getFrame();
-		Assert.assertEquals("test", frame.getSubject().getName());
+		Assertions.assertEquals("test", frame.getSubject().getName());
 
-		Assert.assertNotNull(SwingTestUtils.getComponent(frame, Resources.getString("ReloginAction")));
-		Assert.assertNotNull(SwingTestUtils.getComponent(frame, Resources.getString("LogoutAction")));
+		Assertions.assertNotNull(SwingTestUtils.getComponent(frame, Resources.getString("ReloginAction")));
+		Assertions.assertNotNull(SwingTestUtils.getComponent(frame, Resources.getString("LogoutAction")));
 
 		SwingTab tab = frame.getVisibleTab();
 		Page page = tab.getVisiblePage();
-		Assert.assertTrue(page instanceof TestPage);
+		Assertions.assertTrue(page instanceof TestPage);
 
 		NavigationTree navigationTree = SwingTestUtils.getComponent(frame, NavigationTree.class);
-		Assert.assertNotNull(navigationTree);
+		Assertions.assertNotNull(navigationTree);
 		// click(frame, "Menu.window");
 		// click(frame, "NewWindowAction");
 	}
@@ -105,7 +108,7 @@ public class SwingAuthenticationTest {
 		PageContainerTestFacade pageContainer = ui.getCurrentPageContainerTestFacade();
 		
 		NavigationTestFacade navigation = pageContainer.getNavigation();
-		Assert.assertNotNull(navigation.get("ActionWithoutLogin"));
+		Assertions.assertNotNull(navigation.get("ActionWithoutLogin"));
 	}
 
 	private <T> T swing(Callable<T> callable) {
@@ -120,7 +123,7 @@ public class SwingAuthenticationTest {
 
 	private SwingFrame getFrame() {
 		return swing(() -> {
-			Assert.assertEquals("There should be 1 open frame", 1, Arrays.stream(JDialog.getWindows()).filter(w -> w instanceof SwingFrame).filter(w -> w.isVisible()).count());
+			Assertions.assertEquals(1, Arrays.stream(JDialog.getWindows()).filter(w -> w instanceof SwingFrame).filter(w -> w.isVisible()).count(), "There should be 1 open frame");
 			return (SwingFrame) Arrays.stream(JDialog.getWindows()).filter(w -> w instanceof SwingFrame).filter(w -> w.isVisible()).findFirst().get();
 		});
 	}

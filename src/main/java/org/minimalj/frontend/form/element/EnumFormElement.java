@@ -21,8 +21,8 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 		this(property, null, true);
 	}
 
-	public EnumFormElement(E key, List<E> canBeEmpty) {
-		this(Keys.getProperty(key), canBeEmpty, true);
+	public EnumFormElement(E key, List<E> allowedValues) {
+		this(key, allowedValues, true);
 	}
 
 	public EnumFormElement(E key) {
@@ -31,9 +31,13 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 
 	@SuppressWarnings("unchecked")
 	public EnumFormElement(E key, boolean canBeEmpty) {
-		this(Keys.getProperty(key), (List<E>) EnumUtils.valueList(key.getClass()), canBeEmpty);
+		this(key, (List<E>) EnumUtils.valueList(key.getClass()), canBeEmpty);
 	}
-		
+
+	public EnumFormElement(E key, List<E> allowedValues, boolean canBeEmpty) {
+		this(Keys.getProperty(key), allowedValues, canBeEmpty);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public EnumFormElement(Property property, List<E> allowedValues, boolean canBeEmpty) {
 		super(property);

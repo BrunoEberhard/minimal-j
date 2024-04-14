@@ -102,6 +102,18 @@ public interface Page extends AccessControl {
 		return Integer.MAX_VALUE;
 	}
 	
+	public default Integer getHeightBasis() {
+		return null;
+	}
+
+	public default float getHeightGrow() {
+		return 1f;
+	}
+
+	public default float getHeightShrink() {
+		return 1f;
+	}
+
 	/**
 	 * A dialog blocks the page navigation
 	 *
@@ -129,5 +141,23 @@ public interface Page extends AccessControl {
 	
 	public interface WheelPage extends Page, WheelListener {
 		
+		public default boolean hasPrevious() {
+			Integer wheelIndex = getCurrentWheelIndex();
+			return wheelIndex == null || wheelIndex > 0;
+		}
+
+		public default boolean hasNext() {
+			Integer wheelIndex = getCurrentWheelIndex();
+			Integer maxIndex = getMaxIndex();
+			return wheelIndex == null || maxIndex == null || wheelIndex < maxIndex - 1;
+		}
+
+		public default Integer getCurrentWheelIndex() {
+			return null;
+		}
+		
+		public default Integer getMaxIndex() {
+			return null;
+		}
 	}
 }

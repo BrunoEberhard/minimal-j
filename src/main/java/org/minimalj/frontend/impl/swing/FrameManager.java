@@ -2,11 +2,9 @@ package org.minimalj.frontend.impl.swing;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
-import javax.swing.UIManager;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
@@ -32,24 +30,7 @@ public class FrameManager {
 	}
 	
 	//
-	
-	/**
-	 * Sets the Look and Feel to the system default and sets the
-	 * property "apple.laf.useScreenMenuBar" to true (mac specific)
-	 */
-	public static void setSystemLookAndFeel() {
-		try {
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getString(Resources.APPLICATION_NAME));
-			
-			String name = UIManager.getSystemLookAndFeelClassName();
-			UIManager.setLookAndFeel(name);
-		} catch (Exception e) {
-			String s = "Couldn't set system LookandFeel";
-			logger.log(Level.WARNING, s, e);
-		}
-	}
-	
+
 	public static FrameManager getInstance() {
 		return instance;
 	}

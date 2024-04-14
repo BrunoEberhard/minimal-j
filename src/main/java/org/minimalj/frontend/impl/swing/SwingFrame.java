@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -19,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
@@ -26,11 +28,14 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.impl.swing.SwingMenuBar.SwingBarProvider;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+
+import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 
 public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -38,16 +43,19 @@ public class SwingFrame extends JFrame {
 	private Subject subject;
 	final SwingFavorites favorites = new SwingFavorites(this::onFavoritesChange);
 
-	private final JTabbedPane tabbedPane = new JTabbedPane();
+	private final FlatTabbedPane tabbedPane = new FlatTabbedPane();
 	private JScrollPane navigationScrollPane;
 	private SwingToolBar toolBar;
 	private SwingMenuBar menuBar;
-	private JTabbedPane navigationTabbedPane;
+	private FlatTabbedPane navigationTabbedPane;
 	private JSplitPane splitPane;
 
 	public static SwingFrame activeFrameOverride = null;
 
-	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction, closeTabAction, navigationAction;
+	final Action loginAction, logoutAction, closeWindowAction, exitAction, newWindowAction, newTabAction;
+	final CloseTabAction closeTabAction;
+	public final NavigationAction navigationAction;
+	public final Action toolbarAction;
 
 	public SwingFrame() {
 		AuthenticatonMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
@@ -60,7 +68,10 @@ public class SwingFrame extends JFrame {
 		newWindowAction = new NewWindowAction();
 		newTabAction = new NewTabAction();
 		navigationAction = new NavigationAction();
+		toolbarAction = new ToolbarAction();
 
+		tabbedPane.setHideTabAreaWithOneTab(false);
+		tabbedPane.setTabCloseCallback(closeTabAction);
 		tabbedPane.getModel().addChangeListener(this::tabSelectionChanged);
 
 		setDefaultSize();
@@ -68,6 +79,7 @@ public class SwingFrame extends JFrame {
 		addWindowListener();
 		createContent();
 
+		updateMenuBar();
 		addTab();
 
 		updateIcon();
@@ -75,13 +87,12 @@ public class SwingFrame extends JFrame {
 
 	protected void setDefaultSize() {
 		Dimension screenSize = getToolkit().getScreenSize();
-		if (screenSize.width < 1280 || screenSize.height < 1024) {
+		Dimension frameSize = Application.getInstance().getFrameSize(screenSize);
+		if (frameSize.width == Integer.MAX_VALUE || frameSize.height == Integer.MAX_VALUE) {
 			setExtendedState(MAXIMIZED_BOTH);
 			setSize(screenSize.width - 20, screenSize.height - 40);
 		} else {
-			int width = Math.min(screenSize.width - 40, 1300);
-			int height = Math.min(screenSize.height - 40, 1000);
-			setSize(width, height);
+			setSize(frameSize);
 		}
 	}
 
@@ -97,24 +108,18 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void createContent() {
-		menuBar = new SwingMenuBar(this);
-		setJMenuBar(menuBar);
-
 		getContentPane().setLayout(new BorderLayout());
 
-		toolBar = new SwingToolBar();
+		toolBar = createToolBar();
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 
 		navigationScrollPane = new JScrollPane();
 		navigationScrollPane.setBorder(BorderFactory.createEmptyBorder());
-//		ActionListener navigationClosedListener = e -> {
-//			navigationAction.putValue(Action.SELECTED_KEY, Boolean.FALSE);
-//			navigationAction.actionPerformed(e);
-//		};
-//		decoratedNavigationPane = new SwingDecoration(Application.getInstance().getName(), navigationScrollPane, SwingDecoration.HIDE_MINIMIZE, navigationClosedListener);
-		navigationTabbedPane = new JTabbedPane();
+		navigationTabbedPane = new FlatTabbedPane();
+		navigationTabbedPane.setTabsClosable(true);
 		navigationTabbedPane.addTab(Application.getInstance().getName(), navigationScrollPane);
-
+		navigationTabbedPane.setTabCloseCallback((tab, index) -> navigationAction.close());
+		
 		splitPane = new JSplitPane();
 		splitPane.setBorder(BorderFactory.createEmptyBorder());
 		getContentPane().add(splitPane, BorderLayout.CENTER);
@@ -125,13 +130,19 @@ public class SwingFrame extends JFrame {
 		splitPane.setDividerLocation(200);
 	}
 
-	private void tabSelectionChanged(ChangeEvent event) {
-		toolBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
-		menuBar.setActiveTab((SwingTab) tabbedPane.getSelectedComponent());
+	private void tabSelectionChanged(ChangeEvent e) {
+		SwingUtilities.invokeLater(() -> tabSelectionChanged((SwingTab) tabbedPane.getSelectedComponent()));
+		closeTabAction.setEnabled(tabbedPane.getTabCount() > 1);
+		tabbedPane.setTabsClosable(tabbedPane.getTabCount() > 1);
+	}
+
+	private void tabSelectionChanged(SwingTab tab) {
+		toolBar.setActiveTab(tab);
+		menuBar.setActiveTab(tab);
 		// TODO resuse NavigationTree
 		updateNavigation();
 	}
-
+	
 	public void updateNavigation() {
 		SwingFrontend.run(this, () -> {
 			navigationScrollPane.setViewportView(new NavigationTree(Application.getInstance().getNavigation()));
@@ -224,9 +235,13 @@ public class SwingFrame extends JFrame {
 
 	void onHistoryChanged() {
 		updateTitle();
+		updateWindowTitle();
 	}
 
 	public void setSubject(Subject subject) {
+		if (!SwingUtilities.isEventDispatchThread()) 
+			throw new RuntimeException();
+		
 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
 			SwingTab swingTab = (SwingTab) tabbedPane.getComponentAt(i);
 			swingTab.setSubject(subject);
@@ -242,11 +257,16 @@ public class SwingFrame extends JFrame {
 		}
 
 		SwingFrontend.run(this, () -> {
+			if (!SwingUtilities.isEventDispatchThread()) {
+				throw new IllegalStateException();
+			}
+
 			favorites.setUser(subject != null ? subject.getName() : null);
 			setSearchEnabled(Application.getInstance().hasSearch());
 
 			updateNavigation();
 			updateWindowTitle();
+			updateMenuBar();
 
 			Frontend.show(Application.getInstance().createDefaultPage());
 		});
@@ -265,8 +285,13 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void updateWindowTitle() {
-		String title = Application.getInstance().getName();
-		if (subject != null && !StringUtils.isEmpty(subject.getName())) {
+		String title;
+		if (tabbedPane.isHideTabAreaWithOneTab() && tabbedPane.getTabCount() == 1) {
+			title = tabbedPane.getTitleAt(0);
+		} else {
+			title = Application.getInstance().getName();
+		}
+		if (Backend.getInstance().isAuthenticationActive() && subject != null && !StringUtils.isEmpty(subject.getName())) {
 			title = title + " - " + subject.getName();
 		}
 		setTitle(title);
@@ -293,6 +318,38 @@ public class SwingFrame extends JFrame {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+		}
+	}
+
+	protected void updateMenuBar() {
+		if (Application.getInstance() instanceof SwingBarProvider) {
+			menuBar = ((SwingBarProvider) Application.getInstance()).createMenuBar(this);
+			setJMenuBar(menuBar);
+		} else if (menuBar != null) {
+			menuBar = new SwingMenuBar(this);
+			setJMenuBar(menuBar);
+		}
+	}
+	
+	protected SwingToolBar createToolBar() {
+		if (Application.getInstance() instanceof SwingBarProvider) {
+			return ((SwingBarProvider) Application.getInstance()).createToolBar(this);
+		} else {
+			return new SwingToolBar();
+		}
+	}
+	
+	public void previous() {
+		SwingTab tab = getVisibleTab();
+		if (tab != null && tab.hasPast()) {
+			tab.previous();
+		}
+	}
+
+	public void next() {
+		SwingTab tab = getVisibleTab();
+		if (tab != null && tab.hasFuture()) {
+			tab.next();
 		}
 	}
 
@@ -369,22 +426,51 @@ public class SwingFrame extends JFrame {
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent unsed) {
 			if (Boolean.TRUE.equals(getValue(Action.SELECTED_KEY))) {
 				splitPane.setLeftComponent(navigationTabbedPane);
 				splitPane.setDividerSize((Integer) UIManager.get("SplitPane.dividerSize"));
 				splitPane.setDividerLocation(lastDividerLocation);
+				tabbedPane.setHideTabAreaWithOneTab(false);
 			} else {
 				lastDividerLocation = splitPane.getDividerLocation();
 				splitPane.setLeftComponent(null);
 				splitPane.setDividerSize(0);
+				tabbedPane.setHideTabAreaWithOneTab(true);
+			}
+			updateWindowTitle();
+		}
+		
+		public void close() {
+			putValue(Action.SELECTED_KEY, false);
+			actionPerformed(null);
+		}
+	}
+
+	private class ToolbarAction extends SwingResourceAction {
+		private static final long serialVersionUID = 1L;
+
+		public ToolbarAction() {
+			putValue(Action.SELECTED_KEY, Boolean.TRUE);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Boolean.TRUE.equals(getValue(Action.SELECTED_KEY))) {
+				toolBar.setVisible(true);
+			} else {
+				toolBar.setVisible(false);
 			}
 		}
 	}
 
-	private class CloseTabAction extends SwingResourceAction {
+	private class CloseTabAction extends SwingResourceAction implements BiConsumer<JTabbedPane, Integer> {
 		private static final long serialVersionUID = 1L;
 
+		public CloseTabAction() {
+			setEnabled(false);
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// first try to close detail,
@@ -394,8 +480,16 @@ public class SwingFrame extends JFrame {
 				if (tabbedPane.getTabCount() > 1) {
 					tabbedPane.remove(tabbedPane.getSelectedIndex());
 				} else {
+					// at the moment this should not happen as CloseTabAction is only enabled if tabCount > 1
 					tryToCloseWindow();
 				}
+			}
+		}
+		
+		@Override
+		public void accept(JTabbedPane t, Integer index) {
+			if (!getVisibleTab().close()) {
+				tabbedPane.remove(index);
 			}
 		}
 	}

@@ -11,14 +11,10 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
-import org.minimalj.frontend.impl.swing.FrameManager;
 import org.minimalj.frontend.impl.swing.SwingResourceAction;
 
 public class LookAndFeelAction extends SwingResourceAction {
 	private static final long serialVersionUID = 1L;
-	public static final String SYSTEM = "system";
-	
-	private final boolean isSystem;
 	
 	public LookAndFeelAction(String name) {
 		this(name, UIManager.getSystemLookAndFeelClassName());
@@ -27,7 +23,6 @@ public class LookAndFeelAction extends SwingResourceAction {
 	public LookAndFeelAction(String name, String laf) {
 		super("LookAndFeel." + name);
 		putValue(ACTION_COMMAND_KEY, laf);
-		isSystem = SYSTEM.equals(name);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -35,17 +30,13 @@ public class LookAndFeelAction extends SwingResourceAction {
 	public void actionPerformed(ActionEvent actionEvent) {
 		try {
 			String lookAndFeelClassName = actionEvent.getActionCommand();
-			if (isSystem) {
-				FrameManager.setSystemLookAndFeel();
-			} else {
-				Class<LookAndFeel> lookAndFeelClass = (Class<LookAndFeel>) Class.forName(lookAndFeelClassName);
-				LookAndFeel lookAndFeel = lookAndFeelClass.newInstance();
-				if (lookAndFeel instanceof MetalThemeProvider) {
-					MetalTheme theme = ((MetalThemeProvider) lookAndFeel).getMetalTheme();
-					MetalLookAndFeel.setCurrentTheme(theme);
-				}
-				UIManager.setLookAndFeel(lookAndFeel);
+			Class<LookAndFeel> lookAndFeelClass = (Class<LookAndFeel>) Class.forName(lookAndFeelClassName);
+			LookAndFeel lookAndFeel = lookAndFeelClass.newInstance();
+			if (lookAndFeel instanceof MetalThemeProvider) {
+				MetalTheme theme = ((MetalThemeProvider) lookAndFeel).getMetalTheme();
+				MetalLookAndFeel.setCurrentTheme(theme);
 			}
+			UIManager.setLookAndFeel(lookAndFeel);
 			for (Window window : JFrame.getWindows()) {
 				SwingUtilities.updateComponentTreeUI(window);
 				window.validate();

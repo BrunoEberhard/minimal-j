@@ -24,8 +24,9 @@ public abstract class SmallListFormElement<T> extends AbstractLookupFormElement<
 	@Override
 	protected abstract String render(List<T> value);
 
+	@Override
 	public void lookup() {
-		if (this instanceof LookupParser) {
+		if (this instanceof LookupParser || getValue() == null || getValue().isEmpty()) {
 			new AddListEntryEditor().run();
 		} else {
 			new SmallListFormElementEditor().run();

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.minimalj.application.Configuration;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
@@ -49,8 +49,8 @@ public class WebTestFacade implements UiTestFacade {
 		window.setPosition(new Point(0, 0));
 		window.setSize(new Dimension(1600, 900));
 		
-		Assert.assertEquals(1600, window.getSize().width);
-		Assert.assertEquals(900, window.getSize().height);
+		Assertions.assertEquals(1600, window.getSize().width);
+		Assertions.assertEquals(900, window.getSize().height);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
 		return driver;
@@ -73,7 +73,7 @@ public class WebTestFacade implements UiTestFacade {
 
 	@Override
 	public UserPasswordLoginTestFacade getLoginTestFacade() {
-		Assert.assertEquals(Resources.getString("Login.title"), driver.getTitle());
+		Assertions.assertEquals(Resources.getString("Login.title"), driver.getTitle());
 
 		return new HtmlLoginTestFacade();
 	}
@@ -359,7 +359,12 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public FormElementTestFacade getElement(String caption) {
-			WebElement label = form.findElement(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]"));
+			return getElement(caption, 0);
+		}
+		
+		@Override
+		public FormElementTestFacade getElement(String caption, int index) {
+			WebElement label = form.findElements(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]")).get(index);
 			String id = label.getAttribute("for");
 			WebElement element = form.findElement(By.id(id));
 			return new HtmlFormElementTestFacade(element);
@@ -370,6 +375,13 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement rowElement = form.findElements(By.xpath("./div")).get(row);
 			WebElement element = rowElement.findElements(By.xpath("./div")).get(column);
 			return new HtmlFormElementTestFacade(element);
+		}
+		
+		@Override
+		public ActionTestFacade getAction(String label) {
+//			<div class="action" onclick="action(&quot;a94bef74-8838-4449-8661-99f01159705b&quot;);" id="a94bef74-8838-4449-8661-99f01159705b">Verpackungseinheit hinzufügen</div>
+			WebElement rowElement = form.findElement(By.xpath(".//div[text()=" + WebTest.escapeXpath(label) + "]"));
+			return new HtmlActionTestFacade(rowElement);
 		}
 	}
 
@@ -434,13 +446,24 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public SearchTableTestFacade lookup() {
-			WebElement lookupButton = formElement.findElement(By.className("lookupbutton"));
+			WebElement lookupButton = formElement.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
 			return new HtmlSearchTableTestFacade(dialogs.get(dialogs.size() - 1));
 		}
 
+		@Override
+		public void action(String text) {
+			WebElement dropdownButton = formElement.findElement(By.cssSelector("div.dropdownButton"));
+			dropdownButton.click();
+			waitScript();
+			WebElement actionMenu = formElement.findElement(By.cssSelector("div.dropdown"));
+			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+			item.click();
+			waitScript();
+		}
+		
 		@Override
 		public String getLine(int line) {
 			WebElement divGroupVertical = formElement.findElement(By.className("groupVertical"));
@@ -544,8 +567,7 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			Actions action = new Actions(driver);
-			// TODO understand and fix this 'td'
-			action.click(tr.findElement(By.tagName("td"))).perform();
+			action.click(tr).perform();
 			waitScript();
 		}
 		
@@ -596,7 +618,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public DialogTestFacade filterLookup(int column) {
 			WebElement columnFilter = getColumnFilter(column);
-			WebElement lookupButton = columnFilter.findElement(By.className("lookupbutton"));
+			WebElement lookupButton = columnFilter.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
@@ -609,7 +631,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		public HtmlSearchTableTestFacade(WebElement dialog) {
 			super(null, dialog);
-			Assert.assertEquals("SearchDialog", dialog.getAttribute("type"));
+			Assertions.assertEquals("SearchDialog", dialog.getAttribute("type"));
 		}
 
 		public void search(String text) {

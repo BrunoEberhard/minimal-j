@@ -1,8 +1,9 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.event.MouseListener;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -17,10 +18,8 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 	
 	public SwingTextAreaField(InputComponentListener changeListener, int maxLength, String pattern) {
 		textArea = new JTextArea(new SwingTextField.FilteredDocument(maxLength, pattern));
-		textArea.setFont(UIManager.getDefaults().getFont("TextField.font"));
-		setBorder(UIManager.getDefaults().getBorder("TextField.border"));
 		textArea.setLineWrap(true);
-		textArea.setRows(calcRows(maxLength));
+		// textArea.setRows(calcRows(maxLength));
 		textArea.getDocument().addDocumentListener(new TextFieldChangeListener());
 		setViewportView(textArea);
 		
@@ -35,6 +34,12 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 //				}
 //			}
 //		});
+	}
+	
+	@Override
+	public synchronized void addMouseListener(MouseListener l) {
+		super.addMouseListener(l);
+		textArea.addMouseListener(l);
 	}
 	
 	// TODO make number of rows in SwingTextAreaField somehow configurable

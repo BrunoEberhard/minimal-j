@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.swing.toolkit;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -13,6 +14,8 @@ import javax.swing.SwingUtilities;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.page.Page.Dialog;
+
+import com.formdev.flatlaf.util.UIScale;
 
 public class SwingDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
@@ -51,15 +54,16 @@ public class SwingDialog extends JDialog {
 
 		setContentPane((JComponent) content);
 		pack();
+		
+		setLocationRelativeTo(frame);
 
 		if (frame != null) {
 			Dimension size = getSize();
-			size.height = Math.min(frame.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().height - 50, size.height);
-			size.width = Math.min(frame.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().width - 100, size.width);
-			setSize(size);
+			Rectangle bounds = frame.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds();
+			size.height = Math.min(UIScale.scale(bounds.height) - 50, size.height);
+			size.width = Math.min(UIScale.scale(bounds.width) - 100, size.width);
+			setMaximumSize(size);
 		}
-
-		setLocationRelativeTo(frame);
 
 		SwingFrontend.focusFirstComponent((JComponent) this.getContentPane());
 		SwingUtilities.invokeLater(() -> {

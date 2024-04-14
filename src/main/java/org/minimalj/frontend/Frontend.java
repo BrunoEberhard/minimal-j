@@ -271,6 +271,10 @@ public abstract class Frontend {
 	 */
 	public abstract boolean showLogin(Dialog dialog);
 	
+	protected void open(Dialog dialog) {
+		getPageManager().showDialog(dialog);
+	}
+	
 	protected void close(Dialog dialog) {
 		getPageManager().closeDialog(dialog);
 	}
@@ -318,7 +322,7 @@ public abstract class Frontend {
 	}
 
 	public static void showDialog(Dialog dialog) {
-		getInstance().getPageManager().showDialog(dialog);
+		getInstance().open(dialog);
 	}
 	
 	public static void closeDialog(Dialog dialog) {

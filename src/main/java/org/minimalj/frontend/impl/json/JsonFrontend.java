@@ -138,6 +138,11 @@ public class JsonFrontend extends Frontend {
 	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
 		return new JsonCustomFilter(filter, table, search, reset);
 	}
+	
+	// experimental
+	public IContent createFilteredTable(FormContent filter, IComponent table, Action search, Action reset) {
+		return new JsonCustomFilter(filter, table, search, reset);
+	}
 
 	@Override
 	public Input<String> createLookup(Input<String> input, Runnable lookup) {

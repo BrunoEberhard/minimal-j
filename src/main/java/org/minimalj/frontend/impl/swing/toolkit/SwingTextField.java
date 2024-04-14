@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -17,7 +16,9 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.util.StringUtils;
 
-public class SwingTextField extends JTextField implements Input<String>, FocusListener {
+import com.formdev.flatlaf.extras.components.FlatTextField;
+
+public class SwingTextField extends FlatTextField implements Input<String>, FocusListener {
 	private static final long serialVersionUID = 1L;
 
 	private final InputComponentListener changeListener;
@@ -29,7 +30,8 @@ public class SwingTextField extends JTextField implements Input<String>, FocusLi
 	}
 
 	public SwingTextField(InputComponentListener changeListener, int maxLength, String allowedCharacters) {
-		super(new FilteredDocument(maxLength, allowedCharacters), null, 0);
+		super();
+		setDocument(new FilteredDocument(maxLength, allowedCharacters));
 
 		this.changeListener = changeListener;
 		if (changeListener != null) {

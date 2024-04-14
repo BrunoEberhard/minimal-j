@@ -29,7 +29,6 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	private final Map<T, Form<T>> formByObject = new HashMap<>();
 
 	private final TableRowFormFactory<? super T> formFactory;
-	private final List<Action> actions;
 	private final List<Property> propertyAsChain;
 
 	public TableFormElement(List<T> key, List<Object> columns, List<Action> actions, boolean editable) {
@@ -37,33 +36,61 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	}
 
 	public TableFormElement(Property property, List<Object> columns, List<Action> actions, boolean editable) {
-		this(property, new SimpleTableRowFormFactory<T>(columns), actions, editable);
+		this(property, new SimpleTableRowFormFactory<T>(columns, actions), editable);
 	}
 
-	public TableFormElement(List<T> key, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
-		this(Keys.getProperty(key), formFactory, actions, editable);
+	public TableFormElement(List<T> key, TableRowFormFactory<? super T> formFactory, boolean editable) {
+		this(Keys.getProperty(key), formFactory, editable);
 	}
 
-	public TableFormElement(Property property, TableRowFormFactory<? super T> formFactory, List<Action> actions, boolean editable) {
+	public TableFormElement(Property property, TableRowFormFactory<? super T> formFactory, boolean editable) {
 		super(property);
 		this.editable = editable;
 		this.formFactory = formFactory;
-		this.actions = Collections.unmodifiableList(actions);
 		this.switchComponent = Frontend.getInstance().createSwitchComponent();
 		this.propertyAsChain = ChainedProperty.getChain(getProperty());
+		update(true);
 	}
 
 	public static interface TableRowFormFactory<T> {
 
 		// "NonNull"
 		public Form<T> create(T object, int row, boolean editable);
+		
+		public default IComponent createFooter() {
+			return null;
+		}
+		
+		public static IComponent createFooter(List<Action> actions, int columns, int columnWidth) {
+			if (actions != null && !actions.isEmpty()) {
+				Form<Object> rowForm = new Form<>(Form.READ_ONLY, columns, columnWidth);
+				rowForm.setIgnoreCaption(true);
+				List<Object> actionElements = new ArrayList<>();
+				for (Action action : actions) {
+					if (actionElements.size() == columns) {
+						rowForm.line(actionElements.toArray());
+						actionElements.clear();
+					}
+					actionElements.add(new ActionFormElement(action));
+				}
+				while (actionElements.size() < columns) {
+					actionElements.add("");
+				}
+				rowForm.line(actionElements.toArray());
+				return rowForm.getContent();
+			} else {
+				return null;
+			}
+		}
 	}
 
 	protected static class SimpleTableRowFormFactory<T> implements TableRowFormFactory<T> {
 		private final List<Object> columns;
-
-		public SimpleTableRowFormFactory(List<Object> columns) {
+		private final List<Action> actions;
+		
+		public SimpleTableRowFormFactory(List<Object> columns, List<Action> actions) {
 			this.columns = Collections.unmodifiableList(columns);
+			this.actions = actions;
 		}
 
 		@Override
@@ -71,6 +98,11 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			Form<T> rowForm = new Form<>(editable, columns.size());
 			rowForm.line(columns.toArray());
 			return rowForm;
+		}
+		
+		@Override
+		public IComponent createFooter() {
+			return TableRowFormFactory.createFooter(actions, columns.size(), Form.DEFAULT_COLUMN_WIDTH);
 		}
 	}
 
@@ -86,7 +118,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	@Override
 	public void setValue(List<T> object) {
 		this.object = object;
-		update();
+		update(false);
 	}
 	
 	/**
@@ -122,34 +154,41 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		formByObject.clear();
 	}
 	
-	private void update() {
+	private void update(boolean force) {
 		List<IComponent> rows = new ArrayList<>();
 		rowForms.clear();
-		boolean structuralChange = false;
-		for (int index = 0; index < object.size(); index++) {
-			T rowObject = object.get(index);
-			int i = index;
-			structuralChange |= !formByObject.containsKey(rowObject);
-			@SuppressWarnings("unchecked")
-			Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
-			rowForms.add(rowForm);
-			if (rowForm != null) {
-				rowForm.setChangeListener(form -> fireChange(i, rowObject, rowForm));
-				rowForm.setObject(rowObject);
-				rows.add(rowForm.getContent());
-				
+		boolean structuralChange = force;
+		if (object != null) {
+			for (int index = 0; index < object.size(); index++) {
+				T rowObject = object.get(index);
+				int i = index;
+				structuralChange |= !formByObject.containsKey(rowObject);
+				@SuppressWarnings("unchecked")
+				Form<T> rowForm = (Form<T>) formByObject.computeIfAbsent(rowObject, r -> (Form<T>) formFactory.create(r, i, editable));
+				rowForms.add(rowForm);
+				if (rowForm != null) {
+					rowForm.setChangeListener(form -> fireChange(i, rowObject, rowForm));
+					rowForm.setObject(rowObject);
+					rows.add(rowForm.getContent());
+					
+				}
 			}
+			List<T> unsedForms = formByObject.entrySet().stream().filter(e -> !rowForms.contains(e.getValue())).map(e -> e.getKey()).collect(Collectors.toList());
+			unsedForms.forEach(formByObject::remove);
+			structuralChange |= !unsedForms.isEmpty();
 		}
-		List<T> unsedForms = formByObject.entrySet().stream().filter(e -> !rowForms.contains(e.getValue())).map(e -> e.getKey()).collect(Collectors.toList());
-		unsedForms.forEach(formByObject::remove);
-		structuralChange |= !unsedForms.isEmpty();
 
 		if (structuralChange) {
-			if (!actions.isEmpty()) {
-				rows.add(createActions(actions));
-			}
+			addFooter(rows);
 			IComponent vertical = Frontend.getInstance().createVerticalGroup(rows.toArray(new IComponent[rows.size()]));
 			switchComponent.show(vertical);
+		}
+	}
+	
+	private void addFooter(List<IComponent> rows) {
+		IComponent footer = formFactory.createFooter();
+		if (footer != null) {
+			rows.add(footer);
 		}
 	}
 	
@@ -167,14 +206,6 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		Form<T> rowForm = rowForms.get(index);
 		T rowObject = object.get(index);
 		rowForm.setObject(rowObject);
-	}
-
-	private IComponent createActions(List<Action> actions) {
-		IComponent[] components = new IComponent[actions.size()];
-		for (int i = 0; i < actions.size(); i++) {
-			components[i] = Frontend.getInstance().createText(actions.get(i));
-		}
-		return Frontend.getInstance().createHorizontalGroup(components);
 	}
 
 	public void setValidationMessages(List<ValidationMessage> validationMessages) {
