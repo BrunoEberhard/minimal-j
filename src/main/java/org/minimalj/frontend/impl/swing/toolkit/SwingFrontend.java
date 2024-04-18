@@ -651,21 +651,20 @@ public class SwingFrontend extends Frontend {
 		SwingFrame frame = findFrame(source);
 		
 		Runnable runnable = () -> {
-			SwingTab tab;
+			SwingTab tab = null;
 			
 			SwingTab savedTab = pageManager.get();
 			Subject savedSubject = Subject.getCurrent();
-			boolean savedEnabled;
+			boolean savedEnabled = true;
 			
 			if (frame != null) {
 				tab = frame.getVisibleTab();
-				savedEnabled = tab.isEnabled();
-				pageManager.set(tab);
-				Subject.setCurrent(frame.getSubject());
-				tab.setEnabled(false);
-			} else {
-				tab = null;
-				savedEnabled = true;
+				if (tab != null) {
+					savedEnabled = tab.isEnabled();
+					pageManager.set(tab);
+					Subject.setCurrent(frame.getSubject());
+					tab.setEnabled(false);
+				}
 			}
 			try {
 				r.run();
