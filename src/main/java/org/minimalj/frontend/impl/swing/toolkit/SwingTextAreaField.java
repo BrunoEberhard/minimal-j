@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JScrollPane;
@@ -18,7 +19,23 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 	private final JTextArea textArea;
 	
 	public SwingTextAreaField(InputComponentListener changeListener, int maxLength, String pattern) {
-		textArea = new JTextArea(new SwingTextField.FilteredDocument(maxLength, pattern));
+		textArea = new JTextArea(new SwingTextField.FilteredDocument(maxLength, pattern)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void processComponentKeyEvent(KeyEvent e) {
+				if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_TAB) {
+					e.consume();
+					if (e.isShiftDown()) {
+						transferFocusBackward();
+					} else {
+						transferFocus();
+					}
+				} else {
+					super.processComponentKeyEvent(e);
+				}
+			}
+		};
 		textArea.setLineWrap(true);
 		// textArea.setRows(calcRows(maxLength));
 		textArea.getDocument().addDocumentListener(new TextFieldChangeListener());
