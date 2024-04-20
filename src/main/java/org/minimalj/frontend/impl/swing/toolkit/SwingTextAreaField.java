@@ -4,6 +4,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -52,7 +53,8 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 		return rows;
 	}
 
-	public class TextFieldChangeListener implements DocumentListener {
+	public class TextFieldChangeListener implements DocumentListener, Runnable {
+		private boolean invokeSet = false;
 
 		@Override
 		public void changedUpdate(DocumentEvent arg0) {
@@ -68,8 +70,18 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 		public void removeUpdate(DocumentEvent arg0) {
 			fireChangeEvent();
 		}
-		
+
 		private void fireChangeEvent() {
+			// gather all remove/insert of document in one change
+			if (!invokeSet) {
+				invokeSet = true;
+				SwingUtilities.invokeLater(this);
+			}
+		}
+
+		@Override
+		public void run() {
+			invokeSet = false;
 			changeListener.changed(SwingTextAreaField.this);
 		}
 	}
