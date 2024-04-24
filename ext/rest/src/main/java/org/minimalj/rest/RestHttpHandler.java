@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,9 @@ public class RestHttpHandler implements MjHttpHandler {
 		
 		MjModel mjModel = new MjModel(model.getEntityClasses());
 		for (MjEntity entity : mjModel.entities) {
-			classByName.put(entity.getClassName(), entity.getClazz());
+			if ((entity.getClazz().getModifiers() & Modifier.ABSTRACT) == 0) {
+				classByName.put(entity.getClassName(), entity.getClazz());
+			}
 		}
 		
 		if (model instanceof Api) {
