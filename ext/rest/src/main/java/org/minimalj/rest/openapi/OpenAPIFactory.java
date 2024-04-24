@@ -1,6 +1,7 @@
 package org.minimalj.rest.openapi;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +68,9 @@ public class OpenAPIFactory {
 
 		MjModel mjModel = new MjModel(model.getEntityClasses());
 		for (MjEntity entity : mjModel.entities) {
+			if ((entity.getClazz().getModifiers() & Modifier.ABSTRACT) > 0) {
+				continue;
+			}
 			String entityName = entity.getClassName();
 
 			if (IdUtils.hasId(entity.getClazz())) {
@@ -506,6 +510,9 @@ public class OpenAPIFactory {
 	}
 	
 	private String format(MjProperty property) {
+		if (property.type == null) {
+			System.out.println("Hallo");
+		}
 		switch(property.type.type) {
 		case String : return null;
 		case Enum : return null;
@@ -519,7 +526,8 @@ public class OpenAPIFactory {
 	}
 
 	private Schema items(MjProperty property) {
-		if (property.propertyType == MjPropertyType.LIST && IdUtils.hasId(property.type.getClazz())) {
+		if (property.propertyType == MjPropertyType.LIST && (property.type == null || IdUtils.hasId(property.type.getClazz()))) {
+//		if (property.propertyType == MjPropertyType.LIST && IdUtils.hasId(property.type.getClazz())) {
 			Schema schema = new Schema();
 			schema.type = OpenAPI.Type.STRING;
 			return schema;
