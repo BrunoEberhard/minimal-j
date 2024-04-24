@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.minimalj.frontend.impl.json.JsonWriter;
+import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Property;
@@ -66,6 +67,8 @@ public class EntityJsonWriter {
 			Object value = property.getValue(entity);
 			
 			if (value == null) {
+				continue;
+			} else if (entity instanceof Dependable d && d.getParent() == value) {
 				continue;
 			} else {
 				String propertyName = e.getKey();
