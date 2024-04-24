@@ -168,6 +168,11 @@ public interface PageContainerTestFacade {
 		public default void setChecked(boolean checked) {
 			// TODO
 		}
+		
+		// only allowed if FormElement is a TableFormElement
+		public default FormTestFacade row(int pos) {
+			return null; // TODO
+		}
 
 	}
 

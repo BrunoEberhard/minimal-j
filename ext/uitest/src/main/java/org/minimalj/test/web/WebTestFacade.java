@@ -506,6 +506,12 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div")).get(pos);
 			return new HtmlFormElementTestFacade(groupItemElement);
 		}
+		
+		@Override
+		public FormTestFacade row(int pos) {
+			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div/div")).get(pos).findElement(By.tagName("div"));
+			return new HtmlFormTestFacade(groupItemElement);
+		}		
 	}
 
 	private class HtmlTableTestFacade implements TableTestFacade {
@@ -667,7 +673,7 @@ public class WebTestFacade implements UiTestFacade {
 
 	private WebElement findValueElement(WebElement element) {
 		while (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea") && !element.getTagName().equalsIgnoreCase("select")) {
-			element = element.findElement(By.cssSelector("input,textarea,select"));
+			element = element.findElement(By.cssSelector("input,textarea,select,div"));
 		}
 		return element;
 	}
