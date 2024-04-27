@@ -401,10 +401,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public LinkedHashMap<String, Property> findColumns(Class<?> clazz) {
-		if (columnsForClass.containsKey(clazz)) {
-			return columnsForClass.get(clazz);
-		}
-		return findColumns(clazz, false);
+		return columnsForClass.computeIfAbsent(clazz, c -> findColumns(clazz, false));
 	}
 	
 	public LinkedHashMap<String, Property> findColumns(Class<?> clazz, boolean includeTransient) {
@@ -440,7 +437,6 @@ public class SqlRepository implements TransactionalRepository {
 			String columnName = sqlIdentifier.column(fieldName, columns.keySet(), method.getReturnType());
 			columns.put(columnName, new Keys.MethodProperty(method.getReturnType(), fieldName, method, null));
 		}
-		columnsForClass.put(clazz, columns);
 		return columns;
 	}	
 	
