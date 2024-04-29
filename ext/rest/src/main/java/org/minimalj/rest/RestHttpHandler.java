@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -37,8 +39,11 @@ import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class RestHttpHandler implements MjHttpHandler {
+	private static final Logger LOG = Logger.getLogger(RestHttpHandler.class.getName());
 
 	private final MjHttpHandler next;
+	private final String path;
+	private final int pathLength;
 	private final Model model;
 	private final Map<String, Class<?>> classByName = new HashMap<>();
 
@@ -47,10 +52,16 @@ public class RestHttpHandler implements MjHttpHandler {
 	}
 
 	public RestHttpHandler(MjHttpHandler next) {
-		this(Application.getInstance(), next);
+		this(null, Application.getInstance(), next);
+	}
+
+	public RestHttpHandler(Model model, MjHttpHandler next) {
+		this(null, model, next);
 	}
 	
-	public RestHttpHandler(Model model, MjHttpHandler next) {
+	public RestHttpHandler(String path, Model model, MjHttpHandler next) {
+		this.path = preparePath(path);
+		this.pathLength = this.path.length();
 		this.model = model;
 		this.next = next;
 		
@@ -73,13 +84,23 @@ public class RestHttpHandler implements MjHttpHandler {
 		}
 	}
 	
+	private static String preparePath(String path) {
+		if (path == null) {
+			return "/";
+		}
+		return path.endsWith("/") ? path : path + "/";
+	}
+	
 	@Override
 	public void handle(MjHttpExchange exchange) {
 		String[] pathElements;
 		String uriString = exchange.getPath();
 		String path = uriString;
-		if (path.startsWith("/")) {
-			path = path.substring(1);
+		if (path.startsWith(this.path)) {
+			path = path.substring(pathLength);
+		} else {
+			next.handle(exchange);
+			return;
 		}
 		pathElements = path.split("/");
 		
@@ -110,11 +131,12 @@ public class RestHttpHandler implements MjHttpHandler {
 						return;
 					}
 					try {
-						exchange.sendResponse(HttpsURLConnection.HTTP_OK, getClass().getResourceAsStream(uriString + "index.html").readAllBytes(), "text/html");
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK,
+								getClass().getResourceAsStream(uriString.substring(pathLength - 1) + "index.html").readAllBytes(), "text/html");
 					} catch (NullPointerException x) {
 						exchange.sendResponse(HttpsURLConnection.HTTP_INTERNAL_ERROR, "Not found: " + uriString + "index.html", "text/plain");
 					} catch (IOException x) {
-						x.printStackTrace();
+						LOG.log(Level.WARNING, x.getMessage(), x);
 						exchange.sendResponse(HttpsURLConnection.HTTP_INTERNAL_ERROR, x.getMessage(), "text/plain");
 					}
 					return;
@@ -125,9 +147,9 @@ public class RestHttpHandler implements MjHttpHandler {
 					int pos = uriString.lastIndexOf('.');
 					String mimeType = Resources.getMimeType(uriString.substring(pos + 1));
 					try {
-						exchange.sendResponse(HttpsURLConnection.HTTP_OK, getClass().getResourceAsStream(uriString).readAllBytes(), mimeType);
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK, getClass().getResourceAsStream(uriString.substring(pathLength - 1)).readAllBytes(), mimeType);
 					} catch (IOException x) {
-						x.printStackTrace();
+						LOG.log(Level.WARNING, x.getMessage(), x);
 						exchange.sendResponse(HttpsURLConnection.HTTP_INTERNAL_ERROR, x.getMessage(), "text/plain");
 					}
 					return;
