@@ -87,6 +87,10 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 					((JsonComponent) textField).setCssClass("textAlignRight");
 				}
 			} else if (textField instanceof SwingTextField) {
+				String placeholder = Resources.getPropertyName(getProperty(), "placeholder");
+				if (placeholder != null) {
+					((SwingTextField) textField).setPlaceholderText(placeholder);
+				}
 				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
 					((SwingTextField) textField).setHorizontalAlignment(SwingConstants.RIGHT);
 				}
@@ -144,6 +148,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	
 	@Override
 	public void setEnabled(boolean enabled) {
+		getComponent(); // ensure textField is initialized
 		textField.setEditable(enabled);
 	}
 
