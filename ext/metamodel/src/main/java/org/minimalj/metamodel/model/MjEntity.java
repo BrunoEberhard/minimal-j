@@ -99,7 +99,6 @@ public class MjEntity {
 		validatable = Validation.class.isAssignableFrom(clazz);
 		
 		if (clazz.getSuperclass() != Object.class && clazz.getSuperclass() != Enum.class) {
-			System.out.println("super entity: " + clazz.getSimpleName());
 			superEntity = model.getOrCreateEntity(clazz.getSuperclass());
 		}
 		
