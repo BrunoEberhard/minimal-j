@@ -7,16 +7,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.minimalj.frontend.impl.json.JsonWriter;
+import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
+import org.minimalj.model.View;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
@@ -30,24 +29,24 @@ import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.SearchCriteria;
 import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.IdUtils;
 
 public class EntityJsonWriter {
 
 	public static String write(Object entity) {
-		Map<String, Object> map = convert(entity, new HashSet<>());
+		Map<String, Object> map = convert(entity);
 		return new JsonWriter().write(map);
 	}
 
 	public static String write(List<?> entities) {
 		List<Map<String, Object>> mapList = new ArrayList<>();
-		TreeSet<String> ids = new TreeSet<>();
 		for (Object entity : entities) {
-			mapList.add(convert(entity, ids));
+			mapList.add(convert(entity));
 		}
 		return new JsonWriter().write(mapList);
 	}
 
-	private static Map<String, Object> convert(Object entity, Set<String> ids) {
+	private static Map<String, Object> convert(Object entity) {
 		Map<String, Object> values = new LinkedHashMap<>();
 
 		if (entity instanceof Map) {
@@ -56,7 +55,7 @@ public class EntityJsonWriter {
 				return null;
 			}
 			for (Map.Entry<String, Object> e2 : map.entrySet()) {
-				values.put(e2.getKey(), convert(e2.getValue(), ids));
+				values.put(e2.getKey(), convert(e2.getValue()));
 			}
 			return values;
 		}
@@ -102,7 +101,7 @@ public class EntityJsonWriter {
 						} else if (element instanceof Enum) {
 							list.add(((Enum<?>) element).name());
 						} else {
-							list.add(convert(element, ids));
+							list.add(convert(element));
 						}
 					}
 					values.put(propertyName, list);
@@ -110,8 +109,10 @@ public class EntityJsonWriter {
 					values.put(propertyName, ((Type) value).name().toLowerCase());
 				} else if (value instanceof Enum) {
 					values.put(propertyName, ((Enum<?>) value).name());
+				} else if (value instanceof Code || value instanceof View) {
+					values.put(propertyName, IdUtils.getId(value));
 				} else if (value != null) {
-					value = convert(value, ids);
+					value = convert(value);
 					if (value != null) {
 						values.put(propertyName, value);
 					}
