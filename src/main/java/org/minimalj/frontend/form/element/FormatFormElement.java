@@ -115,7 +115,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	@Override
 	public final void setValue(T value) {
 		String newString = InvalidValues.isInvalid(value) ? InvalidValues.getInvalidValue(value) : render(value);
-		if (!StringUtils.equals(newString, textField.getValue())) {
+		if (textField != null && !StringUtils.equals(newString, textField.getValue())) {
 			textField.setValue(newString);
 		}
 	}
