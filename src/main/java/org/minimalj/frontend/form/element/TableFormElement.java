@@ -61,7 +61,7 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 			return null;
 		}
 		
-		public static IComponent createFooter(List<Action> actions, int columns, int columnWidth) {
+		public static IComponent createFooter(List<? extends Action> actions, int columns, int columnWidth) {
 			if (actions != null && !actions.isEmpty()) {
 				Form<Object> rowForm = new Form<>(Form.READ_ONLY, columns, columnWidth);
 				rowForm.setIgnoreCaption(true);
