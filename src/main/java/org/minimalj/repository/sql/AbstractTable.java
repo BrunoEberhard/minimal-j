@@ -378,12 +378,16 @@ public abstract class AbstractTable<T> {
 	protected int setParameters(PreparedStatement statement, T object, ParameterMode mode, Object id) throws SQLException {
 		int parameterPos = 1;
 		boolean insert = mode == ParameterMode.INSERT || mode == ParameterMode.INSERT_AUTO_INCREMENT;
+		boolean update = mode == ParameterMode.UPDATE;
 		for (Map.Entry<String, Property> column : columns.entrySet()) {
 			Property property = column.getValue();
 			Object value = property.getValue(object);
 			TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
 			if (technicalField != null) {
 				TechnicalFieldType type = technicalField.value();
+				if (update && (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.EDIT_DATE)) {
+					continue;
+				}
 				if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && insert) {
 					value = LocalDateTime.now();
 				} else if (type == TechnicalFieldType.EDIT_USER || type == TechnicalFieldType.CREATE_USER && insert) {
@@ -465,6 +469,26 @@ public abstract class AbstractTable<T> {
 	
 	protected abstract String selectByIdQuery();
 
+	String updateQuery(boolean optimisticLocking) {
+		StringBuilder s = new StringBuilder();
+
+		s.append("UPDATE ").append(getTableName()).append(" SET ");
+		for (Entry<String, Property> entry : getColumns().entrySet()) {
+			TechnicalField technicalField = entry.getValue().getAnnotation(TechnicalField.class);
+			if (technicalField == null || (technicalField.value() != TechnicalFieldType.CREATE_DATE && technicalField.value() != TechnicalFieldType.CREATE_USER)) {
+				s.append(entry.getKey()).append("= ?, ");
+			}
+		}
+		if (optimisticLocking) {
+			s.append(" version = version + 1 WHERE id = ? AND version = ?");
+		} else {
+			s.delete(s.length() - 2, s.length());
+			s.append(" WHERE id = ?");
+		}
+
+		return s.toString();
+	}
+	
 	protected String clearQuery() {
 		return "DELETE FROM " + getTableName();
 	}

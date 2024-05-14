@@ -115,16 +115,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 
 	@Override
 	protected String updateQuery() {
-		StringBuilder s = new StringBuilder();
-
-		s.append("UPDATE ").append(getTableName()).append(" SET ");
-		for (Object columnNameObject : getColumns().keySet()) {
-			s.append((String) columnNameObject).append("= ?, ");
-		}
-		s.delete(s.length() - 2, s.length());
-		s.append(" WHERE id = ?");
-
-		return s.toString();
+		return updateQuery(false);
 	}
 
 	@Override

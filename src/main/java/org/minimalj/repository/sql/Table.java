@@ -651,7 +651,11 @@ public class Table<T> extends AbstractTable<T> {
 
 		return s.toString();
 	}
-	
+
+	protected String updateQuery2() {
+		return updateQuery(FieldUtils.hasValidVersionfield(clazz));
+	}
+
 	@Override
 	protected String deleteQuery() {
         return "DELETE FROM " + getTableName() + " WHERE id = ?";
