@@ -117,7 +117,7 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 	}
 
 	@Override
-	public List<ELEMENT> getList(PARENT parent, Integer time) {
+	public List<ELEMENT> getList(PARENT parent, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		if (time == null) {
 			return getList(parent, (Map<Class<?>, Map<Object, Object>>) null);
 		}

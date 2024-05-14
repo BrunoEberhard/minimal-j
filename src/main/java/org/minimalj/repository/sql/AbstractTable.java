@@ -385,7 +385,7 @@ public abstract class AbstractTable<T> {
 			TechnicalField technicalField = property.getAnnotation(TechnicalField.class);
 			if (technicalField != null) {
 				TechnicalFieldType type = technicalField.value();
-				if (update && (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.EDIT_DATE)) {
+				if (update && (type == TechnicalFieldType.CREATE_USER || type == TechnicalFieldType.CREATE_DATE)) {
 					continue;
 				}
 				if (type == TechnicalFieldType.EDIT_DATE || type == TechnicalFieldType.CREATE_DATE && insert) {
