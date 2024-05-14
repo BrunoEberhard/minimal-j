@@ -73,9 +73,6 @@ public class FlatProperties {
 	}
 
 	private static Map<String, Property> properties(Class<?> clazz) {
-		// Java doesn't guarantee the field / property order but most of the time the
-		// order is as in the class described. Keep it that way for json/xml/yaml...
-		// serialization stuff.
 		Map<String, Property> properties = new LinkedHashMap<>();
 
 		Field[] fields = clazz.getFields();
@@ -100,7 +97,7 @@ public class FlatProperties {
 		return properties;
 	}
 	
-	private static enum FlatPropertiesFieldComparator implements Comparator<Field> {
+	static enum FlatPropertiesFieldComparator implements Comparator<Field> {
 		INSTANCE;
 
 		@Override

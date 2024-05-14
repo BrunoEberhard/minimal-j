@@ -1,6 +1,7 @@
 package org.minimalj.model.properties;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -9,6 +10,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Keys;
+import org.minimalj.model.properties.FlatProperties.FlatPropertiesFieldComparator;
 import org.minimalj.util.FieldUtils;
 
 public class Properties {
@@ -66,9 +68,14 @@ public class Properties {
 	}
 
 	private static Map<String, Property> properties(Class<?> clazz) {
+		// Java doesn't guarantee the field / property order but most of the time the
+		// order is as in the class described. Keep it that way for json/xml/yaml...
+		// serialization stuff.
 		Map<String, Property> properties = new LinkedHashMap<>();
 
-		for (Field field : clazz.getFields()) {
+		Field[] fields = clazz.getFields();
+		Arrays.sort(fields, FlatPropertiesFieldComparator.INSTANCE);
+		for (Field field : fields) {
 			if (!FieldUtils.isStatic(field)) {
 				properties.put(field.getName(), new FieldProperty(field, clazz));
 			}
