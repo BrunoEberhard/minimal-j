@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.FlatProperties.FlatPropertiesFieldComparator;
 import org.minimalj.util.FieldUtils;
 
@@ -81,6 +82,10 @@ public class Properties {
 			}
 		}
 		return properties;
+	}
+	
+	public static boolean hasTechnicalFields(Class<?> clazz) {
+		return Properties.getProperties(clazz).values().stream().anyMatch(p -> p.getAnnotation(TechnicalField.class) != null);
 	}
 
 }
