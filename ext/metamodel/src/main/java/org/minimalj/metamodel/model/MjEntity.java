@@ -162,9 +162,6 @@ public class MjEntity {
 	}
 
 	public boolean isPrimitiv() {
-        if (type == null) {
-            System.out.println("Null type: " + getClassName());
-        }
 		return type.isPrimitiv();
 	}
 
