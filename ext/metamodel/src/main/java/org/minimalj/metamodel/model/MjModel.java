@@ -2,6 +2,7 @@ package org.minimalj.metamodel.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,6 +19,7 @@ public class MjModel {
 	
 	public MjModel(Class<?>... classes) {
 		Arrays.stream(classes).forEach(this::getOrCreateEntity);
+		entities.sort(Comparator.comparing(MjEntity::getClassName));
 	}
 
 	public void addEntity(MjEntity mjEntity) {
