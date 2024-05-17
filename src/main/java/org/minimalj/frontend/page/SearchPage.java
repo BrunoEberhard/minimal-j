@@ -23,7 +23,7 @@ public abstract class SearchPage<T> implements Page, TableActionListener<T> {
 		this.keys = keys;
 		
 		String separator = Configuration.get("MjSearchQualifierSeparator", ":");
-		int pos = query.indexOf(separator);
+		int pos = query != null ? query.indexOf(separator) : -1;
 		if (pos > 0 && pos < query.length()-1) {
 			String searchQualifier = query.substring(0, pos).toLowerCase();
 			if (getQualifier().startsWith(searchQualifier)) {
@@ -53,6 +53,12 @@ public abstract class SearchPage<T> implements Page, TableActionListener<T> {
 	}
 
 	protected abstract List<T> load(String query);
+	
+	public void refresh() {
+		if (list != null) {
+			list.clear();
+		}
+	}
 	
 	@Override
 	public IContent getContent() {
