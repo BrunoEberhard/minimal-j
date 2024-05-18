@@ -1,5 +1,6 @@
 package org.minimalj.test.web;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -182,7 +183,7 @@ public class WebTestFacade implements UiTestFacade {
 					if (!divNavigation.isDisplayed()) {
 						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
 						navigationToggle.click();
-						WebDriverWait webDriverWait = new WebDriverWait(driver, 10);
+						WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 						webDriverWait.until(ExpectedConditions.elementToBeClickable(item));
 					}
 					item.click();
@@ -299,7 +300,7 @@ public class WebTestFacade implements UiTestFacade {
 				} else {
 					WebElement actionMenuButton = divPage.findElement(By.className("actionMenuButton"));
 					if (!actionMenuButton.isDisplayed()) {
-						actionMenuButton = driver.findElementById("actionMenuButton");
+						actionMenuButton = driver.findElement(By.id("actionMenuButton"));
 					}
 					actionMenuButton.click();
 					item = divPage.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
@@ -439,7 +440,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public String getValidation() {
 			String id = formElement.getAttribute("id");
-			WebElement formElement = driver.findElementById(id);
+			WebElement formElement = driver.findElement(By.id(id));
 			String validation = formElement.getAttribute("title");
 			return StringUtils.isEmpty(validation) ? null : validation;
 		}
