@@ -319,11 +319,31 @@ public class WebTestFacade implements UiTestFacade {
 		}
 
 		@Override
+		public void close() {
+			getAction(Resources.getString("CancelAction")).run();
+		}
+		
+		@Override
 		public FormTestFacade getForm() {
 			WebElement form = dialog.findElement(By.className("form"));
 			return new HtmlFormTestFacade(form);
 		}
 
+		@Override
+		public TableTestFacade getTable() {
+			try {
+				WebElement table = dialog.findElement(By.className("table"));
+				return new HtmlTableTestFacade(null, table);
+			} catch (NoSuchElementException e) {
+				throw new IllegalStateException("Dialog has no table", e);
+			}
+		}
+		
+		@Override
+		public SearchTableTestFacade getSearchTable() {
+			return new HtmlSearchTableTestFacade(dialog);
+		}
+		
 		@Override
 		public ActionTestFacade getAction(String caption) {
 			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
@@ -446,12 +466,10 @@ public class WebTestFacade implements UiTestFacade {
 		}
 
 		@Override
-		public SearchTableTestFacade lookup() {
+		public void lookup() {
 			WebElement lookupButton = formElement.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
-			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
-			return new HtmlSearchTableTestFacade(dialogs.get(dialogs.size() - 1));
 		}
 
 		@Override
@@ -638,7 +656,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		public HtmlSearchTableTestFacade(WebElement dialog) {
 			super(null, dialog);
-			Assertions.assertEquals("SearchDialog", dialog.getAttribute("type"));
+//			Assertions.assertEquals("SearchDialog", dialog.getAttribute("type"));
 		}
 
 		public void search(String text) {
