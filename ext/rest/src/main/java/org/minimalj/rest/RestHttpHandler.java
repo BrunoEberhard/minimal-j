@@ -28,6 +28,8 @@ import org.minimalj.model.Model;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.rest.openapi.OpenAPIFactory;
+import org.minimalj.rest.openapi.model.OpenAPI;
+import org.minimalj.rest.openapi.model.OpenAPI.Server;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
@@ -153,7 +155,11 @@ public class RestHttpHandler implements MjHttpHandler {
 					}
 					return;
 				} else if (StringUtils.equals("swagger.json", pathElements[1])) {
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, new OpenAPIFactory().create(model), "text/json");
+					OpenAPI openApi = new OpenAPIFactory().create(model);
+					var server = new Server();
+					server.url = this.path;
+					openApi.servers.add(server);
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(openApi), "text/json");
 					return;
 				} else {
 					int pos = uriString.lastIndexOf('.');

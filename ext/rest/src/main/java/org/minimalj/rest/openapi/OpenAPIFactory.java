@@ -19,7 +19,6 @@ import org.minimalj.model.Model;
 import org.minimalj.model.View;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
-import org.minimalj.rest.EntityJsonWriter;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
 import org.minimalj.rest.openapi.model.OpenAPI.In;
@@ -38,7 +37,7 @@ public class OpenAPIFactory {
 	
 	private final String SCHEMAS = "#/components/schemas/";
 
-	public String create(Model model) {
+	public OpenAPI create(Model model) {
 		OpenAPI api = new OpenAPI();
 		api.openapi = "3.0.0";
 		api.components = new OpenAPI.Components();
@@ -121,7 +120,7 @@ public class OpenAPIFactory {
 			}
 		}
 		
-		return EntityJsonWriter.write(api);
+		return api;
 	}
 
 	public void addSchema(OpenAPI api, Api mjApi, MjEntity entity) {
