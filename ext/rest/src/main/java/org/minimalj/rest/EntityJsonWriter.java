@@ -15,8 +15,8 @@ import org.minimalj.frontend.impl.json.JsonWriter;
 import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
-import org.minimalj.model.View;
-import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.Rendering;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.AllCriteria;
@@ -27,6 +27,7 @@ import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.SearchCriteria;
+import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
@@ -60,7 +61,7 @@ public class EntityJsonWriter {
 			return values;
 		}
 		
-		Map<String, Property> properties = FlatProperties.getProperties(entity.getClass());
+		Map<String, Property> properties = Properties.getProperties(entity.getClass());
 		for (Map.Entry<String, Property> e : properties.entrySet()) {
 			Property property = e.getValue();
 			Object value = property.getValue(entity);
@@ -71,13 +72,11 @@ public class EntityJsonWriter {
 				continue;
 			} else {
 				String propertyName = e.getKey();
-				// V2 !!!
-				if ("eNum".equals(propertyName)) {
+				if (propertyName.equals("eNum")) {
 					propertyName = "enum";
 				}
 				
 				if (e.getKey().equals("id") && value != null) {
-					// TODO id as String fields?
 					value = value.toString();
 				}
 				if (value instanceof String || value instanceof Boolean || value instanceof Number) {
@@ -105,13 +104,14 @@ public class EntityJsonWriter {
 						}
 					}
 					values.put(propertyName, list);
-				} else if (value instanceof Type) {
-					values.put(propertyName, ((Type) value).name().toLowerCase());
-				} else if (value instanceof Enum) {
-					values.put(propertyName, ((Enum<?>) value).name());
-				} else if (value instanceof Code || value instanceof View) {
+				} else if (value instanceof Type type) {
+					values.put(propertyName, type.name().toLowerCase());
+				} else if (value instanceof Enum enuum) {
+					values.put(propertyName, enuum.name());
+				} else if (value instanceof Code) {
 					values.put(propertyName, IdUtils.getId(value));
-				} else if (value != null) {
+					values.put(propertyName + "_text", Rendering.render(value));
+				} else if (!EmptyObjects.isEmpty(value)) {
 					value = convert(value);
 					if (value != null) {
 						values.put(propertyName, value);
