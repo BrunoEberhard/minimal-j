@@ -10,4 +10,15 @@ public interface Api extends Model {
 
 	public Class<?>[] getTransactionClasses();
 
+	public default boolean canCreate(Class<?> clazz) {
+		return true;
+	}
+
+	public default boolean canUpdate(Class<?> clazz) {
+		return true;
+	}
+
+	public default boolean canDelete(Class<?> clazz) {
+		return true;
+	}
 }

@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +34,8 @@ import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -45,7 +47,9 @@ public class RestHttpHandler implements MjHttpHandler {
 	private final String path;
 	private final int pathLength;
 	private final Model model;
-	private final Map<String, Class<?>> classByName = new HashMap<>();
+	private final Api api;
+
+	private final Map<String, Class<?>> classByName = new LinkedHashMap<>();
 
 	public RestHttpHandler() {
 		this(null);
@@ -73,7 +77,7 @@ public class RestHttpHandler implements MjHttpHandler {
 		}
 		
 		if (model instanceof Api) {
-			Api api = (Api) model;
+			api = (Api) model;
 			Class<?>[] transactionClasses = api.getTransactionClasses();
 			for (Class<?> transactionClass : transactionClasses) {
 				if (!Transaction.class.isAssignableFrom(transactionClass)) {
@@ -81,6 +85,8 @@ public class RestHttpHandler implements MjHttpHandler {
 				}
 				classByName.put(transactionClass.getSimpleName(), transactionClass);
 			}
+		} else {
+			api = null;
 		}
 	}
 	
@@ -90,19 +96,25 @@ public class RestHttpHandler implements MjHttpHandler {
 		}
 		return path.endsWith("/") ? path : path + "/";
 	}
-	
+
 	@Override
 	public void handle(MjHttpExchange exchange) {
-		String[] pathElements;
-		String uriString = exchange.getPath();
-		String path = uriString;
+		String path = exchange.getPath();
 		if (path.startsWith(this.path)) {
 			path = path.substring(pathLength);
+			try {
+				LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getHeader(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
+				handle(exchange, exchange.getPath(), path);
+			} finally {
+				LocaleContext.resetLocale();
+			}
 		} else {
 			next.handle(exchange);
-			return;
 		}
-		pathElements = path.split("/");
+	}
+	
+	private void handle(MjHttpExchange exchange, String uriString, String path) {
+		var pathElements = path.split("/");
 		
 		Class<?> clazz = null;
 		if (pathElements.length > 0 && !StringUtils.isEmpty(pathElements[0]) && !Character.isLowerCase(pathElements[0].charAt(0))) {
@@ -197,6 +209,10 @@ public class RestHttpHandler implements MjHttpHandler {
 		case "POST":
 			if (clazz != null) {
 				if (!Transaction.class.isAssignableFrom(clazz)) {
+					if (api != null && !api.canCreate(clazz)) {
+						exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "insert of" + clazz.getSimpleName() + " not possible", "text/plain");
+						return;
+					}
 					Object inputObject = EntityJsonReader.read(clazz, exchange.getRequest());
 					Object id = Backend.insert(inputObject);
 					exchange.sendResponse(HttpsURLConnection.HTTP_OK, id.toString(), "text/plain");
@@ -216,6 +232,10 @@ public class RestHttpHandler implements MjHttpHandler {
 			break;
 		case "DELETE":
 			if (clazz != null) {
+				if (api != null && !api.canDelete(clazz)) {
+					exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "delete of" + clazz.getSimpleName() + " not possible", "text/plain");
+					return;
+				}
 				if (pathElements.length >= 2) {
 					String id = pathElements[1];
 					Object idOnlyObject = CloneHelper.newInstance(clazz);
@@ -233,11 +253,14 @@ public class RestHttpHandler implements MjHttpHandler {
 //				exchange.sendResponse(HttpsURLConnection.HTTP_BAD_REQUEST, "No Input", "text/plain");
 //				return;
 //			}
-	
 			if (pathElements.length >= 1 && StringUtils.equals("java-transaction", pathElements[0])) {
 				transaction(exchange, exchange.getRequest());
 				return;
 			} else if (clazz != null && pathElements.length == 2) {
+				if (api != null && !api.canUpdate(clazz)) {
+					exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "update of" + clazz.getSimpleName() + " not possible", "text/plain");
+					return;
+				}
 				String id = pathElements[1];
 				Object object = Backend.read(clazz, id);
 				Object inputObject = EntityJsonReader.read(object, exchange.getRequest());
