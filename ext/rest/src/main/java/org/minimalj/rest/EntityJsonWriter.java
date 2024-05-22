@@ -35,8 +35,12 @@ import org.minimalj.util.IdUtils;
 public class EntityJsonWriter {
 
 	public static String write(Object entity) {
-		Map<String, Object> map = convert(entity);
-		return new JsonWriter().write(map);
+		if (entity instanceof List) {
+			return write((List<?>) entity);
+		} else {
+			Map<String, Object> map = convert(entity);
+			return new JsonWriter().write(map);
+		}
 	}
 
 	public static String write(List<?> entities) {
