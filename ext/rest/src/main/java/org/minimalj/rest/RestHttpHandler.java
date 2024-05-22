@@ -80,12 +80,8 @@ public class RestHttpHandler implements MjHttpHandler {
 		
 		if (model instanceof Api) {
 			api = (Api) model;
-			Class<?>[] transactionClasses = api.getTransactionClasses();
-			for (Class<?> transactionClass : transactionClasses) {
-				if (!Transaction.class.isAssignableFrom(transactionClass)) {
-					throw new IllegalArgumentException(transactionClass.getSimpleName() + " must implement " + Transaction.class.getSimpleName());
-				}
-				classByName.put(transactionClass.getSimpleName(), transactionClass);
+			for (var transaction : api.getTransactions()) {
+				classByName.put(transaction.clazz.getSimpleName(), transaction.clazz);
 			}
 		} else {
 			api = null;
@@ -228,7 +224,7 @@ public class RestHttpHandler implements MjHttpHandler {
 						Class<?> inputClass = clazz.getConstructors()[0].getParameters()[0].getType();
 						Object inputObject = EntityJsonReader.read(inputClass, exchange.getRequest());
 						Transaction<?> transaction = (Transaction<?>) clazz.getConstructors()[0].newInstance(inputObject);
-						Object outputObject = transaction.execute();
+						Object outputObject = Backend.execute(transaction);
 						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject), "text/json");
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 						throw new RuntimeException(e);

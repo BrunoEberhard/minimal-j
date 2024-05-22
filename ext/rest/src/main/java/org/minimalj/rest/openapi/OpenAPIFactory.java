@@ -1,6 +1,5 @@
 package org.minimalj.rest.openapi;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.model.Api;
+import org.minimalj.model.Api.TransactionDefinition;
 import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
@@ -102,21 +102,19 @@ public class OpenAPIFactory {
 		}
 		
 		if (mjApi != null) {
-			Class<?>[] transactionClasses = mjApi.getTransactionClasses();
-			for (Class<?> transactionClass : transactionClasses) {
-				
-				Constructor<?> constructor = transactionClass.getConstructors()[0];
-				Class<?> requestClass = constructor.getParameters()[0].getType();
+			for (var transaction : mjApi.getTransactions()) {
+				Class<?> requestClass = transaction.request;
 				addSchema(api, mjApi, new MjEntity(mjModel, requestClass));
-				Class<?> responseClass = getReturnType(transactionClass);
+
+				Class<?> responseClass = transaction.response;
 				new MjEntity(mjModel, responseClass);
 				addSchema(api, mjApi, new MjEntity(mjModel, responseClass));
 				
 				Map<String, Operation> operations = new LinkedHashMap<>();
-				Operation operation = operationPost(transactionClass);
+				Operation operation = operationPost(transaction);
 
 				operations.put("post", operation);
-				api.paths.put("/" + transactionClass.getSimpleName(), operations);
+				api.paths.put("/" + transaction.clazz.getSimpleName(), operations);
 			}
 		}
 		
@@ -176,15 +174,7 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Gets all " + entityName;
 
-		Parameter parameter = parameter("offset", Type.INTEGER);
-		parameter.in = In.query;
-		parameter.description = "First returned item (starting at 0)";
-		operation.parameters.add(parameter);
-		
-		parameter = parameter("size", Type.INTEGER);
-		parameter.in = In.query;
-		parameter.description = "Number of maximal returned items";
-		operation.parameters.add(parameter);
+		addRangeParameters(operation);
 		
 		Response response = new Response();
 		response.description = "Successful operation";
@@ -202,6 +192,18 @@ public class OpenAPIFactory {
 
 		operation.responses.put("200", response);
 		return operation;
+	}
+
+	private void addRangeParameters(Operation operation) {
+		Parameter parameter = parameter("offset", Type.INTEGER);
+		parameter.in = In.query;
+		parameter.description = "First returned item (starting at 0)";
+		operation.parameters.add(parameter);
+		
+		parameter = parameter("size", Type.INTEGER);
+		parameter.in = In.query;
+		parameter.description = "Number of maximal returned items";
+		operation.parameters.add(parameter);
 	}
 	
 	private Parameter parameter(String name, Type type) {
@@ -235,19 +237,19 @@ public class OpenAPIFactory {
 		return operation;
 	}
 	
-	private Operation operationPost(Class<?> transactionClass) {
-		String transactionName = transactionClass.getSimpleName();
+	private Operation operationPost(TransactionDefinition transaction) {
+		String transactionName = transaction.clazz.getSimpleName();
 		
 		Operation operation = new Operation();
-		operation.summary = "Execute " + transactionName;
+		if (transaction.comment != null) {
+			operation.summary = transaction.comment;
+		} else {
+			operation.summary = "Execute " + transactionName;
+		}
 		
 		{
-			Constructor<?> constructor = transactionClass.getConstructors()[0];
-			Class<?> requestClass = constructor.getParameters()[0].getType();
-			String requestEntityName = requestClass.getSimpleName();
-			
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + requestEntityName + "_write";
+			schema.$ref = SCHEMAS + transaction.request.getSimpleName() + "_write";
 
 			Content content = new Content();
 			content.schema = schema;
@@ -256,17 +258,29 @@ public class OpenAPIFactory {
 			requestBody.content.put("application/json", content);
 
 			operation.requestBody = requestBody;
+			
+		}
+
+		if (transaction.listResponse) {
+			addRangeParameters(operation);
 		}
 
 		{
-			Class<?> resultClass = getReturnType(transactionClass);
+			Class<?> resultClass = transaction.response;
 			String responseEntityName = resultClass.getSimpleName();
 
 			Response response = new Response();
 			response.description = "Successful operation";
 
 			Schema schemaResponse = new Schema();
-			schemaResponse.$ref = SCHEMAS + responseEntityName;
+			if (transaction.listResponse) {
+				var schemaItems = new Schema();
+				schemaItems.$ref = SCHEMAS + responseEntityName;
+				schemaResponse.items = schemaItems;
+				schemaResponse.type = Type.ARRAY;
+			} else {
+				schemaResponse.$ref = SCHEMAS + responseEntityName;
+			}
 
 			Content content = new Content();
 			content.schema = schemaResponse;
@@ -277,14 +291,6 @@ public class OpenAPIFactory {
 		}
 
 		return operation;
-	}
-	
-	private Class<?> getReturnType(Class<?> transactionClass) {
-		try {
-			return transactionClass.getMethod("execute").getReturnType();
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new IllegalArgumentException(e);
-		}
 	}
 	
 	private Operation operationPut(MjEntity entity) {
