@@ -15,7 +15,6 @@ import org.minimalj.frontend.impl.json.JsonWriter;
 import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
-import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
@@ -114,7 +113,7 @@ public class EntityJsonWriter {
 					values.put(propertyName, enuum.name());
 				} else if (value instanceof Code) {
 					values.put(propertyName, IdUtils.getId(value));
-					values.put(propertyName + "_text", Rendering.render(value));
+					// values.put(propertyName + "_text", Rendering.render(value));
 				} else if (!EmptyObjects.isEmpty(value)) {
 					value = convert(value);
 					if (value != null) {
