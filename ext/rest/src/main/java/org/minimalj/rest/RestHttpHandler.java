@@ -155,7 +155,7 @@ public class RestHttpHandler implements MjHttpHandler {
 					var server = new Server();
 					server.url = this.path;
 					openApi.servers.add(server);
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(openApi), "text/json");
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(openApi), "application/json");
 					return;
 				} else {
 					int pos = uriString.lastIndexOf('.');
@@ -193,7 +193,7 @@ public class RestHttpHandler implements MjHttpHandler {
 					}
 				}
 				List<?> object = Backend.find(clazz, query);
-				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "text/json");
+				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
 				return;
 			}
 			if (pathElements.length == 2) {
@@ -201,7 +201,7 @@ public class RestHttpHandler implements MjHttpHandler {
 				String id = pathElements[1];
 				Object object = Backend.read(clazz, id);
 				if (object != null) {
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "text/json");
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
 				} else {
 					exchange.sendResponse(HttpsURLConnection.HTTP_NOT_FOUND, clazz.getSimpleName() + " with id " + id + " not found", "text/plain");
 				}
@@ -225,7 +225,7 @@ public class RestHttpHandler implements MjHttpHandler {
 						Object inputObject = EntityJsonReader.read(inputClass, exchange.getRequest());
 						Transaction<?> transaction = (Transaction<?>) clazz.getConstructors()[0].newInstance(inputObject);
 						Object outputObject = Backend.execute(transaction);
-						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject), "text/json");
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject), "application/json");
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 						throw new RuntimeException(e);
 					}
@@ -268,7 +268,7 @@ public class RestHttpHandler implements MjHttpHandler {
 				Object inputObject = EntityJsonReader.read(object, exchange.getRequest());
 				IdUtils.setId(object, id); // don't let the id be changed
 				object = Backend.save(inputObject);
-				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "text/json");
+				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
 				return;
 			} else {
 				exchange.sendResponse(HttpsURLConnection.HTTP_BAD_REQUEST, "Put excepts class/id in url", "text/plain");
@@ -279,7 +279,7 @@ public class RestHttpHandler implements MjHttpHandler {
 			exchange.addHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, PATCH, OPTIONS");
 			exchange.addHeader("Access-Control-Allow-Headers", "API-Key,accept, Content-Type");
 			exchange.addHeader("Access-Control-Max-Age", "1728000");
-			exchange.sendResponse(HttpsURLConnection.HTTP_OK, (String) null, "text/json");
+			exchange.sendResponse(HttpsURLConnection.HTTP_OK, (String) null, "application/json");
 			return;
 		default:
 			exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "Method not allowed: " + exchange.getMethod(), "text/plain");
