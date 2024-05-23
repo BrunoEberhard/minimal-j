@@ -4,6 +4,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -79,15 +80,17 @@ public class EntityJsonWriter {
 					propertyName = "enum";
 				}
 				
-				if (e.getKey().equals("id") && value != null) {
+				if (e.getKey().equals("id") && !(value instanceof Integer || value instanceof Long)) {
 					value = value.toString();
 				}
-				if (value instanceof String || value instanceof Boolean || value instanceof Number) {
+				if (value instanceof BigDecimal bd) {
+					values.put(propertyName, bd.toString());
+				} else if (value instanceof String || value instanceof Boolean || value instanceof Number) {
 					values.put(propertyName, value);
-				} else if (value instanceof BigDecimal bd) {
-					values.put(propertyName, bd.doubleValue());
 				} else if (value instanceof byte[]) {
 					values.put(propertyName, Base64.getEncoder().encodeToString((byte[]) value));
+				} else if (property.getClazz() == LocalDateTime.class) {
+					values.put(propertyName, value.toString() + "Z");
 				} else if (FieldUtils.isAllowedPrimitive(property.getClazz())) {
 					values.put(propertyName, value.toString());
 				} else if (value instanceof Collection) {
