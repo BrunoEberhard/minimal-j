@@ -16,7 +16,6 @@ import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
-import org.minimalj.model.View;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.rest.openapi.model.OpenAPI;
@@ -448,12 +447,12 @@ public class OpenAPIFactory {
 				property.type = null;
 				property.$ref = SCHEMAS + mjProperty.type.getClassName();
 			}
-			boolean primitiveOrCodeOrView = mjProperty.type.isPrimitiv() || Code.class.isAssignableFrom(mjProperty.type.getClazz()) || View.class.isAssignableFrom(mjProperty.type.getClazz());
-			if (!write && !primitiveOrCodeOrView) {
+			boolean primitiveOrCode = mjProperty.type.isPrimitiv() || Code.class.isAssignableFrom(mjProperty.type.getClazz());
+			if (!write && !primitiveOrCode) {
 				property.type = null;
 				property.$ref = SCHEMAS + mjProperty.type.getClassName();
 			}
-			if (write && !primitiveOrCodeOrView) {
+			if (write && !primitiveOrCode) {
 				if (IdUtils.hasId(mjProperty.type.getClazz()) && (mjApi == null || mjApi.canCreate(mjProperty.type.getClazz()))) {
 					var schemaRef = new Schema();
 					schemaRef.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
