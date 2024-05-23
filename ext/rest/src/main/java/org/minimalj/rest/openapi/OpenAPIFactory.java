@@ -161,6 +161,8 @@ public class OpenAPIFactory {
 		
 		response = new Response();
 		response.description = "Not found";
+        content = new Content();
+		response.content.put("text/plain", content);
 		
 		operation.responses.put("404", response);
 		
