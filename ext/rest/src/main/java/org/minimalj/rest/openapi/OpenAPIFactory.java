@@ -21,6 +21,7 @@ import org.minimalj.model.properties.Properties;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
 import org.minimalj.rest.openapi.model.OpenAPI.In;
+import org.minimalj.rest.openapi.model.OpenAPI.Info;
 import org.minimalj.rest.openapi.model.OpenAPI.Operation;
 import org.minimalj.rest.openapi.model.OpenAPI.Parameter;
 import org.minimalj.rest.openapi.model.OpenAPI.Property;
@@ -116,6 +117,18 @@ public class OpenAPIFactory {
 				api.paths.put("/" + transaction.clazz.getSimpleName(), operations);
 			}
 		}
+		
+		api.info = new Info();
+		// api.info.title = "API for " + Application.getInstance().getClass().getSimpleName();
+		
+		api.info.description = "<p>This API contains the generic methods provided by the REST interface of Minimal-J plus the specialized POST request.</p>"
+				
+				+ "<p>There is a special type of entity classes named 'Codes'. There should be a limited amount of objects for each code class. There is a GET method that can request all of them. "
+				+ "When referenced in other entities codes are only represented by their id fields. You should cache the codes before requesting business objects. If you get a code that "
+				+ "is not in the cache (for example because it was deactivated) you can request a single code by a get method.</p>"
+				
+				+ "<p>All other entities are represented by all their field values or by a subset for their field values (then it's called a View). "
+				+ "This is true in the response of a GET request. When your PUT or POST request contains references they are represented only by the id field.</p>";
 		
 		return api;
 	}
