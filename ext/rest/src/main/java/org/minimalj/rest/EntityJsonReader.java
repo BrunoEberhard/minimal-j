@@ -121,6 +121,7 @@ public class EntityJsonReader {
 					property.setValue(entity, value);
 				} else {
 					var idOnly = CloneHelper.newInstance(propertyClazz);
+					value = IdUtils.convertId(propertyClazz, value);
 					IdUtils.setId(idOnly, value);
 					property.setValue(entity, idOnly);
 				}
