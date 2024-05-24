@@ -75,7 +75,7 @@ public class IdUtils {
 	
 	/**
 	 * @param modelClass
-	 *            the model class for which an id should be pars (used to
+	 *            the model class for which an id should be parsed (used to
 	 *            determine the class of the id - remember code classes could
 	 *            have string id)
 	 * @param idString
@@ -93,7 +93,34 @@ public class IdUtils {
 		} else if (idFieldType == Long.class) {
 			return Long.parseLong(idString);
 		} else {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Not a valid id class in " + modelClass.getSimpleName());
+		}
+	}
+	
+	/**
+	 * @param modelClass
+	 *            the model class for which an id should converted 
+	 * @param value
+	 *            the id
+	 * @return the id object usable for persistence
+	 */
+	public static Object convertId(Class<?> modelClass, Object value) {
+		if (value == null) {
+			return null;
+		}
+		Field idField = getIdField(modelClass);
+		if (idField == null) throw new IllegalArgumentException(modelClass.getName() + " has no id field");
+		Class<?> idFieldType = idField.getType();
+		if (idFieldType == Object.class || idFieldType.isAssignableFrom(value.getClass())) {
+			return value;
+		} else if (idFieldType == String.class) {
+			return value.toString();
+		} else if (idFieldType == Integer.class) {
+			return ((Number) value).intValue();
+		} else if (idFieldType == Long.class) {
+			return ((Number) value).longValue();
+		} else {
+			throw new IllegalArgumentException("Not a valid id class in " + modelClass.getSimpleName());
 		}
 	}
 	
