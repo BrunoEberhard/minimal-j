@@ -117,9 +117,7 @@ public class SqlRepository implements TransactionalRepository {
 				return SchemaPreparation.create;
 			}
 			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
-				if (!tableDescriptions.next()) {
-					return SchemaPreparation.create;
-				}
+				return tableDescriptions.next() ? SchemaPreparation.update : SchemaPreparation.create;
 			}
 		} else if (sqlDialect instanceof PostgresqlDialect) {
 			Integer tableCount = execute(Integer.class, "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = current_schema");
