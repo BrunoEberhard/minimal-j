@@ -2,6 +2,7 @@ package org.minimalj.model.properties;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
@@ -70,12 +73,10 @@ public class FlatProperties {
 	}
 
 	private static Map<String, Property> properties(Class<?> clazz) {
-		// Java doesn't guarantee the field / property order but most of the time the
-		// order is as in the class described. Keep it that way for json/xml/yaml...
-		// serialization stuff.
 		Map<String, Property> properties = new LinkedHashMap<>();
 
 		Field[] fields = clazz.getFields();
+		Arrays.sort(fields, FlatPropertiesFieldComparator.INSTANCE);
 		for (Field field : fields) {
 			if (FieldUtils.isTransient(field) || FieldUtils.isStatic(field)) continue;
 
@@ -94,6 +95,41 @@ public class FlatProperties {
 			}
 		}
 		return properties;
+	}
+	
+	static enum FlatPropertiesFieldComparator implements Comparator<Field> {
+		INSTANCE;
+
+		@Override
+		public int compare(Field o1, Field o2) {
+			Integer i1 = map(o1);
+			Integer i2 = map(o2);
+			return i1.compareTo(i2);
+		}
+		
+		private int map(Field field) {
+			if (field.getName().equals("id")) {
+				return 1;
+			} else if (field.getName().equals("version")) {
+				return 2;
+			} else if (field.getName().equals("historized")) {
+				return 3;
+			}
+			
+			TechnicalField technicalField = field.getAnnotation(TechnicalField.class);
+			if (technicalField != null) {
+				switch (technicalField.value()) {
+				case CREATE_DATE: return 900;
+				case CREATE_USER: return 901;
+				case EDIT_DATE: return 902;
+				case EDIT_USER: return 903;
+				default:
+					//
+				} 
+			}
+
+			return 100;
+		}
 	}
 
 	public static List<Property> getListProperties(Class<?> clazz) {

@@ -6,10 +6,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.lang.reflect.Modifier;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -25,60 +28,91 @@ import org.minimalj.model.Model;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Query;
 import org.minimalj.rest.openapi.OpenAPIFactory;
+import org.minimalj.rest.openapi.model.OpenAPI;
+import org.minimalj.rest.openapi.model.OpenAPI.Server;
 import org.minimalj.security.Subject;
 import org.minimalj.transaction.InputStreamTransaction;
 import org.minimalj.transaction.OutputStreamTransaction;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.LocaleContext;
+import org.minimalj.util.LocaleContext.AcceptedLanguageLocaleSupplier;
 import org.minimalj.util.SerializationContainer;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 public class RestHttpHandler implements MjHttpHandler {
+	private static final Logger LOG = Logger.getLogger(RestHttpHandler.class.getName());
 
 	private final MjHttpHandler next;
+	private final String path;
+	private final int pathLength;
 	private final Model model;
-	private final Map<String, Class<?>> classByName = new HashMap<>();
+	private final Api api;
+
+	private final Map<String, Class<?>> classByName = new LinkedHashMap<>();
 
 	public RestHttpHandler() {
 		this(null);
 	}
 
 	public RestHttpHandler(MjHttpHandler next) {
-		this(Application.getInstance(), next);
+		this(null, Application.getInstance(), next);
+	}
+
+	public RestHttpHandler(Model model, MjHttpHandler next) {
+		this(null, model, next);
 	}
 	
-	public RestHttpHandler(Model model, MjHttpHandler next) {
+	public RestHttpHandler(String path, Model model, MjHttpHandler next) {
+		this.path = preparePath(path);
+		this.pathLength = this.path.length();
 		this.model = model;
 		this.next = next;
 		
 		MjModel mjModel = new MjModel(model.getEntityClasses());
 		for (MjEntity entity : mjModel.entities) {
-			classByName.put(entity.getClassName(), entity.getClazz());
+			if ((entity.getClazz().getModifiers() & Modifier.ABSTRACT) == 0) {
+				classByName.put(entity.getClassName(), entity.getClazz());
+			}
 		}
 		
 		if (model instanceof Api) {
-			Api api = (Api) model;
-			Class<?>[] transactionClasses = api.getTransactionClasses();
-			for (Class<?> transactionClass : transactionClasses) {
-				if (!Transaction.class.isAssignableFrom(transactionClass)) {
-					throw new IllegalArgumentException(transactionClass.getSimpleName() + " must implement " + Transaction.class.getSimpleName());
-				}
-				classByName.put(transactionClass.getSimpleName(), transactionClass);
+			api = (Api) model;
+			for (var transaction : api.getTransactions()) {
+				classByName.put(transaction.clazz.getSimpleName(), transaction.clazz);
 			}
+		} else {
+			api = null;
 		}
 	}
 	
+	private static String preparePath(String path) {
+		if (path == null) {
+			return "/";
+		}
+		return path.endsWith("/") ? path : path + "/";
+	}
+
 	@Override
 	public void handle(MjHttpExchange exchange) {
-		String[] pathElements;
-		String uriString = exchange.getPath();
-		String path = uriString;
-		if (path.startsWith("/")) {
-			path = path.substring(1);
+		String path = exchange.getPath();
+		if (path.startsWith(this.path)) {
+			path = path.substring(pathLength);
+			try {
+				LocaleContext.setLocale(new AcceptedLanguageLocaleSupplier(exchange.getHeader(AcceptedLanguageLocaleSupplier.ACCEPTED_LANGUAGE_HEADER)));
+				handle(exchange, exchange.getPath(), path);
+			} finally {
+				LocaleContext.resetLocale();
+			}
+		} else {
+			next.handle(exchange);
 		}
-		pathElements = path.split("/");
+	}
+	
+	private void handle(MjHttpExchange exchange, String uriString, String path) {
+		var pathElements = path.split("/");
 		
 		Class<?> clazz = null;
 		if (pathElements.length > 0 && !StringUtils.isEmpty(pathElements[0]) && !Character.isLowerCase(pathElements[0].charAt(0))) {
@@ -107,24 +141,29 @@ public class RestHttpHandler implements MjHttpHandler {
 						return;
 					}
 					try {
-						exchange.sendResponse(HttpsURLConnection.HTTP_OK, getClass().getResourceAsStream(uriString + "index.html").readAllBytes(), "text/html");
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK,
+								getClass().getResourceAsStream(uriString.substring(pathLength - 1) + "index.html").readAllBytes(), "text/html");
 					} catch (NullPointerException x) {
 						exchange.sendResponse(HttpsURLConnection.HTTP_INTERNAL_ERROR, "Not found: " + uriString + "index.html", "text/plain");
 					} catch (IOException x) {
-						x.printStackTrace();
+						LOG.log(Level.WARNING, x.getMessage(), x);
 						exchange.sendResponse(HttpsURLConnection.HTTP_INTERNAL_ERROR, x.getMessage(), "text/plain");
 					}
 					return;
 				} else if (StringUtils.equals("swagger.json", pathElements[1])) {
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, new OpenAPIFactory().create(model), "text/json");
+					OpenAPI openApi = new OpenAPIFactory().create(model);
+					var server = new Server();
+					server.url = this.path;
+					openApi.servers.add(server);
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(openApi), "application/json");
 					return;
 				} else {
 					int pos = uriString.lastIndexOf('.');
 					String mimeType = Resources.getMimeType(uriString.substring(pos + 1));
 					try {
-						exchange.sendResponse(HttpsURLConnection.HTTP_OK, getClass().getResourceAsStream(uriString).readAllBytes(), mimeType);
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK, getClass().getResourceAsStream(uriString.substring(pathLength - 1)).readAllBytes(), mimeType);
 					} catch (IOException x) {
-						x.printStackTrace();
+						LOG.log(Level.WARNING, x.getMessage(), x);
 						exchange.sendResponse(HttpsURLConnection.HTTP_INTERNAL_ERROR, x.getMessage(), "text/plain");
 					}
 					return;
@@ -154,7 +193,7 @@ public class RestHttpHandler implements MjHttpHandler {
 					}
 				}
 				List<?> object = Backend.find(clazz, query);
-				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "text/json");
+				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
 				return;
 			}
 			if (pathElements.length == 2) {
@@ -162,7 +201,7 @@ public class RestHttpHandler implements MjHttpHandler {
 				String id = pathElements[1];
 				Object object = Backend.read(clazz, id);
 				if (object != null) {
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "text/json");
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
 				} else {
 					exchange.sendResponse(HttpsURLConnection.HTTP_NOT_FOUND, clazz.getSimpleName() + " with id " + id + " not found", "text/plain");
 				}
@@ -172,6 +211,10 @@ public class RestHttpHandler implements MjHttpHandler {
 		case "POST":
 			if (clazz != null) {
 				if (!Transaction.class.isAssignableFrom(clazz)) {
+					if (api != null && !api.canCreate(clazz)) {
+						exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "insert of" + clazz.getSimpleName() + " not possible", "text/plain");
+						return;
+					}
 					Object inputObject = EntityJsonReader.read(clazz, exchange.getRequest());
 					Object id = Backend.insert(inputObject);
 					exchange.sendResponse(HttpsURLConnection.HTTP_OK, id.toString(), "text/plain");
@@ -181,8 +224,8 @@ public class RestHttpHandler implements MjHttpHandler {
 						Class<?> inputClass = clazz.getConstructors()[0].getParameters()[0].getType();
 						Object inputObject = EntityJsonReader.read(inputClass, exchange.getRequest());
 						Transaction<?> transaction = (Transaction<?>) clazz.getConstructors()[0].newInstance(inputObject);
-						Object outputObject = transaction.execute();
-						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject), "text/json");
+						Object outputObject = Backend.execute(transaction);
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject), "application/json");
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 						throw new RuntimeException(e);
 					}
@@ -191,6 +234,10 @@ public class RestHttpHandler implements MjHttpHandler {
 			break;
 		case "DELETE":
 			if (clazz != null) {
+				if (api != null && !api.canDelete(clazz)) {
+					exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "delete of" + clazz.getSimpleName() + " not possible", "text/plain");
+					return;
+				}
 				if (pathElements.length >= 2) {
 					String id = pathElements[1];
 					Object idOnlyObject = CloneHelper.newInstance(clazz);
@@ -208,17 +255,20 @@ public class RestHttpHandler implements MjHttpHandler {
 //				exchange.sendResponse(HttpsURLConnection.HTTP_BAD_REQUEST, "No Input", "text/plain");
 //				return;
 //			}
-	
 			if (pathElements.length >= 1 && StringUtils.equals("java-transaction", pathElements[0])) {
 				transaction(exchange, exchange.getRequest());
 				return;
 			} else if (clazz != null && pathElements.length == 2) {
+				if (api != null && !api.canUpdate(clazz)) {
+					exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "update of" + clazz.getSimpleName() + " not possible", "text/plain");
+					return;
+				}
 				String id = pathElements[1];
 				Object object = Backend.read(clazz, id);
 				Object inputObject = EntityJsonReader.read(object, exchange.getRequest());
 				IdUtils.setId(object, id); // don't let the id be changed
 				object = Backend.save(inputObject);
-				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "text/json");
+				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
 				return;
 			} else {
 				exchange.sendResponse(HttpsURLConnection.HTTP_BAD_REQUEST, "Put excepts class/id in url", "text/plain");
@@ -229,7 +279,7 @@ public class RestHttpHandler implements MjHttpHandler {
 			exchange.addHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, PATCH, OPTIONS");
 			exchange.addHeader("Access-Control-Allow-Headers", "API-Key,accept, Content-Type");
 			exchange.addHeader("Access-Control-Max-Age", "1728000");
-			exchange.sendResponse(HttpsURLConnection.HTTP_OK, (String) null, "text/json");
+			exchange.sendResponse(HttpsURLConnection.HTTP_OK, (String) null, "application/json");
 			return;
 		default:
 			exchange.sendResponse(HttpsURLConnection.HTTP_BAD_METHOD, "Method not allowed: " + exchange.getMethod(), "text/plain");

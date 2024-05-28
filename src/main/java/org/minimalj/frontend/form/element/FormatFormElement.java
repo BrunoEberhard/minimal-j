@@ -44,6 +44,11 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 */
 	protected boolean typed;
 	
+	/*
+	 * only used if setValue is called before getComponent()
+	 */
+	private String setText;
+	
 	public FormatFormElement(Property property, boolean editable) {
 		super(property);
 		this.editable = editable;
@@ -87,11 +92,15 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 					((JsonComponent) textField).setCssClass("textAlignRight");
 				}
 			} else if (textField instanceof SwingTextField) {
+				String placeholder = Resources.getPropertyName(getProperty(), "placeholder");
+				if (placeholder != null) {
+					((SwingTextField) textField).setPlaceholderText(placeholder);
+				}
 				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
 					((SwingTextField) textField).setHorizontalAlignment(SwingConstants.RIGHT);
 				}
 			}
-
+			textField.setValue(setText);
 		}
 		return textField;
 	}
@@ -110,9 +119,9 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	
 	@Override
 	public final void setValue(T value) {
-		String newString = InvalidValues.isInvalid(value) ? InvalidValues.getInvalidValue(value) : render(value);
-		if (!StringUtils.equals(newString, textField.getValue())) {
-			textField.setValue(newString);
+		setText = InvalidValues.isInvalid(value) ? InvalidValues.getInvalidValue(value) : render(value);
+		if (textField != null && !StringUtils.equals(setText, textField.getValue())) {
+			textField.setValue(setText);
 		}
 	}
 
@@ -144,6 +153,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	
 	@Override
 	public void setEnabled(boolean enabled) {
+		getComponent(); // ensure textField is initialized
 		textField.setEditable(enabled);
 	}
 

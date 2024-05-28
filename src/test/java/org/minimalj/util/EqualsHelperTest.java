@@ -3,8 +3,10 @@ package org.minimalj.util;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -151,6 +153,26 @@ public class EqualsHelperTest {
 
 		bArray2 = new EqualsHelperTestB[] { b2, b2 } ;
 		Assert.assertFalse("Different length", EqualsHelper.equals(bArray1, bArray2));
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test public void 
+	equalsMap() {
+		Map a = new HashMap();
+		Map b = null;
+		Assert.assertFalse("equals to null should not make problems", EqualsHelper.equals(a, b));
+
+		b = new HashMap();
+		Assert.assertTrue("two empty Maps should be equal", EqualsHelper.equals(a, b));
+		
+		a.put("aKey", "aValue");
+		Assert.assertFalse("not equal if first map has one element more", EqualsHelper.equals(a, b));
+
+		b.put("aKey", "aValue");
+		Assert.assertTrue("equals if both maps have same element", EqualsHelper.equals(a, b));
+
+		b.put("bKey", "bValue");
+		Assert.assertFalse("not equal if second map has one element more", EqualsHelper.equals(a, b));
 	}
 	
 	public static class EqualsHelperTestA {

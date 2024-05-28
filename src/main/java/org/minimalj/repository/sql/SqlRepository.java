@@ -117,9 +117,7 @@ public class SqlRepository implements TransactionalRepository {
 				return SchemaPreparation.create;
 			}
 			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
-				if (!tableDescriptions.next()) {
-					return SchemaPreparation.create;
-				}
+				return tableDescriptions.next() ? SchemaPreparation.update : SchemaPreparation.create;
 			}
 		} else if (sqlDialect instanceof PostgresqlDialect) {
 			Integer tableCount = execute(Integer.class, "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = current_schema");
@@ -401,10 +399,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public LinkedHashMap<String, Property> findColumns(Class<?> clazz) {
-		if (columnsForClass.containsKey(clazz)) {
-			return columnsForClass.get(clazz);
-		}
-		return findColumns(clazz, false);
+		return columnsForClass.computeIfAbsent(clazz, c -> findColumns(clazz, false));
 	}
 	
 	public LinkedHashMap<String, Property> findColumns(Class<?> clazz, boolean includeTransient) {
@@ -440,7 +435,6 @@ public class SqlRepository implements TransactionalRepository {
 			String columnName = sqlIdentifier.column(fieldName, columns.keySet(), method.getReturnType());
 			columns.put(columnName, new Keys.MethodProperty(method.getReturnType(), fieldName, method, null));
 		}
-		columnsForClass.put(clazz, columns);
 		return columns;
 	}	
 	

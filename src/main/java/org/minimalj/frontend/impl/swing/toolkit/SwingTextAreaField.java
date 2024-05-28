@@ -1,9 +1,11 @@
 package org.minimalj.frontend.impl.swing.toolkit;
 
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -17,7 +19,23 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 	private final JTextArea textArea;
 	
 	public SwingTextAreaField(InputComponentListener changeListener, int maxLength, String pattern) {
-		textArea = new JTextArea(new SwingTextField.FilteredDocument(maxLength, pattern));
+		textArea = new JTextArea(new SwingTextField.FilteredDocument(maxLength, pattern)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void processComponentKeyEvent(KeyEvent e) {
+				if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_TAB) {
+					e.consume();
+					if (e.isShiftDown()) {
+						transferFocusBackward();
+					} else {
+						transferFocus();
+					}
+				} else {
+					super.processComponentKeyEvent(e);
+				}
+			}
+		};
 		textArea.setLineWrap(true);
 		// textArea.setRows(calcRows(maxLength));
 		textArea.getDocument().addDocumentListener(new TextFieldChangeListener());
@@ -52,7 +70,8 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 		return rows;
 	}
 
-	public class TextFieldChangeListener implements DocumentListener {
+	public class TextFieldChangeListener implements DocumentListener, Runnable {
+		private boolean invokeSet = false;
 
 		@Override
 		public void changedUpdate(DocumentEvent arg0) {
@@ -68,8 +87,18 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 		public void removeUpdate(DocumentEvent arg0) {
 			fireChangeEvent();
 		}
-		
+
 		private void fireChangeEvent() {
+			// gather all remove/insert of document in one change
+			if (!invokeSet) {
+				invokeSet = true;
+				SwingUtilities.invokeLater(this);
+			}
+		}
+
+		@Override
+		public void run() {
+			invokeSet = false;
 			changeListener.changed(SwingTextAreaField.this);
 		}
 	}

@@ -634,24 +634,9 @@ public class Table<T> extends AbstractTable<T> {
 	
 	@Override
 	protected String updateQuery() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("UPDATE ").append(getTableName()).append(" SET ");
-		for (Object columnNameObject : getColumns().keySet()) {
-			s.append((String) columnNameObject).append("= ?, ");
-		}
-		// this is used in a callback where OptimisticLocking is not yet initialized
-		boolean optimisticLocking = FieldUtils.hasValidVersionfield(clazz);
-		if (optimisticLocking) {
-			s.append(" version = version + 1 WHERE id = ? AND version = ?");
-		} else {
-			s.delete(s.length()-2, s.length());
-			s.append(" WHERE id = ?");
-		}
-
-		return s.toString();
+		return updateQuery(FieldUtils.hasValidVersionfield(clazz));
 	}
-	
+
 	@Override
 	protected String deleteQuery() {
         return "DELETE FROM " + getTableName() + " WHERE id = ?";

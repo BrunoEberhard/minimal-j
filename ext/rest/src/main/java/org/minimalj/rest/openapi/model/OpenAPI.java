@@ -131,9 +131,6 @@ public class OpenAPI {
 		public String description;
 		public Map<String, Header> headers = new LinkedHashMap<>();
 		public Map<String, Content> content = new LinkedHashMap<>();
-
-		// v2 / !v3
-		public Schema schema;
 	}
 	
 	public static class Content {
@@ -169,10 +166,9 @@ public class OpenAPI {
 		public Map<String, Property> properties = new LinkedHashMap<>();
 		public Object example;
 		
-		// V2 / V3 for arrays
 		public Schema items;
-		// V3
 		public List<String> eNum;
+		public List<Object> allOf, oneOf;
 	}
 
 	public static class Property {
@@ -193,8 +189,7 @@ public class OpenAPI {
 		public Boolean deprecated;
 		public String pattern;
 		
-		// V2
-		public List<String> eNum;
+		public List<Object> allOf, oneOf;
 		
 		public String getComment() {
 			if (!StringUtils.isEmpty(title)) {
@@ -212,16 +207,6 @@ public class OpenAPI {
 	
 	public static enum Type {
 		INTEGER, NUMBER, STRING, BOOLEAN, ARRAY, OBJECT;
-	}
-	
-	// V2
-	
-	public String getSwagger() {
-		return openapi;
-	}
-	
-	public void setSwagger(String swagger) {
-		this.openapi = swagger;
 	}
 	
 	public Map<String, Schema> getDefinitions() {

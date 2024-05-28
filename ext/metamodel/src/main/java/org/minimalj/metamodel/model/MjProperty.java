@@ -55,11 +55,10 @@ public class MjProperty {
 		this.propertyType = propertyType(field);
 		if (propertyType == MjPropertyType.LIST || propertyType == MjPropertyType.ENUM_SET) {
 			Class<?> collectedClass = GenericUtils.getGenericClass(clazz, field);
-			if (collectedClass == null) {
-				// Happens for parametrized types
-				throw new IllegalArgumentException("Collected class not found for " + clazz.getSimpleName() + "." + field.getName());
+			// Null for typed Classes/Fields (List<T> property)
+			if (collectedClass != null) {
+				this.type = model.getOrCreateEntity(collectedClass);
 			}
-			this.type = model.getOrCreateEntity(collectedClass);
 		} else if (!FieldUtils.isAllowedPrimitive(field.getType())) {
 			this.type = model.getOrCreateEntity(field.getType());
 		} else {

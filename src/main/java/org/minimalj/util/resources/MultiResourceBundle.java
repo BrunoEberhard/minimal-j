@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.minimalj.util.StringUtils;
+
 public class MultiResourceBundle extends ResourceBundle {
 
 	private final List<ResourceBundle> resourceBundles = new ArrayList<>();
@@ -54,9 +56,10 @@ public class MultiResourceBundle extends ResourceBundle {
 	}
 
 	@Override
-	public boolean containsKey(String key) {
+	public boolean containsKey(String key1) {
+		String key2 = Character.isLowerCase(key1.charAt(0)) ? StringUtils.upperFirstChar(key1) : StringUtils.lowerFirstChar(key1);
 		for (ResourceBundle resourceBundle : resourceBundles) {
-			if (resourceBundle.containsKey(key)) {
+			if (resourceBundle.containsKey(key1) || resourceBundle.containsKey(key2)) {
 				return true;
 			}
 		}
@@ -64,15 +67,16 @@ public class MultiResourceBundle extends ResourceBundle {
 	}
 	
 	@Override
-	protected Object handleGetObject(String key) {
+	protected Object handleGetObject(String key1) {
 		Object result = null;
 		for (ResourceBundle resourceBundle : resourceBundles) {
-			try {
-				result = resourceBundle.getObject(key);
-			} catch (Exception x) {
-				// silent
+			if (resourceBundle.containsKey(key1)) {
+				return resourceBundle.getObject(key1);
 			}
-			if (result != null) break;
+			String key2 = Character.isLowerCase(key1.charAt(0)) ? StringUtils.upperFirstChar(key1) : StringUtils.lowerFirstChar(key1);
+			if (resourceBundle.containsKey(key2)) {
+				return resourceBundle.getObject(key2);
+			}
 		}
 		return result;
 	}

@@ -192,12 +192,14 @@ public class SwingTab extends EditablePanel implements PageManager {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			List<Page> pages = new ArrayList<>(visiblePageAndDetailsList);
-			verticalPanel.removeAll();
-			visiblePageAndDetailsList.clear();
-			for (Page page : pages) {
-				addPageOrDetail(page);
-			}
+			SwingFrontend.run(e, () -> {
+				List<Page> pages = new ArrayList<>(visiblePageAndDetailsList);
+				verticalPanel.removeAll();
+				visiblePageAndDetailsList.clear();
+				for (Page page : pages) {
+					addPageOrDetail(page);
+				}
+			});
 		}
 	}
 

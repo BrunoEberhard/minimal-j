@@ -70,7 +70,7 @@ public class JsonWriter {
 			add("null");
 		} else {
 			calls.push(object);
-			if (object instanceof String || object instanceof Character)
+			if (object instanceof CharSequence || object instanceof Character)
 				string(object);
 			else if (object instanceof Number)
 				add(object);

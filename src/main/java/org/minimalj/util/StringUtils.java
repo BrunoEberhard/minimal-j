@@ -161,9 +161,13 @@ public class StringUtils {
 	}
 	
 	public static String escapeHTML(String s) {
-		StringBuilder out = new StringBuilder(Math.max(16, s.length()));
-		escapeHTML(out, s);
-		return out.toString();
+		if (!isEmpty(s)) {
+			StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+			escapeHTML(out, s);
+			return out.toString();
+		} else {
+			return s;
+		}
 	}
 	
 	public static void escapeHTML(StringBuilder builder, String s) {

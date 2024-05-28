@@ -20,6 +20,7 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.query.By;
+import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
 import org.minimalj.util.CsvReader;
@@ -36,7 +37,6 @@ public enum SchemaPreparation {
 		return this == update;
 	}
 
-	// TODO remove unused tables
 	public void prepare(SqlRepository repository) throws SQLException {
 		if (this != SchemaPreparation.none) {
 			repository.beforeSchemaPreparation(this);
@@ -45,8 +45,13 @@ public enum SchemaPreparation {
 			createEnums(repository);
 			createTables(repository);
 		} else if (this != SchemaPreparation.none) {
-			updateEnums(repository, this);
+			if (repository.sqlDialect instanceof PostgresqlDialect) {
+				updateEnums(repository, this);
+			} else {
+				logger.fine("Update enums only implemented for Postgresql");
+			}
 			updateTables(repository, this);
+			logger.fine("Unused tables are not removed");
 		}
 		// updateCodes is always done. The constants in the classes
 		// may need the ids
@@ -216,7 +221,7 @@ public enum SchemaPreparation {
 			Property property = column.getValue();
 			String columnName = column.getKey();
 			boolean notEmptyProperty = property.getAnnotation(NotEmpty.class) != null;
-			if (!columnNames.contains(columnName)) {
+			if (!columnNames.contains(column.getKey().toLowerCase())) {
 				logger.info("New column: " + table.name + "." + columnName);
 				String s = "ALTER TABLE " + table.name + " ADD COLUMN " + columnName + " "
 						+ table.getColumnDefinition(repository.sqlDialect, property);
@@ -240,7 +245,7 @@ public enum SchemaPreparation {
 				newColumn.property = property;
 				newColumns.add(newColumn);
 			} else {
-				String isNullable = repository.execute(String.class, "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
+				String isNullable = repository.execute(String.class, "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND column_name ilike ?", table.name, columnName);
 				boolean nullableColumn = "yes".equalsIgnoreCase(isNullable);
 				if (!nullableColumn && !notEmptyProperty) {
 					logger.info("Make column nullable: " + table.name + "." + columnName);
@@ -265,7 +270,7 @@ public enum SchemaPreparation {
 				}
 				
 				if (property.getClazz() == String.class) {
-					int maxLength = repository.execute(Integer.class, "SELECT character_maximum_length FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?", table.name, columnName);
+					int maxLength = repository.execute(Integer.class, "SELECT character_maximum_length FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND column_name ilike ?", table.name, columnName);
 					int annotatedSize = AnnotationUtil.getSize(property);
 					if (maxLength > annotatedSize) {
 						// TODO shorten content
@@ -324,11 +329,11 @@ public enum SchemaPreparation {
 	}
 
 	protected String tableExists(Class<?> clazz, String identifier) {
-		return "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = current_schema AND table_name = '" + identifier + "'";
+		return "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = current_schema AND table_name ilike '" + identifier + "'";
 	}
 
 	protected String enumExists(Class<?> clazz, String identifier) {
-		return "SELECT COUNT(*) FROM pg_type WHERE typcategory = 'E' AND typname = '" + identifier + "'";
+		return "SELECT COUNT(*) FROM pg_type WHERE typcategory = 'E' AND typname ilike '" + identifier + "'";
 	}
 
 	protected String selectEnumValues(Class<?> clazz, String enumIdentifier) {
@@ -340,11 +345,11 @@ public enum SchemaPreparation {
 	}
 
 	protected String selectColumns(String tableIdentifier) {
-		return "SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema AND table_name = '" + tableIdentifier + "'";
+		return "SELECT LOWER(column_name) FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike '" + tableIdentifier + "'";
 	}
 
 	protected String isNullableColumn(Class<?> clazz, String tableIdentifier, String columnIdentifier) {
-		return "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name = ? AND column_name = ?";
+		return "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND column_name ilike ?";
 	}
 
 }

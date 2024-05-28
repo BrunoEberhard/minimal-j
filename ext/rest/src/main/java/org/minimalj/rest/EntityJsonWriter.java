@@ -4,19 +4,19 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.minimalj.frontend.impl.json.JsonWriter;
+import org.minimalj.model.Code;
+import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
-import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
 import org.minimalj.repository.query.AllCriteria;
@@ -27,26 +27,31 @@ import org.minimalj.repository.query.Limit;
 import org.minimalj.repository.query.Order;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.query.SearchCriteria;
+import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.IdUtils;
 
 public class EntityJsonWriter {
 
 	public static String write(Object entity) {
-		Map<String, Object> map = convert(entity, new HashSet<>());
-		return new JsonWriter().write(map);
+		if (entity instanceof List) {
+			return write((List<?>) entity);
+		} else {
+			Map<String, Object> map = convert(entity);
+			return new JsonWriter().write(map);
+		}
 	}
 
 	public static String write(List<?> entities) {
 		List<Map<String, Object>> mapList = new ArrayList<>();
-		TreeSet<String> ids = new TreeSet<>();
 		for (Object entity : entities) {
-			mapList.add(convert(entity, ids));
+			mapList.add(convert(entity));
 		}
 		return new JsonWriter().write(mapList);
 	}
 
-	private static Map<String, Object> convert(Object entity, Set<String> ids) {
+	private static Map<String, Object> convert(Object entity) {
 		Map<String, Object> values = new LinkedHashMap<>();
 
 		if (entity instanceof Map) {
@@ -55,35 +60,37 @@ public class EntityJsonWriter {
 				return null;
 			}
 			for (Map.Entry<String, Object> e2 : map.entrySet()) {
-				values.put(e2.getKey(), convert(e2.getValue(), ids));
+				values.put(e2.getKey(), convert(e2.getValue()));
 			}
 			return values;
 		}
 		
-		Map<String, Property> properties = FlatProperties.getProperties(entity.getClass());
+		Map<String, Property> properties = Properties.getProperties(entity.getClass());
 		for (Map.Entry<String, Property> e : properties.entrySet()) {
 			Property property = e.getValue();
 			Object value = property.getValue(entity);
 			
 			if (value == null) {
 				continue;
+			} else if (entity instanceof Dependable d && d.getParent() == value) {
+				continue;
 			} else {
 				String propertyName = e.getKey();
-				// V2 !!!
-				if ("eNum".equals(propertyName)) {
+				if (propertyName.equals("eNum")) {
 					propertyName = "enum";
 				}
 				
-				if (e.getKey().equals("id") && value != null) {
-					// TODO id as String fields?
+				if (e.getKey().equals("id") && !(value instanceof Integer || value instanceof Long)) {
 					value = value.toString();
 				}
-				if (value instanceof String || value instanceof Boolean || value instanceof Number) {
+				if (value instanceof BigDecimal bd) {
+					values.put(propertyName, bd.toString());
+				} else if (value instanceof String || value instanceof Boolean || value instanceof Number) {
 					values.put(propertyName, value);
-				} else if (value instanceof BigDecimal bd) {
-					values.put(propertyName, bd.doubleValue());
 				} else if (value instanceof byte[]) {
 					values.put(propertyName, Base64.getEncoder().encodeToString((byte[]) value));
+				} else if (property.getClazz() == LocalDateTime.class) {
+					values.put(propertyName, value.toString() + "Z");
 				} else if (FieldUtils.isAllowedPrimitive(property.getClazz())) {
 					values.put(propertyName, value.toString());
 				} else if (value instanceof Collection) {
@@ -99,16 +106,19 @@ public class EntityJsonWriter {
 						} else if (element instanceof Enum) {
 							list.add(((Enum<?>) element).name());
 						} else {
-							list.add(convert(element, ids));
+							list.add(convert(element));
 						}
 					}
 					values.put(propertyName, list);
-				} else if (value instanceof Type) {
-					values.put(propertyName, ((Type) value).name().toLowerCase());
-				} else if (value instanceof Enum) {
-					values.put(propertyName, ((Enum<?>) value).name());
-				} else if (value != null) {
-					value = convert(value, ids);
+				} else if (value instanceof Type type) {
+					values.put(propertyName, type.name().toLowerCase());
+				} else if (value instanceof Enum enuum) {
+					values.put(propertyName, enuum.name());
+				} else if (value instanceof Code) {
+					values.put(propertyName, IdUtils.getId(value));
+					// values.put(propertyName + "_text", Rendering.render(value));
+				} else if (!EmptyObjects.isEmpty(value)) {
+					value = convert(value);
 					if (value != null) {
 						values.put(propertyName, value);
 					}

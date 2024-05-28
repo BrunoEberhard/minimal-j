@@ -1,5 +1,6 @@
 package org.minimalj.test.web;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -182,7 +183,7 @@ public class WebTestFacade implements UiTestFacade {
 					if (!divNavigation.isDisplayed()) {
 						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
 						navigationToggle.click();
-						WebDriverWait webDriverWait = new WebDriverWait(driver, 10);
+						WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 						webDriverWait.until(ExpectedConditions.elementToBeClickable(item));
 					}
 					item.click();
@@ -299,7 +300,7 @@ public class WebTestFacade implements UiTestFacade {
 				} else {
 					WebElement actionMenuButton = divPage.findElement(By.className("actionMenuButton"));
 					if (!actionMenuButton.isDisplayed()) {
-						actionMenuButton = driver.findElementById("actionMenuButton");
+						actionMenuButton = driver.findElement(By.id("actionMenuButton"));
 					}
 					actionMenuButton.click();
 					item = divPage.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
@@ -318,11 +319,31 @@ public class WebTestFacade implements UiTestFacade {
 		}
 
 		@Override
+		public void close() {
+			getAction(Resources.getString("CancelAction")).run();
+		}
+		
+		@Override
 		public FormTestFacade getForm() {
 			WebElement form = dialog.findElement(By.className("form"));
 			return new HtmlFormTestFacade(form);
 		}
 
+		@Override
+		public TableTestFacade getTable() {
+			try {
+				WebElement table = dialog.findElement(By.className("table"));
+				return new HtmlTableTestFacade(null, table);
+			} catch (NoSuchElementException e) {
+				throw new IllegalStateException("Dialog has no table", e);
+			}
+		}
+		
+		@Override
+		public SearchTableTestFacade getSearchTable() {
+			return new HtmlSearchTableTestFacade(dialog);
+		}
+		
 		@Override
 		public ActionTestFacade getAction(String caption) {
 			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
@@ -439,18 +460,16 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public String getValidation() {
 			String id = formElement.getAttribute("id");
-			WebElement formElement = driver.findElementById(id);
+			WebElement formElement = driver.findElement(By.id(id));
 			String validation = formElement.getAttribute("title");
 			return StringUtils.isEmpty(validation) ? null : validation;
 		}
 
 		@Override
-		public SearchTableTestFacade lookup() {
+		public void lookup() {
 			WebElement lookupButton = formElement.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
-			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
-			return new HtmlSearchTableTestFacade(dialogs.get(dialogs.size() - 1));
 		}
 
 		@Override
@@ -506,6 +525,12 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div")).get(pos);
 			return new HtmlFormElementTestFacade(groupItemElement);
 		}
+		
+		@Override
+		public FormTestFacade row(int pos) {
+			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div/div")).get(pos).findElement(By.tagName("div"));
+			return new HtmlFormTestFacade(groupItemElement);
+		}		
 	}
 
 	private class HtmlTableTestFacade implements TableTestFacade {
@@ -631,7 +656,7 @@ public class WebTestFacade implements UiTestFacade {
 
 		public HtmlSearchTableTestFacade(WebElement dialog) {
 			super(null, dialog);
-			Assertions.assertEquals("SearchDialog", dialog.getAttribute("type"));
+//			Assertions.assertEquals("SearchDialog", dialog.getAttribute("type"));
 		}
 
 		public void search(String text) {
@@ -667,7 +692,7 @@ public class WebTestFacade implements UiTestFacade {
 
 	private WebElement findValueElement(WebElement element) {
 		while (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea") && !element.getTagName().equalsIgnoreCase("select")) {
-			element = element.findElement(By.cssSelector("input,textarea,select"));
+			element = element.findElement(By.cssSelector("input,textarea,select,div"));
 		}
 		return element;
 	}

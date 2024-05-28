@@ -147,18 +147,9 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 
 	@Override
 	protected String updateQuery() {
-		StringBuilder s = new StringBuilder();
-		
-		s.append("UPDATE ").append(getTableName()).append(" SET ");
-		for (Object columnNameObject : getColumns().keySet()) {
-			s.append((String) columnNameObject).append("= ?, ");
-		}
-		s.delete(s.length()-2, s.length());
-		s.append(" WHERE id = ? AND position = ?");
-
-		return s.toString();
+		return updateQuery(false) + " AND position = ?";
 	}
-	
+
 	@Override
 	protected String deleteQuery() {
 		return "DELETE FROM " + getTableName() + " WHERE id = ? AND position >= ?";

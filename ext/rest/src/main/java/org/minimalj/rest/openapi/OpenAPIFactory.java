@@ -1,7 +1,8 @@
 package org.minimalj.rest.openapi;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
+import java.lang.reflect.Modifier;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.minimalj.metamodel.model.MjEntity;
@@ -10,11 +11,17 @@ import org.minimalj.metamodel.model.MjModel;
 import org.minimalj.metamodel.model.MjProperty;
 import org.minimalj.metamodel.model.MjProperty.MjPropertyType;
 import org.minimalj.model.Api;
+import org.minimalj.model.Api.TransactionDefinition;
+import org.minimalj.model.Code;
+import org.minimalj.model.Dependable;
+import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
-import org.minimalj.rest.EntityJsonWriter;
+import org.minimalj.model.properties.FlatProperties;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
 import org.minimalj.rest.openapi.model.OpenAPI.In;
+import org.minimalj.rest.openapi.model.OpenAPI.Info;
 import org.minimalj.rest.openapi.model.OpenAPI.Operation;
 import org.minimalj.rest.openapi.model.OpenAPI.Parameter;
 import org.minimalj.rest.openapi.model.OpenAPI.Property;
@@ -24,37 +31,16 @@ import org.minimalj.rest.openapi.model.OpenAPI.Schema;
 import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.StringUtils;
 
 public class OpenAPIFactory {
 	
-	public static enum API {
-		Swagger, OpenAPI3;
-	}
-	
-	private final API api;
-	private final String SCHEMAS;
-	
-	public OpenAPIFactory() {
-		this(API.OpenAPI3);
-	}
-	
-	public OpenAPIFactory(API api) {
-		this.api = api;
-		if (api == API.Swagger) {
-			SCHEMAS = "#/definitions/";
-		} else {
-			SCHEMAS = "#/components/schemas/";
-		}
-	}
+	private final String SCHEMAS = "#/components/schemas/";
 
-	public String create(Model model) {
+	public OpenAPI create(Model model) {
 		OpenAPI api = new OpenAPI();
-		if (this.api == API.OpenAPI3) {
-			api.openapi = "3.0.0";
-			api.components = new OpenAPI.Components();
-		} else {
-			api.setSwagger("2.0");
-		}
+		api.openapi = "3.0.0";
+		api.components = new OpenAPI.Components();
 		
 		api.info = new OpenAPI.Info();
 		api.info.version = "1.0.0";
@@ -65,20 +51,27 @@ public class OpenAPIFactory {
 		// server.url = "http://localhost:8080/";
 		// api.servers.add(server);
 
+		Api mjApi = model instanceof Api ? (Api) model : null;
+		
 		MjModel mjModel = new MjModel(model.getEntityClasses());
 		for (MjEntity entity : mjModel.entities) {
+			if ((entity.getClazz().getModifiers() & Modifier.ABSTRACT) > 0) {
+				continue;
+			}
 			String entityName = entity.getClassName();
 
-			if (IdUtils.hasId(entity.getClazz())) {
-				Map<String, Operation> operations = new HashMap<>();
+			if (IdUtils.hasId(entity.getClazz()) && entity.type != MjEntityType.VIEW) {
+				Map<String, Operation> operations = new LinkedHashMap<>();
 
 				Operation operation = operationGetById(entity);
 				operations.put("get", operation);
 				
-				if (entity.type != MjEntityType.VIEW) {
+				if (mjApi == null || mjApi.canCreate(entity.getClazz())) {
 					operation = operationPut(entity);
 					operations.put("put", operation);
+				}
 
+				if (mjApi == null || mjApi.canDelete(entity.getClazz())) {
 					operation = operationDelete(entity);
 					operations.put("delete", operation);
 				}
@@ -87,7 +80,7 @@ public class OpenAPIFactory {
 				
 				// 
 				
-				operations = new HashMap<>();
+				operations = new LinkedHashMap<>();
 				
 				if (entity.type == MjEntityType.CODE) {
 					// the number of codes is expected to be small enough to be loaded at once
@@ -95,59 +88,62 @@ public class OpenAPIFactory {
 					operations.put("get", operation);
 				}
 				
-				if (entity.type != MjEntityType.VIEW) {
+				if (mjApi == null || mjApi.canUpdate(entity.getClazz())) {
 					operation = operationPost(entity);
 					operations.put("post", operation);
 				}
 				
-				api.paths.put("/" + entityName, operations);
+				if (!operations.isEmpty()) {
+					api.paths.put("/" + entityName, operations);
+				}
 			}
 			
-			addSchema(api, entity);	
+			addSchema(api, mjApi, entity);	
 		}
 		
-		if (model instanceof Api) {
-			Api mjApi = (Api) model;
-			Class<?>[] transactionClasses = mjApi.getTransactionClasses();
-			for (Class<?> transactionClass : transactionClasses) {
-				
-				Constructor<?> constructor = transactionClass.getConstructors()[0];
-				Class<?> requestClass = constructor.getParameters()[0].getType();
-				addSchema(api, new MjEntity(mjModel, requestClass));
-				Class<?> responseClass = getReturnType(transactionClass);
+		if (mjApi != null) {
+			for (var transaction : mjApi.getTransactions()) {
+				Class<?> requestClass = transaction.request;
+				addSchema(api, mjApi, new MjEntity(mjModel, requestClass));
+
+				Class<?> responseClass = transaction.response;
 				new MjEntity(mjModel, responseClass);
-				addSchema(api, new MjEntity(mjModel, responseClass));
+				addSchema(api, mjApi, new MjEntity(mjModel, responseClass));
 				
-				Map<String, Operation> operations = new HashMap<>();
-				Operation operation = operationPost(transactionClass);
+				Map<String, Operation> operations = new LinkedHashMap<>();
+				Operation operation = operationPost(transaction);
 
 				operations.put("post", operation);
-				api.paths.put("/" + transactionClass.getSimpleName(), operations);
+				api.paths.put("/" + transaction.clazz.getSimpleName(), operations);
 			}
 		}
 		
-		return EntityJsonWriter.write(api);
+		api.info = new Info();
+		// api.info.title = "API for " + Application.getInstance().getClass().getSimpleName();
+		
+		api.info.description = "<p>This API contains the generic methods provided by the REST interface of Minimal-J plus the specialized POST request.</p>"
+				
+				+ "<p>There is a special type of entity classes named 'Codes'. There should be a limited amount of objects for each code class. There is a GET method that can request all of them. "
+				+ "When referenced in other entities codes are only represented by their id fields. You should cache the codes before requesting business objects. If you get a code that "
+				+ "is not in the cache (for example because it was deactivated) you can request a single code by a get method.</p>"
+				
+				+ "<p>All other entities are represented by all their field values or by a subset for their field values (then it's called a View). "
+				+ "This is true in the response of a GET request. When your PUT or POST request contains references they are represented only by the id field.</p>";
+		
+		return api;
 	}
 
-	public void addSchema(OpenAPI api, MjEntity entity) {
+	public void addSchema(OpenAPI api, Api mjApi, MjEntity entity) {
 		String entityName = entity.getClassName();	
  		if (api.components.schemas.containsKey(entityName)) {
  			return;
 		}
 		
-		Schema schema;
 		if (entity.isEnumeration()) {
-			if (this.api == API.OpenAPI3) {
-				schema = eNum(entity);
-			} else {
-				schema = null;
-			}
+			api.components.schemas.put(entityName, eNum(entity));
 		} else {
-			schema = schema(entity);
-		}
-		
-		if (schema != null) {
-			api.components.schemas.put(entityName, schema);
+			api.components.schemas.put(entityName, schema(entity, mjApi));
+			api.components.schemas.put(entityName + "_write", schemaWrite(mjApi, entity));
 		}
 	}
 
@@ -158,7 +154,7 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Gets a " + entityName + " by id";
 		
-		Parameter parameter = stringParameter("id");
+		Parameter parameter = parameter("id", Type.STRING);
 		parameter.required = true;
 		parameter.in = In.path;
 		parameter.description = entityName + " id";
@@ -168,28 +164,23 @@ public class OpenAPIFactory {
 		Response response = new Response();
 		response.description = "Successful operation";
 		
-		Schema schema = new Schema();
-		schema.$ref = SCHEMAS + entityName;
+		Content content = new Content();
+		content.schema = new Schema();
+		content.schema.$ref = SCHEMAS + entity.getClassName();
 
-		if (api == API.OpenAPI3) {
-			Content content = new Content();
-			content.schema = schema;
-
-			response.content.put("application/json", content);
-		} else {
-			response.schema = schema;
-		}
+		response.content.put("application/json", content);
 		
 		operation.responses.put("200", response);
 		
 		response = new Response();
 		response.description = "Not found";
+        content = new Content();
+		response.content.put("text/plain", content);
 		
 		operation.responses.put("404", response);
 		
 		return operation;
 	}
-
 
 	private Operation operationGetAll(MjEntity entity) {
 		String entityName = entity.getClassName();
@@ -197,54 +188,44 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Gets all " + entityName;
 
-		Parameter parameter = stringParameter("offset");
-		parameter.in = In.query;
-		parameter.description = "First returned item (starting at 0)";
-		operation.parameters.add(parameter);
-		
-		parameter = stringParameter("size");
-		parameter.in = In.query;
-		parameter.description = "Number of maximal returned items";
-		operation.parameters.add(parameter);
+		addRangeParameters(operation);
 		
 		Response response = new Response();
 		response.description = "Successful operation";
 
-		if (api == API.OpenAPI3) {
-			Schema schema = new Schema();
-			schema.type = OpenAPI.Type.ARRAY;
+		Schema schema = new Schema();
+		schema.type = OpenAPI.Type.ARRAY;
+		
+		schema.items = new Schema();
+		schema.items.$ref = SCHEMAS + entityName;
 
-			schema.items = new Schema();
-			schema.items.$ref = SCHEMAS + entityName;
+		Content content = new Content();
+		content.schema = schema;
 
-			Content content = new Content();
-			content.schema = schema;
-
-			response.content.put("application/json", content);
-		} else {
-			Schema schema = new Schema();
-			schema.type = OpenAPI.Type.ARRAY;
-			Schema itemSchema = new Schema();
-			itemSchema.$ref = SCHEMAS + entityName;
-			schema.items = itemSchema;
-
-			response.schema = schema;
-		}
+		response.content.put("application/json", content);
 
 		operation.responses.put("200", response);
 		return operation;
 	}
+
+	private void addRangeParameters(Operation operation) {
+		Parameter parameter = parameter("offset", Type.INTEGER);
+		parameter.in = In.query;
+		parameter.description = "First returned item (starting at 0)";
+		operation.parameters.add(parameter);
+		
+		parameter = parameter("size", Type.INTEGER);
+		parameter.in = In.query;
+		parameter.description = "Number of maximal returned items";
+		operation.parameters.add(parameter);
+	}
 	
-	private Parameter stringParameter(String name) {
+	private Parameter parameter(String name, Type type) {
 		Parameter parameter = new Parameter();
 		parameter.name = name;
-		if (api == API.OpenAPI3) {
-			Schema schema = new Schema();
-			schema.type = Type.STRING;
-			parameter.schema = schema;
-		} else {
-			parameter.type = "string";
-		}
+		Schema schema = new Schema();
+		schema.type = type;
+		parameter.schema = schema;
 		return parameter;
 	}
 	
@@ -254,20 +235,14 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Add a new " + entityName;
 		
-		Schema schema = new Schema();
-		schema.$ref = SCHEMAS + entityName;
+		Content content = new Content();
+		content.schema = new Schema();
+		content.schema.$ref = SCHEMAS + entityName + "_write";
 		
-		if (api == API.OpenAPI3) {
-			Content content = new Content();
-			content.schema = schema;
-			
-			RequestBody requestBody = new RequestBody();
-			requestBody.content.put("application/json", content);
+		RequestBody requestBody = new RequestBody();
+		requestBody.content.put("application/json", content);
 
-			operation.requestBody = requestBody;
-		} else {
-			// TODO response.schema = schema;
-		}
+		operation.requestBody = requestBody;
 		
 		Response response = new Response();
 		response.description = "Successful operation";
@@ -276,64 +251,60 @@ public class OpenAPIFactory {
 		return operation;
 	}
 	
-	private Operation operationPost(Class<?> transactionClass) {
-		String transactionName = transactionClass.getSimpleName();
+	private Operation operationPost(TransactionDefinition transaction) {
+		String transactionName = transaction.clazz.getSimpleName();
 		
 		Operation operation = new Operation();
-		operation.summary = "Execute " + transactionName;
+		if (transaction.comment != null) {
+			operation.summary = transaction.comment;
+		} else {
+			operation.summary = "Execute " + transactionName;
+		}
 		
 		{
-			Constructor<?> constructor = transactionClass.getConstructors()[0];
-			Class<?> requestClass = constructor.getParameters()[0].getType();
-			String requestEntityName = requestClass.getSimpleName();
-			
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + requestEntityName;
+			schema.$ref = SCHEMAS + transaction.request.getSimpleName() + "_write";
 
-			if (api == API.OpenAPI3) {
-				Content content = new Content();
-				content.schema = schema;
+			Content content = new Content();
+			content.schema = schema;
 
-				RequestBody requestBody = new RequestBody();
-				requestBody.content.put("application/json", content);
+			RequestBody requestBody = new RequestBody();
+			requestBody.content.put("application/json", content);
 
-				operation.requestBody = requestBody;
-			} else {
-				// TODO response.schema = schema;
-			}
+			operation.requestBody = requestBody;
+			
+		}
+
+		if (transaction.listResponse) {
+			addRangeParameters(operation);
 		}
 
 		{
-			Class<?> resultClass = getReturnType(transactionClass);
+			Class<?> resultClass = transaction.response;
 			String responseEntityName = resultClass.getSimpleName();
 
 			Response response = new Response();
 			response.description = "Successful operation";
 
 			Schema schemaResponse = new Schema();
-			schemaResponse.$ref = SCHEMAS + responseEntityName;
-
-			if (api == API.OpenAPI3) {
-				Content content = new Content();
-				content.schema = schemaResponse;
-
-				response.content.put("application/json", content);
+			if (transaction.listResponse) {
+				var schemaItems = new Schema();
+				schemaItems.$ref = SCHEMAS + responseEntityName;
+				schemaResponse.items = schemaItems;
+				schemaResponse.type = Type.ARRAY;
 			} else {
-				response.schema = schemaResponse;
+				schemaResponse.$ref = SCHEMAS + responseEntityName;
 			}
+
+			Content content = new Content();
+			content.schema = schemaResponse;
+
+			response.content.put("application/json", content);
 
 			operation.responses.put("200", response);
 		}
 
 		return operation;
-	}
-	
-	private Class<?> getReturnType(Class<?> transactionClass) {
-		try {
-			return transactionClass.getMethod("execute").getReturnType();
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new IllegalArgumentException(e);
-		}
 	}
 	
 	private Operation operationPut(MjEntity entity) {
@@ -342,26 +313,20 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Update a " + entityName;
 
-		Parameter parameter = stringParameter("id");
+		Parameter parameter = parameter("id", Type.STRING);
 		parameter.required = true;
 		parameter.in = In.path;
 		parameter.description = entityName + " id";
 		operation.parameters.add(parameter);
 
-		Schema schema = new Schema();
-		schema.$ref = SCHEMAS + entityName;
+		Content content = new Content();
+		content.schema = new Schema();
+		content.schema.$ref = SCHEMAS + entityName + "_write";
 		
-		if (api == API.OpenAPI3) {
-			Content content = new Content();
-			content.schema = schema;
-			
-			RequestBody requestBody = new RequestBody();
-			requestBody.content.put("application/json", content);
+		RequestBody requestBody = new RequestBody();
+		requestBody.content.put("application/json", content);
 
-			operation.requestBody = requestBody;
-		} else {
-			// TODO response.schema = schema;
-		}
+		operation.requestBody = requestBody;
 		
 		Response response = new Response();
 		response.description = "Successful operation";
@@ -376,7 +341,7 @@ public class OpenAPIFactory {
 		Operation operation = new Operation();
 		operation.summary = "Delete a " + entityName;
 
-		Parameter parameter = stringParameter("id");
+		Parameter parameter = parameter("id", Type.STRING);
 		parameter.required = true;
 		parameter.in = In.path;
 		parameter.description = entityName + " id";
@@ -390,26 +355,18 @@ public class OpenAPIFactory {
 		return operation;
 	}
 	
-	private Schema schema(MjEntity entity) {
+	private Schema schema(MjEntity entity, Api mjApi) {
 		Schema schema = new Schema();
-
-		Property property = new Property();
-		if (api == API.OpenAPI3 ) {
-			property.nullable = true;
+		
+		var idProperty = idProperty(entity);
+		if (idProperty != null) {
+			schema.properties.put("id", idProperty);
 		}
-		property.type = OpenAPI.Type.STRING;
-		if (entity.type != MjEntityType.CODE) {
-			// for codes the id can be chosen. For normal entites the framework creates the id
-			property.readOnly = true;
-		}
-		schema.properties.put("id", property);
 		
 		boolean hasVersion = FieldUtils.hasValidVersionfield(entity.getClazz());
 		if (hasVersion) {
-			property = new Property();
-			if (api == API.OpenAPI3 ) {
-				property.nullable = true;
-			}
+			var property = new Property();
+			property.nullable = true;
 			property.readOnly = true;
 			property.type = OpenAPI.Type.INTEGER;
 			schema.properties.put("version", property);
@@ -417,59 +374,130 @@ public class OpenAPIFactory {
 		
 		boolean historized = FieldUtils.hasValidHistorizedField(entity.getClazz());
 		if (historized) {
-			property = new Property();
-			if (api == API.OpenAPI3) {
-				property.nullable = true;
-			}
+			var property = new Property();
+			property.nullable = true;
 			property.readOnly = true;
 			property.type = OpenAPI.Type.BOOLEAN;
 			schema.properties.put("historized", property);
 		}
 		
 		for (MjProperty mjProperty : entity.properties) {
-			property = new Property();
-			if (api == API.OpenAPI3 ) {
-				property.nullable = mjProperty.notEmpty ? null : true; // nullable false is default, omit
+			if (isParentProperty(entity, mjProperty)) {
+				continue;
 			}
+			var property = property(mjProperty, mjApi, false);
 			if (mjProperty.notEmpty) {
 				schema.required.add(mjProperty.name);
 			}
-			if (mjProperty.technical != null) {
-				property.readOnly = true;
-			}
-			property.type = type(mjProperty);
-			
-			if (api == API.OpenAPI3) {
-				if (property.type == Type.ARRAY) {
-					property.items = items(mjProperty);
-				} else if (mjProperty.type.isEnumeration()) {
-					property.type = null;
-					property.$ref = SCHEMAS + mjProperty.type.getClassName();
-				} else {
-					property.$ref = ref(mjProperty);
-				}
-			} else {
-				if (property.type == Type.ARRAY) {
-					property.items = schema(mjProperty.type);
-				} else if (mjProperty.type.isEnumeration()) {
-					// OpenApi3 has reusable enums, swagger has not
-					property.eNum = mjProperty.type.values;
-				} else {
-					property.$ref = ref(mjProperty);
-				}
-				if (property.$ref != null) {
-					property.type = null;
-				}
-			}
-			
-			property.format = format(mjProperty);
-
 			schema.properties.put(mjProperty.name, property);
 		}
 		return schema;
 	}
 	
-	// V3
+	private Schema schemaWrite(Api mjApi, MjEntity entity) {
+		Schema schema = new Schema();
+		
+		for (MjProperty mjProperty : entity.properties) {
+			if (mjProperty.technical != null) {
+				continue;
+			}
+			var property = property(mjProperty, mjApi, true);
+			if (mjProperty.notEmpty) {
+				schema.required.add(mjProperty.name);
+			}
+			schema.properties.put(mjProperty.name, property);
+		}
+		return schema;
+	}
+
+	protected Property idProperty(MjEntity entity) {
+		var idProperty = FlatProperties.getProperty(entity.getClazz(), "id", true);
+		if (idProperty != null) {
+			var property = new Property();
+			property.nullable = false;
+			if (idProperty.getClazz() == Integer.class || idProperty.getClazz() == Long.class) {
+				property.type = OpenAPI.Type.INTEGER;
+//				AutoIncrement autoIncrement = null;
+//				try {
+//					autoIncrement = idProperty.getAnnotation(AutoIncrement.class);
+//				} catch (Exception x) {
+//					System.out.println("AutoIncrement not working for: " + entity.getClassName());
+//				}
+//				if (autoIncrement == null || autoIncrement.value()) {
+//					property.readOnly = true;
+//				}
+			} else {
+				property.type = OpenAPI.Type.STRING;
+			}
+			return property;
+		} else {
+			return null;
+		}
+	}
+	
+	private boolean isParentProperty(MjEntity entity, MjProperty mjProperty) {
+		if (Dependable.class.isAssignableFrom(entity.getClazz())) {
+			var keys = (Dependable<?>) Keys.of(entity.getClazz());
+			var property = Properties.getProperty(entity.getClazz(), mjProperty.name);
+			return keys.getParent() == property.getValue(keys);
+		} else {
+			return false;
+		}
+	}
+	
+	protected Property property(MjProperty mjProperty, Api mjApi, boolean write) {
+		var property = new Property();
+		// property.nullable = mjProperty.notEmpty ? null : true; // nullable false is default, omit
+		property.format = format(mjProperty);
+		property.description = StringUtils.escapeHTML(mjProperty.comment);
+		if (mjProperty.technical != null) {
+			property.readOnly = true;
+		}
+		property.type = type(mjProperty, write);
+		
+		if (property.type == Type.ARRAY) {
+			property.items = items(mjProperty, write);
+		} else {
+			if (mjProperty.type.isEnumeration()) {
+				property.type = null;
+				property.$ref = SCHEMAS + mjProperty.type.getClassName();
+			}
+			boolean primitiveOrCode = mjProperty.type.isPrimitiv() || Code.class.isAssignableFrom(mjProperty.type.getClazz());
+			if (!write && !primitiveOrCode) {
+				property.type = null;
+				property.$ref = SCHEMAS + mjProperty.type.getClassName();
+			}
+			if (write && !primitiveOrCode) {
+				if (IdUtils.hasId(mjProperty.type.getClazz()) && (mjApi == null || mjApi.canCreate(mjProperty.type.getClazz()))) {
+					var schemaRef = new Schema();
+					schemaRef.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
+
+					var schemaId = new Schema();
+					schemaId.type = property.type;
+					property.type = null;
+					
+					property.oneOf = List.of(schemaId, schemaRef);
+				} else {
+					property.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
+				}
+			}
+		}
+		
+		// it's not allowed to have $ref and description for same property:
+		// https://github.com/OAI/OpenAPI-Specification/issues/556
+		if (!StringUtils.isEmpty(property.description) && property.$ref != null) {
+			var schemaRef = new Schema();
+			schemaRef.$ref = property.$ref;
+			property.oneOf = List.of(schemaRef);
+			property.$ref = null;
+		}
+		
+		if (mjProperty.type.type == MjEntityType.String) {
+			property.maxLength = mjProperty.size;
+		}
+		return property;
+	}
+	
 	private Schema eNum(MjEntity entity) {
 		Schema schema = new Schema();
 
@@ -479,29 +507,30 @@ public class OpenAPIFactory {
 		return schema;
 	}
 	
-	private OpenAPI.Type type(MjProperty property) {
+	private OpenAPI.Type type(MjProperty property, boolean write) {
 		switch (property.propertyType) {
 		case LIST:
 		case ENUM_SET:
 			return OpenAPI.Type.ARRAY;
 		case INLINE:
 		case DEPENDABLE:
-			return OpenAPI.Type.OBJECT;
+			return null;
 		case VALUE:
 			if (property.type.type == MjEntityType.Integer || property.type.type == MjEntityType.Long) {
 				return OpenAPI.Type.INTEGER;
+			} else if (property.type.type == MjEntityType.Boolean) {
+				return OpenAPI.Type.BOOLEAN;
+			} else if (write || Code.class.isAssignableFrom(property.type.getClazz())) {
+				var idClass = IdUtils.getIdClass(property.type.getClazz());
+				if (idClass == Integer.class || idClass == Long.class) {
+					return OpenAPI.Type.INTEGER;
+				} else {
+					return OpenAPI.Type.STRING;	
+				}
 			} else {
 				return OpenAPI.Type.STRING;	
 			}
-		default: return null;
-		}
-	}
-	
-	private String ref(MjProperty property) {
-		if (!property.type.isPrimitiv()) {
-			return SCHEMAS + property.type.getClassName();
-		} else {
-			return null;
+		default: return null; // $ref will be used
 		}
 	}
 	
@@ -518,15 +547,16 @@ public class OpenAPIFactory {
 		}
 	}
 
-	private Schema items(MjProperty property) {
-		if (property.propertyType == MjPropertyType.LIST && IdUtils.hasId(property.type.getClazz())) {
-			Schema schema = new Schema();
-			schema.type = OpenAPI.Type.STRING;
-			return schema;
-		}
+	private Schema items(MjProperty property, boolean write) {
+//		if (property.propertyType == MjPropertyType.LIST && (property.type == null || IdUtils.hasId(property.type.getClazz()))) {
+////		if (property.propertyType == MjPropertyType.LIST && IdUtils.hasId(property.type.getClazz())) {
+//			Schema schema = new Schema();
+//			schema.type = OpenAPI.Type.STRING;
+//			return schema;
+//		}
 		if (property.propertyType == MjPropertyType.LIST || property.propertyType == MjPropertyType.ENUM_SET) {
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + property.type.getClassName();
+			schema.$ref = SCHEMAS + property.type.getClassName() + (write && property.propertyType != MjPropertyType.ENUM_SET ? "_write" : "");
 			return schema;
 		} else {
 			return null;

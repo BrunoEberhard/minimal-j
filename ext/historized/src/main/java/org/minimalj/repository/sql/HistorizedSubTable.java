@@ -2,6 +2,7 @@ package org.minimalj.repository.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 
 	public void replaceList(PARENT parent, List<ELEMENT> objects, int version) {
 		int oldVersion = version-1;
-		List<ELEMENT> objectsInDb = getList(parent, oldVersion);
+		List<ELEMENT> objectsInDb = getList(parent, oldVersion, new HashMap<>());
 		Object parentId = IdUtils.getId(parent);
 		int position = 0;
 		while (position < Math.max(objects.size(), objectsInDb.size())) {
@@ -97,7 +98,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 	}
 
 	@Override
-	public List<ELEMENT> getList(PARENT parent, Integer time) {
+	public List<ELEMENT> getList(PARENT parent, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		if (time == null) {
 			return getList(parent, (Map<Class<?>, Map<Object, Object>>) null);
 		}
@@ -105,7 +106,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
 			selectByIdAndTimeStatement.setInt(2, time);
 			selectByIdAndTimeStatement.setInt(3, time);
-			return executeSelectAll(selectByIdAndTimeStatement);
+			return executeSelectAll(selectByIdAndTimeStatement, loadedReferences);
 		} catch (SQLException x) {
 			throw new RuntimeException(x.getMessage());
 		}

@@ -20,7 +20,6 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	protected Input<String> readOnlyInput;
 
 	private T object;
-	private boolean internal = false;
 
 	AbstractLookupFormElement(Object key, boolean editable) {
 		super(key);
@@ -109,16 +108,11 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	}
 
 	protected void setValueInternal(T object) {
-		internal = true;
-		try {
-			if (getProperty().isFinal() && object != this.object) {
-				logger.warning("Validation may not work for: " + getProperty().getPath());
-			}
-			setValue(object);
-			listener().changed(lookup);
-		} finally {
-			internal = false;
+		if (getProperty().isFinal() && object != this.object) {
+			logger.warning("Validation may not work for: " + getProperty().getPath());
 		}
+		setValue(object);
+		listener().changed(lookup);
 	}
 
 	protected String render(T value) {
@@ -130,11 +124,11 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	}
 
 	public void inputChanged(IComponent source) {
-		if (!internal) {
-			String newInputValue = lookup.getValue();
+		String newInputValue = lookup.getValue();
+		if (object == null || !render(object).equals(newInputValue)) {
 			object = (T) ((LookupParser) this).parse(newInputValue);
 			if (object != null && !(object instanceof Collection) && object.getClass() != getProperty().getClazz()) {
-				throw new IllegalStateException("Parser result of wrong class: " + object.getClass().getName() + " instead of " + getProperty().getClazz());
+				throw new IllegalStateException("Parser result of wrong class: " + object.getClass().getName() + " instead of " + getProperty().getClazz().getName());
 			}
 			listener().changed(source);
 		}

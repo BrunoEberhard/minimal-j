@@ -67,6 +67,19 @@ public class EqualsHelper {
 		if (IdUtils.hasId(from.getClass()) && !IdUtils.equals(from, to)) {
 			return false;
 		}
+		if (from instanceof Map) {
+			Map<?, ?> fromMap = (Map) from;
+			Map<?, ?> toMap = (Map) to;
+			if (fromMap.size() != toMap.size()) {
+				return false;
+			}
+			for (Map.Entry<?, ?> entry: fromMap.entrySet()) {
+				if (!equals(entry.getValue(), toMap.get(entry.getKey()))) {
+					return false;
+				}
+			}
+			return true;
+		}
 		if (!equalsById) {
 			try {
 				return equalsByFields(from, to, checked);

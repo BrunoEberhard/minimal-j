@@ -81,8 +81,14 @@ public interface PageContainerTestFacade {
 
 	public interface DialogTestFacade {
 		
+		public void close();
+		
 		public FormTestFacade getForm();
 		
+		public TableTestFacade getTable();
+		
+		public SearchTableTestFacade getSearchTable();
+
 		public ActionTestFacade getAction(String caption);
 		
 		public default void save() {
@@ -145,7 +151,7 @@ public interface PageContainerTestFacade {
 		
 		public String getValidation();
 
-		public SearchTableTestFacade lookup();
+		public void lookup();
 		
 		public default void action(String text) {
 			//TODO
@@ -167,6 +173,11 @@ public interface PageContainerTestFacade {
 
 		public default void setChecked(boolean checked) {
 			// TODO
+		}
+		
+		// only allowed if FormElement is a TableFormElement
+		public default FormTestFacade row(int pos) {
+			return null; // TODO
 		}
 
 	}

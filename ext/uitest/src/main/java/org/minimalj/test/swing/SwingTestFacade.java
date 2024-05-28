@@ -30,6 +30,7 @@ import org.minimalj.test.PageContainerTestFacade.DialogTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
+import org.minimalj.test.PageContainerTestFacade.SearchTableTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.UiTestFacade;
 import org.minimalj.util.resources.Resources;
@@ -178,14 +179,17 @@ public class SwingTestFacade implements UiTestFacade {
 			return pages;
 		}
 
-		@Override
-		public DialogTestFacade getDialog() {
+		private Optional<SwingDialog> getSwingDialog() {
 			waitForEDT();
 
-			Optional<SwingDialog> dialog = Arrays.stream(JFrame.getWindows()).
+			return Arrays.stream(JFrame.getWindows()).
 					filter(SwingDialog.class::isInstance).map(SwingDialog.class::cast).
 					filter(d -> d.getOwnedWindows().length == 0).findFirst();
-			
+		}
+		
+		@Override
+		public DialogTestFacade getDialog() {
+			Optional<SwingDialog> dialog = getSwingDialog();
 			return dialog.isPresent() ? new SwingDialogTestFacade(dialog.get()) : null;
 		}
 		
@@ -209,9 +213,26 @@ public class SwingTestFacade implements UiTestFacade {
 		public SwingDialogTestFacade(SwingDialog swingDialog) {
 			this.swingDialog = swingDialog;
 		}
+		
+		@Override
+		public void close() {
+			swingDialog.closeDialog();
+		}
 
 		@Override
 		public FormTestFacade getForm() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		@Override
+		public TableTestFacade getTable() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public SearchTableTestFacade getSearchTable() {
 			// TODO Auto-generated method stub
 			return null;
 		}

@@ -119,16 +119,6 @@ class HistorizedCrossHistorizedTable<PARENT, ELEMENT> extends HistorizedCrossTab
 	}
 
 	@Override
-	public List<ELEMENT> getList(PARENT parent, Integer time) {
-		if (time == null) {
-			return getList(parent, (Map<Class<?>, Map<Object, Object>>) null);
-		}
-		List<ObjectWithVersion> ids = readIds(parent, time);
-		HistorizedTable<ELEMENT> tableElement = (HistorizedTable<ELEMENT>) sqlRepository.getTable(clazz);
-		return ids.stream().map(id -> tableElement.read(id.id, id.version)).collect(Collectors.toList());
-	}
-
-	@Override
 	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));

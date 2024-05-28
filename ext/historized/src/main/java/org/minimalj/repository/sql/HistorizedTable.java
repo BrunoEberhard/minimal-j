@@ -136,7 +136,7 @@ class HistorizedTable<T> extends Table<T> {
 			T object = executeSelect(selectByIdAndTimeStatement, loadedReferences);
 			if (object != null) {
 				loadDependables(id, object, time, loadedReferences);
-				loadLists(object, loadedReferences);
+				loadLists(object, time, loadedReferences);
 			}
 			return object;
 		} catch (SQLException x) {
@@ -146,12 +146,12 @@ class HistorizedTable<T> extends Table<T> {
 
 	@Override
 	protected void loadLists(T object, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
-		loadLists(object, (Integer) null);
+		loadLists(object, (Integer) null, loadedReferences);
 	}
 	
-	private void loadLists(T object, Integer time) {
+	private void loadLists(T object, Integer time, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
 		for (Entry<Property, ListTable> listTableEntry : lists.entrySet()) {
-			List values = ((HistorizedListTable) listTableEntry.getValue()).getList(object, time);
+			List values = ((HistorizedListTable) listTableEntry.getValue()).getList(object, time, loadedReferences);
 			Property listProperty = listTableEntry.getKey();
 			if (listProperty.isFinal()) {
 				List list = (List) listProperty.getValue(object);
