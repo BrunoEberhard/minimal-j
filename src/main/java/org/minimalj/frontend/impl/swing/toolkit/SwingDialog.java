@@ -54,6 +54,9 @@ public class SwingDialog extends JDialog {
 
 		setContentPane((JComponent) content);
 		pack();
+		if (dialog.getWidth() != Dialog.FIT_CONTENT) {
+			setSize(new Dimension(dialog.getWidth(), getSize().height));
+		}
 		
 		setLocationRelativeTo(frame);
 
