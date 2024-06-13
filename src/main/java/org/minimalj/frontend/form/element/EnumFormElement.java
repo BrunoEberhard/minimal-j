@@ -46,8 +46,6 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 		
 		List<CodeItem<E>> itemList = allowedValues != null ? EnumUtils.itemList(allowedValues) : EnumUtils.itemList(enumClass);
 		comboBox = Frontend.getInstance().createComboBox(itemList, canBeEmpty ? ComboBoxFormElement.EMPTY_NULL_STRING : ComboBoxFormElement.NO_NULL_STRING, listener());
-		
-		setDefault();
 	}
 	
 	@Override
@@ -60,14 +58,6 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 		comboBox.setEditable(enabled);
 	}
 
-	private void setDefault() {
-    	E defolt = EnumUtils.getDefault(enumClass);
-    	if (!defolt.equals(getValue())) {
-    		setValue(defolt);
-    		fireChange();
-    	}
-	}
-	
 	@Override
 	public E getValue() {
 		if (comboBox.getValue() != null) {
@@ -100,9 +90,7 @@ public class EnumFormElement<E extends Enum<E>> extends AbstractFormElement<E> i
 
 	@Override
 	public void mock() {
-		if (Math.random() < 0.2) {
-			setDefault();
-		} else {
+		if (Math.random() > 0.2) {
 			List<E> valueList = EnumUtils.valueList(enumClass);
 			int index = (int)(Math.random() * valueList.size());
 			setValue(valueList.get(index));

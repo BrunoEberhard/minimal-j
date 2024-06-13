@@ -47,10 +47,6 @@ public class EnumUtils {
 		return (sun.misc.Unsafe) singleoneInstanceField.get(null);
 	}
 	
-	public static <T extends Enum<T>> T getDefault(Class<T> enumClass) {
-		return EnumUtils.valueList(enumClass).get(0);
-	}
-	
 	public static <T extends Enum<T>> List<T> valueList(Class<T> enumClass) {
 		try {
 			Method method = enumClass.getMethod("values");
