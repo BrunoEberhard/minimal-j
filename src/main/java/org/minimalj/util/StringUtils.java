@@ -160,6 +160,19 @@ public class StringUtils {
 		return s.toString();
 	}
 	
+	public static String take(String string, int maxLength, boolean ellipses) {
+		if (string != null) {
+			int length = string.length();
+			if (length <= maxLength) {
+				return string;
+			} else {
+				return string.substring(0, maxLength) + (ellipses ? "..." : "");
+			}
+		} else {
+			return null;
+		}
+	}
+	
 	public static String escapeHTML(String s) {
 		if (!isEmpty(s)) {
 			StringBuilder out = new StringBuilder(Math.max(16, s.length()));

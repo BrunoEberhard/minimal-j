@@ -97,4 +97,14 @@ public class StringUtilsTest {
 		Assert.assertEquals("bold special bold2", StringUtils.stripHtml("<b>bold <x>special<x> bold2</b>"));
 	}
 
+	@Test
+	public void take() {
+		Assert.assertEquals(null, StringUtils.take(null, 3, false));
+		Assert.assertEquals("", StringUtils.take("", 3, false));
+		Assert.assertEquals("AB", StringUtils.take("AB", 3, false));
+		Assert.assertEquals("ABC", StringUtils.take("ABC", 3, false));
+		Assert.assertEquals("ABC", StringUtils.take("ABCD", 3, false));
+		Assert.assertEquals("ABC...", StringUtils.take("ABCD", 3, true));
+	}
+
 }
