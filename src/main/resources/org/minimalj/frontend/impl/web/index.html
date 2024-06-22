@@ -644,7 +644,8 @@ $ICON
 			element = document.createElement("div");
 			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
 			var formAndActions = document.createElement("div");
-			formAndActions.style = "width: 25em;";
+			var width = ((content.content.columns * content.content.columnWidth) / 8 + 2) + "rem";
+			formAndActions.style = "width: " + width;
 			element.appendChild(formAndActions);
 			var contentElement = createContent(content.content);
 			formAndActions.appendChild(contentElement);

@@ -42,7 +42,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	}
 	
 	private Form<UserPassword> createForm() {
-		Form<UserPassword> form = new Form<UserPassword>();
+		Form<UserPassword> form = new Form<UserPassword>(Form.EDITABLE, 1, 150);
 		form.line(UserPassword.$.user);
 		form.line(new PasswordFormElement(UserPassword.$.password));
 		if (REMEMBER_ME) {
