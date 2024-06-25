@@ -390,7 +390,7 @@ public class SqlRepository implements TransactionalRepository {
 	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {
-		PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false);
+		PreparedStatement preparedStatement = AbstractTable.createStatement(connection, query, false);
 		int param = 1; // !
 		for (Object parameter : parameters) {
 			getSqlDialect().setParameter(preparedStatement, param++, parameter);
@@ -552,14 +552,8 @@ public class SqlRepository implements TransactionalRepository {
 			values.put(property, value);
 		}
 		
-		R result;
-		if (!Codes.isCode(clazz)) {
-			result = CloneHelper.newInstance(clazz);
-			IdUtils.setId(result, id);
-		} else {
-			// Self reference is allowed for Codes. Use a previously referenced instance.
-			result = (R) Codes.getOrInstantiate(this, (Class<? extends Code>) clazz, id);
-		}
+		R result = CloneHelper.newInstance(clazz);
+		IdUtils.setId(result, id);
 		if (version != null) {
 			IdUtils.setVersion(result, version);
 		}
@@ -584,7 +578,7 @@ public class SqlRepository implements TransactionalRepository {
 			Object value = entry.getValue();
 			if (value != null) {
 				Class<?> fieldClass = property.getClazz();
-				if (Codes.isCode(fieldClass)) {
+				if (Codes.isCode(fieldClass) && !referenceLoaded(value, fieldClass, loadedReferences)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
 					value = Codes.get(codeClass, value);
 				} else if (IdUtils.hasId(fieldClass)) {
@@ -605,6 +599,14 @@ public class SqlRepository implements TransactionalRepository {
 		return result;
 	}
 
+	protected boolean referenceLoaded(Object value, Class<?> fieldClass, Map<Class<?>, Map<Object, Object>> loadedReferences) {
+		if (loadedReferences != DONT_LOAD_REFERENCES && loadedReferences.containsKey(fieldClass)) {
+			Map<Object, Object> loadedReferencesOfClass = loadedReferences.get(fieldClass);
+			return loadedReferencesOfClass.containsKey(value);
+		}
+		return false;
+	}
+	
 	protected <C> C loadReference(Object value, Class<C> fieldClass, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		if (loadedReferences != DONT_LOAD_REFERENCES) {
 			Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());

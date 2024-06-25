@@ -164,25 +164,27 @@ public class SqlHistorizedRepository extends SqlRepository {
 			values.put(property, value);
 		}
 
-		if (!loadedReferences.containsKey(clazz)) {
-			loadedReferences.put(clazz, new HashMap<>());
+		if (id != null && loadedReferences != DONT_LOAD_REFERENCES) {
+			if (!loadedReferences.containsKey(clazz)) {
+				loadedReferences.put(clazz, new HashMap<>());
+			}
+			Object key = position == null ? id : id + "-" + position;
+			key = version == null ? key : key + "-" + version;
+			if (loadedReferences.get(clazz).containsKey(key)) {
+				return (R) loadedReferences.get(clazz).get(key);
+			} else {
+				loadedReferences.get(clazz).put(key, result);
+			}
 		}
-		Object key = position == null ? id : id + "-" + position;
-		key = version == null ? key : key + "-" + version;
-		if (loadedReferences.get(clazz).containsKey(key)) {
-			return (R) loadedReferences.get(clazz).get(key);
-		} else {
-			loadedReferences.get(clazz).put(key, result);
-		}
-
+		
 		for (Map.Entry<Property, Object> entry : values.entrySet()) {
 			Object value = entry.getValue();
 			Property property = entry.getKey();
 			if (value != null && !(property instanceof MethodProperty)) {
 				Class<?> fieldClass = property.getClazz();
-				if (Code.class.isAssignableFrom(fieldClass)) {
+				if (Codes.isCode(fieldClass) && !referenceLoaded(value, fieldClass, loadedReferences)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = Codes.getOrInstantiate(this, codeClass, value);
+					value = Codes.get(codeClass, value);
 				} else if (View.class.isAssignableFrom(fieldClass)) {
 					Class<?> viewedClass = ViewUtils.getViewedClass(fieldClass);
 					Table<?> referenceTable = getTable(viewedClass);
