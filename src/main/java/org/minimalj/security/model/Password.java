@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -83,5 +84,17 @@ public class Password implements Serializable {
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			throw new RuntimeException("Hashing not possible", e);
 		}
+	}
+
+	private static final char[] CHARS = "ABCDEFGHIJKLMNPQRSTUVWXabcdefghijkmnopqrstuvwx23456789!@#$%^&*()_+-{}".toCharArray();
+	
+	public static char[] generatePassword(int length) {
+		char[] s = new char[length];
+        Random random = new SecureRandom();
+
+        for (int i = 0; i < length; i++) {
+            s[i] = CHARS[random.nextInt(CHARS.length)];
+        }
+        return s;
 	}
 }
