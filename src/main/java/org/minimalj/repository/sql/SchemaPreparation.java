@@ -53,10 +53,8 @@ public enum SchemaPreparation {
 			updateTables(repository, this);
 			logger.fine("Unused tables are not removed");
 		}
-		// updateCodes is always done. The constants in the classes
-		// may need the ids
-		updateCodes(repository);
 		if (this != SchemaPreparation.none) {
+			updateCodes(repository);
 			repository.afterSchemaPreparation(this);
 		}
 	}
