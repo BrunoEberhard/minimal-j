@@ -618,7 +618,7 @@ public class SqlRepository implements TransactionalRepository {
 					Class<?> viewedClass = ViewUtils.getViewedClass(fieldClass);
 					if (Codes.isCode(viewedClass)) {
 						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-						referencedValue = ViewUtils.view(Codes.get(codeClass, value), CloneHelper.newInstance(fieldClass));
+						referencedValue = ViewUtils.view(Codes.getCache().getCacheItems(this, codeClass).getCode(value), CloneHelper.newInstance(fieldClass));
 					} else {
 						Table<?> referenceTable = getTable(viewedClass);
 						referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
