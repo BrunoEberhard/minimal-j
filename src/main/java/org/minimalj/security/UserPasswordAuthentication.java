@@ -57,7 +57,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		private LoginAction loginAction;
 		
 		public UserPasswordLoginAction(T userPassword, Form<T> form) {
-			super(Resources.getString("Login.title"));
+			super(Resources.getString("LoginAction"));
 			this.userPassword = userPassword;
 			this.form = form;
 		}
