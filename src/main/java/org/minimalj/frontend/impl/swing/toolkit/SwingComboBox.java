@@ -28,9 +28,11 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 	
 	private final InputComponentListener listener;
 	private final NullableComboBoxModel<T> model;
+	private final String nullText;
 	
 	public SwingComboBox(List<T> objects, String nullText, InputComponentListener listener) {
 		this.listener = listener;
+		this.nullText = nullText;
 		setRenderer(new CodeItemRenderer(getRenderer()));
 		addItemListener(new ComboBoxChangeListener());
 		setInheritsPopupMenu(true);
@@ -173,7 +175,7 @@ public class SwingComboBox<T> extends JComboBox<T> implements Input<T> {
 		public Component getListCellRendererComponent(JList<? extends T> list, T value, int index, boolean isSelected, boolean cellHasFocus) {
 			Component component = delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (component instanceof JLabel) {
-				String text = Rendering.toString(value);
+				String text = value != null || nullText == ComboBoxFormElement.NO_NULL_STRING ? Rendering.toString(value) : nullText;
 				((JLabel) component).setText(text);
 				String tooltip = Rendering.toDescriptionString(value);
 				if (tooltip != null) {
