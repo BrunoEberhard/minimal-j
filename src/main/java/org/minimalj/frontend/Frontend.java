@@ -96,21 +96,9 @@ public abstract class Frontend {
 		return Optional.empty();
 	}
 	
-//	public interface PositionListModel {
-//		int getColumnCount();
-//		int getWidth(int column);
-//		int getRowCount();
-//		boolean canAdd();
-//		void addRow(int beforeRow);
-//		boolean canDelete();
-//		void deleteRow(int row);
-//		boolean canMove();
-//		void moveRow(int row, int beforeRow);
-//	}
-//	
-//	public <T extends Position<T>> Input<List<T>> createPositionListInput(PositionListModel model, InputComponentListener changeListener) {
-//		throw new RuntimeException("Not yet implemented");
-//	}
+	public interface Tooltip {
+		public void setTooltip(String tooltip);
+	}
 
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Rendering rendering);

@@ -24,6 +24,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Tooltip;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
@@ -63,6 +64,8 @@ import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
+
+import com.formdev.flatlaf.util.StringUtils;
 
 public class Form<T> {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
@@ -249,12 +252,20 @@ public class Form<T> {
 
 	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
 		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null);
+		setTooltip(element);
 		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
 
-	//
+	private void setTooltip(FormElement<?> element) {
+		if (element instanceof Tooltip) {
+			String tooltip = element.getTooltip();
+			if (!StringUtils.isEmpty(tooltip)) {
+				((Tooltip) element).setTooltip(tooltip);
+			}
+		}
+	}
 
 	public static Object readonly(Object key) {
 		ReadOnlyWrapper wrapper = new ReadOnlyWrapper();

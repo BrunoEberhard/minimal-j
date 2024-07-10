@@ -52,6 +52,11 @@ public class TextFormElement implements FormElement<Object> {
 	}
 
 	@Override
+	public String getTooltip() {
+		return Resources.getPropertyName(getProperty(), "tooltip");
+	}
+	
+	@Override
 	public boolean canBeEmpty() {
 		return false;
 	}

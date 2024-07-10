@@ -11,6 +11,7 @@ public class ActionFormElement implements FormElement<Void> {
 
 	public final IComponent component;
 	public final String caption;
+	public final String description;
 
 	public ActionFormElement(Action action) {
 		this(action, null, true);
@@ -19,6 +20,7 @@ public class ActionFormElement implements FormElement<Void> {
 	public ActionFormElement(Action action, String caption, boolean link) {
 		component = Frontend.getInstance().createText(action);
 		this.caption = caption;
+		this.description = action.getDescription();
 	}
 
 	@Override
@@ -81,6 +83,11 @@ public class ActionFormElement implements FormElement<Void> {
 		return caption;
 	}
 
+	@Override
+	public String getTooltip() {
+		return description;
+	}
+	
 	@Override
 	public boolean canBeEmpty() {
 		return false;
