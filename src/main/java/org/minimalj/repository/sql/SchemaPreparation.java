@@ -215,6 +215,7 @@ public enum SchemaPreparation {
 
 	protected void updateTableColumns(SqlRepository repository, SchemaPreparation schemaPreparation, AbstractTable<?> table, List<NewColumn> newColumns) {
 		List<String> columnNames = repository.find(String.class, selectColumns(table.name), 10000);
+		List<String> nullableColumns = repository.find(String.class, "SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND is_nullable = 'YES'", 10000, table.name);
 		for (Map.Entry<String, Property> column : table.getColumns().entrySet()) {
 			Property property = column.getValue();
 			String columnName = column.getKey();
@@ -243,8 +244,7 @@ public enum SchemaPreparation {
 				newColumn.property = property;
 				newColumns.add(newColumn);
 			} else {
-				String isNullable = repository.execute(String.class, "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND column_name ilike ?", table.name, columnName);
-				boolean nullableColumn = "yes".equalsIgnoreCase(isNullable);
+				boolean nullableColumn = nullableColumns.contains(columnName);
 				if (!nullableColumn && !notEmptyProperty) {
 					logger.info("Make column nullable: " + table.name + "." + columnName);
 					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " DROP NOT NULL";
