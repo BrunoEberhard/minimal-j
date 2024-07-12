@@ -29,7 +29,7 @@ import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
 public enum SchemaPreparation {
-	none, create, verify, update;
+	none, create, update; // TODO verify
 
 	private static final Logger logger = Logger.getLogger(SchemaPreparation.class.getName());
 	
@@ -38,13 +38,15 @@ public enum SchemaPreparation {
 	}
 
 	public void prepare(SqlRepository repository) throws SQLException {
-		if (this != SchemaPreparation.none) {
-			repository.beforeSchemaPreparation(this);
+		logger.info("Schema preparation: " + this.name());
+		if (this == none) {
+			return;
 		}
+		repository.beforeSchemaPreparation(this);
 		if (this == SchemaPreparation.create) {
 			createEnums(repository);
 			createTables(repository);
-		} else if (this != SchemaPreparation.none) {
+		} else {
 			if (repository.sqlDialect instanceof PostgresqlDialect) {
 				updateEnums(repository, this);
 			} else {
@@ -53,10 +55,9 @@ public enum SchemaPreparation {
 			updateTables(repository, this);
 			logger.fine("Unused tables are not removed");
 		}
-		if (this != SchemaPreparation.none) {
-			updateCodes(repository);
-			repository.afterSchemaPreparation(this);
-		}
+		updateCodes(repository);
+		repository.afterSchemaPreparation(this);
+		logger.info("Schema prepared");
 	}
 
 	public void execute(SqlRepository repository, String query, Serializable... parameters) {
