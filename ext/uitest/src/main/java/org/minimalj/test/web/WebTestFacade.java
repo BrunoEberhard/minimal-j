@@ -691,8 +691,10 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	private WebElement findValueElement(WebElement element) {
-		while (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea") && !element.getTagName().equalsIgnoreCase("select")) {
+		var tagName = element.getTagName().toLowerCase();
+		while (!tagName.equals("input") && !tagName.equals("textarea") && !tagName.equals("select")) {
 			element = element.findElement(By.cssSelector("input,textarea,select,div"));
+			tagName = element.getTagName().toLowerCase();
 		}
 		return element;
 	}
@@ -714,15 +716,15 @@ public class WebTestFacade implements UiTestFacade {
 	}
 	
 	private String getText(WebElement element) {
+		if (element.getTagName().toLowerCase().equals("div") && element.getAttribute("class") != null && element.getAttribute("class").contains("text")) {
+			return element.getText();
+		}
 		element = findValueElement(element);
 		if (element.getTagName().equalsIgnoreCase("select")) {
 			Select select = new Select(element);
 			select.getAllSelectedOptions();
 			return select.getAllSelectedOptions().isEmpty() ? null : select.getFirstSelectedOption().getText();
-		} else {
-//			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
-//				element = element.findElement(By.xpath(".//input"));
-//			}
+		}  else {
 			return element.getAttribute("value");
 		}
 	}
