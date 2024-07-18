@@ -38,7 +38,7 @@ public enum SchemaPreparation {
 	}
 
 	public void prepare(SqlRepository repository) throws SQLException {
-		logger.info("Schema preparation: " + this.name());
+		logger.fine("Schema preparation: " + this.name());
 		if (this == none) {
 			return;
 		}
@@ -57,7 +57,7 @@ public enum SchemaPreparation {
 		}
 		updateCodes(repository);
 		repository.afterSchemaPreparation(this);
-		logger.info("Schema prepared");
+		logger.fine("Schema prepared");
 	}
 
 	public void execute(SqlRepository repository, String query, Serializable... parameters) {
