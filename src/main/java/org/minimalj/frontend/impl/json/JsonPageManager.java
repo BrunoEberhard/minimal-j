@@ -51,6 +51,7 @@ public class JsonPageManager implements PageManager {
 	
 	private Subject subject;
 	private Runnable onLogin;
+	@Deprecated
 	private boolean initializing;
 	private String locationFragment;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
@@ -207,6 +208,8 @@ public class JsonPageManager implements PageManager {
 			}
 
 			login(subject);
+		} else {
+			locationFragment = null;
 		}
 
 		if (input.containsObject("closePage")) {
@@ -438,7 +441,7 @@ public class JsonPageManager implements PageManager {
 		}
 		updateNavigation();
 		
-		if (subject == null && initializing && Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
+		if (subject == null && /* initializing && */ Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
 			Backend.getInstance().getAuthentication().showLogin();
 		} else if (onLogin != null) {
 			try {
