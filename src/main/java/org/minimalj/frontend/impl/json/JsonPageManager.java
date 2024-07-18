@@ -52,6 +52,7 @@ public class JsonPageManager implements PageManager {
 	private Subject subject;
 	private Runnable onLogin;
 	private boolean initializing;
+	private String locationFragment;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
 	private final PageList visiblePageAndDetailsList = new PageList();
@@ -77,6 +78,10 @@ public class JsonPageManager implements PageManager {
 
 	public String getSessionId() {
 		return sessionId;
+	}
+	
+	public String getLocationFragment() {
+		return locationFragment;
 	}
 	
 	public long getLastUsed() {
@@ -180,6 +185,7 @@ public class JsonPageManager implements PageManager {
 		Object initialize = input.getObject(JsonInput.INITIALIZE);
 		initializing = initialize != null; 
 		if (initializing) {
+			locationFragment = (String) input.getObject("locationFragment");
 			if (initialize instanceof List) {
 				List<String> pageIds = (List<String>) initialize;
 				if (!pageIds.isEmpty() && pageStore.valid(pageIds)) {

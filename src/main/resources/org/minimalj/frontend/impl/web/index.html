@@ -1801,6 +1801,10 @@ $ICON
 		var initParameters = {};
 		initParameters.initialize = window.history.state ? window.history.state : "$PATH";
 		if (localStorage.rememberMeToken != undefined) initParameters.rememberMeToken = localStorage.rememberMeToken;
+		if (window.location.hash) {
+			initParameters.locationFragment = window.location.hash.substring(1);
+			history.replaceState({}, '', window.location.href.slice(0, -initParameters.locationFragment.length-1));
+		}
 		send(initParameters, true);
 	}
 	
