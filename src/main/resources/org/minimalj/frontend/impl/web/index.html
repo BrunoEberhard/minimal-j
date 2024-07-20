@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="$LANG">
+<html lang="$LANG" xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg">
 <head>
 <meta charset="utf-8">
 <title>$TITLE</title>
@@ -371,13 +371,7 @@ $ICON
 				contentElement = document.createElement("iframe");
 				// the iframe must be already attached to have the document
 				pageContent.appendChild(contentElement);
-				if (!!("srcdoc" in contentElement)) {
-					// in chrome this works best
-					contentElement.srcdoc = page.content.htmlOrUrl;
-				} else {
-					// in IE before chromium this allows back after a link in the content was clicked
-					contentElement.contentWindow.document.write(page.content.htmlOrUrl);
-				}
+				contentElement.srcdoc = page.content.htmlOrUrl;
 				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
 			} else {
 				var contentElement = createContent(page.content);
@@ -386,7 +380,7 @@ $ICON
 			contentElement.classList.add("content" + page.content.type);
 			
 			headerElement.ondblclick = function(e) { selectAll(contentElement); }
-			// :not([type='hidden']) is not supported on old browsers but there shoul be no hidden input anyway
+			// :not([type='hidden']) is not supported on old browsers but there should be no hidden input anyway
 			var inputs = contentElement.querySelectorAll("input, textarea, select");
 			if (inputs.length > 0) {
 				inputs[0].focus();
@@ -585,9 +579,7 @@ $ICON
 	
 		var isTable = page.content != null && (page.content.type === "Table" || page.content.type === "CustomFilter");
 		if (isTable) {
-			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
-		    	element.appendChild(item.cloneNode(true));
-			});
+			element.appendChild(document.getElementById("tablePageHeaderButtons").content.cloneNode(true));
 			document.getElementById("tableFilterButton").classList.remove("hide");
 			
 			var download = element.querySelector('.downloadButton a');
@@ -597,10 +589,7 @@ $ICON
 			document.getElementById("tableFilterButton").classList.add("hide");
 		}		
 		
-		document.getElementById("pageHeaderButtons").childNodes.forEach(function(item) {
-	    	element.appendChild(item.cloneNode(true));
-		});
-	
+		element.appendChild(document.getElementById("pageHeaderButtons").content.cloneNode(true));
 		return element;
 	}
 	
@@ -627,19 +616,19 @@ $ICON
 				element.appendChild(formRow);
 			}
 		} else if (type === "Query") {
-			element = document.getElementById("queryCaption");
-			removeChildren(element);
-			element.appendChild(document.createTextNode(content.caption));
-			element = document.getElementById("query").cloneNode(true);
+			element = document.createElement("div");
+			var queryContent = document.getElementById("query").content.cloneNode(true);
+			queryContent.children[1].appendChild(document.createTextNode(content.caption));
 			var actions = content.actions;
 			if (actions != undefined) {
 				for (var i = 0; i < actions.length; i++) {
 					var action = actions[i];
 					var actionElement = document.createElement("div");
 					createAction(actionElement, action);
-					element.children[3].appendChild(actionElement);
+					queryContent.children[3].appendChild(actionElement);
 				}
 			}
+			element.appendChild(queryContent);
 		} else if (type === "Login") {
 			element = document.createElement("div");
 			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
@@ -1102,9 +1091,7 @@ $ICON
 			var td = document.createElement("td");
 			td.setAttribute("colspan", tableFooterElement.columnCount);
 			td.style = "text-align: center; padding: 1em;";
-			document.getElementById("tableFooterButtons").childNodes.forEach(function(item) {
-		    	td.appendChild(item.cloneNode(true));
-			});
+			td.appendChild(document.getElementById("tableFooterButtons").content.cloneNode(true));
 			td.querySelector(".currentPage").innerHTML = content;
 			tr.appendChild(td);
 		}
@@ -1195,7 +1182,7 @@ $ICON
 		var headerText = document.createElement("span");
 		headerText.appendChild(document.createTextNode(json.title));
 		header.appendChild(headerText);
-		var buttons = document.getElementById("dialogButtonsTemplate").cloneNode(true);
+		var buttons = document.getElementById("dialogButtonsTemplate").content.cloneNode(true);
 		while (buttons.children.length> 0) header.appendChild(buttons.children[0]);
 		dialog.appendChild(header);
 	
@@ -1230,8 +1217,7 @@ $ICON
 			dialog.appendChild(footer);
 		}
 		
-		var resize = document.getElementById("dialogResizeTemplate").cloneNode(true);
-		dialog.appendChild(resize);
+		dialog.appendChild(document.getElementById("dialogResizeTemplate").content.cloneNode(true));
 	
 		if (content.classList.contains("form")) {
 			addEnterAction(json.saveAction, content);
@@ -1824,75 +1810,75 @@ $ICON
 <body onload="init();" id="body" class="no-contrast">
 	<div id="header" class="hidden-print">
 		<div id="headerStart">
-			<svg id="navigationToggle" class="button headerButton" onclick="toggleNavigation()">
-	              <g style="stroke-width:0px"> 		
+			<svg:svg id="navigationToggle" class="button headerButton" onclick="toggleNavigation()">
+	              <svg:g style="stroke-width:0px"> 		
 	  				<title>Show or hide navigation</title>
-					<rect x="0" y="5%" width="100%" height="0.25em"/>
-					<rect x="0" y="40%" width="100%" height="0.25em"/>
-					<rect x="0" y="75%" width="100%" height="0.25em"/>
-				</g>
-			</svg>
-			<svg id="logout" class="button headerButton" style="display: none;" onclick="logout()">
-	              <g style="stroke-width:13%;stroke-linecap:square"> 		
+					<svg:rect x="0" y="5%" width="100%" height="0.25em"/>
+					<svg:rect x="0" y="40%" width="100%" height="0.25em"/>
+					<svg:rect x="0" y="75%" width="100%" height="0.25em"/>
+				</svg:g>
+			</svg:svg>
+			<svg:svg id="logout" class="button headerButton" style="display: none;" onclick="logout()">
+	              <svg:g style="stroke-width:13%;stroke-linecap:square"> 		
 	  				<title>Logout</title>
-					<line x1="5%" y1="10%" x2="50%" y2="10%" />
-					<line x1="5%" y1="10%" x2="5%" y2="90%" />
-					<line x1="5%" y1="90%" x2="50%" y2="90%" />
-					<line x1="40%" y1="50%" x2="95%" y2="50%" />
-					<line x1="75%" y1="30%" x2="95%" y2="50%" />
-					<line x1="75%" y1="70%" x2="95%" y2="50%" />
-				</g>
-			</svg>		
-			<svg id="login" class="button headerButton" style="display: none;" onclick="login()">
-	              <g style="stroke-width:13%;stroke-linecap:square"> 		
+					<svg:line x1="5%" y1="10%" x2="50%" y2="10%" />
+					<svg:line x1="5%" y1="10%" x2="5%" y2="90%" />
+					<svg:line x1="5%" y1="90%" x2="50%" y2="90%" />
+					<svg:line x1="40%" y1="50%" x2="95%" y2="50%" />
+					<svg:line x1="75%" y1="30%" x2="95%" y2="50%" />
+					<svg:line x1="75%" y1="70%" x2="95%" y2="50%" />
+				</svg:g>
+			</svg:svg>		
+			<svg:svg id="login" class="button headerButton" style="display: none;" onclick="login()">
+	              <svg:g style="stroke-width:13%;stroke-linecap:square"> 		
 	  				<title>Logout</title>
-					<line x1="95%" y1="5%" x2="50%" y2="5%" />
-					<line x1="95%" y1="5%" x2="95%" y2="95%" />
-					<line x1="95%" y1="95%" x2="50%" y2="95%" />
-					<line x1="5%" y1="50%" x2="60%" y2="50%" />
-					<line x1="40%" y1="30%" x2="60%" y2="50%" />
-					<line x1="40%" y1="70%" x2="60%" y2="50%" />
-				</g>
-			</svg>		
-			<svg id="wait" class="button headerButton" style="width: 0em;">
-				<g style="stroke-width:3px;stroke-linecap:square"> 	
-					<line x1="6%" y1="93%" x2="93%" y2="93%" />
-				</g>
-			</svg>
+					<svg:line x1="95%" y1="5%" x2="50%" y2="5%" />
+					<svg:line x1="95%" y1="5%" x2="95%" y2="95%" />
+					<svg:line x1="95%" y1="95%" x2="50%" y2="95%" />
+					<svg:line x1="5%" y1="50%" x2="60%" y2="50%" />
+					<svg:line x1="40%" y1="30%" x2="60%" y2="50%" />
+					<svg:line x1="40%" y1="70%" x2="60%" y2="50%" />
+				</svg:g>
+			</svg:svg>		
+			<svg:svg id="wait" class="button headerButton" style="width: 0em;">
+				<svg:g style="stroke-width:3px;stroke-linecap:square"> 	
+					<svg:line x1="6%" y1="93%" x2="93%" y2="93%" />
+				</svg:g>
+			</svg:svg>
 		</div>
 		<div id="headerBody">
 			<span id="pageTitle" style="padding-left: 1em; padding-bottom: 0.5em;"></span>
 		</div>
 		<div id="headerEnd">
 			<input type="search" id="search" onkeydown="if (event.keyCode == 13) search();" />
-			<svg id="searchButton" class="button headerButton" onclick="searchButtonAction();">
-				<g style="stroke-width:16%;stroke-linecap:square"> 		
-					<line x1="59%" y1="59%" x2="91%" y2="91%" />
-					<circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
-				</g>
-			</svg>
-			<svg id="tableFilterButton" style="stroke-width:0px" class="filterButton headerButton button hide hidden-print" onclick="toggleFilter(evt);">
-				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
-				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
-				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:10%" />
-				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:15%" />
-			</svg>
-			<svg id="sideBarActionButton" class="button headerButton" onclick="toggleActionSideBar(evt);">
-				<g style="stroke-width:0px"> 		
-					<rect x="35%" y="13%" width="30%" height="17%"/>
-					<rect x="35%" y="46%" width="30%" height="17%"/>
-					<rect x="35%" y="80%" width="30%" height="17%"/>
-				</g>
-			</svg>
+			<svg:svg id="searchButton" class="button headerButton" onclick="searchButtonAction();">
+				<svg:g style="stroke-width:16%;stroke-linecap:square"> 		
+					<svg:line x1="59%" y1="59%" x2="91%" y2="91%" />
+					<svg:circle cx="37%" cy="37%" r="30%" stroke-width="14%" fill="none" />
+				</svg:g>
+			</svg:svg>
+			<svg:svg id="tableFilterButton" style="stroke-width:0px" class="filterButton headerButton button hide hidden-print" onclick="toggleFilter(evt);">
+				<svg:line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
+				<svg:line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:10%" />
+				<svg:line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:10%" />
+				<svg:line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:15%" />
+			</svg:svg>
+			<svg:svg id="sideBarActionButton" class="button headerButton" onclick="toggleActionSideBar(evt);">
+				<svg:g style="stroke-width:0px"> 		
+					<svg:rect x="35%" y="13%" width="30%" height="17%"/>
+					<svg:rect x="35%" y="46%" width="30%" height="17%"/>
+					<svg:rect x="35%" y="80%" width="30%" height="17%"/>
+				</svg:g>
+			</svg:svg>
 		</div>			
 	</div>
 	<div id="container">
 		<div id="navigationContainer" style="display: none;" class="hidden-print">
 			<div id="navigationHeader" class="secondHeader">
-				<svg id="closeNavigation" class="pageButton button secondHeaderButtons" onclick="toggleNavigation()">
-				  <line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
-				  <line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
-				</svg>
+				<svg:svg id="closeNavigation" class="pageButton button secondHeaderButtons" onclick="toggleNavigation()">
+				  <svg:line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
+				  <svg:line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
+				</svg:svg>
 			</div>
 			<div id="navigation">
 			</div>
@@ -1903,89 +1889,94 @@ $ICON
 	</div>
 	<div id="applicationVersion" class="hidden-print">$APPLICATION-VERSION</div>
 
-	<div id="templates" style="display: none">
-		<div id="tablePageHeaderButtons">
-			<svg style="stroke-width:0px" class="filterButton pageButton button hidden-print" onclick="toggleFilter(evt);">
-				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
-				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
-				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:15%" />
-				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:20%" />
-			</svg>
-			<svg style="stroke-width:0px" class="downloadButton pageButton button hidden-print">
-				<line x1="6%" y1="6%" x2="89%" y2="6%" style="stroke-width:12%" />
-				<line x1="6%" y1="6%" x2="6%" y2="85%" style="stroke-width:12%" />
-				<line x1="89%" y1="6%" x2="89%" y2="94%" style="stroke-width:12%" />
-				<line x1="15%" y1="94%" x2="89%" y2="94%" style="stroke-width:12%" />
-				<line x1="6%" y1="85%" x2="15%" y2="94%" style="stroke-width:12%" />
-				<line x1="35%" y1="94%" x2="35%" y2="65%" style="stroke-width:8%" />
-				<line x1="35%" y1="65%" x2="65%" y2="65%" style="stroke-width:8%" />
-				<line x1="65%" y1="65%" x2="65%" y2="94%" style="stroke-width:8%" />
-				<line x1="25%" y1="6%" x2="25%" y2="45%" style="stroke-width:6%" />
-				<line x1="25%" y1="45%" x2="75%" y2="45%" style="stroke-width:6%" />
-				<line x1="75%" y1="45%" x2="75%" y2="6%" style="stroke-width:6%" />
-				<a href="download">
-					<rect x="0" y="0" width="100%" height="100" style="fill:transparent"/>
-				</a>
-			</svg>
+	<template id="tablePageHeaderButtons">
+		<svg:svg style="stroke-width:0px" class="filterButton pageButton button hidden-print" onclick="toggleFilter(evt);">
+			<svg:line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+			<svg:line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+			<svg:line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:15%" />
+			<svg:line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:20%" />
+		</svg:svg>
+		<svg:svg style="stroke-width:0px" class="downloadButton pageButton button hidden-print">
+			<svg:line x1="6%" y1="6%" x2="89%" y2="6%" style="stroke-width:12%" />
+			<svg:line x1="6%" y1="6%" x2="6%" y2="85%" style="stroke-width:12%" />
+			<svg:line x1="89%" y1="6%" x2="89%" y2="94%" style="stroke-width:12%" />
+			<svg:line x1="15%" y1="94%" x2="89%" y2="94%" style="stroke-width:12%" />
+			<svg:line x1="6%" y1="85%" x2="15%" y2="94%" style="stroke-width:12%" />
+			<svg:line x1="35%" y1="94%" x2="35%" y2="65%" style="stroke-width:8%" />
+			<svg:line x1="35%" y1="65%" x2="65%" y2="65%" style="stroke-width:8%" />
+			<svg:line x1="65%" y1="65%" x2="65%" y2="94%" style="stroke-width:8%" />
+			<svg:line x1="25%" y1="6%" x2="25%" y2="45%" style="stroke-width:6%" />
+			<svg:line x1="25%" y1="45%" x2="75%" y2="45%" style="stroke-width:6%" />
+			<svg:line x1="75%" y1="45%" x2="75%" y2="6%" style="stroke-width:6%" />
+			<a href="download">
+				<svg:rect x="0" y="0" width="100%" height="100" style="fill:transparent"/>
+			</a>
+		</svg:svg>
+	</template>
+
+	<template id="tableFooterButtons">
+		<svg:svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'first');">
+			<svg:line x1="20%" y1="15%" x2="20%" y2="85%" style="stroke-width:15%" />
+			<svg:line x1="80%" y1="20%" x2="40%" y2="50%" style="stroke-width:15%" />
+			<svg:line x1="80%" y1="80%" x2="40%" y2="50%" style="stroke-width:15%" />
+		</svg:svg>
+		<svg:svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
+			<svg:line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
+			<svg:line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
+		</svg:svg>
+		<span class="currentPage tablePageing hidden-print">-</span>
+		<svg:svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
+			<svg:line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+			<svg:line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+		</svg:svg>
+		<svg:svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'last');">
+			<svg:line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+			<svg:line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+			<svg:line x1="80%" y1="15%" x2="80%" y2="85%" style="stroke-width:15%" />
+		</svg:svg>
+	</template>
+	
+	<template id="pageHeaderButtons">
+		<svg:svg style="stroke-width:0px" class="sideBarActionButton pageButton button hidden-print" onclick="toggleActionSideBar(evt);">
+			<svg:rect x="30%" y="13%" width="40%" height="17%"/>
+			<svg:rect x="30%" y="46%" width="40%" height="17%"/>
+			<svg:rect x="30%" y="80%" width="40%" height="17%"/>
+		</svg:svg>
+		<svg:svg class="pageButton button toggleButton hidden-print" onclick="togglePage(evt);">
+		  <svg:rect x="20%" y="80%" width="80%" height="13%" />
+		</svg:svg>
+		<svg:svg class="pageButton button closeButton hidden-print" onclick="closePage(evt);">
+			<svg:line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
+			<svg:line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
+		</svg:svg>
+	</template>
+	
+	<template id="dialogButtonsTemplate">
+		<svg:svg class="pageButton button maximizeButton" onclick="dialogClickListener(evt)">
+		  <svg:rect x="22%" y="22%" width="56%" height="56%" stroke-width="12%" fill="none" />
+		</svg:svg>
+		<svg:svg class="pageButton button" onclick="closeDialogButton(evt)">
+		  <svg:line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
+		  <svg:line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
+		</svg:svg>
+	</template>
+
+	<template id="dialogResizeTemplate">
+		<div class="dialogResize">
+			<svg:svg class="button" onmousedown="addResizeListener(evt)">
+			  <svg:line x1="10%" y1="90%" x2="90%" y2="10%" style="stroke-width:10%" />
+			  <svg:line x1="40%" y1="90%" x2="90%" y2="40%" style="stroke-width:10%" />
+			  <svg:line x1="70%" y1="90%" x2="90%" y2="70%" style="stroke-width:10%" />
+			</svg:svg>
 		</div>
-		<div id="tableFooterButtons">
-			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'first');">
-				<line x1="20%" y1="15%" x2="20%" y2="85%" style="stroke-width:15%" />
-				<line x1="80%" y1="20%" x2="40%" y2="50%" style="stroke-width:15%" />
-				<line x1="80%" y1="80%" x2="40%" y2="50%" style="stroke-width:15%" />
-			</svg>
-			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
-				<line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
-				<line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
-			</svg>
-			<span class="currentPage tablePageing hidden-print">-</span>
-			<svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
-				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
-				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
-			</svg>
-			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'last');">
-				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
-				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
-				<line x1="80%" y1="15%" x2="80%" y2="85%" style="stroke-width:15%" />
-			</svg>
-		</div>		
-		<div id="pageHeaderButtons">
-			<svg style="stroke-width:0px" class="sideBarActionButton pageButton button hidden-print" onclick="toggleActionSideBar(evt);">
-				<rect x="30%" y="13%" width="40%" height="17%"/>
-				<rect x="30%" y="46%" width="40%" height="17%"/>
-				<rect x="30%" y="80%" width="40%" height="17%"/>
-			</svg>
-			<svg class="pageButton button toggleButton hidden-print" onclick="togglePage(evt);">
-			  <rect x="20%" y="80%" width="80%" height="13%" />
-			</svg>
-			<svg class="pageButton button closeButton hidden-print" onclick="closePage(evt);">
-				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
-				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
-			</svg>
-		</div>
-		<div id="dialogButtonsTemplate" class="dialogButtons">
-			<svg class="pageButton button maximizeButton" onclick="dialogClickListener(evt)">
-			  <rect x="22%" y="22%" width="56%" height="56%" stroke-width="12%" fill="none" />
-			</svg>
-			<svg class="pageButton button" onclick="closeDialogButton(evt)">
-			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
-			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
-			</svg>
-		</div>
-		<div id="dialogResizeTemplate" class="dialogResize">
-			<svg class="button" onmousedown="addResizeListener(evt)">
-			  <line x1="10%" y1="90%" x2="90%" y2="10%" style="stroke-width:10%" />
-			  <line x1="40%" y1="90%" x2="90%" y2="40%" style="stroke-width:10%" />
-			  <line x1="70%" y1="90%" x2="90%" y2="70%" style="stroke-width:10%" />
-			</svg>
-		</div>		
-		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
-			<div style="flex-grow: 2;"></div>
-			<div id="queryCaption" style="text-align: center;"></div>
-			<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
-			<div id="queryBottom" style="flex-grow: 3;"></div>
-		</div>
-	</div>
+	</template>	
+	
+	<template id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
+		<div style="flex-grow: 2;"></div>
+		<div id="queryCaption" style="text-align: center;"></div>
+		<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
+		<div id="queryBottom" style="flex-grow: 3;"></div>
+	</template>	
 
 	<div class="is-blocked"></div>
 </body>

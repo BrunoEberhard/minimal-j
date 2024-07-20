@@ -509,7 +509,7 @@ dialog table {
 	width: 100%;
 }
 
-.form > div > div, .dialogButtons {
+.form > div > div {
 	padding-right: 0.7rem;
 }
 
