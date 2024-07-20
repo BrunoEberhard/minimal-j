@@ -579,7 +579,7 @@ $ICON
 	
 		var isTable = page.content != null && (page.content.type === "Table" || page.content.type === "CustomFilter");
 		if (isTable) {
-			element.appendChild(document.getElementById("tablePageHeaderButtons").content.cloneNode(true));
+			element.appendChild(template("tablePageHeaderButtons"));
 			document.getElementById("tableFilterButton").classList.remove("hide");
 			
 			var download = element.querySelector('.downloadButton a');
@@ -589,7 +589,7 @@ $ICON
 			document.getElementById("tableFilterButton").classList.add("hide");
 		}		
 		
-		element.appendChild(document.getElementById("pageHeaderButtons").content.cloneNode(true));
+		element.appendChild(template("pageHeaderButtons"));
 		return element;
 	}
 	
@@ -616,19 +616,17 @@ $ICON
 				element.appendChild(formRow);
 			}
 		} else if (type === "Query") {
-			element = document.createElement("div");
-			var queryContent = document.getElementById("query").content.cloneNode(true);
-			queryContent.children[1].appendChild(document.createTextNode(content.caption));
+			element = template("query").children[0];
+			element.children[1].appendChild(document.createTextNode(content.caption));
 			var actions = content.actions;
 			if (actions != undefined) {
 				for (var i = 0; i < actions.length; i++) {
 					var action = actions[i];
 					var actionElement = document.createElement("div");
 					createAction(actionElement, action);
-					queryContent.children[3].appendChild(actionElement);
+					element.children[3].appendChild(actionElement);
 				}
 			}
-			element.appendChild(queryContent);
 		} else if (type === "Login") {
 			element = document.createElement("div");
 			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
@@ -1091,7 +1089,7 @@ $ICON
 			var td = document.createElement("td");
 			td.setAttribute("colspan", tableFooterElement.columnCount);
 			td.style = "text-align: center; padding: 1em;";
-			td.appendChild(document.getElementById("tableFooterButtons").content.cloneNode(true));
+			td.appendChild(template("tableFooterButtons"));
 			td.querySelector(".currentPage").innerHTML = content;
 			tr.appendChild(td);
 		}
@@ -1108,6 +1106,10 @@ $ICON
 		while (element.firstChild) {
 			element.removeChild(element.firstChild);
 		}
+	}
+
+	function template(id) {
+		return document.getElementById(id).content.cloneNode(true);
 	}
 	
 	function updateNavigation(menus) {
@@ -1182,7 +1184,7 @@ $ICON
 		var headerText = document.createElement("span");
 		headerText.appendChild(document.createTextNode(json.title));
 		header.appendChild(headerText);
-		var buttons = document.getElementById("dialogButtonsTemplate").content.cloneNode(true);
+		var buttons = template("dialogButtonsTemplate");
 		while (buttons.children.length> 0) header.appendChild(buttons.children[0]);
 		dialog.appendChild(header);
 	
@@ -1217,7 +1219,7 @@ $ICON
 			dialog.appendChild(footer);
 		}
 		
-		dialog.appendChild(document.getElementById("dialogResizeTemplate").content.cloneNode(true));
+		dialog.appendChild(template("dialogResizeTemplate"));
 	
 		if (content.classList.contains("form")) {
 			addEnterAction(json.saveAction, content);
@@ -1971,11 +1973,13 @@ $ICON
 		</div>
 	</template>	
 	
-	<template id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
-		<div style="flex-grow: 2;"></div>
-		<div id="queryCaption" style="text-align: center;"></div>
-		<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
-		<div id="queryBottom" style="flex-grow: 3;"></div>
+	<template id="query">
+		<div style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
+			<div style="flex-grow: 2;"></div>
+			<div id="queryCaption" style="text-align: center;"></div>
+			<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
+			<div id="queryBottom" style="flex-grow: 3;"></div>
+		</div>
 	</template>	
 
 	<div class="is-blocked"></div>
