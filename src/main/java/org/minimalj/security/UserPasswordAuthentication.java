@@ -57,14 +57,20 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		private LoginAction loginAction;
 		
 		public UserPasswordLoginAction(T userPassword, Form<T> form) {
-			super(Resources.getString("LoginAction"));
 			this.userPassword = userPassword;
 			this.form = form;
 		}
 
 		@Override
+		protected String getResourceName() {
+			return "LoginAction";
+		}
+		
+		@Override
 		public void run() {
-			userPassword.rememberMe = REMEMBER_ME && Configuration.isDevModeActive();
+			if (userPassword.rememberMe == null) {
+				userPassword.rememberMe = REMEMBER_ME && Configuration.isDevModeActive();
+			}
 			
 			loginAction = new LoginAction();
 			
