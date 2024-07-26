@@ -80,6 +80,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	private int page;
 	private Object[] sortColumns = new Object[0];
 	private boolean[] sortDirections = new boolean[0];
+	private boolean useGroupInset = true;
 	
 	public SwingTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		this.listener = listener;
@@ -151,11 +152,20 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 		return tableModel.properties;
 	}
 	
+	public void setUseGroupInset(boolean useGroupInset) {
+		this.useGroupInset = useGroupInset;
+		updateBorder();
+	}
+	
 	protected void updateBorder() {
-		int inset = UIManager.getInt("Group.Inset");
-		Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
 		Border lineBorder = BorderFactory.createLineBorder(UIManager.getColor("Group.BorderColor"));
-		setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
+		if (useGroupInset) {
+			int inset = UIManager.getInt("Group.Inset");
+			Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
+			setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
+		} else {
+			setBorder(lineBorder);
+		}
 	}
 	
 	private List<Property> convert(Object[] keys) {
