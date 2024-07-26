@@ -883,9 +883,13 @@ $ICON
 			element.src = content.htmlOrUrl;
 			element.height = "50%"; // cross origin doesn't allow to get childs height
 		} else if (type === "Html") {
-			// this is not used at the moment as IE (before chrome) doesn't support it
-			element = document.createElement("iframe");
-			element.srcdoc = content.htmlOrUrl;
+			if (content.htmlOrUrl.indexOf("<html") >= 0) {
+				element = document.createElement("iframe");
+				element.srcdoc = content.htmlOrUrl;
+			} else {
+				element = document.createElement("div");
+				element.innerHTML = content.htmlOrUrl;
+			}
 		} else if (type === "Upload" || type === "Image" && editable) {
 			element = document.createElement("input");
 			element.type = "file";
@@ -901,6 +905,21 @@ $ICON
 			if (content.maxHeight) {
 				element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
 			}
+		} else if (type === "Dashboard") {
+			element = document.createElement("div");
+			element.style = "height: 100%; width: 100%; display: flex; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; justify-content: flex-start; gap: 1.3rem; padding: 2ex;";
+			content.dashes.forEach(dash => {
+				var dashContainer = document.createElement("div");
+				dashContainer.classList.add("dashContainer");
+				var dashTitle = document.createElement("div");
+				dashTitle.appendChild(document.createTextNode(dash.title));
+				dashTitle.classList.add("dashTitle");
+				var dashContent = createContent(dash.content);
+				dashContent.classList.add("dashContent");
+				dashContainer.appendChild(dashTitle);
+				dashContainer.appendChild(dashContent);
+				element.appendChild(dashContainer);
+			});
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));

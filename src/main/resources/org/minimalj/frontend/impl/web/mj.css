@@ -231,7 +231,7 @@ body {
 	padding-right: 1em;
 }
 
-.pageContent iframe {
+.pageContent > iframe {
 	height: calc(100% + 0.5ex);
 	width: calc(100% + 1.4rem);
 	margin-left: -0.7rem;
@@ -243,6 +243,40 @@ body {
 
 .pageContent .contentLogin {
 	width: 90%;
+}
+
+.pageContent .dashContainer {
+	width: 550px;
+	height: 350px;
+	overflow: clip;
+	background: var(--navigationBackground);
+}
+
+.pageContent .dashTitle {
+	position: relative;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: var(--headerHeight);
+	display: flex;
+	align-items: center;
+	background: var(--pageHeaderBackground);
+	padding-left: 1rem;
+}
+
+.pageContent .dashContent {
+	position: relative;
+	left: 0px;
+	box-sizing: border-box;	
+	width: 100%;
+	bottom: 0px;
+	border: 0;
+	padding: 1rem;
+}
+
+.dashContainer iframe.dashContent {
+	height: 280px;
+	width: 500px;
 }
 
 table.table tr td {
@@ -259,7 +293,7 @@ table.table tr th:last-child {
 	padding-right: 0em;
 }
 
-table.table thead {
+.pageContent > table.table > thead, .pageContent > .contentCustomFilter > table.table > thead  {
 	position: sticky;
 	top: -0.5ex;
 	padding-top: 0.5ex;
