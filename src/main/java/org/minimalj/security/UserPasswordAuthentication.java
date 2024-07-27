@@ -23,6 +23,7 @@ import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Keys;
+import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.By;
 import org.minimalj.security.model.RememberMeToken;
@@ -41,6 +42,10 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		return new UserPasswordLoginAction<>(new UserPassword(), createForm());
 	}
 	
+	protected boolean passwordNotEmpty() {
+		return false;
+	}
+
 	private Form<UserPassword> createForm() {
 		Form<UserPassword> form = new Form<UserPassword>(Form.EDITABLE, 1, 150);
 		form.line(UserPassword.$.user);
@@ -54,11 +59,14 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	public static class UserPasswordLoginAction<T extends UserPassword> extends Action implements Dialog {
 		private final T userPassword;
 		private final Form<T> form;
+		private boolean passwordNotEmpty;
 		private LoginAction loginAction;
 		
 		public UserPasswordLoginAction(T userPassword, Form<T> form) {
 			this.userPassword = userPassword;
 			this.form = form;
+			Authentication authentication = Backend.getInstance().getAuthentication();
+			this.passwordNotEmpty = authentication instanceof UserPasswordAuthentication && ((UserPasswordAuthentication) authentication).passwordNotEmpty();
 		}
 
 		@Override
@@ -109,6 +117,9 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 
 		private boolean validate(Form<?> form) {
 			List<ValidationMessage> validationMessages = Validator.validate(userPassword);
+			if (passwordNotEmpty && userPassword.password.length == 0) {
+				validationMessages.add(Validation.createEmptyValidationMessage(UserPassword.$.password));
+			}
 			form.indicate(validationMessages);
 			return validationMessages.isEmpty();
 		}
