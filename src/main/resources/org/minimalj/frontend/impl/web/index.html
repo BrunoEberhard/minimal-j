@@ -643,7 +643,7 @@ $ICON
 				button.id = action.id;
 				button.style="margin-right: 1em;"
 				button.appendChild(document.createTextNode(action.name));
-				button.setAttribute("onclick", "action(\"" + action.id + "\");");
+				button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + contentElement.id + "\");");
 				if (!action.enabled)
 					button.setAttribute("disabled", "true");
 				footer.appendChild(button);
