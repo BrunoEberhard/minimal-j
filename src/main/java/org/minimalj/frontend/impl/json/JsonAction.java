@@ -13,8 +13,9 @@ public class JsonAction extends JsonComponent {
 		super("Action");
 		this.action = action;
 		put("name", action.getName());
-		if (!StringUtils.isEmpty(action.getDescription())) {
-			put("description", action.getDescription());
+		String description = action.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			put("description", description);
 		}
 		updateEnabled(action);
 		action.setChangeListener(new JsonActionChangeListener());

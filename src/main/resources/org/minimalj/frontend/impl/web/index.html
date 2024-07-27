@@ -644,8 +644,8 @@ $ICON
 				button.style="margin-right: 1em;"
 				button.appendChild(document.createTextNode(action.name));
 				button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + contentElement.id + "\");");
-				if (!action.enabled)
-					button.setAttribute("disabled", "true");
+				if (action.description) element.setAttribute("title", action.description);
+				if (!action.enabled) button.setAttribute("disabled", "true");
 				footer.appendChild(button);
 			});
 			formAndActions.appendChild(footer);
@@ -1153,6 +1153,7 @@ $ICON
 				} else if (item.id) {
 					var a = document.createElement("a");
 					a.setAttribute("onclick", "action(\"" + item.id + "\"); return false;");
+					if (item.description) a.setAttribute("title", item.description);
 					a.setAttribute("href", item.link != undefined ? item.link : ".");
 					if (!item.enabled) {
 						a.setAttribute("disabled", "true");
