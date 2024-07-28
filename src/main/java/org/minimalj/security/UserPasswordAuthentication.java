@@ -117,7 +117,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 
 		private boolean validate(Form<?> form) {
 			List<ValidationMessage> validationMessages = Validator.validate(userPassword);
-			if (passwordNotEmpty && userPassword.password.length == 0) {
+			if (passwordNotEmpty && userPassword.password != null && userPassword.password.length == 0) {
 				validationMessages.add(Validation.createEmptyValidationMessage(UserPassword.$.password));
 			}
 			form.indicate(validationMessages);
