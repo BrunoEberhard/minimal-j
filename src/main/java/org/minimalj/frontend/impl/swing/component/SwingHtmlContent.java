@@ -46,6 +46,13 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 		setContentType("text/html");
 		setEditable(false);
 
+//		if (!html.contains("<html")) {
+//			Color color = UIManager.getColor("Group.Background"); //getBackground();
+//			String background = "rgb(" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue() + ")";
+//			html = "<html style=\"padding: 0px; margin: 0px;\"><body style=\"background: " + background + ";\">" + html + "</html>";
+//			setBorder(null);
+//		}
+		
 		setText(html);
 
 		addLinkListener();
