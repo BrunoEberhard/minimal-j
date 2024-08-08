@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.test.PageContainerTestFacade.DialogTestFacade;
+import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.TestUtil;
 import org.minimalj.test.UiTestFacade;
@@ -40,6 +41,10 @@ public abstract class WebTest {
 		return ui().getCurrentPageContainerTestFacade().getPage().getTable();
 	}
 
+	public static FormTestFacade form() {
+		return ui().getCurrentPageContainerTestFacade().getPage().getForm();
+	}
+	
 	public static void start(Application application) {
 		if (WebTest.application != application) {
 			TestUtil.shutdown();
