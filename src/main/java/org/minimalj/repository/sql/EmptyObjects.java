@@ -28,7 +28,7 @@ public class EmptyObjects {
 		} else if (object instanceof byte[]) {
 			return ((byte[]) object).length == 0;
 		} else if (object instanceof Selection) {
-			return isEmpty(((Selection<?>) object).selectedValue);
+			return ((Selection<?>) object).selectedValue == null;
 		} else {
 			Class<T> clazz = (Class<T>) object.getClass();
 			if (clazz.getName().startsWith("java") || Enum.class.isAssignableFrom(clazz))
