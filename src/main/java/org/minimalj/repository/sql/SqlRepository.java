@@ -160,7 +160,8 @@ public class SqlRepository implements TransactionalRepository {
 		if (sqlDialect instanceof PostgresqlDialect) {
 			// https://stackoverflow.com/questions/13409094/why-does-postgresql-default-everything-to-lower-case
 			return new SqlIdentifier(sqlDialect.getMaxIdentifierLength()) {
-				protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
+				@Override
+				protected String identifier(String identifier, Collection<String> alreadyUsedIdentifiers) {
 					identifier = super.identifier(identifier, alreadyUsedIdentifiers);
 					return identifier.toLowerCase();
 				}
