@@ -82,6 +82,9 @@ $ICON
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
+		if (dataObject.navigation) {
+			updateNavigation(dataObject.navigation);
+		}		
 		if (dataObject.hasSearchPages === true) {
 			document.getElementById("search").removeAttribute("disabled");
 			document.getElementById("searchButton").classList.remove("hide");
@@ -97,6 +100,7 @@ $ICON
 			updatePageButtons();
 			resizeNavigation();
 			saveStateInHistory();
+			updateNavigationSelection(dataObject.showPage)
 		} else if ("updatePage" in dataObject) {
 			closeDialogs();
 			dataObject.closeDialog = undefined;
@@ -105,11 +109,12 @@ $ICON
 			resizeNavigation();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
-			for (var i = 0; i < pages.length; i++) {
-				showPage(pages[i]);
-			}
+			pages.forEach(page => showPage(page));
 			updatePageButtons();
 			resizeNavigation();
+			if (pages.length > 0) {
+				updateNavigationSelection(pages[0]);
+			}
 		} else if ("hidePage" in dataObject) {
 			addNewStateToHistory();
 			hidePage(dataObject.hidePage);
@@ -140,9 +145,6 @@ $ICON
 			pageContainer.style.flexDirection = horizontalDetailLayout ? "row" : "column";
 			updatePageButtons();
 		}
-		if (dataObject.navigation) {
-			updateNavigation(dataObject.navigation);
-		}
 		if (dataObject.dialog) {
 			showDialog(dataObject.dialog);
 		}
@@ -161,11 +163,11 @@ $ICON
 						var value = propertyChanges[id][property];
 						if (property === "tableContent") {
 							var tbody = element.tBodies[0];
-							removeChildren(tbody);
+							tbody.replaceChildren();
 							addTableRows(id, tbody, value);
 						} else if (property === "tableModel") {
 							var thead = element.tHead;
-							removeChildren(thead);
+							thead.replaceChildren();
 							fillTableHead(thead, id, value);
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
@@ -174,7 +176,7 @@ $ICON
 							}					
 						} else if (property === "paging") {
 							var tfoot = element.tFoot;
-							removeChildren(tfoot);
+							tfoot.replaceChildren();
 							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
 							var element = document.getElementById(id);
@@ -207,6 +209,8 @@ $ICON
 							} else {
 								formElement.classList.remove("hideFormElement");
 							}
+						} else if (property === "link") {
+							element.setAttribute("href", config.link);
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
 							element.checked = value ? "checked" : "";
 						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
@@ -328,6 +332,12 @@ $ICON
 			};
 			send(data, true);
 		}
+	}
+	
+	function updateNavigationSelection(page) {
+		document.querySelectorAll("a.selected").forEach(a => a.classList.remove("selected"));
+		var navigationRoute = page.navigationRoute != undefined ? page.navigationRoute : page.route;
+		document.querySelector("[href='" + navigationRoute + "']")?.classList.add("selected");
 	}
 	
 	function onError(evt) {}
@@ -466,6 +476,9 @@ $ICON
 	}
 	
 	function showContextMenu(event) {
+		if (event.srcElement.hasAttribute("href")) {
+			return;
+		}
 		var pageElement = getPageElement(event);
 		var pageContentAndActionsElement = pageElement.querySelector(".pageContentAndActions");
 		var sideBarElement = pageElement.querySelector(".actionSideBar");
@@ -720,7 +733,7 @@ $ICON
 				element.appendChild(createContent(content.component));
 			}
 		} else if (type === "Action") {
-			element = document.createElement("div");
+			element = document.createElement("a");
 			createAction(element, content);
 		} else if (type === "TextField") {
 			element = document.createElement("input");
@@ -1118,12 +1131,10 @@ $ICON
 		element.className = "action";
 		element.textContent = config.name;
 		if (config.description) element.setAttribute("title", config.description);
-		element.setAttribute("onclick", "action(\"" + config.id + "\");");
-	}
-	
-	function removeChildren(element) {
-		while (element.firstChild) {
-			element.removeChild(element.firstChild);
+		if (config.link != undefined) {
+			element.setAttribute("href", config.link);
+		} else {
+			element.setAttribute("onclick", "action(\"" + config.id + "\");");
 		}
 	}
 
@@ -1133,7 +1144,7 @@ $ICON
 	
 	function updateNavigation(menus) {
 		var navigationElement = document.getElementById("navigation");
-		removeChildren(navigationElement);
+		navigationElement.replaceChildren();
 	
 		var menuElement = createMenu(menus);
 		navigationElement.appendChild(menuElement);
@@ -1459,7 +1470,7 @@ $ICON
 	
 	function createSuggestions(id, suggestions) {
 		var datalist = document.getElementById(id + "-list");
-		removeChildren(datalist);
+		datalist.replaceChildren();
 		for (var i = 0; i < suggestions.length; i++) {
 			var option = document.createElement("option");
 			option.setAttribute("value", suggestions[i]);

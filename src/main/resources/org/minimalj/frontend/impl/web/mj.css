@@ -136,17 +136,15 @@ body {
 }
 
 #navigation li, .contextMenu li, .actionSideBar li {
+	list-style: none;
 	margin: 0.4rem;
 }
 
-#navigation li, .contextMenu li, .actionSideBar li {
-	list-style: none;
+#navigation li, .actionSideBar li {
+	width: 100%;
 }
 
-#navigation li a, .contextMenu li a, .actionSideBar li a {
-	display: block;
-	border-top: 0.2rem transparent solid;
-	border-bottom: 0.2rem transparent solid;
+.contextMenu li a {
 	width: 100%;
 	box-sizing: border-box;
 }

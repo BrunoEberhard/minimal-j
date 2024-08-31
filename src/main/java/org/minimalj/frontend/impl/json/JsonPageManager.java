@@ -468,7 +468,7 @@ public class JsonPageManager implements PageManager {
 		}
 		output.add("title", title);
 	}
-	
+
 	private JsonComponent createJson(Page page, String pageId, String masterPageId) {
 		JsonComponent json = new JsonComponent("page");
 
@@ -479,6 +479,10 @@ public class JsonPageManager implements PageManager {
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
 			json.put("route", route);
+			String navigationRoute = Routing.navigation(page);
+			if (!route.equals(navigationRoute)) {
+				json.put("navigationRoute", navigationRoute);
+			}
 		}
 
 		JsonComponent content = (JsonComponent) PageAccess.getContent(page);
