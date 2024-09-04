@@ -307,10 +307,10 @@ $ICON
 		timerTextFieldChange = null;
 	}
 	
-	function addNewStateToHistory(fragment) {
+	function addNewStateToHistory(route) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText, fragment ? "." + fragment : ""); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, "." + (route ? route : "")); // second argument is ignored by browsers (!)
 		}
 	}
 	
