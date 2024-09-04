@@ -269,6 +269,9 @@ $ICON
 		if (dataObject.canLogout != undefined) {
 			document.getElementById("logout").style.display = dataObject.canLogout ? "inline" : "none";
 		}
+		if (dataObject.route != undefined) {
+			saveStateInHistory(dataObject.route);
+		}
 	}
 	
 	function setDeferredValue(element) {
@@ -313,15 +316,19 @@ $ICON
 			history.pushState(null, titleElement.innerText, "." + (route ? route : "")); // second argument is ignored by browsers (!)
 		}
 	}
-	
-	function saveStateInHistory() {
+
+	function saveStateInHistory(route) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
 			var state = [];
 			for (var i = 0; i < pages.length; i++) {
 				state.push(pages[i].id);
 			}
-			history.replaceState(state, titleElement.innerText);
+			if (route) {
+				history.replaceState(state, titleElement.innerText, "." + route);
+			} else {
+				history.replaceState(state, titleElement.innerText);
+			}
 		}
 	}
 	
@@ -1100,10 +1107,19 @@ $ICON
 	function createTableCell(tableId, rowIndex, columnIndex, cell) {
 		var td = document.createElement("td");
 		if (cell) {
-			if (cell.action) {
+			if (cell.route) {
+				var a = document.createElement("a");
+				a.appendChild(document.createTextNode(cell.value));
+				a.setAttribute("href", cell.route);
+				if (cell.action) {
+					a.className = "action";
+					a.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
+				}
+				td.appendChild(a);
+			} else if (cell.action) {
 				td.appendChild(document.createTextNode(cell.action));
 				td.className = "action";
-				td.setAttribute("onclick", "cellAction(\"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
+				td.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
 			} else if (cell.value) {
 				td.appendChild(document.createTextNode(cell.value));
 				td.classList.add(cell.styles);
@@ -1498,7 +1514,7 @@ $ICON
 		send(data, true);
 	}
 	
-	function cellAction(tableId, row, column) {
+	function cellAction(event, tableId, row, column) {
 		closeActionMenu();
 		
 		var data = {
@@ -1507,6 +1523,7 @@ $ICON
 			}
 		};
 		send(data, true);
+		event.preventDefault();
 	}
 	
 	var lastSelectedTable;

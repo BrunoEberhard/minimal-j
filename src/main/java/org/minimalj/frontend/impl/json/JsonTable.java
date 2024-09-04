@@ -18,6 +18,8 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.util.ColumnFilter;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Column;
 import org.minimalj.model.Column.ColumnAlignment;
@@ -268,6 +270,17 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					Column column = (Column) property;
 					String stringValue = Rendering.toString(column.render(object, value));
 					if (column.isLink(object, value)) {
+						if (Routing.available()) {
+							String route = column.getRoute(object, value);
+							if (Page.validateRoute(route)) {
+								// TODO JDK Map.of
+								Map<String, String> map = new HashMap<>();
+								map.put("route", route);
+								map.put("value", stringValue);
+								rowContent.add(map);
+								continue;
+							}
+						}
 						rowContent.add(Collections.singletonMap("action", stringValue));
 					} else {
 						ColorName color = Column.getColor(column, object, value);

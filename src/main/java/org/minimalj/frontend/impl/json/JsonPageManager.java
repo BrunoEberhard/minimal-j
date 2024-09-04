@@ -306,6 +306,12 @@ public class JsonPageManager implements PageManager {
 			Page page = pageStore.get(pageId);
 			if (page instanceof WheelPage) {
 				((WheelPage) page).wheel(wheel.intValue());
+				if (Routing.available()) {
+					String route = Routing.getRouteSafe(page);
+					if (route != null) {
+						output.add("route", route);
+					}
+				}
 			}
 		}
 		
