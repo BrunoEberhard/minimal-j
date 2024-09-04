@@ -40,6 +40,7 @@ import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.RememberMeAuthentication;
 import org.minimalj.security.Subject;
+import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.StringUtils;
 
 public class JsonPageManager implements PageManager {
@@ -90,8 +91,6 @@ public class JsonPageManager implements PageManager {
 	}
 
 	private void updateNavigation() {
-		componentById.clear();
-		navigation = createNavigation();
 		output.add("navigation", navigation);
 		output.add("hasSearchPages", Application.getInstance().hasSearch());
 	}
@@ -203,7 +202,7 @@ public class JsonPageManager implements PageManager {
 				RememberMeAuthentication rememberMeAuthentication = (RememberMeAuthentication) authentication;
 				String token = (String) input.getObject("rememberMeToken");
 				if (token != null) {
-					subject = rememberMeAuthentication.remember(token);
+					login(rememberMeAuthentication.remember(token));
 				}
 			}
 
@@ -306,16 +305,16 @@ public class JsonPageManager implements PageManager {
 			Page page = pageStore.get(pageId);
 			if (page instanceof WheelPage) {
 				((WheelPage) page).wheel(wheel.intValue());
-				if (Routing.available()) {
-					String route = Routing.getRouteSafe(page);
-					if (route != null) {
-						output.add("route", route);
-					}
+				String route = Routing.getRouteSafe(page);
+				if (route != null) {
+					output.add("route", route);
 				}
 			}
 		}
 		
 		if (input.containsObject("logout")) {
+			componentById.clear();
+			pageStore.clear();
 			if (Subject.getCurrent() != null) {
 				Backend.getInstance().getAuthentication().getLogoutAction().run();
 			}
@@ -438,18 +437,32 @@ public class JsonPageManager implements PageManager {
 	
 	@Override
 	public void login(Subject subject) {
-		setSubject(subject);
-		Subject.setCurrent(subject);
-		
-		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
-			output.add("canLogin", subject == null);
-			output.add("canLogout", subject != null);
+		if (this.subject == null || !EqualsHelper.equalsById(this.subject, subject)) {
+			this.subject = subject;
+			Subject.setCurrent(subject);
+			
+			if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+				output.add("canLogin", subject == null);
+				output.add("canLogout", subject != null);
+			}
+
+			if (navigation != null) {
+				unregister(navigation);
+			}
+			navigation = createNavigation();
 		}
 		updateNavigation();
 		
 		if (subject == null && /* initializing && */ Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
 			Backend.getInstance().getAuthentication().showLogin();
-		} else if (onLogin != null) {
+		} else {
+			onLogin();
+		}
+	}
+	
+	private void onLogin() {
+		updateNavigation();
+		if (onLogin != null) {
 			try {
 				onLogin.run();
 			} finally {
@@ -460,10 +473,6 @@ public class JsonPageManager implements PageManager {
 		}
 	}
 	
-	public void setSubject(Subject subject) {
-		this.subject = subject;
-	}
-
 	private void updateTitle(Page page) {
 		String title = page != null ? page.getTitle() : null;
 		if (StringUtils.isEmpty(title)) {

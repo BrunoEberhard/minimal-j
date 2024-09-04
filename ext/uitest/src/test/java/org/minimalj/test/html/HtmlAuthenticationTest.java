@@ -75,12 +75,8 @@ public class HtmlAuthenticationTest extends WebTest {
 		
 		ui().getCurrentPageContainerTestFacade().getBack().run();
 
-		login();
-
 		page = pageContainer.getPage();
-		Assertions.assertTrue(page.contains("Page 2"));
-
-		pageContainer.logout();
+		Assertions.assertTrue(page.contains("refresh"), "User cannot return to previous page after logout");
 	}
 	
 	@Test

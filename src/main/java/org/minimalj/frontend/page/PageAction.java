@@ -2,8 +2,9 @@ package org.minimalj.frontend.page;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.page.Routing.Routable;
 
-public final class PageAction extends Action {
+public final class PageAction extends Action implements Routable {
 
 	private final Page page;
 	
@@ -25,4 +26,8 @@ public final class PageAction extends Action {
 		return page;
 	}
 	
+	@Override
+	public String getRoute() {
+		return Routing.getRouteSafe(page);
+	}
 }

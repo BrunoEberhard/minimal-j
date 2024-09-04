@@ -280,7 +280,7 @@ public class JsonFrontend extends Frontend {
 
    private static String base(String path) {
 	    if ("/".equals(path)) {
-	    	return "";
+	    	return "<base href=\".\">";
 	    } else {
 	    	String base = "";
 	    	int level = path.split("/").length - 2;

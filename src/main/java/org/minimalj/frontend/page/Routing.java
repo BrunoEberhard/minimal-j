@@ -86,9 +86,9 @@ public abstract class Routing {
 		}
 		try {
 			String route = null;
-			if (action instanceof PageAction) {
-				PageAction pageAction = (PageAction) action;
-				route = routing.getRoute(pageAction.getPage());
+			if (action instanceof Routable) {
+				Routable routable = (Routable) action;
+				route = routable.getRoute();
 			}
 			if (route != null && Page.validateRoute(route)) {
 				return route;
@@ -128,6 +128,9 @@ public abstract class Routing {
 	}
 
 	protected String getRoute(Page page) {
+		if (page instanceof Routable) {
+			return ((Routable) page).getRoute();
+		}
 		for (RoutingEntry<?, ? extends Page> entry : entries) {
 			if (entry.pageClass == page.getClass()) {
 				if (entry.idProvider == null) {
@@ -146,6 +149,9 @@ public abstract class Routing {
 	}
 	
 	protected String getNavigation(Page page) {
+		if (page instanceof Routable) {
+			return ((Routable) page).getNavigationRoute();
+		}
 		for (RoutingEntry<?, ? extends Page> entry : entries) {
 			if (entry.pageClass == page.getClass()) {
 				if (entry.idProvider == null) {
@@ -162,18 +168,6 @@ public abstract class Routing {
 		}
 		return null;
 	}
-
-//	protected String getRoute(Object object) {
-//		if (object instanceof Page) {
-//			return getRoute((Page) object);
-//		} else if (object instanceof LinkAction) {
-//			return ((LinkAction) object).getRoute();
-//		} else if (object instanceof PageAction) {
-//			return getRoute(((PageAction) object).getPage());
-//		} else {
-//			return null;
-//		}
-//	}
 
 	public static String navigation(Page page) {
 		if (routing != null) {
@@ -216,4 +210,11 @@ public abstract class Routing {
 		return null;
 	}
 
+	public static interface Routable {
+		public String getRoute();
+		
+		public default String getNavigationRoute() {
+			return getRoute();
+		}
+	}
 }

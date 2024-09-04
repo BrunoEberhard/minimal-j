@@ -401,7 +401,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public ActionTestFacade getAction(String label) {
 //			<div class="action" onclick="action(&quot;a94bef74-8838-4449-8661-99f01159705b&quot;);" id="a94bef74-8838-4449-8661-99f01159705b">Verpackungseinheit hinzufügen</div>
-			WebElement rowElement = form.findElement(By.xpath(".//div[text()=" + WebTest.escapeXpath(label) + "]"));
+			WebElement rowElement = form.findElement(By.xpath(".//a[text()=" + WebTest.escapeXpath(label) + "]"));
 			return new HtmlActionTestFacade(rowElement);
 		}
 	}

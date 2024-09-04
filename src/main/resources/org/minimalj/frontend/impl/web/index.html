@@ -1111,15 +1111,13 @@ $ICON
 				var a = document.createElement("a");
 				a.appendChild(document.createTextNode(cell.value));
 				a.setAttribute("href", cell.route);
-				if (cell.action) {
-					a.className = "action";
-					a.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
-				}
+				a.className = "action";
+				a.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + "); return false;");
 				td.appendChild(a);
 			} else if (cell.action) {
 				td.appendChild(document.createTextNode(cell.action));
 				td.className = "action";
-				td.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
+				td.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + "); return false;");
 			} else if (cell.value) {
 				td.appendChild(document.createTextNode(cell.value));
 				td.classList.add(cell.styles);
@@ -1149,9 +1147,8 @@ $ICON
 		if (config.description) element.setAttribute("title", config.description);
 		if (config.link != undefined) {
 			element.setAttribute("href", config.link);
-		} else {
-			element.setAttribute("onclick", "action(\"" + config.id + "\");");
 		}
+		element.setAttribute("onclick", "action(\"" + config.id + "\"); return false;");
 	}
 
 	function template(id) {
@@ -1523,7 +1520,6 @@ $ICON
 			}
 		};
 		send(data, true);
-		event.preventDefault();
 	}
 	
 	var lastSelectedTable;
@@ -1541,7 +1537,7 @@ $ICON
 	}
 	
 	function tableSelection(event) {
-		if (event.type === "contextmenu") {
+		if (event.type === "contextmenu" || event.target.tagName == "A") {
 			return;
 		}	
 		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
