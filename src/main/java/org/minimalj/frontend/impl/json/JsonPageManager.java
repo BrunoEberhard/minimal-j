@@ -198,15 +198,19 @@ public class JsonPageManager implements PageManager {
 				onLogin = () -> show(Routing.createPageSafe(path));
 			}
 			
+			boolean remembered = false;
 			if (subject == null && authentication instanceof RememberMeAuthentication) {
 				RememberMeAuthentication rememberMeAuthentication = (RememberMeAuthentication) authentication;
 				String token = (String) input.getObject("rememberMeToken");
 				if (token != null) {
 					login(rememberMeAuthentication.remember(token));
+					remembered = true;
 				}
 			}
 
-			login(subject);
+			if (!remembered) {
+				login(subject);
+			}
 		} else {
 			locationFragment = null;
 		}
@@ -494,10 +498,10 @@ public class JsonPageManager implements PageManager {
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
 			json.put("route", route);
-			String navigationRoute = Routing.navigation(page);
-			if (!route.equals(navigationRoute)) {
-				json.put("navigationRoute", navigationRoute);
-			}
+		}
+		String navigationRoute = Routing.navigation(page);
+		if (route == null || !route.equals(navigationRoute)) {
+			json.put("navigationRoute", navigationRoute);
 		}
 
 		JsonComponent content = (JsonComponent) PageAccess.getContent(page);
