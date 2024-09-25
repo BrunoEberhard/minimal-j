@@ -413,10 +413,10 @@ $ICON
 		document.getElementById("sideBarActionButton").style.display = hasActionMenu ? null : "none";
 	
 		if (hasActionMenu) {
-			var sideBarElement = createMenu(page.actionMenu, page.pageId);
+			var sideBarElement = document.createElement("div");
 			sideBarElement.classList.add("actionSideBar");
 			sideBarElement.classList.add("hidden-print");
-	
+			sideBarElement.appendChild(createMenu(page.actionMenu, page.pageId));
 			pageContentAndActionsElement.appendChild(sideBarElement);
 		}
 	
@@ -1168,12 +1168,10 @@ $ICON
 	
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
-			var li = document.createElement("li");
-			ul.appendChild(li);
 			if (item.type !== "Separator") {
 				if (item.items) {
-					li.appendChild(document.createTextNode(item.name));
-					li.appendChild(createMenu(item.items));
+					ul.appendChild(document.createTextNode(item.name));
+					ul.appendChild(createMenu(item.items));
 				} else if (item.id) {
 					var a = document.createElement("a");
 					a.setAttribute("onclick", "action(\"" + item.id + "\"); return false;");
@@ -1185,10 +1183,10 @@ $ICON
 					a.id = item.id;
 					a.classList.add("action");
 					a.appendChild(document.createTextNode(item.name));
-					li.appendChild(a);
+					ul.appendChild(a);
 				}
 			} else {
-				li.appendChild(document.createElement("hr"));
+				ul.appendChild(document.createElement("hr"));
 			}
 		}
 		return ul;

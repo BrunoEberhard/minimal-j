@@ -127,26 +127,22 @@ body {
 #navigation {
 	flex-grow: 1;
 	overflow: auto;
-	padding-left: 0.7rem;
 	background: var(--navigationBackground);
 }
 
-#navigation ul {
+ul {
 	padding-left: 0.2rem;
+	padding-bottom: 0.2rem;
 }
 
-#navigation li, .contextMenu li, .actionSideBar li {
-	list-style: none;
-	margin: 0.4rem;
+#navigation, .actionSideBar, .contextMenu {
+	padding-left: 0.7rem;
+	padding-right: 0.5rem;
 }
 
-#navigation li, .actionSideBar li {
-	width: 100%;
-}
-
-.contextMenu li a {
-	width: 100%;
-	box-sizing: border-box;
+#navigation ul > *, .contextMenu ul > *, .actionSideBar ul > * {
+	display: block;
+	padding: 0.3rem;
 }
 
 .action {
@@ -325,8 +321,13 @@ table.table tr th:last-child {
 	position: fixed;
 	height: unset;
 	border: 1px var(--borderColor) solid;
-	padding: 0.2rem 0ex 0.2rem 1.2rem;
 	z-index: 20;
+}
+
+.contextMenu ul {
+	padding-top: -0.3rem;
+	padding-left: 0.3rem;
+	padding-bottom: 0rem;
 }
 
 .actionSideBar {
@@ -335,7 +336,7 @@ table.table tr th:last-child {
 	height: 100%;
 	box-sizing: border-box;
 	margin: 0px;
-	padding-left: 1.5rem;
+	padding-left: 1rem;
 	overflow: auto;
 	flex-grow: 0;
 	flex-basis: 15em;
@@ -731,9 +732,9 @@ textarea[disabled] {
 }
 
 hr {
-	margin: 0px;
-	border: 0px;
-	border-top: 1px var(--borderColor) solid;
+	padding: 0px !important;
+	margin-right: 1rem;
+	border-bottom: transparent;
 }
 
 fieldset {

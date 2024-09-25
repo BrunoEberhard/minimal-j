@@ -39,12 +39,12 @@ body {
 	height: 0.9em;
 }
 
-#navigation {
+#navigation, .actionSideBar {
 	padding-top: 0.5em;
 }
 
-#navigation li {
-	margin: 1em 0em 1em 0em;
+ul > * {
+	margin: .3em 0em .3em 0em;
 }
 
 .action {
@@ -52,12 +52,7 @@ body {
 }
 
 .contextMenu {
-	padding: 1ex 2ex 1ex 2ex;
 	box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.3);
-}
-
-.contextMenu li {
-	padding: 0.5em;
 }
 
 dialog {
