@@ -307,6 +307,7 @@ class LoggingPreparedStatement implements PreparedStatement {
 	@Override
 	public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
 		preparedStatement.setObject(parameterIndex, x, targetSqlType);
+		putParameter(parameterIndex, x);
 	}
 
 	@Override
@@ -322,6 +323,10 @@ class LoggingPreparedStatement implements PreparedStatement {
 	@Override
 	public void setObject(int parameterIndex, Object x) throws SQLException {
 		preparedStatement.setObject(parameterIndex, x);
+		putParameter(parameterIndex, x);
+	}
+
+	private void putParameter(int parameterIndex, Object x) {
 		if (x instanceof String) {
 			parameters.put(parameterIndex, "'" + x + "'");
 		} else {
