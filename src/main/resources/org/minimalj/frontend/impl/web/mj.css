@@ -577,6 +577,7 @@ dialog table {
 
 .form .noCaption {
 	padding-top: 1.2rem;
+	display: inline-block;
 }
 
 /* radio buttons would be too low */
