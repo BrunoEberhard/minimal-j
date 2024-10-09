@@ -38,12 +38,7 @@ public class WebTestFacade implements UiTestFacade {
 
 	private final RemoteWebDriver driver = createDriver();
 
-	private static final String WEBDRIVER_EDGE_DRIVER = "webdriver.edge.driver";
-	
 	private static RemoteWebDriver createDriver() {
-		// https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium/?tabs=java
-		// https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
-		System.setProperty(WEBDRIVER_EDGE_DRIVER, "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
 		RemoteWebDriver driver = new EdgeDriver();
 		Window window = driver.manage().window();
 
