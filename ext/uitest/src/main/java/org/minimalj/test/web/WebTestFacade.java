@@ -27,7 +27,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -39,7 +39,7 @@ public class WebTestFacade implements UiTestFacade {
 	private final RemoteWebDriver driver = createDriver();
 
 	private static RemoteWebDriver createDriver() {
-		RemoteWebDriver driver = new EdgeDriver();
+		RemoteWebDriver driver = new ChromeDriver();
 		Window window = driver.manage().window();
 
 		window.setPosition(new Point(0, 0));
