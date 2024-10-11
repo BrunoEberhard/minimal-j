@@ -785,7 +785,8 @@ $ICON
 			element.changeOnFocus = content.changeOnFocus;
 		} else if (type === "AreaField") {
 			element = document.createElement("textarea");
-			element.setAttribute("onkeyup", "sendchange(this);");
+			element.setAttribute("oninput", "ontextinput(this);");
+			element.setAttribute("onchange", "ontextchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.placeholder) {
 				element.setAttribute("placeholder", content.placeholder);
@@ -1503,7 +1504,7 @@ $ICON
 		if (timerTextFieldChange && lastChangedTextField) {
 			ontimeout();
 			clearTimeout(timerTextFieldChange);
-		}
+		}		
 		if (formId) {
 			var formElement = document.getElementById(formId);
 			formElement.classList.add("showValidations");
