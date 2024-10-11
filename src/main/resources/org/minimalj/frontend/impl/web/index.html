@@ -152,6 +152,7 @@ $ICON
 			for (var i = 0; i < dataObject.closeDialog.length; i++) {
 				var dialog = document.getElementById(dataObject.closeDialog[i]);
 				dialog.close();
+				dialog.remove();
 			}
 		}
 		if (dataObject.propertyChanges) {
@@ -1351,6 +1352,7 @@ $ICON
 			event.preventDefault();
 		} else {
 			dialog.close();
+			dialog.remove();
 		}
 	}
 
@@ -1718,10 +1720,10 @@ $ICON
 	
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
-				pendingRequests--;			
 				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
+				pendingRequests--;	
 			}
 		}
 		pendingRequests++;
@@ -1745,8 +1747,8 @@ $ICON
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
-				pendingRequests--;
 				onMessage(evt.data)
+				pendingRequests--;
 			};
 			websocket.onopen = function(evt) {
 				websocket.send(JSON.stringify(data));
