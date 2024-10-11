@@ -729,12 +729,12 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	public static void waitScript(JavascriptExecutor driver) {
-		do {
+		while ((Boolean) driver.executeScript("return pendingRequests > 0 || timerTextFieldChange != null") == Boolean.TRUE) {
 			try {
 				Thread.sleep(2);
 			} catch (InterruptedException e) {
 				throw new RuntimeException();
 			}
-		} while ((Boolean) driver.executeScript("return pendingRequests > 0 || timerTextFieldChange != null") == Boolean.TRUE);
+		}
 	}
 }
