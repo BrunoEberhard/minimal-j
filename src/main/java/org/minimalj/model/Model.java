@@ -58,6 +58,7 @@ public interface Model {
 				}
 			}
 			if (depthFirst) {
+				// move clazz at end of classes list
 				classes.remove(clazz);
 				classes.add(clazz);
 			}
