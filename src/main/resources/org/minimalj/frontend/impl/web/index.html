@@ -1500,6 +1500,10 @@ $ICON
 	}
 
 	function action(actionId, formId) {
+		if (timerTextFieldChange && lastChangedTextField) {
+			ontimeout();
+			clearTimeout(timerTextFieldChange);
+		}
 		if (formId) {
 			var formElement = document.getElementById(formId);
 			formElement.classList.add("showValidations");

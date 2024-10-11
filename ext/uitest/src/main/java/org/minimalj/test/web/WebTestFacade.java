@@ -735,6 +735,6 @@ public class WebTestFacade implements UiTestFacade {
 			} catch (InterruptedException e) {
 				throw new RuntimeException();
 			}
-		} while ((Long) driver.executeScript("return pendingRequests") > 0);
+		} while ((Boolean) driver.executeScript("return pendingRequests > 0 || timerTextFieldChange != null") == Boolean.TRUE);
 	}
 }
