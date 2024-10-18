@@ -1,11 +1,13 @@
 package org.minimalj.util;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.model.Code;
+import org.minimalj.test.TestUtil;
 
 public class CodesSelfReferenceTest {
 
@@ -17,6 +19,11 @@ public class CodesSelfReferenceTest {
 				return new Class<?>[] { TestSelfReferenceCode.class };
 			}
 		});
+	}
+	
+	@AfterClass
+	public static void shutdown() {
+		TestUtil.shutdown();
 	}
 	
 	@Test
