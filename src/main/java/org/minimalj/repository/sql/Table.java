@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -151,7 +152,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	public Object insert(T object) {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, true)) {
 			return insert(object, insertStatement);
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Couldn't insert in " + getTableName() + " with " + object);
@@ -159,7 +160,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public void insert(List<T> objects) {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, true)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, true)) {
 			for (T object : objects) {
 				insert(object, insertStatement);
 			}
@@ -224,7 +225,7 @@ public class Table<T> extends AbstractTable<T> {
 	public void deleteById(Object id) {
 		deleteDependables(id);
 		deleteLists(sqlRepository.read(clazz, id));
-		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement updateStatement = createStatement(connection, deleteQuery, false)) {
 			updateStatement.setObject(1, id);
 			updateStatement.execute();
 		} catch (SQLException x) {
@@ -251,7 +252,7 @@ public class Table<T> extends AbstractTable<T> {
 			// TODO implement this more efficient
 			int count = 0;
 			String deleteString = "SELECT id FROM " + getTableName() + whereClause.getClause();
-			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), deleteString, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, deleteString, false)) {
 				for (int i = 0; i < whereClause.getValueCount(); i++) {
 					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 				}
@@ -268,7 +269,7 @@ public class Table<T> extends AbstractTable<T> {
 			}
 		} else {
 			String deleteString = "DELETE FROM " + getTableName() + whereClause.getClause();
-			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), deleteString, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, deleteString, false)) {
 				for (int i = 0; i < whereClause.getValueCount(); i++) {
 					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 				}
@@ -341,7 +342,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 	
 	void updateWithId(T object, Object id) {
-		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement updateStatement = createStatement(connection, updateQuery, false)) {
 			int parameterIndex = setParameters(updateStatement, object, ParameterMode.UPDATE, id);
 			if (optimisticLocking) {
 				updateStatement.setInt(parameterIndex, IdUtils.getVersion(object));
@@ -380,7 +381,7 @@ public class Table<T> extends AbstractTable<T> {
 	}
 
 	public T read(Object id, Map<Class<?>, Map<Object, Object>> loadedReferences) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdStatement = createStatement(connection, selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, id);
 			T object = executeSelect(selectByIdStatement, loadedReferences);
 			if (loadedReferences != SqlRepository.DONT_LOAD_REFERENCES) {
@@ -432,7 +433,7 @@ public class Table<T> extends AbstractTable<T> {
 		if (query instanceof RelationCriteria) {
 			RelationCriteria relationCriteria = (RelationCriteria) query;
 			String queryString = "SELECT COUNT(*) FROM " + relationCriteria.getCrossName() + " WHERE id = ?";
-			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, queryString, false)) {
 				sqlRepository.getSqlDialect().setParameter(statement, 1, relationCriteria.getRelatedId());
 				return executeSelectCount(statement);
 			} catch (SQLException e) {
@@ -441,7 +442,7 @@ public class Table<T> extends AbstractTable<T> {
 		} else {
 			WhereClause<T> whereClause = new WhereClause<>(this, query);
 			String queryString = "SELECT COUNT(*) FROM " + getTableName() + whereClause.getClause();
-			try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, queryString, false)) {
 				for (int i = 0; i < whereClause.getValueCount(); i++) {
 					sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 				}
@@ -466,7 +467,7 @@ public class Table<T> extends AbstractTable<T> {
 		WhereClause<T> whereClause = new WhereClause<>(this, query);
 		String select = getCriteria(query) instanceof RelationCriteria ? select(resultClass, (RelationCriteria) getCriteria(query)) : select(resultClass);
 		String queryString = select + whereClause.getClause();
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), queryString, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, queryString, false)) {
 			for (int i = 0; i < whereClause.getValueCount(); i++) {
 				sqlRepository.getSqlDialect().setParameter(statement, i + 1, whereClause.getValue(i));
 			}
@@ -478,7 +479,7 @@ public class Table<T> extends AbstractTable<T> {
 
 	public <S> S readView(Class<S> resultClass, Object id, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		String query = select(resultClass) + " WHERE id = ?";
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), query, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, query, false)) {
 			statement.setObject(1, id);
 			return executeSelectView(resultClass, statement, loadedReferences);
 		} catch (SQLException e) {

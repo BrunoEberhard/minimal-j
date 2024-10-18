@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<
 	@Override
 	public ELEMENT read(Object parentId, Integer version, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		if (version == null) {
-			try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdStatement = createStatement(connection, selectByIdQuery, false)) {
 				selectByIdStatement.setObject(1, parentId);
 				ELEMENT object = executeSelect(selectByIdStatement, loadedReferences);
 				return object;
@@ -46,7 +47,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<
 				throw new LoggingRuntimeException(x, sqlLogger, "Couldn't read " + getTableName() + " with ID " + parentId);
 			}
 		} else {
-			try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdStatement = createStatement(connection, selectByIdAndTimeQuery, false)) {
 				selectByIdStatement.setObject(1, parentId);
 				selectByIdStatement.setObject(2, version);
 				selectByIdStatement.setObject(3, version);
@@ -66,7 +67,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<
 	
 	@Override
 	protected void insert(Object parentId, ELEMENT object, Integer version) {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos, version);
 			insertStatement.execute();
@@ -77,7 +78,7 @@ public class HistorizedDependableTable<PARENT, ELEMENT> extends DependableTable<
 
 	@Override
 	protected void delete(Object parentId, Integer version) {
-		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement deleteStatement = createStatement(connection, deleteQuery, false)) {
 			deleteStatement.setObject(1, version);
 			deleteStatement.setObject(2, parentId);
 			deleteStatement.execute();

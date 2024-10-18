@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		int version = 0;
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
 				int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, IdUtils.getId(parent));
@@ -73,7 +74,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 			}
 			
 			if (end) {
-				try (PreparedStatement endStatement = createStatement(sqlRepository.getConnection(), endQuery, false)) {
+				try (Connection connection = sqlRepository.getConnection(); PreparedStatement endStatement = createStatement(connection, endQuery, false)) {
 					endStatement.setInt(1, version);
 					endStatement.setObject(2, parentId);
 					endStatement.setInt(3, position);
@@ -84,7 +85,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 			}
 			
 			if (insert) {
-				try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+				try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 					int parameterPos = setParameters(insertStatement, objects.get(position), ParameterMode.HISTORIZE, parentId);
 					insertStatement.setInt(parameterPos++, position);
 					insertStatement.setInt(parameterPos++, version);
@@ -102,7 +103,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 		if (time == null) {
 			return getList(parent, (Map<Class<?>, Map<Object, Object>>) null);
 		}
-		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdAndTimeStatement = createStatement(connection, selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
 			selectByIdAndTimeStatement.setInt(2, time);
 			selectByIdAndTimeStatement.setInt(3, time);
@@ -114,7 +115,7 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdStatement = createStatement(connection, selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);
 		} catch (SQLException x) {

@@ -1,5 +1,6 @@
 package org.minimalj.model;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,30 +37,38 @@ public interface Model {
 	
 	public static List<Class<?>> getClassesRecursive(Class<?>[] baseClasses, boolean depthFirst, boolean onlyWithId) {
 		List<Class<?>> classes = new ArrayList<>();
+		List<Class<?>> visited = new ArrayList<>();
 		for (Class<?> clazz : baseClasses) {
-			getClassesRecursive(classes, clazz, depthFirst, onlyWithId);
+			getClassesRecursive(classes, visited, clazz, depthFirst, onlyWithId);
 		}
 		return classes;
 	}
-
-	static void getClassesRecursive(List<Class<?>> classes, Class<?> clazz, boolean depthFirst, boolean onlyWithId) {
-		if (!classes.contains(clazz)) {
-			classes.add(clazz);
+		
+	static void getClassesRecursive(List<Class<?>> classes, List<Class<?>> visited, Class<?> clazz, boolean depthFirst, boolean onlyWithId) {
+		if (!visited.contains(clazz)) {
+			visited.add(clazz);
+			if (!depthFirst) {
+				classes.add(clazz);
+			}
 			for (Property property : Properties.getProperties(clazz).values()) {
 				Class<?> propertyClass = property.getClazz();
-				if (Collection.class.isAssignableFrom(propertyClass)) {
+				if (Collection.class.isAssignableFrom(propertyClass)  || propertyClass == Selection.class) {
 					propertyClass = property.getGenericClass();
 				}
-				if (propertyClass == null || View.class.isAssignableFrom(propertyClass) || propertyClass == Selection.class) {
+				if (propertyClass == null) {
+					continue;
+				}
+				if (View.class.isAssignableFrom(propertyClass)) {
+					propertyClass = ViewUtils.getViewedClass(propertyClass);
+				}
+				if (Modifier.isAbstract(propertyClass.getModifiers())) {
 					continue;
 				}
 				if (onlyWithId && IdUtils.hasId(propertyClass) || !onlyWithId && !FieldUtils.isAllowedPrimitive(propertyClass)) {
-					getClassesRecursive(classes, propertyClass, depthFirst, onlyWithId);
+					getClassesRecursive(classes, visited, propertyClass, depthFirst, onlyWithId);
 				}
 			}
 			if (depthFirst) {
-				// move clazz at end of classes list
-				classes.remove(clazz);
 				classes.add(clazz);
 			}
 		}

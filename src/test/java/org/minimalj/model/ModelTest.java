@@ -9,11 +9,11 @@ public class ModelTest {
 
 	@Test
 	public void testDepthFirst() {
-		List<Class<?>> classes = Model.getClassesRecursive(new Class[] {TestClass1.class}, true, true);
-		Assert.assertEquals(3, classes.size());
-		Assert.assertEquals(TestClass3.class, classes.get(0));
-		Assert.assertEquals(TestClass2.class, classes.get(1));
-		Assert.assertEquals(TestClass1.class, classes.get(2));
+		List<Class<?>> classes = Model.getClassesRecursive(new Class[] {TestClass1.class, TestClass5.class}, true, true);
+		Assert.assertEquals(4, classes.size());
+		Assert.assertTrue(classes.indexOf(TestClass3.class) < classes.indexOf(TestClass2.class));
+		Assert.assertTrue(classes.indexOf(TestClass2.class) < classes.indexOf(TestClass1.class));
+		Assert.assertTrue(classes.indexOf(TestClass2.class) < classes.indexOf(TestClass5.class));
 	}
 	
 	public static class TestClass1 {
@@ -33,5 +33,10 @@ public class ModelTest {
 
 	public static class TestClass4 {
 		
+	}
+	
+	public static class TestClass5 {
+		public Object id;
+		public TestClass2 testClass2;
 	}
 }

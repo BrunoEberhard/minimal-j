@@ -2,7 +2,6 @@ package org.minimalj.repository.sql;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,10 +96,8 @@ public enum SchemaPreparation {
 	// TODO move someplace where it's available for all kind of repositories (Memory
 	// DB for example)
 	private void updateCodes(SqlRepository repository) {
-		repository.startTransaction(Connection.TRANSACTION_READ_UNCOMMITTED);
 		updateConstantCodes(repository);
 		updateCsvCodes(repository);
-		repository.endTransaction(true);
 	}
 
 	@SuppressWarnings("unchecked")

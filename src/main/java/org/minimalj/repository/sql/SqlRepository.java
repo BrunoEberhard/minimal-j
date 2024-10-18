@@ -54,6 +54,7 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.UnclosingConnection;
 
 /**
  * The Mapper to a relational Database
@@ -75,10 +76,10 @@ public class SqlRepository implements TransactionalRepository {
 	
 	protected final DataSource dataSource;
 	
-	private Connection autoCommitConnection;
-	private final List<Connection> connections = new ArrayList<>();
-	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
-	private final ThreadLocal<Stack<Connection>> threadLocalTransactionConnection = new ThreadLocal<>();
+	private UnclosingConnection autoCommitConnection;
+	private final List<UnclosingConnection> connections = new ArrayList<>();
+	private final BlockingDeque<UnclosingConnection> connectionDeque = new LinkedBlockingDeque<>();
+	private final ThreadLocal<Stack<UnclosingConnection>> threadLocalTransactionConnection = new ThreadLocal<>();
 
 	public SqlRepository(Model model) {
 		this(DataSourceFactory.create(), model.getEntityClasses());
@@ -88,19 +89,22 @@ public class SqlRepository implements TransactionalRepository {
 		this.dataSource = dataSource;
 		new ModelTest(classes).assertValid();
 
-		try (Connection connection = getAutoCommitConnection()) {
+		try (Connection connection = getConnection()) {
 			sqlDialect = findDialect(connection);
 			sqlIdentifier = createSqlIdentifier();
 			Model.getEntityClassesRecursive(classes).forEach(this::addClass);
 			tables.values().forEach(table -> table.collectEnums(enums));
-			
-			SchemaPreparation schemaPreparation = getSchemaPreparation();
-			schemaPreparation.prepare(this);
+			prepareSchema();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Initialize of SqlRepository failed");
 		}
 	}
 
+	protected void prepareSchema() throws SQLException {
+		SchemaPreparation schemaPreparation = getSchemaPreparation();
+		schemaPreparation.prepare(this);
+	}
+	
 	private SchemaPreparation getSchemaPreparation() throws SQLException {
 		if (Configuration.available("schemaPreparation")) {
 			try {
@@ -171,16 +175,14 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	protected Connection getAutoCommitConnection() {
-		try {
-			if (autoCommitConnection == null || !sqlDialect.isValid(autoCommitConnection)) {
-				autoCommitConnection = dataSource.getConnection();
-				autoCommitConnection.setAutoCommit(true);
-			}
-			return autoCommitConnection;
-		} catch (Exception e) {
-			throw new LoggingRuntimeException(e, logger, "Not possible to create autocommit connection");
+	protected UnclosingConnection getAutoCommitConnection() throws SQLException {
+		if (autoCommitConnection == null || !sqlDialect.isValid(autoCommitConnection)) {
+			autoCommitConnection = new UnclosingConnection(dataSource.getConnection());
+			autoCommitConnection.setAutoCommit(true);
+		} else {
+			autoCommitConnection.use();
 		}
+		return autoCommitConnection;
 	}
 	
 	public SqlDialect getSqlDialect() {
@@ -189,7 +191,7 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public void startTransaction(int transactionIsolationLevel) {
-		Connection transactionConnection = allocateConnection(transactionIsolationLevel);
+		UnclosingConnection transactionConnection = allocateConnection(transactionIsolationLevel);
 		if (threadLocalTransactionConnection.get() == null) {
 			threadLocalTransactionConnection.set(new Stack<>());
 		}
@@ -201,7 +203,7 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public void endTransaction(boolean commit) {
-		Connection transactionConnection = isTransactionActive() ? threadLocalTransactionConnection.get().peek() : null;
+		UnclosingConnection transactionConnection = isTransactionActive() ? threadLocalTransactionConnection.get().peek() : null;
 		if (transactionConnection == null) return;
 		
 		try {
@@ -220,9 +222,9 @@ public class SqlRepository implements TransactionalRepository {
 		threadLocalTransactionConnection.get().pop();
 	}
 	
-	protected Connection allocateConnection(int transactionIsolationLevel) {
+	protected UnclosingConnection allocateConnection(int transactionIsolationLevel) {
 		logger.finest(() -> "Current connections in pool " + connectionDeque.size());
-		Connection connection = connectionDeque.poll();
+		UnclosingConnection connection = connectionDeque.poll();
 		while (true) {
 			boolean valid = false;
 			try {
@@ -237,7 +239,7 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			try {
 				if (!valid) {
-					connections.add(connection = dataSource.getConnection());
+					connections.add(connection = new UnclosingConnection(dataSource.getConnection()));
 				}
 				if (transactionIsolationLevel != Connection.TRANSACTION_NONE) {
 					connection.setTransactionIsolation(transactionIsolationLevel);
@@ -250,6 +252,8 @@ public class SqlRepository implements TransactionalRepository {
 				// this could happen if there are already too many connections
 				logger.log(Level.FINE, "Not possible to create additional connection", e);
 			}
+			//
+			garbageCollectConnection();
 			// so no connection available and not possible to create one
 			// block and wait till a connection is in deque
 			try {
@@ -260,20 +264,23 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	private void releaseConnection(Connection connection) {
+	protected void garbageCollectConnection() {
+	}
+
+	protected void releaseConnection(UnclosingConnection connection) {
 		// last in first out in the hope that recent accessed objects are the fastest
 		connectionDeque.push(connection);
 	}
-	
+
 	/**
 	 * Use with care. Closes all connections. Should only be used for Tests or
 	 * special startups.
 	 */
 	public void closeAllConnections() {
 		try {
-			getAutoCommitConnection().close();
-			for (Connection c : connections) {
-				c.close();
+			getAutoCommitConnection().closeDelegate();
+			for (UnclosingConnection c : connections) {
+				c.closeDelegate();
 			}
 			connections.clear();
 		} catch (SQLException x) {
@@ -297,7 +304,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	// TODO make final
-	public Connection getConnection() {
+	public Connection getConnection() throws SQLException {
 		if (isTransactionActive()) {
 			return threadLocalTransactionConnection.get().peek();
 		} else {
@@ -312,7 +319,7 @@ public class SqlRepository implements TransactionalRepository {
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
 			}
-			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
+			try (Connection connection = getConnection(); ResultSet tableDescriptions = connection.getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
 				return !tableDescriptions.next();
 			}
 		}
@@ -451,7 +458,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+		try (Connection connection = getConnection(); PreparedStatement preparedStatement = createStatement(connection, query, parameters)) {
 			if (tables.containsKey(clazz)) {
 				Table<T> table = (Table<T>) tables.get(clazz);
 				return table.executeSelectAll(preparedStatement);
@@ -474,7 +481,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public int execute(String query, Serializable... parameters) {
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+		try (Connection connection = getConnection(); PreparedStatement preparedStatement = createStatement(connection, query, parameters)) {
 			preparedStatement.execute();
 			return preparedStatement.getUpdateCount();
 		} catch (SQLException x) {
@@ -483,7 +490,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public <T> T execute(Class<T> resultClass, String query, Serializable... parameters) {
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+		try (Connection connection = getConnection(); PreparedStatement preparedStatement = createStatement(connection, query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				T result = null;
 				if (resultSet.next()) {
@@ -659,15 +666,15 @@ public class SqlRepository implements TransactionalRepository {
 		return new Table<>(this, clazz);
 	}
 	
-	protected void beforeSchemaPreparation(SchemaPreparation schemaPreparation) {
+	protected void beforeSchemaPreparation(SchemaPreparation schemaPreparation) throws SQLException {
 		// for extensions
 	}
 	
-	void afterSchemaPreparation(SchemaPreparation schemaPreparation) {
+	void afterSchemaPreparation(SchemaPreparation schemaPreparation) throws SQLException {
 		afterSchemaPreparation(schemaPreparation, Collections.unmodifiableCollection(tables.values()));
 	}
 	
-	protected void afterSchemaPreparation(SchemaPreparation schemaPreparation, Collection<AbstractTable<?>> tables) {
+	protected void afterSchemaPreparation(SchemaPreparation schemaPreparation, Collection<AbstractTable<?>> tables) throws SQLException {
 		// for extensions
 	}
 	

@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,7 +35,7 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		int version = 0;
 		Object parentId = IdUtils.getId(parent);
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			for (int position = 0; position < objects.size(); position++) {
 				insertStatement.setObject(1, parentId);
 				insertStatement.setInt(2, position);
@@ -80,7 +81,7 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 			}
 
 			if (insert) {
-				try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+				try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 					insertStatement.setObject(1, parentId);
 					insertStatement.setInt(2, position);
 					insertStatement.setInt(3, version);
@@ -96,7 +97,7 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 	}
 
 	private List<Object> readIds(PARENT parent, Integer time) {
-		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdAndTimeStatement = createStatement(connection, selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, IdUtils.getId(parent));
 			selectByIdAndTimeStatement.setInt(2, time);
 			selectByIdAndTimeStatement.setInt(3, time);
@@ -128,7 +129,7 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdStatement = createStatement(connection, selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			List<Object> ids = executeSelectIds(selectByIdStatement);
 			Table<ELEMENT> tableElement = sqlRepository.getTable(clazz);
