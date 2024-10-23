@@ -20,11 +20,11 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
-public class SqlRepositoryImport {
+public class SqlRepositoryImportCsv {
 
 	private SqlRepository sqlRepository;
 
-	public SqlRepositoryImport(SqlRepository sqlRepository) {
+	public SqlRepositoryImportCsv(SqlRepository sqlRepository) {
 		this.sqlRepository = sqlRepository;
 	}
 
