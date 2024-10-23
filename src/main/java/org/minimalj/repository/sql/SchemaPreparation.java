@@ -1,29 +1,18 @@
 package org.minimalj.repository.sql;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.minimalj.model.Code;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.model.annotation.TechnicalField;
-import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Property;
-import org.minimalj.repository.query.By;
 import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
-import org.minimalj.util.CloneHelper;
-import org.minimalj.util.Codes;
-import org.minimalj.util.CsvReader;
-import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
 
@@ -54,7 +43,7 @@ public enum SchemaPreparation {
 			updateTables(repository, this);
 			logger.fine("Unused tables are not removed");
 		}
-		updateCodes(repository);
+		repository.updateCodes();
 		repository.afterSchemaPreparation(this);
 		logger.fine("Schema prepared");
 	}
@@ -93,77 +82,6 @@ public enum SchemaPreparation {
 		}
 	}
 
-	// TODO move someplace where it's available for all kind of repositories (Memory
-	// DB for example)
-	private void updateCodes(SqlRepository repository) {
-		updateConstantCodes(repository);
-		updateCsvCodes(repository);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void updateConstantCodes(SqlRepository repository) {
-		for (AbstractTable<?> t : repository.tables.values()) {
-			if (Code.class.isAssignableFrom(t.getClazz())) {
-				Table<Code> table = (Table<Code>) t;
-				List<? extends Code> constants = Codes.getConstants(table.getClazz());
-				if (!constants.isEmpty()) {
-					insertMissingCodes(table, constants);
-				}
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void updateCsvCodes(SqlRepository repository) {
-		for (AbstractTable<?> t : repository.tables.values()) {
-			if (Code.class.isAssignableFrom(t.getClazz())) {
-				Table<Code> table = (Table<Code>) t;
-				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
-				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
-				if (is != null) {
-					CsvReader reader = new CsvReader(is, repository.getObjectProvider());
-					List<? extends Code> values = reader.readValues(clazz);
-					insertMissingCodes(table, values);
-				}
-			}
-		}
-	}
-	
-	private void insertMissingCodes(Table<Code> table, List<? extends Code> codes) {
-		List<? extends Code> existingConstants = (List<? extends Code>) table.find(By.ALL, table.getClazz(), new HashMap<>());
-		for (Code code : codes) {
-			if (IdUtils.getId(code) != null) {
-				if (existingConstants.stream().noneMatch(e -> EqualsHelper.equalsById(e, code))) {
-					((Table<Code>) table).insert(code);
-				}
-			} else {
-				Optional existing = existingConstants.stream().filter(e -> equalsByFields(e, code)).findFirst();
-				if (existing.isPresent()) {
-					IdUtils.setId(code, IdUtils.getId(existing.get()));
-				} else {
-					IdUtils.setId(code, ((Table<Code>) table).insert(code));
-				}
-			}
-		}
-	}
-
-	private static boolean equalsByFields(Object a, Object b) {
-		Object c1 = CloneHelper.clone(a);
-		Object c2 = CloneHelper.clone(b);
-		clearTechnicalFiels(c1);
-		clearTechnicalFiels(c2);
-		IdUtils.setId(c1, null);
-		IdUtils.setId(c2, null);
-		return EqualsHelper.equals(c1, c2);
-	}
-	
-	private static void clearTechnicalFiels(Object o) {
-		for (Property p : FlatProperties.getProperties(o.getClass()).values()) {
-			if (p.getAnnotation(TechnicalField.class) != null) {
-				p.setValue(o, null);
-			}
-		}
-	}
 	
 	// update
 

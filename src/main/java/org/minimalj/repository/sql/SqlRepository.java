@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -17,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.BlockingDeque;
@@ -38,6 +40,7 @@ import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
+import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
@@ -45,11 +48,14 @@ import org.minimalj.model.properties.Property;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.TransactionalRepository;
+import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
+import org.minimalj.util.CsvReader;
+import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
@@ -795,4 +801,79 @@ public class SqlRepository implements TransactionalRepository {
 	public Map<String, AbstractTable<?>> getTableByName() {
 		return tableByName;
 	}
+	
+	//
+	
+	// TODO move someplace where it's available for all kind of repositories (Memory
+	// DB for example)
+	protected void updateCodes() {
+		updateConstantCodes();
+		updateCsvCodes();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateConstantCodes() {
+		for (AbstractTable<?> t : tables.values()) {
+			if (Code.class.isAssignableFrom(t.getClazz())) {
+				Table<Code> table = (Table<Code>) t;
+				List<? extends Code> constants = Codes.getConstants(table.getClazz());
+				if (!constants.isEmpty()) {
+					insertMissingCodes(table, constants);
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateCsvCodes() {
+		for (AbstractTable<?> t : tables.values()) {
+			if (Code.class.isAssignableFrom(t.getClazz())) {
+				Table<Code> table = (Table<Code>) t;
+				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
+				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
+				if (is != null) {
+					CsvReader reader = new CsvReader(is, getObjectProvider());
+					List<? extends Code> values = reader.readValues(clazz);
+					insertMissingCodes(table, values);
+				}
+			}
+		}
+	}
+	
+	private void insertMissingCodes(Table<Code> table, List<? extends Code> codes) {
+		List<? extends Code> existingConstants = (List<? extends Code>) table.find(By.ALL, table.getClazz(), new HashMap<>());
+		for (Code code : codes) {
+			if (IdUtils.getId(code) != null) {
+				if (existingConstants.stream().noneMatch(e -> EqualsHelper.equalsById(e, code))) {
+					((Table<Code>) table).insert(code);
+				}
+			} else {
+				Optional<? extends Code> existing = existingConstants.stream().filter(e -> equalsByFields(e, code)).findFirst();
+				if (existing.isPresent()) {
+					IdUtils.setId(code, IdUtils.getId(existing.get()));
+				} else {
+					IdUtils.setId(code, ((Table<Code>) table).insert(code));
+				}
+			}
+		}
+	}
+
+	private static boolean equalsByFields(Object a, Object b) {
+		Object c1 = CloneHelper.clone(a);
+		Object c2 = CloneHelper.clone(b);
+		clearTechnicalFiels(c1);
+		clearTechnicalFiels(c2);
+		IdUtils.setId(c1, null);
+		IdUtils.setId(c2, null);
+		return EqualsHelper.equals(c1, c2);
+	}
+	
+	private static void clearTechnicalFiels(Object o) {
+		for (Property p : FlatProperties.getProperties(o.getClass()).values()) {
+			if (p.getAnnotation(TechnicalField.class) != null) {
+				p.setValue(o, null);
+			}
+		}
+	}
+
 }
