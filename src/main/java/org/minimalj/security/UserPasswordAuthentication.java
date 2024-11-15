@@ -21,6 +21,7 @@ import org.minimalj.frontend.form.Form;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.PasswordFormElement;
 import org.minimalj.frontend.impl.json.JsonFrontend;
+import org.minimalj.frontend.impl.json.JsonPageManager;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.model.Keys;
 import org.minimalj.model.validation.Validation;
@@ -182,7 +183,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			if (PERSISTENT_REMEMBER_ME) {
 				Backend.delete(RememberMeToken.class, By.field(RememberMeToken.$.userName, Subject.getCurrent().getName()));
 			} else {
-				((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(null);
+				((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(null);
 			}
 		}
 	}
@@ -213,12 +214,12 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			rememberMeToken.lastUsed = LocalDateTime.now();
 			rememberMeToken.userName = userName;
 			Backend.save(rememberMeToken);
-			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
+			((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
 		} else {
 			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userName, password);
 			String timestamp = String.valueOf(System.currentTimeMillis());
 			String rememberMeCookie = user.getName() + ":" + timestamp + ":" + sign(user, timestamp);
-			((JsonFrontend) Frontend.getInstance()).getPageManager().setRememberMeCookie(rememberMeCookie);
+			((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeCookie);
 		}
 	}
 

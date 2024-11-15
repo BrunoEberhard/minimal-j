@@ -22,6 +22,7 @@ import org.minimalj.frontend.form.element.ComboBoxFormElement;
 import org.minimalj.frontend.impl.web.WebApplication;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.LocaleContext;
@@ -44,7 +45,7 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	@Override
-	public JsonPageManager getPageManager() {
+	public PageManager getPageManager() {
 		return getClientSession();
 	}
 	
