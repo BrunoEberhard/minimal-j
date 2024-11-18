@@ -18,7 +18,7 @@ public class JsonRadioButtons<T> extends JsonInputComponent<T> {
 	public JsonRadioButtons(List<T> objects, InputComponentListener changeListener) {
 		super("RadioButtons", changeListener);
 
-		Map<String, Object> options = new LinkedHashMap<>();
+		Map<String, Map<String, String>> options = new LinkedHashMap<>();
 		for (T object : objects) {
 			String id = UUID.randomUUID().toString();
 			Map<String, String> option = new HashMap<>();
@@ -40,7 +40,7 @@ public class JsonRadioButtons<T> extends JsonInputComponent<T> {
 				put(VALUE, entry.getKey());
 				return;
 			}
-		} 
+		}
 		put(VALUE, null);
 	}
 
