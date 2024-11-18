@@ -1,5 +1,7 @@
 package org.minimalj.frontend.impl.json;
 
+import java.util.Objects;
+
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.SwitchComponent;
@@ -11,7 +13,7 @@ public class JsonSwitch extends JsonComponent implements SwitchContent, SwitchCo
 	
 	public JsonSwitch(JsonPageManager jsonPageManager) {
 		super("Switch");
-		this.jsonPageManager = jsonPageManager;
+		this.jsonPageManager = Objects.requireNonNull(jsonPageManager);
 	}
 
 	@Override
