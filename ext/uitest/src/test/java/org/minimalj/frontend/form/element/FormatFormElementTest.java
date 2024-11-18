@@ -15,9 +15,9 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
-import org.minimalj.test.web.WebTest;
+import org.minimalj.test.UiTest;
 
-public class FormatFormElementTest extends WebTest {
+public class FormatFormElementTest extends UiTest {
 	
 	@Test
 	public void test() {

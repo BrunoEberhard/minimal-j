@@ -141,7 +141,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 	@Override
 	public void setObjects(List<T> objects) {
-		pageManager.unregister(get("tableContent"));
+		unregisterTableContent();
 		this.objects = objects != null ? objects : Collections.emptyList();
 
 		visibleObjects = ListUtil.get(this.objects, tableModel.isFilterVisible() ? tableModel.filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
@@ -173,6 +173,13 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		listener.selectionChanged(selectedObjects);
 	}
 	
+	// TODO is this really needed? In which case table-cells have an id?
+	private void unregisterTableContent() {
+		if (pageManager != null) {
+			pageManager.unregister(get("tableContent"));
+		}
+	}
+	
 	@Override
 	public void setColumns(Object[] keys) {
 		JsonTableModel oldModel = tableModel;
@@ -184,7 +191,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	
 	private void refreshTableContent() {
 		if (visibleObjects != null) {
-			pageManager.unregister(get("tableContent"));
+			unregisterTableContent();
 			List<List> tableContent = createTableContent(visibleObjects);
 			put("tableContent", tableContent);
 		}

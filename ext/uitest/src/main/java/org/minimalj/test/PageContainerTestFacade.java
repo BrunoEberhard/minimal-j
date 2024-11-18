@@ -109,7 +109,6 @@ public interface PageContainerTestFacade {
 		public default FormElementTestFacade getElement(String caption, int index) {
 			return null;
 		}
-
 		
 		public default FormElementTestFacade getElement(int row, int column) {
 			return null;

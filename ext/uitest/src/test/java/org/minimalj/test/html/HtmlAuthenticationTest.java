@@ -9,9 +9,9 @@ import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.TestApplication;
 import org.minimalj.test.TestUtil;
-import org.minimalj.test.web.WebTest;
+import org.minimalj.test.UiTest;
 
-public class HtmlAuthenticationTest extends WebTest {
+public class HtmlAuthenticationTest extends UiTest {
 
 	@AfterEach
 	public void cleanup() {

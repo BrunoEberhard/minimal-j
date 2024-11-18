@@ -22,11 +22,11 @@ import org.minimalj.test.PageContainerTestFacade.FormElementTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.TestUtil;
-import org.minimalj.test.web.WebTest;
+import org.minimalj.test.UiTest;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
-public class HtmlTableFilterTest extends WebTest {
+public class HtmlTableFilterTest extends UiTest {
 
 	@AfterEach
 	public void cleanup() {

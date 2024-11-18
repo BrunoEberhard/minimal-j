@@ -24,7 +24,7 @@ public class JsonImage extends JsonInputComponent<byte[]> implements Input<byte[
 	}
 
 	@Override
-	void changedValue(Object value) {
+	public void changedValue(Object value) {
 		if (value instanceof List) {
 			List<?> list = (List<?>) value;
 			for (Object o : list) {

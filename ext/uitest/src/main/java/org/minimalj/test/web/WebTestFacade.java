@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
+import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
@@ -53,9 +55,15 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	public WebTestFacade() {
-		reload();
+		// reload();
 	}
 
+	@Override
+	public void start(Application application) {
+		WebServer.start(application);
+		reload();
+	}
+	
 	public void reload() {
 		driver.get("about:blank");
 		String portString = Configuration.get("MjFrontendPort", "8080");
@@ -173,7 +181,7 @@ public class WebTestFacade implements UiTestFacade {
 			@Override
 			public Runnable get(String text) {
 				WebElement divNavigation = driver.findElement(By.id("navigation"));
-				WebElement item = divNavigation.findElement(By.xpath(".//a[text()=" + WebTest.escapeXpath(text) + "]"));
+				WebElement item = divNavigation.findElement(By.xpath(".//a[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 				return () -> {
 					if (!divNavigation.isDisplayed()) {
 						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
@@ -291,15 +299,16 @@ public class WebTestFacade implements UiTestFacade {
 				WebElement actionMenu = divPage.findElement(By.className("contextMenu"));
 				WebElement item;
 				if (actionMenu.isDisplayed()) {
-					item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+					item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 				} else {
 					WebElement actionMenuButton = divPage.findElement(By.className("actionMenuButton"));
 					if (!actionMenuButton.isDisplayed()) {
 						actionMenuButton = driver.findElement(By.id("actionMenuButton"));
 					}
 					actionMenuButton.click();
-					item = divPage.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+					item = divPage.findElement(By.xpath(".//*[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 				}
+				Assertions.assertFalse("true".equals(item.getAttribute("disabled")), "Context action should not be disabled: " + text);
 				item.click();
 				waitScript();
 			};
@@ -341,7 +350,7 @@ public class WebTestFacade implements UiTestFacade {
 		
 		@Override
 		public ActionTestFacade getAction(String caption) {
-			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
+			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 			return new HtmlActionTestFacade(button);
 		}
 	}
@@ -380,7 +389,7 @@ public class WebTestFacade implements UiTestFacade {
 		
 		@Override
 		public FormElementTestFacade getElement(String caption, int index) {
-			WebElement label = form.findElements(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]")).get(index);
+			WebElement label = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]")).get(index);
 			String id = label.getAttribute("for");
 			WebElement element = form.findElement(By.id(id));
 			return new HtmlFormElementTestFacade(element);
@@ -396,7 +405,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public ActionTestFacade getAction(String label) {
 //			<div class="action" onclick="action(&quot;a94bef74-8838-4449-8661-99f01159705b&quot;);" id="a94bef74-8838-4449-8661-99f01159705b">Verpackungseinheit hinzufügen</div>
-			WebElement rowElement = form.findElement(By.xpath(".//a[text()=" + WebTest.escapeXpath(label) + "]"));
+			WebElement rowElement = form.findElement(By.xpath(".//a[text()=" + WebTestUtil.escapeXpath(label) + "]"));
 			return new HtmlActionTestFacade(rowElement);
 		}
 	}
@@ -473,7 +482,7 @@ public class WebTestFacade implements UiTestFacade {
 			dropdownButton.click();
 			waitScript();
 			WebElement actionMenu = formElement.findElement(By.cssSelector("div.dropdown"));
-			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 			item.click();
 			waitScript();
 		}
@@ -593,7 +602,7 @@ public class WebTestFacade implements UiTestFacade {
 		
 		@Override
 		public FormTestFacade getOverview() {
-			WebElement form = table.findElement(By.cssSelector(".form"));
+			WebElement form = table.findElement(By.xpath("./..")).findElement(By.cssSelector(".form"));
 			return new HtmlFormTestFacade(form);
 		}
 		
@@ -673,13 +682,13 @@ public class WebTestFacade implements UiTestFacade {
 
 	private void clickButton(String resourceName) {
 		String caption = Resources.getString(resourceName);
-		WebElement element = driver.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
+		WebElement element = driver.findElement(By.xpath(".//button[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 		driver.executeScript(element.getAttribute("onclick"));
 		waitScript();
 	}
 
 	private void setText(WebElement container, String caption, String text) {
-		WebElement label = container.findElement(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]"));
+		WebElement label = container.findElement(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 		String id = label.getAttribute("for");
 		WebElement element = container.findElement(By.id(id));
 		setText(element, text);

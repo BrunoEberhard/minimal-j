@@ -48,7 +48,7 @@ public class JsonComponent extends LinkedHashMap<String, Object> implements ICom
 		}
 	}
 
-	Object putSilent(String property, Object value) {
+	protected Object putSilent(String property, Object value) {
 		return super.put(property, value);
 	}
 

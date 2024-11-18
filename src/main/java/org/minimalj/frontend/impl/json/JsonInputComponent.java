@@ -33,7 +33,7 @@ public abstract class JsonInputComponent<T> extends JsonComponent implements Inp
 	 * the send back. Send back could conflict with the next user change (for example
 	 * if user types very fast in a text field or password field)
 	 */
-	void changedValue(Object value) {
+	public void changedValue(Object value) {
 		Object oldValue = super.putSilent(VALUE, value);
 		if (!Objects.equals(oldValue, value)) {
 			fireChange();

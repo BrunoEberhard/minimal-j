@@ -16,7 +16,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.junit.jupiter.api.Assertions;
+import org.minimalj.application.Application;
 import org.minimalj.frontend.impl.swing.NavigationTree;
+import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.swing.SwingFrame;
 import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.SwingToolBar;
@@ -37,6 +39,11 @@ import org.minimalj.util.resources.Resources;
 
 public class SwingTestFacade implements UiTestFacade {
 
+	@Override
+	public void start(Application application) {
+		Swing.start(application);
+	}
+	
 	public static void waitForEDT() {
 		// SwingDialog do invokeLater with setVisible(true)
 		// this methods does wait till that dialog is really visible

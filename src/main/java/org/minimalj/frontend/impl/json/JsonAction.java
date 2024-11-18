@@ -52,6 +52,10 @@ public class JsonAction extends JsonComponent {
 		}
 	}
 	
+	public boolean isEnabled() {
+		return !Boolean.FALSE.equals(get("enabled"));
+	}
+	
 	public static class JsonActionGroup extends JsonComponent {
 		public JsonActionGroup() {
 			super("ActionGroup", false);
