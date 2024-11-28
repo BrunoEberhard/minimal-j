@@ -247,7 +247,7 @@ public enum SchemaPreparation {
 	}
 
 	protected String enumExists(Class<?> clazz, String identifier) {
-		return "SELECT COUNT(*) FROM pg_type WHERE typcategory = 'E' AND typname ilike '" + identifier + "'";
+		return "SELECT COUNT(*) FROM pg_type WHERE typcategory = 'E' AND typname ilike '" + identifier + "' AND typnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = current_schema)";
 	}
 
 	protected String selectEnumValues(Class<?> clazz, String enumIdentifier) {
