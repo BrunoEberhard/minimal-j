@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class JsonInput {
 
-	public static final String INITIALIZE = "initialize";
+	public static final String PAGE_IDS = "pageIds";
 	public static final String CHANGED_VALUE = "changedValue";
 	public static final String ACTIVATED_ACTION = "activatedAction";
 	public static final String TABLE_ACTION = "tableAction";

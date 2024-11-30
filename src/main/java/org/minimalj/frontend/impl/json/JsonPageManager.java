@@ -52,8 +52,6 @@ public class JsonPageManager implements PageManager {
 	
 	private Subject subject;
 	private Runnable onLogin;
-	@Deprecated
-	private boolean initializing;
 	private String locationFragment;
 	private final Map<String, JsonComponent> componentById = new HashMap<>(100);
 	private List<Object> navigation;
@@ -181,21 +179,25 @@ public class JsonPageManager implements PageManager {
 		JsonFrontend.setUseInputTypes(Boolean.TRUE.equals(input.getObject("inputTypes")));
 
 		output = new JsonOutput();
-
-		Object initialize = input.getObject(JsonInput.INITIALIZE);
-		initializing = initialize != null; 
+		
+		boolean initializing = input.containsObject(JsonInput.PAGE_IDS) || input.containsObject("path"); 
 		if (initializing) {
 			locationFragment = (String) input.getObject("locationFragment");
-			if (initialize instanceof List) {
-				List<String> pageIds = (List<String>) initialize;
+			
+			onLogin = null;
+			Object state = input.getObject(JsonInput.PAGE_IDS);
+			if (state instanceof List) {
+				List<String> pageIds = (List<String>) state;
 				if (!pageIds.isEmpty() && pageStore.valid(pageIds)) {
 					onLogin = () -> show(pageIds, false);
-				} else {
-					onLogin = () -> show(Application.getInstance().createDefaultPage());
 				}
-			} else if (initialize instanceof String) {
-				String path = (String) initialize;
+			} 
+			if (onLogin == null && input.getObject("path") instanceof String) {
+				String path = (String) input.getObject("path");
 				onLogin = () -> show(Routing.createPageSafe(path));
+			}
+			if (onLogin == null) {
+				onLogin = () -> show(Application.getInstance().createDefaultPage());
 			}
 			
 			boolean remembered = false;
@@ -255,9 +257,12 @@ public class JsonPageManager implements PageManager {
 
 		Map<String, Object> tableSelection = input.get("tableSelection");
 		if (tableSelection != null && !tableSelection.isEmpty()) {
-			JsonTable<?> table = (JsonTable<?>) getComponentById(tableSelection.get("table"));
-			List<Number> rows = ((List<Number>) tableSelection.get("rows"));
-			table.selection(rows);
+			JsonTable<?> table = (JsonTable<?>) componentById.get(tableSelection.get("table"));
+			if (table != null) {
+				// null check because double click on row could have triggered action that replaced the table
+				List<Number> rows = ((List<Number>) tableSelection.get("rows"));
+				table.selection(rows);
+			}
 		}
 
 		String tablePage = (String) input.getObject("tablePage");

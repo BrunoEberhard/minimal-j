@@ -1833,7 +1833,8 @@ $ICON
 		window.onpopstate = popState;
 	
 		var initParameters = {};
-		initParameters.initialize = window.history.state ? window.history.state : "$PATH";
+		initParameters.pageIds = window.history.state;
+		initParameters.path = "$PATH";
 		if (localStorage.rememberMeToken != undefined) initParameters.rememberMeToken = localStorage.rememberMeToken;
 		if (window.location.hash) {
 			initParameters.locationFragment = window.location.hash.substring(1);
