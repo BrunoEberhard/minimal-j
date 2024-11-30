@@ -1281,7 +1281,6 @@ $ICON
 		    dialog.closeAction = json.closeAction;
 			dialog.addEventListener("cancel", closeDialogButton);
 		}
-		dialog.addEventListener("close", dialogClosedListener);
 		
 		dialog.showModal();
 
@@ -1356,10 +1355,6 @@ $ICON
 		}
 	}
 
-	function dialogClosedListener(event) {
-		document.getElementById("body").removeChild(event.target);
-	}
-	
 	function closeDialogs() {
 		var dialogs = document.getElementsByTagName("dialog");
 		Array.from(dialogs).forEach(dialog => document.getElementById("body").removeChild(dialog));
@@ -1544,9 +1539,10 @@ $ICON
 	}
 	
 	function tableSelection(event) {
-		if (event.type === "contextmenu" || event.target.tagName == "A") {
+		if (event.type === "contextmenu" || event.target.tagName == "A" || event.detail > 1) {
 			return;
 		}	
+		
 		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
 		var tbodyElement = rowElement.parentElement;
 		var tableElement = tbodyElement.parentElement;
