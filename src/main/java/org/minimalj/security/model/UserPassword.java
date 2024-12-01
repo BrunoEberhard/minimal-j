@@ -3,6 +3,8 @@ package org.minimalj.security.model;
 import java.io.Serializable;
 
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Autocomplete;
 import org.minimalj.model.annotation.NotEmpty;
@@ -19,7 +21,7 @@ public class UserPassword implements Serializable {
 	@Size(255) @Autocomplete(Autocomplete.CURRENT_PASSWORD)
 	public char[] password;
 
-	public transient Boolean rememberMe = Configuration.isDevModeActive();
+	public transient Boolean rememberMe = Frontend.getInstance() instanceof JsonFrontend && Configuration.isDevModeActive();
 
 	public String getUserToRetrieve() {
 		return user;
