@@ -45,13 +45,17 @@ public abstract class Routing {
 	}
 
 	public <P extends Page> void register(String base, Class<P> pageClass) {
-		register(base, pageClass, o -> CloneHelper.newInstance(pageClass));
+		register(base, pageClass, base);
 	}
 
 	public <P extends Page> void register(String base, Class<P> pageClass, Function<String, P> pageFactory) {
 		register(base, pageClass, null, pageFactory, base);
 	}
-	
+
+	public <P extends Page> void register(String base, Class<P> pageClass, String navigation) {
+		register(base, pageClass, null, o -> CloneHelper.newInstance(pageClass), navigation);
+	}
+
 	public <T, P extends Page> void register(String base, Class<P> pageClass, Function<P, String> idProvider, Function<String, P> pageFactory, String navigation) {
 		RoutingEntry<T, P> entry = new RoutingEntry<>();
 		entry.base = Objects.requireNonNull(base);
