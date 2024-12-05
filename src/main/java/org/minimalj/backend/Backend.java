@@ -18,7 +18,6 @@ import org.minimalj.backend.repository.ReadOneTransaction;
 import org.minimalj.backend.repository.SaveTransaction;
 import org.minimalj.backend.repository.UpdateTransaction;
 import org.minimalj.backend.repository.WriteTransaction;
-import org.minimalj.model.Code;
 import org.minimalj.repository.Repository;
 import org.minimalj.repository.TransactionalRepository;
 import org.minimalj.repository.query.Criteria;
@@ -224,7 +223,7 @@ public class Backend {
 				result = transaction.execute();
 				transactionLogger.logEnd(transaction, result, null);
 			}
-			handleCodeCache(transaction, result);
+			handleCodeCache(transaction);
 			Application.getInstance().transactionCompleted(transaction);
 			return result;
 		} finally {
@@ -232,13 +231,11 @@ public class Backend {
 		}
 	}
 
-	protected <T> void handleCodeCache(Transaction<T> transaction, T result) {
+	protected <T> void handleCodeCache(Transaction<T> transaction) {
 		if (transaction instanceof WriteTransaction || transaction instanceof DeleteEntityTransaction) {
 			// we could check if the transaction is about a code class. But the
 			// invalidateCodeCache method is probably faster than to call 'isCode'
 			Codes.invalidateCodeCache(((EntityTransaction<?, ?>) transaction).getEntityClazz());
-		} else if (result instanceof Code) {
-			Codes.invalidateCodeCache(result.getClass());
 		}
 	}
 
