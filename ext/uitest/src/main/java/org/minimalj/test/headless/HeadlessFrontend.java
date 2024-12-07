@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
 import org.minimalj.application.Application;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
@@ -137,7 +136,9 @@ public class HeadlessFrontend extends JsonFrontend {
 					System.err.println("Open dialog: " + dialog.getDialog());
 				}
 			}
-			Assertions.assertTrue(dialogs.isEmpty(), "Before navigate all Dialogs should be closed");
+			if (!dialogs.isEmpty()) {
+				throw new IllegalStateException("Before navigate all Dialogs should be closed");
+			}
 			return navigationTestFacade;
 		}
 		
