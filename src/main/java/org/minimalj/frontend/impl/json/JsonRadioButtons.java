@@ -43,6 +43,17 @@ public class JsonRadioButtons<T> extends JsonInputComponent<T> {
 		}
 		put(VALUE, null);
 	}
+	
+	public void changedText(String text) {
+		Map<String, Map<String, String>> options = (Map<String, Map<String, String>>) get("options");
+		for (Map.Entry<String, Map<String, String>> entry : options.entrySet()) {
+			if (Objects.equals(entry.getValue().get("text"), text)) {
+				changedValue(entry.getKey());
+				return;
+			}
+		}
+		changedValue(null);
+	}
 
 	@Override
 	public T getValue() {
