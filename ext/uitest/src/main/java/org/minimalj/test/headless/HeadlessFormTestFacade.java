@@ -207,7 +207,11 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 					var caption = optionEntry.getValue().get("text");
 					if (StringUtils.equals(caption, value)) {
 						jsonCombobox.changedValue(optionEntry.getKey());
+						return;
 					}
+				}
+				if (jsonCombobox.containsKey("nullText") && StringUtils.equals((String) jsonCombobox.get("nullText"), value)) {
+					jsonCombobox.changedValue(null);
 				}
 			} else {
 				component = unpackText(component);
