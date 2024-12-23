@@ -6,13 +6,19 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.TechnicalField;
+import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Property;
 
 public class FieldUtils {
@@ -198,5 +204,34 @@ public class FieldUtils {
 		property1.setValue(object, property2.getValue(object));
 		property2.setValue(object, value);
 	}
+	
+	public static void traverse(Object object, BiConsumer<Object, Property> consumer) {
+		if (object == null) {
+			return;
+		} else if (object instanceof Collection) {
+			Collection collection = (Collection) object;
+			collection.forEach(o -> traverse(o, consumer));
+		} else if (object.getClass().isArray()) {
+			if (!object.getClass().isPrimitive()) {
+				Arrays.stream((Object[]) object).forEach(o -> traverse(o, consumer));
+			}
+		} else if (object instanceof Map) {
+			Map map = (Map) object;
+			map.values().forEach(o -> traverse(o, consumer));
+		} else {
+			Collection<Property> properties = FlatProperties.getProperties(object.getClass()).values();
+			properties.forEach(p -> {
+				consumer.accept(object, p);
+				Object value = p.getValue(object);
+				traverse(value, consumer);
+			});
+		}
+	}
+	
+	public static final BiConsumer<Object, Property> CLEAR_TECHNICAL_FIELDS = (obj, property) -> {
+		if (property.getAnnotation(TechnicalField.class) != null) {
+			property.setValue(obj, null);
+		}
+	};
 
 }
