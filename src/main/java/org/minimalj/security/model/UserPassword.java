@@ -19,8 +19,4 @@ public class UserPassword implements Serializable {
 	public char[] password;
 
 	public transient Boolean rememberMe;
-
-	public String getUserToRetrieve() {
-		return user;
-	}
 }
