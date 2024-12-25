@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
@@ -43,7 +44,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		return new UserPasswordLoginAction<>(new UserPassword(), createForm());
 	}
 	
-	protected boolean passwordNotEmpty() {
+	public boolean passwordNotEmpty() {
 		return false;
 	}
 
@@ -57,7 +58,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		return form;
 	}
 	
-	public static class UserPasswordLoginAction<T extends UserPassword> extends Action implements Dialog {
+	public class UserPasswordLoginAction<T extends UserPassword> extends Action implements Dialog {
 		private final T userPassword;
 		private final Form<T> form;
 		private boolean passwordNotEmpty;
@@ -66,8 +67,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		public UserPasswordLoginAction(T userPassword, Form<T> form) {
 			this.userPassword = userPassword;
 			this.form = form;
-			Authentication authentication = Backend.getInstance().getAuthentication();
-			this.passwordNotEmpty = authentication instanceof UserPasswordAuthentication && ((UserPasswordAuthentication) authentication).passwordNotEmpty();
+			this.passwordNotEmpty = passwordNotEmpty();
 		}
 
 		@Override
@@ -87,6 +87,11 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			form.setObject(userPassword);
 			
 			Frontend.getInstance().showLogin(this);
+		}
+		
+		private void resetPassword() {
+			userPassword.password = null;
+			form.setObject(userPassword);
 		}
 		
 		@Override
@@ -140,14 +145,36 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 				if (valid(userPassword) && validate(form)) {
 					Subject subject = Backend.execute(new LoginTransaction(userPassword));
 					if (subject != null) {
-						Frontend.getInstance().login(subject);
 						Frontend.closeDialog(UserPasswordLoginAction.this);
+						
+						beforeLogin(userPassword, subject, resultSubject -> {
+							if (resultSubject != null) {
+								Frontend.getInstance().login(resultSubject);
+								if (userPassword.rememberMe) {
+									setRememberMeCookie(resultSubject.getUser());
+								}
+							} else {
+								resetPassword();
+								// do login again
+							}
+						});
 					} else {
 						Frontend.showMessage(Resources.getString("UsernamePasswordInvalid"));
 					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * An application can enforce password change or acceptance of disclaimer
+	 * 
+	 * @param userPassword the value the user provided
+	 * @param subject the subject that will be logged in
+	 * @param finishedListener Can get a modified subject
+	 */
+	public void beforeLogin(UserPassword userPassword, Subject subject, Consumer<Subject> finishedListener) {
+		finishedListener.accept(subject);
 	}
 	
 	public static class LoginTransaction implements Transaction<Subject> {
@@ -164,13 +191,9 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		
 		@Override
 		public Subject execute() {
-			String userToRetrieve = userPassword.getUserToRetrieve();
-			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userToRetrieve, userPassword.password);
+			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
 			if (user == null) {
 				return null;
-			}
-			if (userPassword.rememberMe) {
-				setRememberMeCookie(userToRetrieve, userPassword.password);
 			}
 			return Backend.getInstance().getAuthentication().createSubject(user);
 		}
@@ -206,17 +229,16 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	private static final boolean PERSISTENT_REMEMBER_ME = Arrays.stream(Application.getInstance().getEntityClasses()).anyMatch(c -> c == RememberMeToken.class);
 	private static final SecureRandom random = new SecureRandom();
 
-	protected static void setRememberMeCookie(String userName, char[] password) {
+	protected static void setRememberMeCookie(UserData user) {
 		if (PERSISTENT_REMEMBER_ME) {
 			RememberMeToken rememberMeToken = new RememberMeToken();
 			rememberMeToken.series = generateRandomString();
 			rememberMeToken.token = generateRandomString();
 			rememberMeToken.lastUsed = LocalDateTime.now();
-			rememberMeToken.userName = userName;
+			rememberMeToken.userName = user.getName();
 			Backend.save(rememberMeToken);
 			((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
 		} else {
-			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userName, password);
 			String timestamp = String.valueOf(System.currentTimeMillis());
 			String rememberMeCookie = user.getName() + ":" + timestamp + ":" + sign(user, timestamp);
 			((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeCookie);
