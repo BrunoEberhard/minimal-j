@@ -325,7 +325,7 @@ public class SwingFrame extends JFrame {
 		if (Application.getInstance() instanceof SwingBarProvider) {
 			menuBar = ((SwingBarProvider) Application.getInstance()).createMenuBar(this);
 			setJMenuBar(menuBar);
-		} else if (menuBar != null) {
+		} else if (menuBar == null) {
 			menuBar = new SwingMenuBar(this);
 			setJMenuBar(menuBar);
 		}
