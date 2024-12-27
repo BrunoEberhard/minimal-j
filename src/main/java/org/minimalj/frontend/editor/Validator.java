@@ -14,6 +14,7 @@ import org.minimalj.model.Selection;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.annotation.NotEmpty;
+import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
@@ -132,7 +133,7 @@ public class Validator {
 
 	private static void validateEmpty(List<ValidationMessage> resultList, Object value, Property property) {
 		NotEmpty notEmpty = property.getAnnotation(NotEmpty.class);
-		if (notEmpty != null && EmptyObjects.isEmpty(value) && !(notEmpty.zeroAllowed() && isZero(value))) {
+		if (notEmpty != null && property.getAnnotation(TechnicalField.class) == null && EmptyObjects.isEmpty(value) && !(notEmpty.zeroAllowed() && isZero(value))) {
 			resultList.add(Validation.createEmptyValidationMessage(property));
 		}
 	}
