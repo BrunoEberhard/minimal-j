@@ -30,7 +30,7 @@ public class JsonAction extends JsonComponent {
 			put("enabled", true);
 			ValidationAwareAction validationAwareAction = (ValidationAwareAction) action;
 			JsonFormContent formContent = (JsonFormContent) validationAwareAction.getForm().getContent();
-			put("form", formContent.getId());
+			put("formId", formContent.getId());
 		} else {
 			put("enabled", action.isEnabled());
 		}

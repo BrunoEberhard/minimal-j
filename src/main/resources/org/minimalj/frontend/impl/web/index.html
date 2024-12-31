@@ -1253,8 +1253,8 @@ $ICON
 				var button = document.createElement("button");
 				button.id = action.id;
 				button.appendChild(document.createTextNode(action.name));
-				if (action.form) {
-					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.form + "\");");
+				if (action.formId) {
+					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.formId + "\");");
 				} else {
 					button.setAttribute("onclick", "action(\"" + action.id + "\");");
 				}
