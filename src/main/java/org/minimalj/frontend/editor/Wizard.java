@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
@@ -43,6 +44,11 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 	public String getTitle() {
 		return getName();
 	}
+	
+	@Override
+	public IContent getContent() {
+		return switchContent;
+	}
 
 	@Override
 	public void run() {
@@ -54,19 +60,26 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 		
 		Frontend.showDialog(this);
 	}
-
-	private Action[] createActions() {
-		List<Action> additionalActions = createAdditionalActions();
-		Action[] actions = new Action[additionalActions.size() + 4];
-		int index;
-		for (index = 0; index<additionalActions.size(); index++) {
-			actions[index] = additionalActions.get(index);
-		}
-		actions[index++] = cancelAction;
-		actions[index++] = previousAction;
-		actions[index++] = nextAction;
-		actions[index++] = finishAction;
+	
+	@Override
+	public List<Action> getActions() {
+		List<Action> actions = new ArrayList<>();
+		actions.addAll(createAdditionalActions());
+		actions.add(cancelAction);
+		actions.add(previousAction);
+		actions.add(nextAction);
+		actions.add(finishAction);
 		return actions;
+	}
+	
+	@Override
+	public Action getSaveAction() {
+		return finishAction;
+	}
+	
+	@Override
+	public Action getCancelAction() {
+		return cancelAction;
 	}
 		
 	protected List<Action> createAdditionalActions() {
@@ -104,7 +117,7 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 		}
 				
 		boolean relevantValidationMessage = form.indicate(validationMessages);
-		nextAction.setEnabled(!relevantValidationMessage);
+		nextAction.setInvalidFormElement(relevantValidationMessage);
 		finishAction.setValidationMessages(validationMessages);
 	}
 	
@@ -151,16 +164,20 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 	}	
 
 	protected final class NextWizardStepAction extends ValidationAwareAction {
-		private boolean valid = false;
+		private boolean invalidFormElement = false;
 		
 		@Override
 		public void run() {
 			next(stepObject);
 		}
 
+		public void setInvalidFormElement(boolean invalidFormElement) {
+			this.invalidFormElement = invalidFormElement;
+		}
+		
 		@Override
 		public boolean isEnabled() {
-			return valid && step.hasNext();
+			return !invalidFormElement && step.hasNext();
 		}
 	}
 	
