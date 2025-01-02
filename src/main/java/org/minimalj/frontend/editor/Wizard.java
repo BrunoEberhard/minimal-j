@@ -21,6 +21,8 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 
 	private static final Logger logger = Logger.getLogger(Wizard.class.getName());
 
+	private final boolean oneDialog;
+	private boolean dialogShown = false;
 	private Object stepObject;
 	private WizardStep step;
 	private Form form;
@@ -34,11 +36,12 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 	private int stepIndex;
 	
 	public Wizard() {
-		super();
+		this(true);
 	}
-
-	public Wizard(String actionName) {
-		super(actionName);
+	
+	public Wizard(boolean oneDialog) {
+		super();
+		this.oneDialog = oneDialog;
 	}
 
 	public String getTitle() {
@@ -57,8 +60,6 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 		stepIndex = 0;
 		step = getFirstStep();
 		switchStep();
-		
-		Frontend.showDialog(this);
 	}
 	
 	@Override
@@ -102,6 +103,17 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 		
 		switchContent.show(form.getContent());
 		previousAction.setEnabled(stepIndex > 0);
+		
+		if (dialogShown) {
+			if (!oneDialog) {
+				Frontend.closeDialog(this);
+				Frontend.showDialog(this);
+			}
+		} else {
+			Frontend.showDialog(this);
+			dialogShown = true;
+		}
+		
 	}
 	
 	protected abstract WizardStep<?> getFirstStep();
