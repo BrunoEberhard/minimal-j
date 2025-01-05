@@ -330,13 +330,18 @@ public class Form<T> {
 		}
 	}
 
-	private void addDependency(Property fromProperty, Property to) {
+	private void addDependencyRecursive(Property fromProperty, Property to) {
 		addDependency(fromProperty.getPath(), to);
+		for (Property dependency : Keys.getDependencies(fromProperty)) {
+			addDependencyRecursive(dependency, to);
+		}
 	}
 
 	private void addDependency(String fromPropertyPath, Property to) {
 		List<Property> list = dependencies.computeIfAbsent(fromPropertyPath, p -> new ArrayList<>());
-		list.add(to);
+		if (!list.contains(to)) {
+			list.add(to);
+		}
 	}
 
 	/**
@@ -389,11 +394,8 @@ public class Form<T> {
 
 	private void addDependencies(FormElement<?> field) {
 		Property property = field.getProperty();
-		List<Property> dependencies = Keys.getDependencies(property);
-		for (Property dependency : dependencies) {
-			addDependency(dependency, field.getProperty());
-		}
-
+		addDependencyRecursive(property, field.getProperty());
+		
 		// a.b.c
 		String path = property.getPath();
 		while (path != null && path.contains(".")) {
