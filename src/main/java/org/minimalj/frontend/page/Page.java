@@ -7,7 +7,6 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.security.AccessControl;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.Subject;
-import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
@@ -58,7 +57,11 @@ public interface Page extends AccessControl {
 	 * @see java.util.Base64#getUrlEncoder
 	 */
 	public static boolean validateRoute(String route) {
-		if (StringUtils.isEmpty(route)) {
+		if (route == null) {
+			return false;
+		}
+		route = route.trim();
+		if (route.isEmpty()) {
 			return false;
 		}
 		if (route.length() > 1 && route.endsWith("/")) {
