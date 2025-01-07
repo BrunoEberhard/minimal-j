@@ -126,9 +126,9 @@ public class SwingFrontend extends Frontend {
 		            	if (window instanceof SwingFrame) {
 		            		SwingFrame frame = (SwingFrame) window;
 			                if (mouseEvent.getButton() == 4) {
-			                	frame.previous();
+			                	SwingFrontend.run(mouseEvent, () -> frame.previous());
 			                } else if (mouseEvent.getButton() == 5) {
-			                	frame.next();
+			                	SwingFrontend.run(mouseEvent, () -> frame.next());
 			                }
 		            	}
 		            }
@@ -142,15 +142,17 @@ public class SwingFrontend extends Frontend {
 		        	Window window = SwingUtilities.getWindowAncestor(mouseWheelEvent.getComponent());
 	            	if (window instanceof SwingFrame) {
 	            		SwingFrame frame = (SwingFrame) window;
-	            		Page page = frame.getVisiblePage();
-	            		if (page instanceof WheelPage) {
-	            			wheelRotation += mouseWheelEvent.getPreciseWheelRotation();
-	            			double wheel = wheelRotation > 0 ? Math.floor(wheelRotation) : Math.ceil(wheelRotation);
-	            			if (wheel != 0) {
-		            			wheelRotation -= wheel;
-		            			frame.getVisibleTab().wheel((int) wheel);
-	            			}
-	            		}
+	                	SwingFrontend.run(mouseWheelEvent, () -> {
+		            		Page page = frame.getVisiblePage();
+		            		if (page instanceof WheelPage) {
+		            			wheelRotation += mouseWheelEvent.getPreciseWheelRotation();
+		            			double wheel = wheelRotation > 0 ? Math.floor(wheelRotation) : Math.ceil(wheelRotation);
+		            			if (wheel != 0) {
+			            			wheelRotation -= wheel;
+			            			frame.getVisibleTab().wheel((int) wheel);
+		            			}
+		            		}
+	                	});
 	            	}
 	        	}
 	        }
