@@ -487,7 +487,9 @@ public class Form<T> {
 			Object propertyValue = property.getValue(object);
 			set(property, propertyValue);
 		}
-		updateEnable();
+		if (editable) {
+			updateEnable();
+		}
 		updateVisible();
 	}
 
