@@ -715,7 +715,11 @@ public class WebTestFacade implements UiTestFacade {
 			element.clear();
 			element.sendKeys(text);
 			// TODO replace with 'blur'
-			element.sendKeys("\t");
+			try {
+				element.sendKeys("\t");
+			} catch (Exception x) {
+				System.out.println("Element replaced while setting: " + text);
+			}
 		}
 	}
 	
