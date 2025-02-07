@@ -1,4 +1,4 @@
-package org.minimalj.frontend.impl.swing;
+package org.minimalj.frontend.impl.util;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,13 +18,13 @@ import org.minimalj.frontend.page.Page;
 
 // for: java.util.prefs Could not open/create prefs root node Software\JavaSoft\Prefs
 // see: https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8139507
-public class SwingFavorites implements PreferenceChangeListener {
-	private static final Logger LOG = Logger.getLogger(SwingFavorites.class.getName());
+public class PreferencesFavorites implements PreferenceChangeListener, FavoritesManager {
+	private static final Logger LOG = Logger.getLogger(PreferencesFavorites.class.getName());
 
 	private final Consumer<LinkedHashMap<String, String>> changeListener;
 	private Preferences preferences;
 
-	public SwingFavorites(Consumer<LinkedHashMap<String, String>> changeListener) {
+	public PreferencesFavorites(Consumer<LinkedHashMap<String, String>> changeListener) {
 		Objects.requireNonNull(changeListener);
 		
 		setUser(null);
@@ -32,6 +32,7 @@ public class SwingFavorites implements PreferenceChangeListener {
 		this.changeListener = changeListener;
 	}
 
+	@Override
 	public void setUser(String user) {
 		if (preferences != null) {
 			preferences.removePreferenceChangeListener(this);
@@ -55,6 +56,7 @@ public class SwingFavorites implements PreferenceChangeListener {
 		changeListener.accept(getFavorites());
 	}
 
+	@Override
 	public LinkedHashMap<String, String> getFavorites() {
 		try {
 			String[] keys = preferences.keys();
@@ -82,6 +84,7 @@ public class SwingFavorites implements PreferenceChangeListener {
 		}
 	}
 
+	@Override
 	public boolean isFavorite(String route) {
 		return findKey(route) != null;
 	}
@@ -125,6 +128,7 @@ public class SwingFavorites implements PreferenceChangeListener {
 		}
 	}
 
+	@Override
 	public void toggleFavorite(String route, String title) {
 		String key = findKey(route);
 		if (key != null) {

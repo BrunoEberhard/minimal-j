@@ -30,6 +30,7 @@ import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.SwingMenuBar.SwingBarProvider;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
+import org.minimalj.frontend.impl.util.FavoritesManager;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Subject;
@@ -41,7 +42,7 @@ public class SwingFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private Subject subject;
-	final SwingFavorites favorites = new SwingFavorites(this::onFavoritesChange);
+	final FavoritesManager favorites = Application.getInstance().createFavoritesManager(this::onFavoritesChange);
 
 	private final FlatTabbedPane tabbedPane = new FlatTabbedPane();
 	private JScrollPane navigationScrollPane;
