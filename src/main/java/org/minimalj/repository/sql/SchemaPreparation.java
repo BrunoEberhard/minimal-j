@@ -131,7 +131,7 @@ public enum SchemaPreparation {
 
 	protected void updateTableColumns(SqlRepository repository, SchemaPreparation schemaPreparation, AbstractTable<?> table, List<NewColumn> newColumns) {
 		List<String> columnNames = repository.find(String.class, selectColumns(table.name), 10000);
-		List<String> nullableColumns = repository.find(String.class, "SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND is_nullable = 'YES'", 10000, table.name);
+		List<String> nullableColumns = repository.find(String.class, "SELECT LOWER(column_name) FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND is_nullable = 'YES'", 10000, table.name);
 		for (Map.Entry<String, Property> column : table.getColumns().entrySet()) {
 			Property property = column.getValue();
 			String columnName = column.getKey();
