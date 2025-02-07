@@ -1481,11 +1481,13 @@ $ICON
 	
 	function createSuggestions(id, suggestions) {
 		var datalist = document.getElementById(id + "-list");
-		datalist.replaceChildren();
-		for (var i = 0; i < suggestions.length; i++) {
-			var option = document.createElement("option");
-			option.setAttribute("value", suggestions[i]);
-			datalist.appendChild(option);
+		if (datalist != null) {
+			datalist.replaceChildren();
+			for (var i = 0; i < suggestions.length; i++) {
+				var option = document.createElement("option");
+				option.setAttribute("value", suggestions[i]);
+				datalist.appendChild(option);
+			}
 		}
 	}
 
