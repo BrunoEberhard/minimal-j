@@ -200,7 +200,9 @@ public class WebServer {
 	private static void start(boolean secure) {
 		int port = getPort(secure);
 		if (port > 0) {
-			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web frontend on port " + port + (secure ? " (Secure)" : ""));
+			String version = Application.getInstance().getClass().getPackage().getImplementationVersion();
+			version = version != null ? " Version " + version : "";
+			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + version + " web frontend on port " + port + (secure ? " (Secure)" : ""));
 			try {
 				InetSocketAddress addr = new InetSocketAddress(port);
 				server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
