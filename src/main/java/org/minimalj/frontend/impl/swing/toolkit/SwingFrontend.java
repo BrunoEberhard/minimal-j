@@ -477,7 +477,7 @@ public class SwingFrontend extends Frontend {
 			});
 			return input;
 		} else {
-			return new SwingLookup(input, event -> SwingFrontend.run(event, lookup::run));
+			return new SwingLookup(input, event -> SwingFrontend.run(event, lookup::run), ICON_FIELD_ACTION);
 		}
 	}
 
@@ -510,7 +510,7 @@ public class SwingFrontend extends Frontend {
 					JComponent c = (JComponent) event.getSource();
 					popupMenu.show(c, 0, c.getHeight());
 				};
-				return new SwingLookup(input, actionListener);
+				return new SwingLookup(input, actionListener, ICON_FIELD_MENU);
 			}
 		}
 	}
@@ -533,7 +533,7 @@ public class SwingFrontend extends Frontend {
 		private final JButton lookupButton;
 		private final Input<String> stringInput;
 
-		public SwingLookup(Input<String> stringInput, ActionListener actionListener) {
+		public SwingLookup(Input<String> stringInput, ActionListener actionListener, Icon icon) {
 			super(new BorderLayout());
 			this.stringInput = stringInput;
 			
@@ -549,7 +549,7 @@ public class SwingFrontend extends Frontend {
 
 			// TODO momentan der Button einfach quadratisch gemacht
 			// es sollte wohl das Form Layout angepasst werden
-			this.lookupButton = new JButton(ICON_FIELD_ACTION) {
+			this.lookupButton = new JButton(icon) {
 				private static final long serialVersionUID = 1L;
 
 				@Override
