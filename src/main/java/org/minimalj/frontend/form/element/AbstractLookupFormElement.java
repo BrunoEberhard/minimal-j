@@ -8,6 +8,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.SwitchComponent;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
 
@@ -54,7 +55,12 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 			} else {
 				input = Frontend.getInstance().createReadOnlyTextField();
 			}
-			lookup = Frontend.getInstance().createLookup(input, this::lookup);
+			ActionGroup actionGroup = createActionGroup();
+			if (actionGroup != null) {
+				lookup = Frontend.getInstance().createLookup(input, actionGroup);
+			} else {
+				lookup = Frontend.getInstance().createLookup(input, this::lookup);
+			}
 			lookup.setValue(render(object));
 		}
 		return lookup;
@@ -70,6 +76,10 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 			readOnlyInput.setValue(render(object));
 		}
 		return readOnlyInput;
+	}
+	
+	protected ActionGroup createActionGroup() {
+		return null;
 	}
 
 	public interface LookupParser {
