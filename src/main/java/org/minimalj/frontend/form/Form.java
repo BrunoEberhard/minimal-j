@@ -77,7 +77,7 @@ public class Form<T> {
 
 	protected final boolean editable;
 
-	private final int columns;
+	public final int columns;
 	private final FormContent formContent;
 	private boolean ignoreCaption;
 
