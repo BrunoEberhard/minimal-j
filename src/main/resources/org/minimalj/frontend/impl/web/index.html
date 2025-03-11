@@ -925,6 +925,7 @@ $ICON
 				element.src = "data:image;base64, " + content.value;
 			}
 			if (content.maxHeight) {
+				element.style.width = "unset";
 				element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
 			}
 		} else if (type === "Dashboard") {
