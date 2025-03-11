@@ -356,6 +356,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private int layoutRow(int width, List<Component> row, int y, boolean hasCaption) {
 			int rowHeight = 0;
 			int column = 0;
+			boolean verticallyGrowing = row.stream().anyMatch(c -> constraints.get(c).isVerticallyGrowing());
 			for (Component component : row) {
 				int x = insets.left + marginLeftRight + column * (width + padding) / columns;
 				component.setLocation(x, y);
@@ -366,7 +367,10 @@ public class SwingFormContent extends JPanel implements FormContent {
 				int maxHeight = height + (constraint.getMax() - 1) * fixHeightWithoutCaption;
 
 				Dimension preferredSize = component.getPreferredSize();
-				height = Math.min(Math.max(minHeight, preferredSize.height), maxHeight);
+				height = Math.max(minHeight, preferredSize.height);
+				if (!verticallyGrowing) {
+					height = Math.min(height, maxHeight);
+				}
 				component.setSize(componentWidth, height);
 				if (height > rowHeight) {
 					rowHeight = height;
