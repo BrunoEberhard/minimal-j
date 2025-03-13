@@ -287,6 +287,11 @@ public class SwingFrontend extends Frontend {
 	public Input<byte[]> createImage(InputComponentListener changeListener) {
 		return new SwingImage(changeListener);
 	}
+	
+	@Override
+	public Input<NamedFile[]> createUpload(InputComponentListener changeListener, boolean multiple) {
+		return new SwingUpload(changeListener, multiple);
+	}
 
 	@Override
 	public <T> Input<T> createComboBox(List<T> objects, InputComponentListener changeListener) {

@@ -13,6 +13,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.annotation.Size;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -120,6 +121,7 @@ public abstract class Frontend {
 	}
 
 	public static class NamedFile {
+		@Size(2048)
 		public String name;
 		public byte[] content;
 	}
