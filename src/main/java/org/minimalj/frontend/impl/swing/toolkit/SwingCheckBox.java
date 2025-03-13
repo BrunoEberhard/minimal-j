@@ -32,7 +32,7 @@ public class SwingCheckBox extends JCheckBox implements Input<Boolean> {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			fireChangeEvent();
+			SwingFrontend.run(e, this::fireChangeEvent);
 		}
 	}
 
