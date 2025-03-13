@@ -16,9 +16,10 @@ import org.minimalj.model.Rendering;
 public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> implements Enable {
 	private static Logger logger = Logger.getLogger(AbstractLookupFormElement.class.getSimpleName());
 
-	protected final SwitchComponent switchComponent;
-	protected Input<String> lookup;
-	protected Input<String> readOnlyInput;
+	private final SwitchComponent switchComponent;
+	private Input<String> lookup;
+	private Input<String> readOnlyInput;
+	private boolean initialized = false;
 
 	private T object;
 
@@ -26,7 +27,6 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		super(key);
 		if (editable) {
 			switchComponent = Frontend.getInstance().createSwitchComponent();
-			switchComponent.show(getLookup());
 		} else {
 			switchComponent = null;
 		}
@@ -36,6 +36,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	public final void setEnabled(boolean enabled) {
 		if (switchComponent != null) {
 			switchComponent.show(enabled ? getLookup() : getReadOnlyInput());
+			initialized = true;
 		}
 	}
 
@@ -98,7 +99,14 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 
 	@Override
 	public IComponent getComponent() {
-		return switchComponent != null ? switchComponent : getReadOnlyInput();
+		if (switchComponent != null) {
+			if (!initialized) {
+				switchComponent.show(getLookup());
+			}
+			return switchComponent;
+		} else {
+			return getReadOnlyInput();
+		}
 	}
 
 	@Override
