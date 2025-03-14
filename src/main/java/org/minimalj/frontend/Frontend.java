@@ -1,6 +1,11 @@
 package org.minimalj.frontend;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -124,6 +129,21 @@ public abstract class Frontend {
 		@Size(2048)
 		public String name;
 		public byte[] content;
+		
+		public static NamedFile of(File file) {
+			NamedFile namedFile = new NamedFile();
+			namedFile.name = file.getName();
+			try {
+				namedFile.content = Files.readAllBytes(file.toPath());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			return namedFile;
+		}
+		
+		public InputStream getInputStream() {
+			return new ByteArrayInputStream(content);
+		}
 	}
 
 	public Input<NamedFile[]> createUpload(InputComponentListener changeListener, boolean multiple) {
