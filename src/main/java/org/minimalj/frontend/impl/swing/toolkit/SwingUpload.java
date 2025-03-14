@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.NamedFile;
+import org.minimalj.util.resources.Resources;
 
 public class SwingUpload extends JPanel implements Input<NamedFile[]> {
     private static final long serialVersionUID = 1L;
@@ -38,13 +40,13 @@ public class SwingUpload extends JPanel implements Input<NamedFile[]> {
 
     public SwingUpload(InputComponentListener changeListener, boolean multiple) {
         super(new BorderLayout());
-        this.changeListener = changeListener;
+        this.changeListener = Objects.requireNonNull(changeListener);
 
         fileChooser = new JFileChooser();
         fileChooser.setMultiSelectionEnabled(multiple);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-        selectButton = new JButton(multiple ? "Select files" : "Select file");
+        selectButton = new JButton(Resources.getString(multiple ? "Upload.files" : "Upload.file"));
         label = new JLabel();
         label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         
