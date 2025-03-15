@@ -128,6 +128,10 @@ public class Validator {
 			// not implemented
 		}
 		
+		@Override
+		public String toString() {
+			return getName();
+		}
 	}
 	
 
