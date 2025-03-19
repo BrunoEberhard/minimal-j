@@ -40,6 +40,10 @@ public abstract class SqlDialect {
 		addColumnDefinition(s, idProperty);
 		if (Table.isAutoIncrement(idProperty)) {
 			s.append(" AUTO_INCREMENT");
+			int start = Table.getAutoIncrementStart(idProperty);
+			if (start != 1) {
+				s.append("(").append(start).append(", 1)");
+			}
 		}
 		s.append(" NOT NULL");
 	}
@@ -199,10 +203,11 @@ public abstract class SqlDialect {
 		protected void addIdColumn(StringBuilder s, Property idProperty) {
 			Class<?> clazz = idProperty.getClazz();
 			if (Table.isAutoIncrement(idProperty)) {
+				int start = Table.getAutoIncrementStart(idProperty);
 				if (clazz == Integer.class) {
-					s.append(" id SERIAL");
+					s.append(" id SERIAL (START WITH " + start + ")");
 				} else if (clazz == Long.class) {
-					s.append(" id BIGSERIAL");
+					s.append(" id BIGSERIAL (START WITH " + start + ")");
 				} else {
 					throw new IllegalArgumentException("Postgresql auto increment only possible for Integer and Long: " + idProperty);
 				}
@@ -334,7 +339,7 @@ public abstract class SqlDialect {
 			s.append(" id ");
 			addColumnDefinition(s, idProperty);
 			if (Table.isAutoIncrement(idProperty)) {
-				s.append(" IDENTITY(1,1)");
+				s.append(" IDENTITY(" + Table.getAutoIncrementStart(idProperty) + ",1)");
 			}
 			s.append(" NOT NULL");
 		}

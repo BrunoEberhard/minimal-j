@@ -7,4 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface AutoIncrement {
 
 	boolean value() default true;
+	
+	int start() default 1;
 }

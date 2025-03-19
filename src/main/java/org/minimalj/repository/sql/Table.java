@@ -75,6 +75,15 @@ public class Table<T> extends AbstractTable<T> {
 		}
 	}
 	
+	static int getAutoIncrementStart(Property idProperty) {
+		AutoIncrement autoIncrement = idProperty.getAnnotation(AutoIncrement.class);
+		if (autoIncrement != null) {
+			return autoIncrement.start();
+		} else {
+			return 1;
+		}
+	}
+	
 	@Override
 	public void createTable(SqlDialect dialect) {
 		super.createTable(dialect);
