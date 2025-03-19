@@ -38,6 +38,7 @@ public enum SchemaPreparation {
 			if (repository.sqlDialect instanceof PostgresqlDialect) {
 				updateEnums(repository, this);
 			} else {
+				// In h2: read Information_schema, ALTER TABLE EXAMPLE ALTER COLUMN C ENUM('a', 'b', 'c') NOT NULL;
 				logger.fine("Update enums only implemented for Postgresql");
 			}
 			updateTables(repository, this);
