@@ -85,8 +85,7 @@ public class SwingUpload extends JPanel implements Input<NamedFile[]> {
         }
         namedFiles = namedFileList.toArray(new NamedFile[0]);
 
-        updateLabel();
-        changeListener.changed(this);
+        fireChange();
     }
     
     private void selectFiles(ActionEvent e) {
@@ -109,9 +108,15 @@ public class SwingUpload extends JPanel implements Input<NamedFile[]> {
     			Frontend.showError("File couldn't be read (" + ex.getMessage() + ")");
     		}
     		
-            updateLabel();
-            changeListener.changed(this);
+            fireChange();
         }
+    }
+    
+    private void fireChange() {
+        SwingFrontend.run(SwingUpload.this, () -> {
+            updateLabel();
+            changeListener.changed(SwingUpload.this);
+        });
     }
 
 	private NamedFile createNamedFile(File file) throws IOException {
