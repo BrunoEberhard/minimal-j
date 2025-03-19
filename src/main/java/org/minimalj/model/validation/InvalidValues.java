@@ -42,10 +42,18 @@ public class InvalidValues {
 	/**
 	 * @param value to be checked
 	 * @return true if the value is an object created previously with one of the
-	 * createInvalid methods
+	 * createInvalid methods. <code>null</code> returns false.
 	 */
 	public static boolean isInvalid(Object value) {
 		return values.containsKey(value);
+	}
+	
+	/**
+	 * @param value to be checked
+	 * @return true if the value is not null and not invalid
+	 */
+	public static boolean isValid(Object value) {
+		return value != null && !values.containsKey(value);
 	}
 
 	/**
