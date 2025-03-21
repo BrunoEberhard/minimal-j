@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Graphics;
@@ -22,6 +23,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
@@ -780,6 +782,14 @@ public class SwingFrontend extends Frontend {
 		}
 		skipLoginAction.setDialog(swingDialog);
 		return true;
+	}
+	
+	public void show(File file) {
+		try {
+			Desktop.getDesktop().open(file);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private class SkipLoginAction extends Action {
