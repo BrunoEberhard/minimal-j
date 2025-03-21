@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -135,6 +136,17 @@ public abstract class Frontend {
 			namedFile.name = file.getName();
 			try {
 				namedFile.content = Files.readAllBytes(file.toPath());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			return namedFile;
+		}
+		
+		public static NamedFile of(Path path) {
+			NamedFile namedFile = new NamedFile();
+			namedFile.name = path.getFileName().toString();
+			try {
+				namedFile.content = Files.readAllBytes(path);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
