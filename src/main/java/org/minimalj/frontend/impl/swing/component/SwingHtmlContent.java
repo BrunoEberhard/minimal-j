@@ -1,5 +1,6 @@
 package org.minimalj.frontend.impl.swing.component;
 
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.net.URL;
 
@@ -58,6 +59,11 @@ public class SwingHtmlContent extends JTextPane implements IContent {
 		addLinkListener();
 	}
 
+	@Override
+	public void scrollRectToVisible(Rectangle aRect) {
+		// skip (or component always pulls visible rect)
+	}
+	
 	private void addLinkListener() {
 		HyperlinkListener listener = e -> {
 			if (e.getEventType() == EventType.ACTIVATED) {
