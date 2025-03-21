@@ -27,6 +27,8 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingCaption;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 public class SwingFormContent extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
 
@@ -94,8 +96,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
 		SwingCaption swingCaption = captionByComponent.get(component);
-		if (swingCaption != null) {
-			swingCaption.setValidationMessages(validationMessages);
+//		if (swingCaption != null) {
+//			swingCaption.setValidationMessages(validationMessages);
+//		}
+		if (component instanceof JComponent) {
+			JComponent jComponent = (JComponent) component;
+			jComponent.putClientProperty(FlatClientProperties.OUTLINE, validationMessages.isEmpty() ? null : FlatClientProperties.OUTLINE_ERROR);
 		}
 	}
 
@@ -300,7 +306,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 		@Override
 		public void layoutContainer(Container parent) {
-			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds())) {
+			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds()) && parent.isValid()) {
 				return;
 			}
 
