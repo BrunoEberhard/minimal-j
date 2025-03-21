@@ -1,12 +1,16 @@
 package org.minimalj.frontend;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,16 +134,11 @@ public abstract class Frontend {
 		@Size(2048)
 		public String name;
 		public byte[] content;
+
+		private FileTime creationTime, lastModifiedTime;
 		
 		public static NamedFile of(File file) {
-			NamedFile namedFile = new NamedFile();
-			namedFile.name = file.getName();
-			try {
-				namedFile.content = Files.readAllBytes(file.toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			return namedFile;
+			return of(file.toPath());
 		}
 		
 		public static NamedFile of(Path path) {
@@ -147,6 +146,9 @@ public abstract class Frontend {
 			namedFile.name = path.getFileName().toString();
 			try {
 				namedFile.content = Files.readAllBytes(path);
+				BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+				namedFile.creationTime = attributes.creationTime();
+				namedFile.lastModifiedTime = attributes.lastModifiedTime();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -155,6 +157,20 @@ public abstract class Frontend {
 		
 		public InputStream getInputStream() {
 			return new ByteArrayInputStream(content);
+		}
+		
+		public void writeTo(File directory) {
+			File file = new File(directory, name);
+			try (FileOutputStream fos = new FileOutputStream(file); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+				fos.write(content, 0, content.length);
+				if (creationTime != null && lastModifiedTime != null) {
+					Path path = file.toPath();
+					Files.setAttribute(path, "creationTime", creationTime);
+					Files.setAttribute(path, "lastModifiedTime", lastModifiedTime);
+				}
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
 		}
 	}
 

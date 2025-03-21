@@ -10,7 +10,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +20,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.NamedFile;
@@ -80,7 +78,7 @@ public class SwingUpload extends JPanel implements Input<NamedFile[]> {
     private void handleDroppedFiles(List<File> files) throws IOException {
         List<NamedFile> namedFileList = new ArrayList<>();
         for (File file : files) {
-            NamedFile namedFile = createNamedFile(file);
+            NamedFile namedFile = NamedFile.of(file);
             namedFileList.add(namedFile);
         }
         namedFiles = namedFileList.toArray(new NamedFile[0]);
@@ -91,22 +89,18 @@ public class SwingUpload extends JPanel implements Input<NamedFile[]> {
     private void selectFiles(ActionEvent e) {
     	int returnVal = fileChooser.showOpenDialog(SwingUpload.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-    		try {
-	        	if (fileChooser.isMultiSelectionEnabled()) {
-	                File[] files = fileChooser.getSelectedFiles();
-	                List<NamedFile> namedFileList = new ArrayList<>();
-	                for (File file : files) {
-	                    NamedFile namedFile = createNamedFile(file);
-	                    namedFileList.add(namedFile);
-	                }
-	                namedFiles = namedFileList.toArray(new NamedFile[0]);
-	        	} else {
-	        		File file = fileChooser.getSelectedFile();
-	        		namedFiles = new NamedFile[] {createNamedFile(file)};
-	        	}
-    		} catch (IOException ex) {
-    			Frontend.showError("File couldn't be read (" + ex.getMessage() + ")");
-    		}
+        	if (fileChooser.isMultiSelectionEnabled()) {
+                File[] files = fileChooser.getSelectedFiles();
+                List<NamedFile> namedFileList = new ArrayList<>();
+                for (File file : files) {
+                    NamedFile namedFile = NamedFile.of(file);
+                    namedFileList.add(namedFile);
+                }
+                namedFiles = namedFileList.toArray(new NamedFile[0]);
+        	} else {
+        		File file = fileChooser.getSelectedFile();
+        		namedFiles = new NamedFile[] {NamedFile.of(file)};
+        	}
     		
             fireChange();
         }
@@ -119,15 +113,8 @@ public class SwingUpload extends JPanel implements Input<NamedFile[]> {
         });
     }
 
-	private NamedFile createNamedFile(File file) throws IOException {
-		NamedFile namedFile = new NamedFile();
-		namedFile.name = file.getName();
-	    namedFile.content = Files.readAllBytes(file.toPath());
-		return namedFile;
-	}
-    
     private void updateLabel() {
-    	if (namedFiles.length == 0) {
+    	if (namedFiles == null || namedFiles.length == 0) {
     		label.setText(null);
     	} else if (namedFiles.length == 1) {
     		label.setText(namedFiles[0].name);
