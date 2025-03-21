@@ -24,7 +24,7 @@ public class SwingVerticalGroup extends JPanel implements IComponent {
 		}
 	}
 
-	private static class VerticalLayoutManager implements LayoutManager {
+	public static class VerticalLayoutManager implements LayoutManager {
 
 		private Dimension preferredSize;
 		
