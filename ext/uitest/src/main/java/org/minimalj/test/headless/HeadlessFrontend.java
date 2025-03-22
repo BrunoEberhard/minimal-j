@@ -91,7 +91,6 @@ public class HeadlessFrontend extends JsonFrontend {
 					return;
 				}
 			}
-			changedValue(null);
 		}
 
 		public String getValueText() {
