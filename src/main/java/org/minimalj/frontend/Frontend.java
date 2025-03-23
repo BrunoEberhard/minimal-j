@@ -135,7 +135,7 @@ public abstract class Frontend {
 		public String name;
 		public byte[] content;
 
-		private FileTime creationTime, lastModifiedTime;
+		private Long creationTime, lastModifiedTime;
 		
 		public static NamedFile of(File file) {
 			return of(file.toPath());
@@ -147,8 +147,8 @@ public abstract class Frontend {
 			try {
 				namedFile.content = Files.readAllBytes(path);
 				BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
-				namedFile.creationTime = attributes.creationTime();
-				namedFile.lastModifiedTime = attributes.lastModifiedTime();
+				namedFile.creationTime = attributes.creationTime().toMillis();
+				namedFile.lastModifiedTime = attributes.lastModifiedTime().toMillis();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -165,8 +165,8 @@ public abstract class Frontend {
 				fos.write(content, 0, content.length);
 				if (creationTime != null && lastModifiedTime != null) {
 					Path path = file.toPath();
-					Files.setAttribute(path, "creationTime", creationTime);
-					Files.setAttribute(path, "lastModifiedTime", lastModifiedTime);
+					Files.setAttribute(path, "creationTime", FileTime.fromMillis(creationTime));
+					Files.setAttribute(path, "lastModifiedTime", FileTime.fromMillis(lastModifiedTime));
 				}
 			} catch (IOException x) {
 				throw new RuntimeException(x);
