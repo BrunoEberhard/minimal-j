@@ -11,6 +11,7 @@ import java.awt.LayoutManager2;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,16 +96,23 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
-		SwingCaption swingCaption = captionByComponent.get(component);
+//		SwingCaption swingCaption = captionByComponent.get(component);
 //		if (swingCaption != null) {
 //			swingCaption.setValidationMessages(validationMessages);
 //		}
-		if (component instanceof JComponent) {
-			JComponent jComponent = (JComponent) component;
-			jComponent.putClientProperty(FlatClientProperties.OUTLINE, validationMessages.isEmpty() ? null : FlatClientProperties.OUTLINE_ERROR);
+		if (component instanceof Component) {
+			setValidationMessages((Component) component, validationMessages);
 		}
 	}
 
+	private void setValidationMessages(Component component, List<String> validationMessages) {
+		if (component instanceof JComponent) {
+			JComponent jComponent = (JComponent) component;
+			jComponent.putClientProperty(FlatClientProperties.OUTLINE, validationMessages.isEmpty() ? null : FlatClientProperties.OUTLINE_ERROR);
+			Arrays.stream(jComponent.getComponents()).forEach(c -> setValidationMessages(c, validationMessages));
+		}
+	}
+	
 	@Override
 	public void setVisible(IComponent component, boolean visible) {
 		if (visible != ((Component) component).isVisible()) {
