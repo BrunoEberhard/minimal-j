@@ -4,8 +4,11 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class ChainedProperty implements Property {
+	private static Logger logger = Logger.getLogger(ChainedProperty.class.getName());
+
 	private final Property property1;
 	private final Property property2;
 
@@ -62,7 +65,7 @@ public class ChainedProperty implements Property {
 		if (value1 != null) {
 			property2.setValue(value1, value);
 		} else {
-			throw new NullPointerException(property1.getName() + " on " + property1.getDeclaringClass().getSimpleName() + " is null");
+			logger.fine(() -> property1.getName() + " on " + property1.getDeclaringClass().getSimpleName() + " is null");
 		}
 	}
 
