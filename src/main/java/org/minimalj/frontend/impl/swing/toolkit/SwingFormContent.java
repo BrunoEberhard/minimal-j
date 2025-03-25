@@ -184,7 +184,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 	public void invalidate() {
 		super.invalidate();
-		layoutManager.lastParentBounds = null;
+		layoutManager.lastBounds = null;
 	}
 	
 	private static class GridFormLayoutConstraint {
@@ -246,9 +246,9 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private int marginLeftRight, marginTopBottom;
 
 		private Dimension size;
-		private Rectangle lastParentBounds = null;
+		private Rectangle lastBounds = null;
+		private Insets lasttInsets;
 		private int column = Integer.MAX_VALUE;
-		private Insets insets;
 		private List<Integer> rowHeights = new ArrayList<>();
 
 		private List<Integer> groupedRows = new ArrayList<>();
@@ -292,12 +292,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 		
 		public void setMarginTopBottom(int marginTopBottom) {
 			this.marginTopBottom = marginTopBottom;
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 		
 		public void setMarginLeftRight(int marginLeftRight) {
 			this.marginLeftRight = marginLeftRight;
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 
 		@Override
@@ -314,14 +314,16 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 		@Override
 		public void layoutContainer(Container parent) {
-			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds()) && parent.isValid()) {
+			Insets insets = parent.getInsets();
+			Rectangle bounds = parent.getBounds();
+			if (bounds.equals(lastBounds) && insets.equals(lasttInsets) && parent.isValid()) {
 				return;
 			}
 
-			lastParentBounds = parent.getBounds();
+			lastBounds = bounds;
+			lasttInsets = insets;
 			rowHeights.clear();
-
-			insets = parent.getInsets();
+			
 			int y = insets.top + marginTopBottom;
 			int width = parent.getWidth() - insets.left - insets.right - 2 * marginLeftRight;
 
@@ -333,7 +335,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 				rowVisible.add(isRowVisible);
 				if (isRowVisible) {
 					boolean hasCaption = hasCaption(row);
-					int height = layoutRow(width, row, y, hasCaption);
+					int height = layoutRow(insets, width, row, y, hasCaption);
 					rowHeights.add(height);
 					y += height + padding;
 					addBorder = true;
@@ -367,7 +369,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			return false;
 		}
 
-		private int layoutRow(int width, List<Component> row, int y, boolean hasCaption) {
+		private int layoutRow(Insets insets, int width, List<Component> row, int y, boolean hasCaption) {
 			int rowHeight = 0;
 			int column = 0;
 			boolean verticallyGrowing = row.stream().anyMatch(c -> constraints.get(c).isVerticallyGrowing());
@@ -417,7 +419,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			}
 			row.add(comp);
 			column = formConstraint.isCompleteRow() ? columns : column + formConstraint.getSpan();
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 
 		@Override
@@ -427,7 +429,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 		@Override
 		public void invalidateLayout(Container target) {
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 
 		@Override
