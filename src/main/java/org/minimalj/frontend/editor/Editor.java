@@ -150,6 +150,16 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog, Result
 			// TODO clever error handling, for example at login if jdbc is wrong
 			Frontend.showError(x.getLocalizedMessage() != null ? x.getLocalizedMessage() : x.getClass().getSimpleName());
         }
+//		Frontend.getInstance().longRun(() -> save(object), result -> {
+//			if (closeWith(result)) {
+//				Frontend.closeDialog(this);
+//				finished(result);
+//			}
+//		}, x -> {
+//			ExceptionUtils.logReducedStackTrace(logger, x);
+//			// TODO clever error handling, for example at login if jdbc is wrong
+//			Frontend.showError(x.getLocalizedMessage() != null ? x.getLocalizedMessage() : x.getClass().getSimpleName());
+//		});
 	}
 
 	protected boolean closeWith(RESULT result) {
