@@ -8,6 +8,7 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -33,6 +34,8 @@ import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -50,6 +53,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
@@ -145,21 +149,47 @@ public class SwingFrontend extends Frontend {
 	            	if (window instanceof SwingFrame) {
 	            		SwingFrame frame = (SwingFrame) window;
 	                	SwingFrontend.run(mouseWheelEvent, () -> {
-		            		Page page = frame.getVisiblePage();
-		            		if (page instanceof WheelPage) {
-		            			wheelRotation += mouseWheelEvent.getPreciseWheelRotation();
-		            			double wheel = wheelRotation > 0 ? Math.floor(wheelRotation) : Math.ceil(wheelRotation);
-		            			if (wheel != 0) {
-			            			wheelRotation -= wheel;
-			            			frame.getVisibleTab().wheel((int) wheel);
-		            			}
-		            		}
+	                		if (!isScrolling(mouseWheelEvent)) {
+			            		Page page = frame.getVisiblePage();
+			            		if (page instanceof WheelPage) {
+			            			wheelRotation += mouseWheelEvent.getPreciseWheelRotation();
+			            			double wheel = wheelRotation > 0 ? Math.floor(wheelRotation) : Math.ceil(wheelRotation);
+			            			if (wheel != 0) {
+				            			wheelRotation -= wheel;
+				            			frame.getVisibleTab().wheel((int) wheel);
+			            			}
+			            		}
+	                		}
 	                	});
 	            	}
 	        	}
 	        }
 	    }, AWTEvent.MOUSE_WHEEL_EVENT_MASK);
 
+	}
+	
+	private static boolean isScrolling(MouseWheelEvent mouseWheelEvent) {
+		JScrollPane scrollPane = getScrollPane(mouseWheelEvent.getComponent());
+		if (scrollPane != null) {
+			int value = scrollPane.getVerticalScrollBar().getValue();
+			if (mouseWheelEvent.getWheelRotation() < 0) {
+				return value > scrollPane.getVerticalScrollBar().getMinimum();
+			} else {
+				value += scrollPane.getVerticalScrollBar().getModel().getExtent();
+				return value < scrollPane.getVerticalScrollBar().getMaximum();
+			}
+		}
+		return false;
+	}
+
+	private static JScrollPane getScrollPane(Component component) {
+		while (component != null) {
+			if (component instanceof JScrollPane) {
+				return (JScrollPane) component;
+			}
+			component = component.getParent();
+		}
+		return null;
 	}
 	
 	public static void setUIManagerProperties() {
@@ -863,5 +893,37 @@ public class SwingFrontend extends Frontend {
 			}
 		}
 		visibleDialogs.remove(dialog);
+	}
+	
+	public <RESULT> void longRun(Supplier<RESULT> supplier, Consumer<RESULT> finishedListener, Consumer<Exception> exceptionListener) {
+		BlockingDialog blockingDialog = new BlockingDialog();
+		new Thread(() -> {
+			try {
+				SwingUtilities.invokeLater(() -> blockingDialog.setVisible(true));
+				RESULT result = supplier.get();
+				SwingUtilities.invokeLater(() -> {
+					blockingDialog.dispose();
+					finishedListener.accept(result);	
+				});
+			} catch (Exception x) {
+				SwingUtilities.invokeLater(() -> {
+					blockingDialog.dispose();
+					exceptionListener.accept(x);
+				});
+			}
+		}).start();	
+	}
+	
+	private static class BlockingDialog extends JDialog {
+		private static final long serialVersionUID = 1L;
+
+		public BlockingDialog() {
+			super((Frame) null, "", true);
+			setUndecorated(true);
+			setBackground(new Color(0, 0, 0, 0));
+			setBounds(-1000, -1000, 1, 1);
+
+			add(new JLabel(""));
+		}
 	}
 }

@@ -13,6 +13,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -329,8 +331,20 @@ public abstract class Frontend {
 		getPageManager().showMessage(text);
 	}
 	
-	protected  void doShowError(String text) {
+	protected void doShowError(String text) {
 		getPageManager().showError(text);
+	}
+	
+	// 
+	
+
+	public <RESULT> void longRun(Supplier<RESULT> supplier, Consumer<RESULT> finishedListener, Consumer<Exception> exceptionListener) {
+		try {
+			RESULT result = supplier.get();
+			finishedListener.accept(result);
+		} catch (Exception x) {
+ 			exceptionListener.accept(x);
+		}
 	}
 	
 	//
