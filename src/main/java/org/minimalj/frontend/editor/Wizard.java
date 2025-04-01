@@ -185,6 +185,7 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 
 		public void setInvalidFormElement(boolean invalidFormElement) {
 			this.invalidFormElement = invalidFormElement;
+			fireChange();
 		}
 		
 		@Override
