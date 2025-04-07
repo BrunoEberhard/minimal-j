@@ -33,6 +33,7 @@ import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
 import org.minimalj.frontend.form.element.FormElement;
+import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.form.element.Indication;
 import org.minimalj.frontend.form.element.IntegerFormElement;
 import org.minimalj.frontend.form.element.LocalDateFormElement;
@@ -74,6 +75,8 @@ public class Form<T> {
 	public static final boolean READ_ONLY = false;
 
 	public static final int DEFAULT_COLUMN_WIDTH = 100;
+	
+	private static final FormElementConstraint TEXT_FORM_ELEMENT_CONSTRAINT = new FormElementConstraint(1, 3);
 
 	protected final boolean editable;
 
@@ -245,7 +248,7 @@ public class Form<T> {
 			if (element != null) {
 				add(element, elementSpan, forcedNotEmpty);
 			} else {
-				formContent.add(null, false, Frontend.getInstance().createText("" + key), null, elementSpan);
+				formContent.add(null, false, Frontend.getInstance().createText("" + key), TEXT_FORM_ELEMENT_CONSTRAINT, elementSpan);
 			}
 		}
 	}
