@@ -518,17 +518,19 @@ public class JsonPageManager implements PageManager {
 		json.put("minWidth", page.getMinWidth());
 		json.put("maxWidth", page.getMaxWidth());
 		
-		Integer heightBasis = page.getHeightBasis();
-		if (heightBasis != null) {
-			json.put("heightBasis", heightBasis);
-		}
-		float heightGrow = page.getHeightGrow();
-		if (heightGrow != 1) {
-			json.put("heightGrow", heightGrow);
-		}
-		float heightShrink = page.getHeightShrink();
-		if (heightShrink != 1) {
-			json.put("heightShrink", heightShrink);
+		if (masterPageId != null) {
+			Integer heightBasis = page.getHeightBasis();
+			if (heightBasis != null) {
+				json.put("heightBasis", heightBasis);
+			}
+			float heightGrow = page.getHeightGrow();
+			if (heightGrow != 1) {
+				json.put("heightGrow", heightGrow);
+			}
+			float heightShrink = page.getHeightShrink();
+			if (heightShrink != 1) {
+				json.put("heightShrink", heightShrink);
+			}
 		}
 		
 		json.put("wheel", page instanceof WheelPage);
