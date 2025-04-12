@@ -571,8 +571,12 @@ dialog table {
  	box-sizing: border-box;
 }
 
-.form .text {
+.formElement .text, .formElement .action {
 	padding-top: 0.35em;
+}
+
+.formElement > .action {
+	display: block
 }
 
 .form .noCaption {
