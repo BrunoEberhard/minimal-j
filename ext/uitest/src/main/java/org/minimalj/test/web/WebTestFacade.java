@@ -525,9 +525,15 @@ public class WebTestFacade implements UiTestFacade {
 		}
 		
 		@Override
-		public FormElementTestFacade groupItem(int pos) {
-			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div")).get(pos);
-			return new HtmlFormElementTestFacade(groupItemElement);
+		public FormElementTestFacade groupItem(int... positions) {
+			WebElement element = formElement;
+			while (!element.getDomAttribute("class").contains("formElement")) {
+				element = element.findElement(By.xpath(".."));
+			} 		
+			for (int pos : positions) {
+				element = element.findElements(By.xpath("./div/div")).get(pos);
+			}
+			return new HtmlFormElementTestFacade(element);
 		}
 		
 		@Override

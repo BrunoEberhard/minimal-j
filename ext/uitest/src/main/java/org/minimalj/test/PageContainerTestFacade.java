@@ -162,7 +162,7 @@ public interface PageContainerTestFacade {
 
 		public List<ActionTestFacade> getLineActions(int line);
 		
-		public default FormElementTestFacade groupItem(int pos) {
+		public default FormElementTestFacade groupItem(int... pos) {
 			return null;
 		}
 

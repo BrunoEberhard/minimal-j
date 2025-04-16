@@ -38,7 +38,13 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 
 	@Override
 	public FormElementTestFacade getElement(String caption) {
-		return getElement(form, caption);
+		var element = getElement(form, caption);
+		if (element == null) {
+			var captions = new ArrayList<String>();
+			collectCaptions(form, captions);
+			System.out.println(caption + " not in: " + String.join(", ", captions));
+		}
+		return element;
 	}
 
 	@Override
@@ -79,6 +85,25 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 			}
 		}
 		return null;
+	}
+	
+	private void collectCaptions(Object o, List<String> captions) {
+		if (o instanceof JsonComponent jsonComponent) {
+			String caption = (String) jsonComponent.get(JsonFormContent.CAPTION);
+			if (!StringUtils.isEmpty(caption)) {
+				if (Boolean.TRUE.equals(jsonComponent.get("hideFormElement"))) {
+					captions.add(caption + " (hidden)");
+				} else {
+					captions.add(caption);
+				}
+			}
+		}
+		if (o instanceof Collection collection) {
+			collection.forEach(i -> collectCaptions(i, captions));
+		}
+		if (o instanceof Map map) {
+			map.values().forEach(i -> collectCaptions(i, captions));
+		}
 	}
 
 	@Override
@@ -217,6 +242,15 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 				component = unpackText(component);
 				((JsonInputComponent) component).changedValue(value);
 			}
+		}
+		
+		@Override
+		public FormElementTestFacade groupItem(int... positions) {
+			var component = getComponent();
+			for (int pos : positions) {
+				component = (JsonComponent) ((List) component.get("components")).get(pos);
+			}
+			return new HeadlessFormElement(component);
 		}
 
 		@Override
