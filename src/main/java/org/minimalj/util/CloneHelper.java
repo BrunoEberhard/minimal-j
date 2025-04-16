@@ -92,7 +92,7 @@ public class CloneHelper {
 						field.set(to, toList);
 					}
 					for (Object element : fromList) {
-						if (element == null || FieldUtils.isAllowedPrimitive(element.getClass())) {
+						if (element == null || FieldUtils.isAllowedPrimitive(element.getClass()) || element.getClass().isEnum()) {
 							toList.add(element);
 						} else {
 							toList.add(clone(element, originals, copies));
