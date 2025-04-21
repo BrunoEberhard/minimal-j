@@ -18,6 +18,7 @@ import org.minimalj.frontend.impl.json.JsonInputComponent;
 import org.minimalj.frontend.impl.json.JsonLookup;
 import org.minimalj.frontend.impl.json.JsonLookupActions;
 import org.minimalj.frontend.impl.json.JsonPasswordField;
+import org.minimalj.model.Rendering;
 import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormElementTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
@@ -200,6 +201,13 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		component = unpackText(component);
 		if (component instanceof HeadlessRadioButtons radioButtons) {
 			return radioButtons.getValueText();
+		} else if (component instanceof JsonCombobox jsonCombobox) {
+			var value = jsonCombobox.getValue();
+			if (value == null) {
+				return (String) jsonCombobox.get("nullText");
+			} else {
+				return Rendering.toString(value);
+			}
 		} else {
 			return (String) component.get(JsonInputComponent.VALUE);
 		}
