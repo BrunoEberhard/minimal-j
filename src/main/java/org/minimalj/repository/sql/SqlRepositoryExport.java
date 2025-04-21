@@ -33,8 +33,12 @@ public class SqlRepositoryExport {
 				if (sqlRepository.count(clazz, By.ALL) == 0) {
 					continue;
 				}
-				AbstractTable<?> table = sqlRepository.tables.get(clazz);
-				exportTable(table, connection, exportConnection, exportRepository);
+				AbstractTable<?> abstractTable = sqlRepository.tables.get(clazz);
+				exportTable(abstractTable, connection, exportConnection, exportRepository);
+				if (abstractTable instanceof Table && ((Table<?>) abstractTable).isAutoIncrement()) {
+					String tableName = sqlRepository.name(clazz);
+					exportRepository.execute("ALTER TABLE " + tableName + " ALTER COLUMN ID RESTART WITH SELECT MAX(ID)+1 FROM " + tableName); 
+				}
 			}
 		} catch (Exception e1) {
 			throw new RuntimeException(e1);

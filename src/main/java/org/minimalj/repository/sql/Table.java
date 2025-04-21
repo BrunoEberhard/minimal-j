@@ -74,6 +74,10 @@ public class Table<T> extends AbstractTable<T> {
 			return idClass == Integer.class || idClass == Long.class;
 		}
 	}
+
+	public boolean isAutoIncrement() {
+		return autoIncrement;
+	}
 	
 	@Override
 	public void createTable(SqlDialect dialect) {
