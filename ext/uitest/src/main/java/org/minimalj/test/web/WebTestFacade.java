@@ -384,14 +384,14 @@ public class WebTestFacade implements UiTestFacade {
 		}
 
 		@Override
-		public FormElementTestFacade getElement(String caption, boolean isBooleanValue) {
+		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue) {
 			List<WebElement> labels = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 			for (var label : labels) {
 				String id = label.getAttribute("for");
 				WebElement element = form.findElement(By.id(id));
 				String type = element.getAttribute("type");
 				boolean isRadioOrCheckBox = StringUtils.equals(type, "radio", "checkbox");
-				if (isRadioOrCheckBox == isBooleanValue) {
+				if (isBooleanValue == null || isRadioOrCheckBox == isBooleanValue) {
 					return new HtmlFormElementTestFacade(element);
 				}
 			}

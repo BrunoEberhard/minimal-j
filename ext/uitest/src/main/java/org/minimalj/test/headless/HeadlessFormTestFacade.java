@@ -38,8 +38,8 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 	}
 
 	@Override
-	public FormElementTestFacade getElement(String caption) {
-		var element = getElement(form, caption);
+	public FormElementTestFacade getElement(String caption, Boolean isBooleanValue) {
+		var element = getElement(form, caption, isBooleanValue);
 		if (element == null) {
 			var captions = new ArrayList<String>();
 			collectCaptions(form, captions);
@@ -60,18 +60,19 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		return new HeadlessFormElement(getRows().get(row).get(column));
 	}
 
-	private FormElementTestFacade getElement(Object o, String caption) {
+	private FormElementTestFacade getElement(Object o, String caption, Boolean isBooleanValue) {
 		if (o instanceof JsonComponent jsonComponent) {
 			if (Boolean.TRUE.equals(jsonComponent.get("hideFormElement"))) {
 				return null;
 			}
 			if (caption.equals(jsonComponent.get(JsonFormContent.CAPTION))) {
+				// TODO check isBooleanValue
 				return new HeadlessFormElement(jsonComponent);
 			}
 		}
 		if (o instanceof Collection collection) {
 			for (var item : collection) {
-				var result = getElement(item, caption);
+				var result = getElement(item, caption, isBooleanValue);
 				if (result != null) {
 					return result;
 				}
@@ -79,7 +80,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		}
 		if (o instanceof Map map) {
 			for (var item : map.values()) {
-				var result = getElement(item, caption);
+				var result = getElement(item, caption, isBooleanValue);
 				if (result != null) {
 					return result;
 				}
