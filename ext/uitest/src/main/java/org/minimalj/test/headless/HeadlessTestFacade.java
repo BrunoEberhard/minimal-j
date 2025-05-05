@@ -69,13 +69,13 @@ public class HeadlessTestFacade implements UiTestFacade {
 
 		@Override
 		public void setUser(String user) {
-			dialog.getForm().getElement(Resources.getString("UserPassword.user"), false).setText(user);
+			dialog.getForm().getElement(Resources.getString("UserPassword.user")).setText(user);
 			
 		}
 
 		@Override
 		public void setPassword(String password) {
-			dialog.getForm().getElement(Resources.getString("UserPassword.password"), false).setText(password);
+			dialog.getForm().getElement(Resources.getString("UserPassword.password")).setText(password);
 		}
 	}
 

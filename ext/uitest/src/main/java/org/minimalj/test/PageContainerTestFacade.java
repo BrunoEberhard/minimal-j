@@ -106,6 +106,10 @@ public interface PageContainerTestFacade {
 
 		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue);
 
+		public default FormElementTestFacade getElement(String caption) {
+			return getElement(caption, null);
+		}
+
 		public default FormElementTestFacade getElement(String caption, int index) {
 			return null;
 		}
