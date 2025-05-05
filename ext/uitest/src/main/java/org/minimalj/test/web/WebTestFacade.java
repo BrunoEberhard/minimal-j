@@ -25,11 +25,12 @@ import org.minimalj.util.resources.Resources;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -41,7 +42,7 @@ public class WebTestFacade implements UiTestFacade {
 	private final RemoteWebDriver driver = createDriver();
 
 	private static RemoteWebDriver createDriver() {
-		RemoteWebDriver driver = new ChromeDriver();
+		RemoteWebDriver driver = new FirefoxDriver();
 		Window window = driver.manage().window();
 
 		window.setPosition(new Point(0, 0));
@@ -383,8 +384,18 @@ public class WebTestFacade implements UiTestFacade {
 		}
 
 		@Override
-		public FormElementTestFacade getElement(String caption) {
-			return getElement(caption, 0);
+		public FormElementTestFacade getElement(String caption, boolean isBooleanValue) {
+			List<WebElement> labels = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
+			for (var label : labels) {
+				String id = label.getAttribute("for");
+				WebElement element = form.findElement(By.id(id));
+				String type = element.getAttribute("type");
+				boolean isRadioOrCheckBox = StringUtils.equals(type, "radio", "checkbox");
+				if (isRadioOrCheckBox == isBooleanValue) {
+					return new HtmlFormElementTestFacade(element);
+				}
+			}
+			return null;
 		}
 		
 		@Override
@@ -722,7 +733,7 @@ public class WebTestFacade implements UiTestFacade {
 			element.sendKeys(text);
 			// TODO replace with 'blur'
 			try {
-				element.sendKeys("\t");
+				element.sendKeys(Keys.TAB);
 			} catch (Exception x) {
 				System.out.println("Element replaced while setting: " + text);
 			}
