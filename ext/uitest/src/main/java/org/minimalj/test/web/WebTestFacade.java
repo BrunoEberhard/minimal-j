@@ -30,6 +30,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -42,7 +43,7 @@ public class WebTestFacade implements UiTestFacade {
 	private final RemoteWebDriver driver = createDriver();
 
 	private static RemoteWebDriver createDriver() {
-		RemoteWebDriver driver = new FirefoxDriver();
+		RemoteWebDriver driver = getDriver();
 		Window window = driver.manage().window();
 
 		window.setPosition(new Point(0, 0));
@@ -54,6 +55,16 @@ public class WebTestFacade implements UiTestFacade {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
 		return driver;
 	}
+	
+	private static RemoteWebDriver getDriver() {
+		String driverName = System.getProperty("MjDriverName");
+		if (!StringUtils.isBlank(driverName) && driverName.equals("firefox")) {
+			return new FirefoxDriver();
+		}
+		return new ChromeDriver();
+	}
+	
+	
 
 	public WebTestFacade() {
 		// reload();
