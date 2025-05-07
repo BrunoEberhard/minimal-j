@@ -1,0 +1,8 @@
+= Minimal-J uitest
+In diesem Projekt beinhaltet die Basisklassen, welche zum automatisierten GUI Testing via Selenium benötigt werden.
+
+=== Konfiguration
+Über den VM Parameter MjDriverName kann man steuern, welchen Browser Selenium bei der Ausführung der Tests benutzen soll. Chrome ist per default gesetzt.
+Mit der Einstellung -DMjDriverName=firefox wird der Firefox Browser benutzt.
+
+=== Line endings
