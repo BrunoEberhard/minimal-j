@@ -700,6 +700,7 @@ public class WebTestFacade implements UiTestFacade {
 	private void clickButton(String resourceName) {
 		String caption = Resources.getString(resourceName);
 		WebElement element = driver.findElement(By.xpath(".//button[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
+		driver.switchTo().activeElement().sendKeys(Keys.TAB);
 		driver.executeScript(element.getAttribute("onclick"));
 		waitScript();
 	}
@@ -726,17 +727,8 @@ public class WebTestFacade implements UiTestFacade {
 			Select select = new Select(element);
 			select.selectByVisibleText(text);
 		} else {
-//			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
-//				element = element.findElement(By.xpath(".//input"));
-//			}
 			element.clear();
 			element.sendKeys(text);
-			// TODO replace with 'blur'
-			try {
-				element.sendKeys(Keys.TAB);
-			} catch (Exception x) {
-				System.out.println("Element replaced while setting: " + text);
-			}
 		}
 	}
 	
