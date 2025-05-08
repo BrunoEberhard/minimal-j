@@ -1,9 +1,11 @@
 package org.minimalj.test.headless;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonFormContent;
 import org.minimalj.frontend.impl.json.JsonLookup;
 import org.minimalj.frontend.impl.json.JsonTable;
@@ -15,7 +17,9 @@ import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 public class HeadlessTableTestFacade implements TableTestFacade {
 	final JsonTable<?> table;
 	final JsonFormContent overview;
-
+	final HeadlessFormTestFacade overviewTestFacade;
+	final Map<Integer, String> filters = new HashMap<>();
+	
 	public HeadlessTableTestFacade(JsonTable<?> table) {
 		this(table, null);
 	}
@@ -23,6 +27,7 @@ public class HeadlessTableTestFacade implements TableTestFacade {
 	public HeadlessTableTestFacade(JsonTable<?> table, JsonFormContent overview) {
 		this.table = table;
 		this.overview = overview;
+		this.overviewTestFacade = overview != null ? new HeadlessFormTestFacade(overview) : null;
 	}
 	
 	public JsonTableModel getTableModel() {
@@ -85,33 +90,40 @@ public class HeadlessTableTestFacade implements TableTestFacade {
 
 	@Override
 	public FormTestFacade getOverview() {
-		return new HeadlessFormTestFacade(overview);
+		return overviewTestFacade;
 	}
 	
 	@Override
 	public void setFilterVisible(boolean visible) {
 		table.setFilterVisible(visible);
 	}
-
+	
+	@Override
+	public boolean isFilterVisible() {
+		var tableModel = (JsonTable<?>.JsonTableModel) table.get("tableModel");
+		return tableModel.isFilterVisible();
+	}
+	
+	private JsonComponent getFilterComponent(int column) {
+		var tableModel = (JsonTable<?>.JsonTableModel) table.get("tableModel");
+		return (JsonComponent) ((IComponent[]) tableModel.get("headerFilters"))[column];
+	}
+	
 	@Override
 	public void setFilter(int column, String filterString) {
-		// TODO Auto-generated method stub
-
+		HeadlessFormTestFacade.setText(getFilterComponent(column), filterString);
 	}
 
 	@Override
 	public String getFilter(int column) {
-		var headerFilter = getHeaderFilters()[column];
-		// TODO Auto-generated method stub
-		return null;
+		return HeadlessFormTestFacade.getText(getFilterComponent(column));
 	}
 
 	@Override
 	public void filterLookup(int column) {
-		var headerFilter = getHeaderFilters()[column];
-		if (headerFilter instanceof JsonLookup jsonLookup) {
+		var element = getFilterComponent(column);
+		if (element instanceof JsonLookup jsonLookup) {
 			jsonLookup.showLookupDialog();
-			
 		}
 	}
 

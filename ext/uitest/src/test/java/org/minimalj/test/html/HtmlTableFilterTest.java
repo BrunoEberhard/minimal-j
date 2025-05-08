@@ -140,7 +140,7 @@ public class HtmlTableFilterTest extends UiTest {
 		FormElementTestFacade filterStringElement2 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue2"));
 
 		Assertions.assertEquals("7.10.2020", filterStringElement1.getText());
-		Assertions.assertEquals("", filterStringElement2.getText());
+		Assertions.assertTrue(StringUtils.isEmpty(filterStringElement2.getText()));
 
 		filterStringElement1.setText("6.10.2020");
 		filterStringElement2.setText("8.10.2020");
@@ -179,21 +179,21 @@ public class HtmlTableFilterTest extends UiTest {
 		
 		DialogTestFacade dialog = dialog();
 		FormElementTestFacade filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assertions.assertEquals("", filterStringElement.getText());
+		Assertions.assertTrue(StringUtils.isEmpty(filterStringElement.getText()));
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("MaxFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assertions.assertEquals("", filterStringElement.getText());
+		Assertions.assertTrue(StringUtils.isEmpty(filterStringElement.getText()));
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("MinFilterPredicate"));
 		filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
-		Assertions.assertEquals("", filterStringElement.getText());
+		Assertions.assertTrue(StringUtils.isEmpty(filterStringElement.getText()));
 
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("RangeFilterPredicate"));
 		FormElementTestFacade filterStringElement1 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1"));
 		FormElementTestFacade filterStringElement2 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue2"));
-		Assertions.assertEquals("", filterStringElement1.getText());
-		Assertions.assertEquals("", filterStringElement2.getText());
+		Assertions.assertTrue(StringUtils.isEmpty(filterStringElement1.getText()));
+		Assertions.assertTrue(StringUtils.isEmpty(filterStringElement2.getText()));
 		
 		filterStringElement1.setText("6.10.2020");
 		dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter")).setText(Resources.getString("MinFilterPredicate"));
@@ -212,7 +212,7 @@ public class HtmlTableFilterTest extends UiTest {
 		filterStringElement1 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1"));
 		filterStringElement2 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue2"));
 		Assertions.assertEquals("6.10.2020", filterStringElement1.getText());
-		Assertions.assertEquals("", filterStringElement2.getText());
+		Assertions.assertTrue(StringUtils.isEmpty(filterStringElement2.getText()));
 	}
 	
 	@Test

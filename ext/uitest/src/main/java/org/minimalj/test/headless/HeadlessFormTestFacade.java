@@ -213,6 +213,27 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 			return (String) component.get(JsonInputComponent.VALUE);
 		}
 	}
+	
+	public static void setText(JsonComponent component, String value) {
+		if (component instanceof JsonPasswordField passwordField) {
+			passwordField.changedValue(value.toCharArray());
+		} else if (component instanceof JsonCombobox jsonCombobox) {
+			var options = (LinkedHashMap<String, Map<String, String>>) jsonCombobox.get("options");
+			for (var optionEntry : options.entrySet()) {
+				var caption = optionEntry.getValue().get("text");
+				if (StringUtils.equals(caption, value)) {
+					jsonCombobox.changedValue(optionEntry.getKey());
+					return;
+				}
+			}
+			if (jsonCombobox.containsKey("nullText") && StringUtils.equals((String) jsonCombobox.get("nullText"), value)) {
+				jsonCombobox.changedValue(null);
+			}
+		} else {
+			component = unpackText(component);
+			((JsonInputComponent) component).changedValue(value);
+		}
+	}
 
 	public static class HeadlessFormElement implements FormElementTestFacade {
 		private final JsonComponent component;
@@ -233,24 +254,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		@Override
 		public void setText(String value) {
 			var component = getComponent();
-			if (component instanceof JsonPasswordField passwordField) {
-				passwordField.changedValue(value.toCharArray());
-			} else if (component instanceof JsonCombobox jsonCombobox) {
-				var options = (LinkedHashMap<String, Map<String, String>>) jsonCombobox.get("options");
-				for (var optionEntry : options.entrySet()) {
-					var caption = optionEntry.getValue().get("text");
-					if (StringUtils.equals(caption, value)) {
-						jsonCombobox.changedValue(optionEntry.getKey());
-						return;
-					}
-				}
-				if (jsonCombobox.containsKey("nullText") && StringUtils.equals((String) jsonCombobox.get("nullText"), value)) {
-					jsonCombobox.changedValue(null);
-				}
-			} else {
-				component = unpackText(component);
-				((JsonInputComponent) component).changedValue(value);
-			}
+			HeadlessFormTestFacade.setText(component, value);
 		}
 		
 		@Override

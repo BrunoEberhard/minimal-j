@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonFormContent;
 import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.page.Page.Dialog;
@@ -45,7 +46,9 @@ public class HeadlessDialogTestFacade implements DialogTestFacade {
 
 	@Override
 	public FormTestFacade getForm() {
-		return new HeadlessFormTestFacade((JsonFormContent) dialog.getContent());
+		JsonComponent content = (JsonComponent) dialog.getContent();
+		content = HeadlessFormTestFacade.unpackComponent(content);
+		return new HeadlessFormTestFacade((JsonFormContent) content);
 	}
 
 	@Override
