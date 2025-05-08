@@ -327,9 +327,16 @@ public class Form<T> {
 	 */
 	public void addDependency(Object from, Object... to) {
 		Property fromProperty = Keys.getProperty(from);
-		List<Property> list = dependencies.computeIfAbsent(fromProperty.getPath(), p -> new ArrayList<>());
+		String fromPropertyPath = fromProperty.getPath();
 		for (Object key : to) {
-			list.add(Objects.requireNonNull(Keys.getProperty(key)));
+			Property toProperty = Objects.requireNonNull(Keys.getProperty(key));
+			addDependency(fromPropertyPath, toProperty);
+		}
+	}
+	
+	private void addDependencyRecursive(Property property) {
+		for (Property dependency : Keys.getDependencies(property)) {
+			addDependencyRecursive(dependency, property);
 		}
 	}
 
@@ -342,8 +349,12 @@ public class Form<T> {
 
 	private void addDependency(String fromPropertyPath, Property to) {
 		List<Property> list = dependencies.computeIfAbsent(fromPropertyPath, p -> new ArrayList<>());
-		if (!list.contains(to)) {
-			list.add(to);
+		if (!to.getPath().equals(fromPropertyPath)) {
+			if (!list.contains(to)) {
+				list.add(to);
+			}
+		} else {
+			throw new IllegalArgumentException("Self Dependency: " + fromPropertyPath);
 		}
 	}
 
@@ -397,7 +408,7 @@ public class Form<T> {
 
 	private void addDependencies(FormElement<?> field) {
 		Property property = field.getProperty();
-		addDependencyRecursive(property, field.getProperty());
+		addDependencyRecursive(field.getProperty());
 		
 		// a.b.c
 		String path = property.getPath();
