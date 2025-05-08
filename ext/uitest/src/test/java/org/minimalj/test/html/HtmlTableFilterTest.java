@@ -94,7 +94,9 @@ public class HtmlTableFilterTest extends UiTest {
 		table.setFilterVisible(true);
 
 		table.setFilter(0, "8.10.2020");
-		DialogTestFacade dialog = table.filterLookup(0);
+		table.filterLookup(0);
+		
+		DialogTestFacade dialog = dialog();
 
 		FormElementTestFacade filterSelectionElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter"));
 		Assertions.assertEquals(Resources.getString("EqualsFilterPredicate"), filterSelectionElement.getText());
@@ -111,8 +113,9 @@ public class HtmlTableFilterTest extends UiTest {
 		//
 
 		table.setFilter(0, "<7.10.2020");
-		dialog = table.filterLookup(0);
+		table.filterLookup(0);
 
+		dialog = dialog();
 		filterSelectionElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter"));
 		Assertions.assertEquals(Resources.getString("MaxFilterPredicate"), filterSelectionElement.getText());
 
@@ -127,7 +130,9 @@ public class HtmlTableFilterTest extends UiTest {
 
 		//
 
-		dialog = table.filterLookup(0);
+		table.filterLookup(0);
+		
+		dialog = dialog();
 		filterSelectionElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter"));
 		filterSelectionElement.setText(Resources.getString("RangeFilterPredicate"));
 
@@ -146,7 +151,9 @@ public class HtmlTableFilterTest extends UiTest {
 		
 		//
 		
-		dialog = table.filterLookup(0);
+		table.filterLookup(0);
+		
+		dialog = dialog();
 		filterSelectionElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filter"));
 
 		filterStringElement1 = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue1"));
@@ -168,7 +175,9 @@ public class HtmlTableFilterTest extends UiTest {
 		TableTestFacade table = page.getTable();
 		table.setFilterVisible(true);
 
-		DialogTestFacade dialog = table.filterLookup(0);
+		table.filterLookup(0);
+		
+		DialogTestFacade dialog = dialog();
 		FormElementTestFacade filterStringElement = dialog.getForm().getElement(Resources.getString("ColumnFilterModel.filterValue"));
 		Assertions.assertEquals("", filterStringElement.getText());
 

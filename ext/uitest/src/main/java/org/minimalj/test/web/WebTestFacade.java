@@ -673,14 +673,11 @@ public class WebTestFacade implements UiTestFacade {
 		}
 		
 		@Override
-		public DialogTestFacade filterLookup(int column) {
+		public void filterLookup(int column) {
 			WebElement columnFilter = getColumnFilter(column);
 			WebElement lookupButton = columnFilter.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
-			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
-			return new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1));
-
 		}
 	}
 

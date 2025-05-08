@@ -215,7 +215,7 @@ public interface PageContainerTestFacade {
 		
 		public String getFilter(int column);
 		
-		public DialogTestFacade filterLookup(int column);
+		public void filterLookup(int column);
 		
 		public default int findRow(String text) {
 			for (int row = 0; row < getRowCount(); row++) {

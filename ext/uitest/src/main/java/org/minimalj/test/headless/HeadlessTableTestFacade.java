@@ -8,7 +8,6 @@ import org.minimalj.frontend.impl.json.JsonFormContent;
 import org.minimalj.frontend.impl.json.JsonLookup;
 import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.impl.json.JsonTable.JsonTableModel;
-import org.minimalj.test.PageContainerTestFacade.DialogTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.SearchTableTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
@@ -108,13 +107,12 @@ public class HeadlessTableTestFacade implements TableTestFacade {
 	}
 
 	@Override
-	public DialogTestFacade filterLookup(int column) {
+	public void filterLookup(int column) {
 		var headerFilter = getHeaderFilters()[column];
 		if (headerFilter instanceof JsonLookup jsonLookup) {
 			jsonLookup.showLookupDialog();
 			
 		}
-		return null;
 	}
 
 	public static class HeadlessSearchTableTestFacade extends HeadlessTableTestFacade implements SearchTableTestFacade {
