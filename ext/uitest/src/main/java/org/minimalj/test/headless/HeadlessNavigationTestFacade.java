@@ -23,13 +23,15 @@ class HeadlessNavigationTestFacade implements NavigationTestFacade {
 	}
 
 	private void traverse(List<Action> actions) {
-		actions.forEach(action -> {
-			if (action instanceof ActionGroup actionGroup) {
-				traverse(actionGroup.getItems());
-			} else if (!(action instanceof Separator)) {
-				HeadlessNavigationTestFacade.this.actions.put(action.getName(), action);
-			}
-		});
+		if (actions != null) {
+			actions.forEach(action -> {
+				if (action instanceof ActionGroup actionGroup) {
+					traverse(actionGroup.getItems());
+				} else if (!(action instanceof Separator)) {
+					HeadlessNavigationTestFacade.this.actions.put(action.getName(), action);
+				}
+			});
+		}
 	}
 	
 	@Override

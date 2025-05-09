@@ -1,12 +1,16 @@
 package org.minimalj.test.headless;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonRadioButtons;
@@ -31,8 +35,30 @@ public class HeadlessFrontend extends JsonFrontend {
 	
 	@Override
 	public boolean showLogin(Dialog dialog) {
-		getPageManager().showDialog(dialog);
+		List<Action> actions;
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+			SkipLoginAction skipLoginAction = new SkipLoginAction(dialog);
+			actions = Arrays.asList(skipLoginAction, dialog.getSaveAction());
+		} else {
+			actions = Collections.singletonList(dialog.getSaveAction());
+		}
+		getPageManager().showDialog(dialog, actions);
 		return true;
+	}
+	
+	private class SkipLoginAction extends Action {
+		private final Dialog dialog;
+
+		public SkipLoginAction(Dialog dialog) {
+			this.dialog = dialog;
+		}
+		
+		@Override
+		public void run() {
+			Subject.setCurrent(null);
+			Frontend.getInstance().login(null);
+			Frontend.closeDialog(dialog);
+		}
 	}
 	
 	@Override
@@ -189,6 +215,11 @@ public class HeadlessFrontend extends JsonFrontend {
 			var dialogTestFacade = new HeadlessDialogTestFacade(dialog);
 			dialogs.add(dialogTestFacade);
 		}
+		
+		public void showDialog(Dialog dialog, List<Action> actions) {
+			var dialogTestFacade = new HeadlessDialogTestFacade(dialog, actions);
+			dialogs.add(dialogTestFacade);
+		}
 
 		@Override
 		public void closeDialog(Dialog dialog) {
@@ -218,6 +249,12 @@ public class HeadlessFrontend extends JsonFrontend {
 			} else {
 				show(Application.getInstance().createDefaultPage());
 			}
+		}
+		
+		@Override
+		public void logout() {
+			history.clear();
+			Frontend.getInstance().login(null);
 		}
 		
 		//

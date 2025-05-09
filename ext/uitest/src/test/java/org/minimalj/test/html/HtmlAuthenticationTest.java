@@ -73,10 +73,13 @@ public class HtmlAuthenticationTest extends UiTest {
 
 		pageContainer.logout();
 		
-		ui().getCurrentPageContainerTestFacade().getBack().run();
+		var back = ui().getCurrentPageContainerTestFacade().getBack();
+		if (back.isEnabled()) {
+			back.run();
 
-		page = pageContainer.getPage();
-		Assertions.assertTrue(page.contains("refresh"), "User cannot return to previous page after logout");
+			page = pageContainer.getPage();
+			Assertions.assertTrue(page.contains("refresh"), "User cannot return to previous page after logout");
+		}
 	}
 	
 	@Test

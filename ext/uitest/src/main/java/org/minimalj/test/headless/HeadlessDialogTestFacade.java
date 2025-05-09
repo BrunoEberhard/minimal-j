@@ -1,6 +1,7 @@
 package org.minimalj.test.headless;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.minimalj.frontend.Frontend;
@@ -27,6 +28,11 @@ public class HeadlessDialogTestFacade implements DialogTestFacade {
 		}
 		addAction(dialog.getSaveAction());
 		addAction(dialog.getCancelAction());
+	}
+	
+	public HeadlessDialogTestFacade(Dialog dialog, List<Action> actions) {
+		this.dialog = dialog;
+		actions.forEach(this::addAction);
 	}
 
 	public Dialog getDialog() {

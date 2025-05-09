@@ -1,7 +1,9 @@
 package org.minimalj.test.headless;
 
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.impl.json.JsonCustomFilter;
 import org.minimalj.frontend.impl.json.JsonFormContent;
+import org.minimalj.frontend.impl.json.JsonHtmlContent;
 import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.TablePage;
@@ -54,8 +56,13 @@ public class HeadlessPageTestFacade implements PageTestFacade {
 
 	@Override
 	public boolean contains(String string) {
-		// TODO Auto-generated method stub
-		return false;
+		IContent content = page.getContent();
+		if (content instanceof JsonHtmlContent htmlContent) {
+			String html = (String) htmlContent.get("htmlOrUrl");
+			return html.contains(string);
+		} else {
+			return false;
+		}
 	}
 
 }
