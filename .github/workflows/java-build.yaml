@@ -1,0 +1,31 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches:
+      - main # Führen Sie den Workflow bei jedem Push auf den 'main'-Branch aus
+      - develop # Fügen Sie weitere Branches hinzu, falls nötig
+  # pull_request: # Optional: Führen Sie den Workflow auch bei Pull Requests aus
+  #   branches:
+  #     - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Make Maven Wrapper Executable
+      run: chmod +x mvnw
+
+    - name: Build with Maven
+      run: ./mvnw package
+      # run: ./mvnw package -B -DskipTests
