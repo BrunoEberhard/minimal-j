@@ -27,5 +27,7 @@ jobs:
       run: chmod +x mvnw
 
     - name: Build with Maven
-      run: ./mvnw package
-      # run: ./mvnw package -B -DskipTests
+      run: ./mvnw deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # run: ./mvnw package -DskipTests
