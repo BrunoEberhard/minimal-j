@@ -8,6 +8,14 @@
 	<name>Minimal-J UI-Test</name>
 	<description>Tests and helper for tests</description>
 
+	<distributionManagement>
+		<snapshotRepository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/BrunoEberhard/minimal-j</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -49,15 +57,15 @@
 		    <groupId>org.seleniumhq.selenium</groupId>
 		    <artifactId>selenium-java</artifactId>
 		    <version>4.28.1</version>
-		</dependency>		
+		</dependency>
+
+		<dependency>
+			<groupId>com.fifesoft</groupId>
+			<artifactId>autocomplete</artifactId>
+			<version>3.3.1</version>
+			<scope>test</scope>
+		</dependency>
 		
 	</dependencies>
-
-	<distributionManagement>
-		<repository>
-			<id>openech-repository</id>
-			<url>ftp://ftp.openech.ch/public_html/repository</url>
-		</repository>
-	</distributionManagement>
 
 </project>
