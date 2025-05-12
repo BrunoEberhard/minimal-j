@@ -99,6 +99,9 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		if (required) {
 			jsonComponent.put(REQUIRED, required);
 		}
+		jsonComponent.put("row", rows.size() - 1);
+		jsonComponent.put("column", actualRow.size());
+		
 		if (actualColumn >= columns) {
 			createNewRow();
 		}

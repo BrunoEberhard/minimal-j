@@ -962,6 +962,12 @@ $ICON
 		if (content.validationMessage != undefined && content.validationMessage.length > 0) {
 			element.title = content.validationMessage;
 		}
+		if (content.row != undefined) {
+			element.setAttribute("row", content.row);
+		}
+		if (content.column != undefined) {
+			element.setAttribute("column", content.column);
+		}
 		return element;
 	}
 	
