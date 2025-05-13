@@ -99,8 +99,6 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		if (required) {
 			jsonComponent.put(REQUIRED, required);
 		}
-		jsonComponent.put("row", rows.size() - 1);
-		jsonComponent.put("column", actualRow.size());
 		
 		if (actualColumn >= columns) {
 			createNewRow();
@@ -109,6 +107,8 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 			span = columns - actualColumn;
 		}
 		jsonComponent.put(SPAN, span);
+		jsonComponent.put("row", rows.size() - 1);
+		jsonComponent.put("column", actualRow.size());
 		setHeights(constraint, jsonComponent);
 		actualRow.add(jsonComponent);
 		actualColumn += span;
