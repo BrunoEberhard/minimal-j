@@ -226,8 +226,9 @@ $ICON
 								document.getElementById(value).checked = true;
 							}
 							if (document.activeElement != element || element.id != dataObject.source || element.changeOnFocus) {
-								// a date (formatted input) should not change while user is entering more characters
+								// a date (or other formatted input) should not change while user is entering more characters
 								element[property] = value;
+								delete element.valueOnBlur;
 							} else {
 								element.valueOnBlur = value;
 							}
@@ -278,7 +279,7 @@ $ICON
 	function setDeferredValue(element) {
 		if (element.valueOnBlur) {
 			element.value = element.valueOnBlur;
-			element.valueOnBlur = undefined;
+			delete element.valueOnBlur;
 		}
 	}
 	
@@ -286,6 +287,7 @@ $ICON
 	var lastChangedTextField = null;
 	
 	function ontextchange(element) {
+		delete element.valueOnBlur;
 		if (timerTextFieldChange) {
 			clearTimeout(timerTextFieldChange);
 			timerTextFieldChange = null;
@@ -295,9 +297,11 @@ $ICON
 	}
 	
 	function ontextinput(element) {
-		element.valueOnBlur = null;
+		delete element.valueOnBlur;
 		if (element !== lastChangedTextField) {
-			ontextchange(lastChangedTextField);
+			if (lastChangedTextField != null) {
+				ontextchange(lastChangedTextField);
+			}
 			sendchange(element);
 			lastChangedTextField = element;
 		} else {
