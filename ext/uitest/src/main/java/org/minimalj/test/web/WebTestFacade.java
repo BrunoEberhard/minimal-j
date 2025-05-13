@@ -3,6 +3,7 @@ package org.minimalj.test.web;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +32,7 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -61,7 +63,12 @@ public class WebTestFacade implements UiTestFacade {
 		if (!StringUtils.isBlank(driverName) && driverName.equals("firefox")) {
 			return new FirefoxDriver();
 		}
-		return new ChromeDriver();
+
+		ChromeOptions chromeOptions = new ChromeOptions();
+        var prefs = Map.of("autofill.profile_enabled", false, "autofill.credit_card_enabled", false, "credentials_enable_service", false, "profile.password_manager_enabled", false);
+        chromeOptions.setExperimentalOption("prefs", prefs);
+
+        return new ChromeDriver(chromeOptions);
 	}
 	
 	
