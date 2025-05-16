@@ -210,8 +210,10 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 				return Rendering.toString(value);
 			}
 		} else {
-			if (component instanceof JsonInputComponent inputComponent) {
+			if (component instanceof JsonInputComponent inputComponent || component.containsKey(JsonInputComponent.VALUE)) {
 				return (String) component.get(JsonInputComponent.VALUE);
+			} else if (component instanceof JsonAction jsonAction) {
+				return (String) jsonAction.get("name");
 			} else {
 				throwNotInputComponent(component);
 				return null;
