@@ -713,7 +713,6 @@ public class WebTestFacade implements UiTestFacade {
 	private void clickButton(String resourceName) {
 		String caption = Resources.getString(resourceName);
 		WebElement element = driver.findElement(By.xpath(".//button[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
-		driver.switchTo().activeElement().sendKeys(Keys.TAB);
 		driver.executeScript(element.getAttribute("onclick"));
 		waitScript();
 	}
@@ -744,10 +743,14 @@ public class WebTestFacade implements UiTestFacade {
 			Select select = new Select(element);
 			select.selectByVisibleText(text);
 		} else {
+			element.click();
 			element.clear();
 			element.sendKeys(text);
-			// WebElement body = driver.findElement(By.tagName("body"));
-			// body.click();
+
+			// blur
+			Actions actions = new Actions(driver);
+			actions.sendKeys(Keys.TAB);
+			actions.perform();
 		}
 	}
 	
