@@ -36,6 +36,6 @@ jobs:
       # run: ./mvnw package -DskipTests
 
     - name: Build uitest
-      run: ./mvnw deploy -DUiTest=headless -DskipTests -f ./ext/uitest/pom.xml
+      run: ./mvnw deploy -DUiTestDriver=headless -DskipTests -f ./ext/uitest/pom.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

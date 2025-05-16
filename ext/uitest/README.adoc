@@ -2,7 +2,8 @@
 In diesem Projekt beinhaltet die Basisklassen, welche zum automatisierten GUI Testing via Selenium benötigt werden.
 
 === Konfiguration
-Über den VM Parameter MjDriverName kann man steuern, welchen Browser Selenium bei der Ausführung der Tests benutzen soll. Chrome ist per default gesetzt.
-Mit der Einstellung -DMjDriverName=firefox wird der Firefox Browser benutzt.
+Über den VM Parameter UiTestDriver kann man steuern, welchen Browser Selenium bei der Ausführung der Tests benutzen soll. Chrome ist per default gesetzt.
+Mit der Einstellung -DUiTestDriver=firefox wird der Firefox Browser benutzt. Mit "chrome" der Chrome Browser.
+Ohne die Konfiguration oder mit "headless" werden die Tests ohne Browser ausgeführt.
 
 === Line endings

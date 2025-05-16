@@ -42,10 +42,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WebTestFacade implements UiTestFacade {
 
-	private final RemoteWebDriver driver = createDriver();
-
-	private static RemoteWebDriver createDriver() {
-		RemoteWebDriver driver = getDriver();
+	private final RemoteWebDriver driver;
+	
+	public enum UiTestDriver {
+		firefox, chrome;
+	}
+	
+	public WebTestFacade(UiTestDriver driverName) {
+		driver = createDriver(driverName);
+		
 		Window window = driver.manage().window();
 
 		window.setPosition(new Point(0, 0));
@@ -55,24 +60,22 @@ public class WebTestFacade implements UiTestFacade {
 		Assertions.assertEquals(900, window.getSize().height);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
-		return driver;
 	}
-	
-	private static RemoteWebDriver getDriver() {
-		String driverName = System.getProperty("MjDriverName");
-		if (!StringUtils.isBlank(driverName) && driverName.equals("firefox")) {
+
+	private static RemoteWebDriver createDriver(UiTestDriver driverName) {
+		switch (driverName) {
+		case chrome:
+			ChromeOptions chromeOptions = new ChromeOptions();
+			var prefs = Map.of("autofill.profile_enabled", false, "autofill.credit_card_enabled", false, "credentials_enable_service", false,
+					"profile.password_manager_enabled", false);
+			chromeOptions.setExperimentalOption("prefs", prefs);
+
+			return new ChromeDriver(chromeOptions);
+		case firefox:
 			return new FirefoxDriver();
+		default:
+			throw new IllegalStateException();
 		}
-
-		ChromeOptions chromeOptions = new ChromeOptions();
-        var prefs = Map.of("autofill.profile_enabled", false, "autofill.credit_card_enabled", false, "credentials_enable_service", false, "profile.password_manager_enabled", false);
-        chromeOptions.setExperimentalOption("prefs", prefs);
-
-        return new ChromeDriver(chromeOptions);
-	}
-
-	public WebTestFacade() {
-		// reload();
 	}
 
 	@Override
