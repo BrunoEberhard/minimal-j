@@ -210,7 +210,12 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 				return Rendering.toString(value);
 			}
 		} else {
-			return (String) component.get(JsonInputComponent.VALUE);
+			if (component instanceof JsonInputComponent inputComponent) {
+				return (String) component.get(JsonInputComponent.VALUE);
+			} else {
+				throwNotInputComponent(component);
+				return null;
+			}
 		}
 	}
 	
@@ -234,13 +239,17 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 			if (component instanceof JsonInputComponent inputComponent) {
 				inputComponent.changedValue(value);
 			} else {
-				String type = (String) component.get("type");
-				if (StringUtils.equals(type, "groupVertical", "groupHorizontal")) {
-					throw new IllegalArgumentException("Component is a group not an input. Please use element.groupItem(x).setText(string) to select item in group");
-				} else {
-					throw new IllegalArgumentException("Component is not an input but a " + type);
-				}
+				throwNotInputComponent(component);
 			}
+		}
+	}
+	
+	private static void throwNotInputComponent(JsonComponent component) {
+		String type = (String) component.get("type");
+		if (StringUtils.equals(type, "groupVertical", "groupHorizontal")) {
+			throw new IllegalArgumentException("Component is a group not an input. Please use element.groupItem(x) to select item in group");
+		} else {
+			throw new IllegalArgumentException("Component is not an input but a " + type);
 		}
 	}
 
