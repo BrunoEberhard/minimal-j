@@ -231,7 +231,16 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 			}
 		} else {
 			component = unpackText(component);
-			((JsonInputComponent) component).changedValue(value);
+			if (component instanceof JsonInputComponent inputComponent) {
+				inputComponent.changedValue(value);
+			} else {
+				String type = (String) component.get("type");
+				if (StringUtils.equals(type, "groupVertical", "groupHorizontal")) {
+					throw new IllegalArgumentException("Component is a group not an input. Please use element.groupItem(x).setText(string) to select item in group or use element.setText(x, string)");
+				} else {
+					throw new IllegalArgumentException("Component is not an input but a " + type);
+				}
+			}
 		}
 	}
 
