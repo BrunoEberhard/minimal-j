@@ -70,8 +70,6 @@ public class WebTestFacade implements UiTestFacade {
 
         return new ChromeDriver(chromeOptions);
 	}
-	
-	
 
 	public WebTestFacade() {
 		// reload();
@@ -169,7 +167,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public DialogTestFacade getDialog() {
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
-			return new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1));
+			return !dialogs.isEmpty() ? new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1)) : null;
 		}
 
 		@Override
