@@ -12,21 +12,27 @@ import org.minimalj.util.StringUtils;
 
 public abstract class UiTest {
 	public static final String CONFIGURATION_UI_TEST_DRIVER = "UiTestDriver";
+	public static final String CONFIGURATION_UI_TEST_HEADLESS = "UiTestHeadless";
 	
 	private static UiTestFacade ui;
 	private static Application application;
 
 	static {
-		String configurationUiTestDriver = Configuration.get(CONFIGURATION_UI_TEST_DRIVER, null);
-		if (StringUtils.isEmpty(configurationUiTestDriver) || StringUtils.equals(configurationUiTestDriver, "headless")) {
-			ui = new HeadlessTestFacade();
-		} else {
+		WebTestFacade.UiTestDriver uiTestDriver = null;
+		String configurationUiTestDriver = Configuration.get(CONFIGURATION_UI_TEST_DRIVER);
+		if (!StringUtils.isEmpty(configurationUiTestDriver)) {
 			try {
-				var uiTestDriver = WebTestFacade.UiTestDriver.valueOf(configurationUiTestDriver);
-				ui = new WebTestFacade(uiTestDriver);
+				uiTestDriver = WebTestFacade.UiTestDriver.valueOf(configurationUiTestDriver);
 			} catch (Exception x) {
 				throw new IllegalArgumentException("Invalid " + CONFIGURATION_UI_TEST_DRIVER + ": " + configurationUiTestDriver);
 			}
+		}
+
+		if (uiTestDriver != null) {
+			boolean headless = "true".equals(Configuration.get(CONFIGURATION_UI_TEST_HEADLESS));
+			ui = new WebTestFacade(uiTestDriver, headless);
+		} else {
+			ui = new HeadlessTestFacade();
 		}
 	}
 

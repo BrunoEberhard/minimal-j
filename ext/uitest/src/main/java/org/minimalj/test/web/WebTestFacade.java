@@ -34,6 +34,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -48,8 +49,8 @@ public class WebTestFacade implements UiTestFacade {
 		firefox, chrome;
 	}
 	
-	public WebTestFacade(UiTestDriver driverName) {
-		driver = createDriver(driverName);
+	public WebTestFacade(UiTestDriver driverName, boolean headless) {
+		driver = createDriver(driverName, headless);
 		
 		Window window = driver.manage().window();
 
@@ -62,17 +63,23 @@ public class WebTestFacade implements UiTestFacade {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
 	}
 
-	private static RemoteWebDriver createDriver(UiTestDriver driverName) {
+	private static RemoteWebDriver createDriver(UiTestDriver driverName, boolean headless) {
 		switch (driverName) {
 		case chrome:
 			ChromeOptions chromeOptions = new ChromeOptions();
 			var prefs = Map.of("autofill.profile_enabled", false, "autofill.credit_card_enabled", false, "credentials_enable_service", false,
-					"profile.password_manager_enabled", false);
+					"profile.password_manager_enabled", false, "--headless", headless);
 			chromeOptions.setExperimentalOption("prefs", prefs);
-
+			if (headless) {
+				chromeOptions.addArguments("--headless");
+			}
 			return new ChromeDriver(chromeOptions);
 		case firefox:
-			return new FirefoxDriver();
+			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			if (headless) {
+				firefoxOptions.addArguments("--headless");
+			}
+			return new FirefoxDriver(firefoxOptions);
 		default:
 			throw new IllegalStateException();
 		}
