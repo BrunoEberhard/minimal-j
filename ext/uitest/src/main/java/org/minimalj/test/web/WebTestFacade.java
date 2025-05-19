@@ -94,7 +94,7 @@ public class WebTestFacade implements UiTestFacade {
 
 	private static String getLocaleString() {
 		Locale currentLocale = Locale.getDefault();
-		String localeString = currentLocale.getDisplayLanguage();
+		String localeString = currentLocale.getLanguage();
 		int index = localeString.indexOf('-');
 		if (index < 0) {
 			return localeString;
