@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +44,8 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WebTestFacade implements UiTestFacade {
-
+	private static final Logger logger = Logger.getLogger(WebTestFacade.class.getName());
+	
 	private final RemoteWebDriver driver;
 	
 	public enum UiTestDriver {
@@ -65,6 +67,8 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	private static RemoteWebDriver createDriver(UiTestDriver driverName, boolean headless) {
+		String localeString = getLocaleString();
+		logger.info("Locale for uitest browser is: " + localeString);
 		switch (driverName) {
 		case chrome:
 			ChromeOptions chromeOptions = new ChromeOptions();
@@ -74,21 +78,21 @@ public class WebTestFacade implements UiTestFacade {
 			if (headless) {
 				chromeOptions.addArguments("--headless");
 			}
-			chromeOptions.addArguments("--accept-lang=" + getLocalString());
+			chromeOptions.addArguments("--accept-lang=" + localeString);
 			return new ChromeDriver(chromeOptions);
 		case firefox:
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			if (headless) {
 				firefoxOptions.addArguments("--headless");
 			}
-			firefoxOptions.addPreference("intl.accept_languages", getLocalString());
+			firefoxOptions.addPreference("intl.accept_languages", localeString);
 			return new FirefoxDriver(firefoxOptions);
 		default:
 			throw new IllegalStateException();
 		}
 	}	
 
-	private static String getLocalString() {
+	private static String getLocaleString() {
 		Locale currentLocale = Locale.getDefault();
 		String localeString = currentLocale.getDisplayLanguage();
 		int index = localeString.indexOf('-');
