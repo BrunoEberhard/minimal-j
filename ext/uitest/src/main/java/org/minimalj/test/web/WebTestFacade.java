@@ -45,14 +45,21 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WebTestFacade implements UiTestFacade {
 	private static final Logger logger = Logger.getLogger(WebTestFacade.class.getName());
+	private final UiTestDriver driverName;
+	private final boolean headless;
 	
-	private final RemoteWebDriver driver;
+	private RemoteWebDriver driver;
 	
 	public enum UiTestDriver {
 		firefox, chrome;
 	}
 	
 	public WebTestFacade(UiTestDriver driverName, boolean headless) {
+		this.driverName = driverName;
+		this.headless = headless;
+	}
+	
+	private void init() {
 		driver = createDriver(driverName, headless);
 		
 		Window window = driver.manage().window();
@@ -66,7 +73,7 @@ public class WebTestFacade implements UiTestFacade {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
 	}
 
-	private static RemoteWebDriver createDriver(UiTestDriver driverName, boolean headless) {
+	static RemoteWebDriver createDriver(UiTestDriver driverName, boolean headless) {
 		String localeString = getLocaleString();
 		logger.info("Locale for uitest browser is: " + localeString);
 		switch (driverName) {
@@ -106,6 +113,7 @@ public class WebTestFacade implements UiTestFacade {
 	@Override
 	public void start(Application application) {
 		WebServer.start(application);
+		init();
 		reload();
 	}
 	
