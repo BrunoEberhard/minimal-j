@@ -3,6 +3,7 @@ package org.minimalj.test.web;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -73,18 +74,31 @@ public class WebTestFacade implements UiTestFacade {
 			if (headless) {
 				chromeOptions.addArguments("--headless");
 			}
+			chromeOptions.addArguments("--accept-lang=" + getLocalString());
 			return new ChromeDriver(chromeOptions);
 		case firefox:
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			if (headless) {
 				firefoxOptions.addArguments("--headless");
 			}
+			firefoxOptions.addPreference("intl.accept_languages", getLocalString());
 			return new FirefoxDriver(firefoxOptions);
 		default:
 			throw new IllegalStateException();
 		}
-	}
+	}	
 
+	private static String getLocalString() {
+		Locale currentLocale = Locale.getDefault();
+		String localeString = currentLocale.getDisplayLanguage();
+		int index = localeString.indexOf('-');
+		if (index < 0) {
+			return localeString;
+		} else {
+			return  localeString.substring(0, index) + localeString.substring(index).toUpperCase();
+		}
+	}
+	
 	@Override
 	public void start(Application application) {
 		WebServer.start(application);
