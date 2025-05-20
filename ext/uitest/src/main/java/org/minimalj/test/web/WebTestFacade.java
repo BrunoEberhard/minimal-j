@@ -80,7 +80,7 @@ public class WebTestFacade implements UiTestFacade {
 		case chrome:
 			ChromeOptions chromeOptions = new ChromeOptions();
 			var prefs = Map.of("autofill.profile_enabled", false, "autofill.credit_card_enabled", false, "credentials_enable_service", false,
-					"profile.password_manager_enabled", false, "--headless", headless);
+					"profile.password_manager_enabled", false, "profile.password_manager_leak_detection", false, "--headless", headless);
 			chromeOptions.setExperimentalOption("prefs", prefs);
 			if (headless) {
 				chromeOptions.addArguments("--headless");
