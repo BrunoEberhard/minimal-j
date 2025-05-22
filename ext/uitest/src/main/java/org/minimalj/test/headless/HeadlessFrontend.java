@@ -135,10 +135,10 @@ public class HeadlessFrontend extends JsonFrontend {
 	class HeadlessPageManager implements PageManager, PageContainerTestFacade, HistoryListener {
 		private final BackPageAction backAction;
 		private final ForwardPageAction forwardAction; // , refreshAction, previousAction, nextAction, filterAction, favoriteAction;
-		private final History<List<Page>> history;
+		private final History<List<HeadlessPageTestFacade>> history;
 		private final List<HeadlessDialogTestFacade> dialogs;
 		
-		private final List<Page> visiblePageAndDetailsList;
+		private final List<HeadlessPageTestFacade> visiblePageAndDetailsList;
 
 		private HeadlessNavigationTestFacade navigationTestFacade;
 		
@@ -169,13 +169,7 @@ public class HeadlessFrontend extends JsonFrontend {
 		
 		@Override
 		public List<PageTestFacade> getPages() {
-			List<PageTestFacade> pages = new ArrayList<>();
-			if (history.getPresent() != null) {
-				history.getPresent().forEach(page -> {
-					pages.add(new HeadlessPageTestFacade(page));
-				});
-			}
-			return pages;
+			return new ArrayList<>(history.getPresent());
 		}
 
 		@Override
@@ -202,9 +196,7 @@ public class HeadlessFrontend extends JsonFrontend {
 		@Override
 		public void show(Page page) {
 			if (Authorization.hasAccess(Subject.getCurrent(), page)) {
-				List<Page> pages = new ArrayList<>();
-				pages.add(page);
-				history.add(pages);
+				history.add(List.of(new HeadlessPageTestFacade(page)));
 			} else {
 				Frontend.showError("No Access to " + page.getClass().getSimpleName());
 			}
@@ -260,7 +252,7 @@ public class HeadlessFrontend extends JsonFrontend {
 		//
 		
 		public Page getVisiblePage() {
-			return visiblePageAndDetailsList.get(0);
+			return visiblePageAndDetailsList.get(0).getPage();
 		}
 
 		protected void updateActions() {
@@ -278,7 +270,7 @@ public class HeadlessFrontend extends JsonFrontend {
 		public void onHistoryChanged() {
 			visiblePageAndDetailsList.clear();
 
-			for (Page page : history.getPresent()) {
+			for (HeadlessPageTestFacade page : history.getPresent()) {
 				addPageOrDetail(page);
 			}
 
@@ -293,7 +285,7 @@ public class HeadlessFrontend extends JsonFrontend {
 			return history.hasPast();
 		}
 		
-		private void addPageOrDetail(Page page) {
+		private void addPageOrDetail(HeadlessPageTestFacade page) {
 			visiblePageAndDetailsList.add(page);
 		}
 		

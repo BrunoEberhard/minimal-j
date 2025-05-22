@@ -6,7 +6,6 @@ import org.minimalj.frontend.impl.json.JsonFormContent;
 import org.minimalj.frontend.impl.json.JsonHtmlContent;
 import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.page.Page;
-import org.minimalj.frontend.page.TablePage;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
@@ -15,10 +14,31 @@ import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 public class HeadlessPageTestFacade implements PageTestFacade {
 	private final Page page;
 	private final HeadlessNavigationTestFacade contextMenu;
+	private final IContent content;
+	private final TableTestFacade table;
+	private final FormTestFacade form;
 	
 	public HeadlessPageTestFacade(Page page) {
 		this.page = page;
 		this.contextMenu = new HeadlessNavigationTestFacade(page.getActions());
+		content = page.getContent();
+		if (content instanceof JsonCustomFilter jsonCustomFilter) {
+			table = new HeadlessTableTestFacade((JsonTable<?>) jsonCustomFilter.get("table"), (JsonFormContent) jsonCustomFilter.get("filter"));
+			form = null;
+		} else if (content instanceof JsonTable jsonTable){
+			table = new HeadlessTableTestFacade(jsonTable);
+			form = null;
+		} else if (content instanceof JsonFormContent jsonFormContent) {
+			table = null;
+			form = new HeadlessFormTestFacade((JsonFormContent) page.getContent());
+		} else {
+			table = null;
+			form = null;
+		}
+	}
+	
+	public Page getPage() {
+		return page;
 	}
 
 	@Override
@@ -38,25 +58,16 @@ public class HeadlessPageTestFacade implements PageTestFacade {
 
 	@Override
 	public TableTestFacade getTable() {
-		if (page instanceof TablePage<?> tablePage) {
-			var content = tablePage.getContent();
-			if (content instanceof JsonCustomFilter jsonCustomFilter) {
-				return new HeadlessTableTestFacade((JsonTable<?>) jsonCustomFilter.get("table"), (JsonFormContent) jsonCustomFilter.get("filter"));
-			} else {
-				return new HeadlessTableTestFacade((JsonTable<?>) tablePage.getContent());
-			}
-		}
-		return null;
+		return table;
 	}
 
 	@Override
 	public FormTestFacade getForm() {
-		return new HeadlessFormTestFacade((JsonFormContent) page.getContent());
+		return form;
 	}
 
 	@Override
 	public boolean contains(String string) {
-		IContent content = page.getContent();
 		if (content instanceof JsonHtmlContent htmlContent) {
 			String html = (String) htmlContent.get("htmlOrUrl");
 			return html.contains(string);
