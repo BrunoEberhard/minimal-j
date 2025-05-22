@@ -150,7 +150,6 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public void close() {
 			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -192,7 +191,15 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public DialogTestFacade getDialog() {
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
-			return !dialogs.isEmpty() ? new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1)) : null;
+			if (!dialogs.isEmpty()) {
+				return new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1));
+			} else {
+				List<WebElement> contentLogins = driver.findElements(By.className("contentLogin"));
+				if (!contentLogins.isEmpty()) {
+					return new HtmlDialogTestFacade(contentLogins.get(0));
+				}
+			}
+			return null;
 		}
 
 		@Override

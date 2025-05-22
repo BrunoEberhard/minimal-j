@@ -110,15 +110,13 @@ public class SwingTestFacade implements UiTestFacade {
 		@Override
 		public void cancel() {
 			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
 		public void close() {
 			// TODO Auto-generated method stub
-			
 		}
-
+		
 		@Override
 		public void setUser(String name) {
 			SwingTestUtils.setText(swingDialog, "UserPassword.user", name);
