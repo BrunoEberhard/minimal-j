@@ -289,7 +289,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		@Override
 		public void setChecked(boolean checked) {
 			if (getComponent() instanceof JsonCheckBox jsonCheckBox) {
-				jsonCheckBox.setValue(checked);
+				jsonCheckBox.changedValue(checked);
 			}
 		}
 
