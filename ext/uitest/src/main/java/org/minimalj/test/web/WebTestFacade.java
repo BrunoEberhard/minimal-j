@@ -796,6 +796,10 @@ public class WebTestFacade implements UiTestFacade {
 			select.getAllSelectedOptions();
 			return select.getAllSelectedOptions().isEmpty() ? null : select.getFirstSelectedOption().getText();
 		} if (element.getTagName().equalsIgnoreCase("div")) {
+			var anchors = element.findElements(By.tagName("a"));
+			if (anchors.size() == 1) {
+				return anchors.get(0).getText();
+			}
 			return element.getText();
 		}  else {
 			return element.getAttribute("value");
