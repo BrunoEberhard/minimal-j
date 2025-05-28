@@ -94,7 +94,9 @@ public interface PageContainerTestFacade {
 		public default void save() {
 			String caption = Resources.getString("SaveAction");
 			ActionTestFacade action = getAction(caption);
-			action.run();
+			if (action.isEnabled()) {
+				action.run();
+			}
 		}
 		
 		public default FormTestFacade form() {
