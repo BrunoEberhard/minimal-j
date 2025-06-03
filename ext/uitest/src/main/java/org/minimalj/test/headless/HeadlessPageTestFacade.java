@@ -22,8 +22,8 @@ public class HeadlessPageTestFacade implements PageTestFacade {
 		this.page = page;
 		this.contextMenu = new HeadlessNavigationTestFacade(page.getActions());
 		content = page.getContent();
-		if (content instanceof JsonCustomFilter jsonCustomFilter) {
-			table = new HeadlessTableTestFacade((JsonTable<?>) jsonCustomFilter.get("table"), (JsonFormContent) jsonCustomFilter.get("filter"));
+		if (content instanceof JsonCustomFilter jsonCustomFilter && jsonCustomFilter.get("table") instanceof JsonTable jsonTable) {
+			table = new HeadlessTableTestFacade(jsonTable, (JsonFormContent) jsonCustomFilter.get("filter"));
 			form = null;
 		} else if (content instanceof JsonTable jsonTable){
 			table = new HeadlessTableTestFacade(jsonTable);
