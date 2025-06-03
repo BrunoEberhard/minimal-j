@@ -45,6 +45,10 @@ public class HeadlessPageTestFacade implements PageTestFacade {
 	public String getTitle() {
 		return page.getTitle();
 	}
+	
+	public IContent getContent() {
+		return content;
+	}
 
 	@Override
 	public NavigationTestFacade getContextMenu() {
