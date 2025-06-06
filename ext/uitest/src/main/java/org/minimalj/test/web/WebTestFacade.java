@@ -777,7 +777,17 @@ public class WebTestFacade implements UiTestFacade {
 		} else {
 			element.click();
 			element.clear();
-			element.sendKeys(text);
+			// same reason for waitScript as with the first character
+			waitScript();
+			if (!StringUtils.isEmpty(text)) {
+				// the browser makes a call to the server when one character is entered (to refresh validation)
+				// we must wait for the response because the response could otherwise overwrite further characters
+				element.sendKeys(text.substring(0, 1));
+				if (text.length() > 1) {
+					waitScript();
+					element.sendKeys(text.substring(1));
+				}
+			}
 
 			// blur
 			Actions actions = new Actions(driver);
@@ -811,7 +821,7 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	public static void waitScript(JavascriptExecutor driver) {
-		while ((Boolean) driver.executeScript("return pendingRequests > 0 || timerTextFieldChange != null") == Boolean.TRUE) {
+		while ((Boolean) driver.executeScript("return pendingRequests > 0") == Boolean.TRUE) {
 			try {
 				Thread.sleep(2);
 			} catch (InterruptedException e) {
