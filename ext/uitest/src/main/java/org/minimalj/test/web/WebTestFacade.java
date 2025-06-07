@@ -313,6 +313,9 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public FormTestFacade getForm() {
 			WebElement form = divPage.findElement(By.className("form"));
+			if (!form.findElement(By.xpath("./..")).getAttribute("class").contains("pageContent")) {
+				throw new IllegalArgumentException("Page is a table not a form. If you want access the filter of the table please use getTable().getOverview() or table().getOverview()");
+			}
 			return new HtmlFormTestFacade(form);
 		}
 
