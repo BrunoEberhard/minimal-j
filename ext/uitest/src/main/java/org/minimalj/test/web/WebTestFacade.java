@@ -654,8 +654,8 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			Actions action = new Actions(driver);
-			// TODO understand and fix this 'td'
-			action.doubleClick(tr.findElement(By.tagName("td"))).perform();
+			WebElement firstTdWithoutLink = tr.findElement(By.xpath("td[not(child::a)][1]"));
+			action.doubleClick(firstTdWithoutLink).perform();
 			waitScript();
 		}
 
