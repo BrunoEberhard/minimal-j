@@ -347,18 +347,9 @@ public class JsonPageManager implements PageManager {
 		}
 		
 		register(output);
+		
 		if (Configuration.isDevModeActive()) {
 			UiTestMarker uiTestMarker = new UiTestMarker();
-			int index = 0;
-			for (String pageId: visiblePageAndDetailsList.getPageIds()) {
-				Page page = pageStore.get(pageId);
-				if (page != null) {
-					IContent content = page.getContent();
-					// ((JsonComponent) content).put("ui", "page");
-					uiTestMarker.accept(content, null);
-				}
-				index++;
-			}
 			for (JsonDialog dialog: visibleDialogs.values()) {
 				uiTestMarker.accept(dialog, null);
 			}
@@ -550,7 +541,12 @@ public class JsonPageManager implements PageManager {
 		}
 		
 		json.put("wheel", page instanceof WheelPage);
-
+		
+		if (Configuration.isDevModeActive()) {
+			UiTestMarker uiTestMarker = new UiTestMarker();
+			uiTestMarker.accept(content, null);
+		}
+		
 		return json;
 	}
 	
