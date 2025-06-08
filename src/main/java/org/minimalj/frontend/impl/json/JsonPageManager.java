@@ -347,6 +347,22 @@ public class JsonPageManager implements PageManager {
 		}
 		
 		register(output);
+		if (Configuration.isDevModeActive()) {
+			UiTestMarker uiTestMarker = new UiTestMarker();
+			int index = 0;
+			for (String pageId: visiblePageAndDetailsList.getPageIds()) {
+				Page page = pageStore.get(pageId);
+				if (page != null) {
+					IContent content = page.getContent();
+					// ((JsonComponent) content).put("ui", "page");
+					uiTestMarker.accept(content, null);
+				}
+				index++;
+			}
+			for (JsonDialog dialog: visibleDialogs.values()) {
+				uiTestMarker.accept(dialog, null);
+			}
+		}
 		return output;
 	}
 
@@ -536,6 +552,58 @@ public class JsonPageManager implements PageManager {
 		json.put("wheel", page instanceof WheelPage);
 
 		return json;
+	}
+	
+	private static class UiTestMarker {
+		private final Map<String, Integer> captions = new HashMap<>();
+		
+		public void accept(Object t, String ui) {
+			if (t instanceof JsonComponent) {
+				JsonComponent component = (JsonComponent) t;
+				if (StringUtils.isEmpty(ui)) {
+					ui = component instanceof JsonFormContent ? "form()" : "";
+				}
+				
+				if (component.get(JsonFormContent.CAPTION) instanceof String) {
+					ui += ".getElement(\"" + component.get(JsonFormContent.CAPTION) + "\")";
+				} else if (component.containsKey("formRowIndex")) {
+					ui += ".getElement(" + component.get("formRowIndex") + ", " + component.get("formColumnIndex") + ")";
+				} 
+				if (component.containsKey("itemIndex")) {
+					ui += ".groupItem(" + component.get("itemIndex") + ")";
+				}
+				
+				component.put("ui", ui);
+				if (component instanceof JsonFormContent) {
+					List<List<JsonComponent>> rows = (List<List<JsonComponent>>) component.get("rows");
+					for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+						List<JsonComponent> columns = rows.get(rowIndex);
+						for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+							JsonComponent c = columns.get(columnIndex);
+							c.put("formRowIndex", rowIndex);
+							c.put("formColumnIndex", columnIndex);
+						}
+					}
+				}
+				if (component.get("components") instanceof List) {
+					List<JsonComponent> components = (List<JsonComponent>) component.get("components");
+					for (int itemIndex = 0; itemIndex<components.size();itemIndex++) {
+						JsonComponent c = components.get(itemIndex);
+						c.put("itemIndex", itemIndex);
+					}
+				}
+			}
+			String uiFinal = ui;
+			if (t instanceof Map) {
+				((Map) t).values().forEach(v -> accept(v, uiFinal));
+			}
+			if (t instanceof Collection) {
+				((Collection) t).forEach(v -> accept(v, uiFinal));
+			}
+			if (t != null && t.getClass().isArray() && !t.getClass().getComponentType().isPrimitive()) {
+				Arrays.stream((Object[]) t).forEach(v -> accept(v, uiFinal));
+			}
+		}
 	}
 
 	@Override
