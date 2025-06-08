@@ -67,7 +67,7 @@ public class HeadlessTableTestFacade implements TableTestFacade {
 		if (cell instanceof String string) {
 			return string;
 		} else if (cell instanceof Map map) {
-			return (String)map.get("text");
+			return (String)map.get("value");
 		}
 		return null;
 	}
