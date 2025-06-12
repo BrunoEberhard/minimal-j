@@ -557,7 +557,7 @@ public class JsonPageManager implements PageManager {
 			if (t instanceof JsonComponent) {
 				JsonComponent component = (JsonComponent) t;
 				if (StringUtils.isEmpty(ui)) {
-					ui = component instanceof JsonFormContent ? "form()" : "";
+					ui = component instanceof JsonFormContent ? "form" : "";
 				}
 				
 				if (component.get(JsonFormContent.CAPTION) instanceof String) {
@@ -566,7 +566,7 @@ public class JsonPageManager implements PageManager {
 					ui += ".getElement(" + component.get("formRowIndex") + ", " + component.get("formColumnIndex") + ")";
 				} 
 				if (component.containsKey("itemIndex")) {
-					ui += ".groupItem(" + component.get("itemIndex") + ")";
+					ui += ".row(" + component.get("itemIndex") + ")";
 				}
 				
 				component.put("ui", ui);
