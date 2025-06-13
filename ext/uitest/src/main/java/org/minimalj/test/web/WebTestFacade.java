@@ -60,17 +60,19 @@ public class WebTestFacade implements UiTestFacade {
 	}
 	
 	private void init() {
-		driver = createDriver(driverName, headless);
-		
-		Window window = driver.manage().window();
-
-		window.setPosition(new Point(0, 0));
-		window.setSize(new Dimension(1600, 900));
-		
-		Assertions.assertEquals(1600, window.getSize().width);
-		Assertions.assertEquals(900, window.getSize().height);
-		
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
+		if (driver == null) {
+			driver = createDriver(driverName, headless);
+			
+			Window window = driver.manage().window();
+			
+			window.setPosition(new Point(0, 0));
+			window.setSize(new Dimension(1600, 900));
+			
+			Assertions.assertEquals(1600, window.getSize().width);
+			Assertions.assertEquals(900, window.getSize().height);
+			
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
+		}
 	}
 
 	static RemoteWebDriver createDriver(UiTestDriver driverName, boolean headless) {
