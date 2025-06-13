@@ -205,7 +205,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		if (REMEMBER_ME) {
 			if (PERSISTENT_REMEMBER_ME) {
 				Backend.delete(RememberMeToken.class, By.field(RememberMeToken.$.userName, Subject.getCurrent().getName()));
-			} else {
+			} else if (Frontend.getInstance().getPageManager() instanceof JsonPageManager) {
 				((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(null);
 			}
 		}
@@ -230,18 +230,20 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	private static final SecureRandom random = new SecureRandom();
 
 	protected static void setRememberMeCookie(UserData user) {
-		if (PERSISTENT_REMEMBER_ME) {
-			RememberMeToken rememberMeToken = new RememberMeToken();
-			rememberMeToken.series = generateRandomString();
-			rememberMeToken.token = generateRandomString();
-			rememberMeToken.lastUsed = LocalDateTime.now();
-			rememberMeToken.userName = user.getName();
-			Backend.save(rememberMeToken);
-			((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
-		} else {
-			String timestamp = String.valueOf(System.currentTimeMillis());
-			String rememberMeCookie = user.getName() + ":" + timestamp + ":" + sign(user, timestamp);
-			((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeCookie);
+		if (Frontend.getInstance().getPageManager() instanceof JsonPageManager) {
+			if (PERSISTENT_REMEMBER_ME) {
+				RememberMeToken rememberMeToken = new RememberMeToken();
+				rememberMeToken.series = generateRandomString();
+				rememberMeToken.token = generateRandomString();
+				rememberMeToken.lastUsed = LocalDateTime.now();
+				rememberMeToken.userName = user.getName();
+				Backend.save(rememberMeToken);
+				((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
+			} else {
+				String timestamp = String.valueOf(System.currentTimeMillis());
+				String rememberMeCookie = user.getName() + ":" + timestamp + ":" + sign(user, timestamp);
+				((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeCookie);
+			}
 		}
 	}
 
