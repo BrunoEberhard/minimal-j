@@ -178,9 +178,13 @@ public class Table<T> extends AbstractTable<T> {
 		if (idProperty != null) {
 			id = idProperty.getValue(object);
 			if (id == null && !autoIncrement) {
-				id = createId();
-				idProperty.setValue(object, id);
-				id = id.toString();
+				if (idProperty.getClazz() == Object.class) {
+					id = createId();
+					idProperty.setValue(object, id);
+					id = id.toString();
+				} else {
+					throw new IllegalArgumentException("For @AutoIncrement(false) the id field must be set before insert (except if id is an Object)");
+				}
 			}
 		} else {
 			id = createId();
