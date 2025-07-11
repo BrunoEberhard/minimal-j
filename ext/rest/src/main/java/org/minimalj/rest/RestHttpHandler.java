@@ -150,7 +150,7 @@ public class RestHttpHandler implements MjHttpHandler {
 						exchange.sendResponse(HttpsURLConnection.HTTP_INTERNAL_ERROR, x.getMessage(), "text/plain");
 					}
 					return;
-				} else if (StringUtils.equals("swagger.json", pathElements[1])) {
+				} else if (StringUtils.equals(pathElements[1], "swagger.json", "openapi.json")) {
 					OpenAPI openApi = new OpenAPIFactory().create(model);
 					var server = new Server();
 					server.url = this.path;
