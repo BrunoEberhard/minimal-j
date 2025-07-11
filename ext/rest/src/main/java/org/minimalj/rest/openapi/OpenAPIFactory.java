@@ -463,28 +463,30 @@ public class OpenAPIFactory {
 				property.$ref = SCHEMAS + mjProperty.type.getClassName();
 			}
 			boolean primitiveOrCode = mjProperty.type.isPrimitiv() || Code.class.isAssignableFrom(mjProperty.type.getClazz());
-			if (!write && !primitiveOrCode) {
-				property.type = null;
-				property.$ref = SCHEMAS + mjProperty.type.getClassName();
-			}
-			if (write && !primitiveOrCode) {
-				if (IdUtils.hasId(mjProperty.type.getClazz()) && (mjApi == null || mjApi.canCreate(mjProperty.type.getClazz()))) {
-					var schemaRef = new Schema();
-					schemaRef.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
-
-					var schemaId = new Schema();
-					schemaId.type = property.type;
+			if (!primitiveOrCode) {
+				if (!write) {
 					property.type = null;
-					
-					property.oneOf = List.of(schemaId, schemaRef);
+					property.$ref = SCHEMAS + mjProperty.type.getClassName();
 				} else {
-					property.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
+					if (IdUtils.hasId(mjProperty.type.getClazz()) && (mjApi == null || mjApi.canCreate(mjProperty.type.getClazz()))) {
+						var schemaRef = new Schema();
+						schemaRef.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
+
+						var schemaId = new Schema();
+						schemaId.type = property.type;
+						property.type = null;
+						
+						property.oneOf = List.of(schemaId, schemaRef);
+					} else {
+						property.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
+					}
 				}
 			}
 		}
 		
 		// it's not allowed to have $ref and description for same property:
 		// https://github.com/OAI/OpenAPI-Specification/issues/556
+		// Would be solved with OpenApi 3.1. But to migrate also the nullable - logic must be migrated
 		if (!StringUtils.isEmpty(property.description) && property.$ref != null) {
 			var schemaRef = new Schema();
 			schemaRef.$ref = property.$ref;
