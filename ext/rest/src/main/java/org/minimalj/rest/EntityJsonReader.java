@@ -14,7 +14,6 @@ import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
-import org.minimalj.rest.openapi.model.OpenAPI.StringValue;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
@@ -69,11 +68,7 @@ public class EntityJsonReader {
 	}
 
 	private static <T> T convert(Class<T> clazz, Object values) {
-		if (clazz == StringValue.class) {
-			var stringValue = new StringValue();
-			stringValue.value = (String) values;
-			return (T) stringValue;
-		} else if (clazz == String.class) {
+		if (clazz == String.class) {
 			return (T) values;
 		} else {
 			return convert(clazz, (Map<String, Object>) values);

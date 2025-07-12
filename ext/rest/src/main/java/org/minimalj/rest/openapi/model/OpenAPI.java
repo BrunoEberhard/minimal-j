@@ -58,15 +58,10 @@ public class OpenAPI {
 	public static class ServerVariable {
 		@NotEmpty
 		public String name;
-		public List<StringValue> enum_ = new ArrayList<>();
+		public List<String> enum_ = new ArrayList<>();
 		@NotEmpty
 		public String default_;
 		public String description;
-	}
-	
-	public static class StringValue {
-		@NotEmpty
-		public String value;
 	}
 	
 	public static class Components {
@@ -82,7 +77,7 @@ public class OpenAPI {
 	}
 
 	public static class Operation {
-		public List<StringValue> tags = new ArrayList<>();
+		public List<String> tags = new ArrayList<>();
 		public String summary;
 		public String description;
 		public ExternalDocs externalDocs;
