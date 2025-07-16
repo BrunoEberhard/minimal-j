@@ -86,7 +86,11 @@ public abstract class Frontend {
 	}
 
 	public interface PasswordField extends Input<char[]> {
-
+	}
+	
+	public interface PlaceHolderComponent extends IComponent {
+		
+		public void setPlaceHolder(String placeHolder);
 	}
 	
 	// http://www.w3schools.com/html/html_form_input_types.asp 
