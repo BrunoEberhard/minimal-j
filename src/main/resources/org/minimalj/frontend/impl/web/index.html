@@ -863,6 +863,7 @@ $ICON
 			var button = document.createElement("div");
 			button.className = "lookupButton";
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
+			button.setAttribute("title", content.description);
 			element.appendChild(button);
 		} else if (type === "LookupActions") {
 			element = document.createElement("div");

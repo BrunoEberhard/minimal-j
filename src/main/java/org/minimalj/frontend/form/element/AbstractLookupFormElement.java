@@ -8,9 +8,12 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.SwitchComponent;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 // Framework internal. Only use specializations
 public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> implements Enable {
@@ -60,7 +63,22 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 			if (actionGroup != null) {
 				lookup = Frontend.getInstance().createLookup(input, actionGroup);
 			} else {
-				lookup = Frontend.getInstance().createLookup(input, this::lookup);
+				String description = getLookupDescription();
+				if (!StringUtils.isEmpty(description)) {
+					lookup = Frontend.getInstance().createLookup(input, new Action(Resources.getString("SearchAction")) {
+						@Override
+						public void run() {
+							lookup();
+						}
+						
+						@Override
+						public String getDescription() {
+							return description;
+						}
+					});
+				} else {
+					lookup = Frontend.getInstance().createLookup(input, this::lookup);
+				}
 			}
 			lookup.setValue(render(object));
 		}
@@ -80,6 +98,10 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	}
 	
 	protected ActionGroup createActionGroup() {
+		return null;
+	}
+	
+	protected String getLookupDescription() {
 		return null;
 	}
 

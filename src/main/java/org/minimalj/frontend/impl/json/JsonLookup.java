@@ -1,6 +1,8 @@
 package org.minimalj.frontend.impl.json;
 
 import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.util.StringUtils;
 
 public class JsonLookup extends JsonComponent implements Input<String> {
 	private final Input<String> stringInput;
@@ -14,6 +16,13 @@ public class JsonLookup extends JsonComponent implements Input<String> {
 		put("input", stringInput);
 		// click on the caption label should focus first component, not the group
 		put("firstId", ((JsonComponent) stringInput).get("id"));
+		if (lookup instanceof Action) {
+			Action action = (Action) lookup;
+			String description = action.getDescription();
+			if (!StringUtils.isEmpty(description)) {
+				put("description", description);
+			}
+		}
 	}
 
 	public void showLookupDialog() {
