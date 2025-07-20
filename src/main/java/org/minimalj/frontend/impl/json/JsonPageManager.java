@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -230,8 +231,15 @@ public class JsonPageManager implements PageManager {
 
 			JsonComponent component = getComponentById(componentId);
 			if (component != null) {
-				((JsonInputComponent<?>) component).changedValue(newValue);
+				JsonInputComponent<?> inputComponent = (JsonInputComponent<?>) component;
+				inputComponent.changedValue(newValue);
 				output.add("source", componentId);
+				if (inputComponent instanceof JsonTextField) {
+					Object formattedValue = inputComponent.getValue();
+					if (!Objects.equals(newValue, formattedValue)) {
+						output.propertyChange(component.getId(), "value", formattedValue);
+					}
+				}
 			}
 		}
 
