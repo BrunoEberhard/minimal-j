@@ -36,7 +36,9 @@ public class JsonPasswordField extends JsonInputComponent<char[]> implements Pas
 			for (int i = 0; i<charList.size(); i++) {
 				chars[i] = charList.get(i).charAt(0);
 			}
-		} 
+		} else if (value instanceof char[]) {
+			chars = (char[]) value;
+		}
 		Object oldValue = super.putSilent(VALUE, chars);
 		if (!Objects.equals(oldValue, chars)) {
 			changeListener.changed(this);

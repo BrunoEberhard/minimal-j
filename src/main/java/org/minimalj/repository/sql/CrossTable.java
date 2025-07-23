@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -52,7 +53,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
 		Object parentId = IdUtils.getId(parent);
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT element = objects.get(position);
 				Object elementId = getOrCreateId(element);
@@ -68,7 +69,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	
 	@Override
 	protected void update(Object parentId, int position, Object element) throws SQLException {
-		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement updateStatement = createStatement(connection, updateQuery, false)) {
 			Object elementId = getOrCreateId(element);
 			updateStatement.setObject(1, elementId);
 			updateStatement.setObject(2, parentId);
@@ -79,7 +80,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	
 	@Override
 	protected void insert(Object parentId, int position, Object object) throws SQLException {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			Object element = IdUtils.getId(object);
 			insertStatement.setObject(1, element);
 			insertStatement.setObject(2, parentId);
@@ -103,7 +104,7 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	}
 	
 	public List<ELEMENT> readAll(Object parentId) {
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, selectByIdQuery, false)) {
 			statement.setObject(1, parentId);
 			List<ELEMENT> result = new ArrayList<>();
 			try (ResultSet resultSet = statement.executeQuery()) {

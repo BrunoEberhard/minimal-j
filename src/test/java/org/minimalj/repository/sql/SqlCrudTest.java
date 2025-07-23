@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.EqualsHelper;
@@ -15,7 +16,7 @@ public class SqlCrudTest extends SqlTest {
 	
 	@Override
 	public Class<?>[] getEntityClasses() {
-		return new Class<?>[] { A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class, TestEntityInitializedField.class };
+		return new Class<?>[] { A.class, G.class, H.class, M.class, TestEntity.class, TestElement.class, TestEntityInitializedField.class, TestEntityAutoIncrementFalse.class };
 	}
 
 	@Test
@@ -168,7 +169,27 @@ public class SqlCrudTest extends SqlTest {
 		
 		Assert.assertNull("An initialized field should be set back to null if value in database is null", entity.testElement);
 	}
-	
+
+	@Test
+	public void testTestEntityAutoIncrementFalse() {
+		TestEntityAutoIncrementFalse entity = new TestEntityAutoIncrementFalse();
+		entity.id = 4711;
+		
+		Object id = repository.insert(entity);
+		Assert.assertEquals(4711, id);
+		entity = repository.read(TestEntityAutoIncrementFalse.class, id);
+		
+		Assert.assertNotNull(entity);
+	}
+
+	@Test
+	public void testTestEntityAutoIncrementFalseIdNull() {
+		TestEntityAutoIncrementFalse entity = new TestEntityAutoIncrementFalse();
+		entity.id = null;
+		
+		Assert.assertThrows(IllegalArgumentException.class, () -> repository.insert(entity));
+	}
+
 	//
 	
 	public static class TestElement {
@@ -218,6 +239,20 @@ public class SqlCrudTest extends SqlTest {
 		}
 
 		public Object id;
+
+		@Size(20)
+		public String testElement = "init";
+	}
+	
+	public static class TestEntityAutoIncrementFalse {
+		public static final TestEntityAutoIncrementFalse $ = Keys.of(TestEntityAutoIncrementFalse.class);
+		
+		public TestEntityAutoIncrementFalse() {
+			// needed for reflection constructor
+		}
+
+		@AutoIncrement(false)
+		public Integer id;
 
 		@Size(20)
 		public String testElement = "init";

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.model.Keys;
@@ -30,12 +31,10 @@ public class Properties {
 			property = getMethodProperty(clazz, propertyName);
 		}
 
-		if (property != null) {
-			return property;
-		} else {
-			logger.fine("No field/access methods for " + propertyName + " in Class " + clazz.getName());
-			return null;
+		if (property == null && logger.isLoggable(Level.FINER)) {
+			logger.finer("No field/access methods for " + propertyName + " in Class " + clazz.getName());
 		}
+		return property;
 	}
 
 	public static Property getMethodProperty(Class<?> clazz, String propertyName) {

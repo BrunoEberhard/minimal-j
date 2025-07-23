@@ -38,7 +38,11 @@ public abstract class Column<ROW, COLUMN> implements Property {
 	}
 
 	public boolean isLink(ROW rowObject, COLUMN value) {
-		return false;
+		return getRoute(rowObject, value) != null;
+	}
+	
+	public String getRoute(ROW rowObject, COLUMN value) {
+		return null;
 	}
 	
 	public void run(ROW rowObject) {

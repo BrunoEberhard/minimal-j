@@ -32,7 +32,7 @@ public class CsvReader {
 	private String commentStart = null;
 	private char separator = DEFAULT_SEPARATOR;
 
-	private final BiFunction<Class<?>, Object, Object> objectProvier;
+	private final BiFunction<Class<?>, Object, Object> objectProvider;
 
 	public CsvReader(InputStream is) {
 		this(is, null);
@@ -40,7 +40,7 @@ public class CsvReader {
 
 	public CsvReader(InputStream is, BiFunction<Class<?>, Object, Object> objectProvier) {
 		reader = new PushbackReader(new InputStreamReader(is));
-		this.objectProvier = objectProvier;
+		this.objectProvider = objectProvier;
 	}
 
 	public void setSeparator(char separator) {
@@ -72,7 +72,7 @@ public class CsvReader {
 				Class<?> propertyClazz = property.getClazz();
 				try {
 					if (Code.class.isAssignableFrom(propertyClazz)) {
-						value = objectProvier.apply(propertyClazz, stringValue);
+						value = objectProvider.apply(propertyClazz, stringValue);
 					} else {
 						value = FieldUtils.parse(stringValue, propertyClazz);
 					}

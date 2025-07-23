@@ -13,6 +13,7 @@ import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonTextField;
+import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingTextField;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
@@ -91,7 +92,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
 					((JsonComponent) textField).setCssClass("textAlignRight");
 				}
-			} else if (textField instanceof SwingTextField) {
+			} else if (Frontend.getInstance() instanceof SwingFrontend && textField instanceof SwingTextField) {
 				String placeholder = Resources.getPropertyName(getProperty(), "placeholder");
 				if (placeholder != null) {
 					((SwingTextField) textField).setPlaceholderText(placeholder);

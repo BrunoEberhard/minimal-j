@@ -18,6 +18,8 @@ import org.minimalj.frontend.Frontend.ITable;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.TableActionListener;
 import org.minimalj.frontend.impl.util.ColumnFilter;
+import org.minimalj.frontend.page.Page;
+import org.minimalj.frontend.page.Routing;
 import org.minimalj.frontend.util.ListUtil;
 import org.minimalj.model.Column;
 import org.minimalj.model.Column.ColumnAlignment;
@@ -139,7 +141,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 
 	@Override
 	public void setObjects(List<T> objects) {
-		pageManager.unregister(get("tableContent"));
+		unregisterTableContent();
 		this.objects = objects != null ? objects : Collections.emptyList();
 
 		visibleObjects = ListUtil.get(this.objects, tableModel.isFilterVisible() ? tableModel.filters : ColumnFilter.NO_FILTER, sortColumns.toArray(), convert(sortDirections), page * PAGE_SIZE, PAGE_SIZE);
@@ -171,6 +173,13 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 		listener.selectionChanged(selectedObjects);
 	}
 	
+	// TODO is this really needed? In which case table-cells have an id?
+	private void unregisterTableContent() {
+		if (pageManager != null) {
+			pageManager.unregister(get("tableContent"));
+		}
+	}
+	
 	@Override
 	public void setColumns(Object[] keys) {
 		JsonTableModel oldModel = tableModel;
@@ -182,7 +191,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 	
 	private void refreshTableContent() {
 		if (visibleObjects != null) {
-			pageManager.unregister(get("tableContent"));
+			unregisterTableContent();
 			List<List> tableContent = createTableContent(visibleObjects);
 			put("tableContent", tableContent);
 		}
@@ -268,6 +277,17 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 					Column column = (Column) property;
 					String stringValue = Rendering.toString(column.render(object, value));
 					if (column.isLink(object, value)) {
+						if (Routing.available()) {
+							String route = column.getRoute(object, value);
+							if (Page.validateRoute(route)) {
+								// TODO JDK Map.of
+								Map<String, String> map = new HashMap<>();
+								map.put("route", route);
+								map.put("value", stringValue);
+								rowContent.add(map);
+								continue;
+							}
+						}
 						rowContent.add(Collections.singletonMap("action", stringValue));
 					} else {
 						ColorName color = Column.getColor(column, object, value);

@@ -18,6 +18,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -199,7 +200,9 @@ public class WebServer {
 	private static void start(boolean secure) {
 		int port = getPort(secure);
 		if (port > 0) {
-			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + " web frontend on port " + port + (secure ? " (Secure)" : ""));
+			String version = Application.getInstance().getClass().getPackage().getImplementationVersion();
+			version = version != null ? " Version " + version : "";
+			LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + version + " web frontend on port " + port + (secure ? " (Secure)" : ""));
 			try {
 				InetSocketAddress addr = new InetSocketAddress(port);
 				server = secure ? HttpsServer.create(addr, 0) : HttpServer.create(addr, 0);
@@ -216,6 +219,7 @@ public class WebServer {
 					SSLContext sslContext = createSslContext();
 					((HttpsServer) server).setHttpsConfigurator(new com.sun.net.httpserver.HttpsConfigurator(sslContext));
 				}
+				server.setExecutor(Executors.newFixedThreadPool(5));
 				context.setHandler(WebServer::handle);
 				server.start();
 			} catch (Exception e) {
@@ -279,8 +283,16 @@ public class WebServer {
 		ModelTest.exitIfProblems();
 		Frontend.setInstance(new JsonFrontend());
 
+		setHttpServerProperties();
 		start(!SECURE);
 		start(SECURE);
+	}
+
+	private static void setHttpServerProperties() {
+		long maxReqTime = Long.getLong("sun.net.httpserver.maxReqTime", -1);
+		if (maxReqTime <= 0) {
+			System.setProperty("sun.net.httpserver.maxReqTime", "100");
+		}
 	}
 
 	// only for tests

@@ -2,6 +2,7 @@ package org.minimalj.repository.query;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.Property;
+import org.minimalj.repository.sql.EmptyObjects;
 
 public class Limit extends Query {
 	private static final long serialVersionUID = 1L;
@@ -51,5 +52,9 @@ public class Limit extends Query {
 		String path = property.getPath();
 		return new Order(query, path, ascending);
 	}
-
+	
+	@Override
+	public String toString() {
+		return query + (!EmptyObjects.isEmpty(offset) ? " OFFSET " + offset : "") + " ROWS " + rows;
+	}
 }

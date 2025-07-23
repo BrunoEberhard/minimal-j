@@ -28,7 +28,10 @@ public class SearchDialog<T> extends TableDialog<T> {
 		Action searchAction = new Action(Resources.getString("SearchAction")) {
 			@Override
 			public void run() {
-				table.setObjects(search.search(model.query));
+				Frontend.getInstance().log("Search: " + model.query);
+				List<T> objects = search.search(model.query);
+				table.setObjects(objects);
+				Frontend.getInstance().log("Found: " + objects.size() + " items");
 			};
 		};
 

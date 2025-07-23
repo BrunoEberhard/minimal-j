@@ -2,6 +2,7 @@ package org.minimalj.frontend.impl.swing;
 
 import java.awt.Window;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
@@ -12,6 +13,7 @@ import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.model.test.ModelTest;
 
 public class Swing implements Runnable {
+	private static final Logger LOG = Logger.getLogger(Swing.class.getName());
 
 	private Swing() {
 		// private
@@ -31,6 +33,9 @@ public class Swing implements Runnable {
 
 	public static void start(Application application) {
 		Application.setInstance(application);
+		String version = Application.getInstance().getClass().getPackage().getImplementationVersion();
+		version = version != null ? " Version " + version : "";
+		LOG.info("Start " + Application.getInstance().getClass().getSimpleName() + version);
 		start();
 	}
 

@@ -19,7 +19,7 @@ public class JsonCombobox<T> extends JsonInputComponent<T> {
 	public JsonCombobox(List<T> objects, String nullText, InputComponentListener changeListener) {
 		super("Combobox", changeListener);
 
-		Map<String, Object> options = new LinkedHashMap<>();
+		Map<String, Map<String, String>> options = new LinkedHashMap<>();
 		for (T object : objects) {
 			String id = UUID.randomUUID().toString();
 			Map<String, String> option = new HashMap<>();

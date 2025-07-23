@@ -11,7 +11,7 @@ public class SwingText extends JLabel implements IComponent {
 	private static final long serialVersionUID = 1L;
 
 	public SwingText(String string) {
-		super(string);
+		super(!StringUtils.isEmpty(string) ? "<html><body>" + string.replace("\n", "<br>") + "</body></html>" : string);
 	}
 
 	public SwingText(Rendering rendering) {

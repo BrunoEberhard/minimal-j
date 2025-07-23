@@ -23,17 +23,21 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.swing.Swing;
+import org.minimalj.frontend.impl.util.FavoritesManager;
+import org.minimalj.frontend.impl.util.PreferencesFavorites;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
@@ -297,6 +301,15 @@ public abstract class Application implements Model {
 	 */
 	public List<Action> getNavigation() {
 		return Collections.emptyList();
+	}
+	
+	/**
+	 * Only for desktop frontends
+	 * @param changeListener
+	 * @return FavoritesManager a PreferencesFavorites which stores the favorites in the system.
+	 */
+	public FavoritesManager createFavoritesManager(Consumer<LinkedHashMap<String, String>> changeListener) {
+		return new PreferencesFavorites(changeListener);
 	}
 	
 	static {

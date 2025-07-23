@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -42,7 +43,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 
 	@Override
 	public void addList(PARENT parent, List<ELEMENT> objects) {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			for (int position = 0; position<objects.size(); position++) {
 				ELEMENT object = objects.get(position);
 				int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, IdUtils.getId(parent));
@@ -86,7 +87,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 	
 	protected void update(Object parentId, int position, ELEMENT object) throws SQLException {
-		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement updateStatement = createStatement(connection, updateQuery, false)) {
 			int parameterPos = setParameters(updateStatement, object, ParameterMode.UPDATE, parentId);
 			updateStatement.setInt(parameterPos++, position);
 			updateStatement.execute();
@@ -94,7 +95,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 
 	protected void insert(Object parentId, int position, ELEMENT object) throws SQLException {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			int parameterPos = setParameters(insertStatement, object, ParameterMode.INSERT, parentId);
 			insertStatement.setInt(parameterPos++, position);
 			insertStatement.execute();
@@ -102,7 +103,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 	}
 	
 	protected void delete(Object parentId, int position) throws SQLException {
-		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement deleteStatement = createStatement(connection, deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.setInt(2, position);
 			deleteStatement.execute();
@@ -111,7 +112,7 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 
 	@Override
 	public List<ELEMENT> getList(PARENT parent, Map<Class<?>, Map<Object, Object>> loadedReferences) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdStatement = createStatement(connection, selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, IdUtils.getId(parent));
 			return executeSelectAll(selectByIdStatement);
 		} catch (SQLException x) {

@@ -14,7 +14,7 @@ public class ReadOneTransaction<ENTITY> extends ReadTransaction<ENTITY, ENTITY> 
 	public ReadOneTransaction(Class<ENTITY> clazz, Query criteria, boolean strictOne) {
 		super(clazz);
 		if (criteria instanceof Limit) {
-			throw new IllegalArgumentException("To find first or one entity not Limit must be specified");
+			throw new IllegalArgumentException("To find first or one entity no Limit must be specified");
 		}
 		this.criteria = criteria;
 		this.strictOne = strictOne;

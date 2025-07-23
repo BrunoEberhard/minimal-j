@@ -20,6 +20,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToggleButton.ToggleButtonModel;
 import javax.swing.text.BadLocationException;
@@ -411,6 +412,9 @@ public class SwingTab extends EditablePanel implements PageManager {
 			setInheritMenu(content);
 			if (content instanceof SwingFormContent) {
 				content.setBorder(BorderFactory.createEmptyBorder(10, 8, 4, 8));
+			}
+			if (!(content instanceof JScrollPane)) {
+				content = new JScrollPane(content);
 			}
 		} else {
 			content = new JPanel();

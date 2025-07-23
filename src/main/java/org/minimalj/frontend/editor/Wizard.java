@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.Frontend.IContent;
 import org.minimalj.frontend.Frontend.SwitchContent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.form.Form;
@@ -20,6 +21,8 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 
 	private static final Logger logger = Logger.getLogger(Wizard.class.getName());
 
+	private final boolean oneDialog;
+	private boolean dialogShown = false;
 	private Object stepObject;
 	private WizardStep step;
 	private Form form;
@@ -33,15 +36,21 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 	private int stepIndex;
 	
 	public Wizard() {
-		super();
+		this(true);
 	}
-
-	public Wizard(String actionName) {
-		super(actionName);
+	
+	public Wizard(boolean oneDialog) {
+		super();
+		this.oneDialog = oneDialog;
 	}
 
 	public String getTitle() {
 		return getName();
+	}
+	
+	@Override
+	public IContent getContent() {
+		return switchContent;
 	}
 
 	@Override
@@ -51,22 +60,27 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 		stepIndex = 0;
 		step = getFirstStep();
 		switchStep();
-		
-		Frontend.showDialog(this);
 	}
-
-	private Action[] createActions() {
-		List<Action> additionalActions = createAdditionalActions();
-		Action[] actions = new Action[additionalActions.size() + 4];
-		int index;
-		for (index = 0; index<additionalActions.size(); index++) {
-			actions[index] = additionalActions.get(index);
-		}
-		actions[index++] = cancelAction;
-		actions[index++] = previousAction;
-		actions[index++] = nextAction;
-		actions[index++] = finishAction;
+	
+	@Override
+	public List<Action> getActions() {
+		List<Action> actions = new ArrayList<>();
+		actions.addAll(createAdditionalActions());
+		actions.add(cancelAction);
+		actions.add(previousAction);
+		actions.add(nextAction);
+		actions.add(finishAction);
 		return actions;
+	}
+	
+	@Override
+	public Action getSaveAction() {
+		return finishAction;
+	}
+	
+	@Override
+	public Action getCancelAction() {
+		return cancelAction;
 	}
 		
 	protected List<Action> createAdditionalActions() {
@@ -89,6 +103,17 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 		
 		switchContent.show(form.getContent());
 		previousAction.setEnabled(stepIndex > 0);
+		
+		if (dialogShown) {
+			if (!oneDialog) {
+				Frontend.closeDialog(this);
+				Frontend.showDialog(this);
+			}
+		} else {
+			Frontend.showDialog(this);
+			dialogShown = true;
+		}
+		
 	}
 	
 	protected abstract WizardStep<?> getFirstStep();
@@ -104,7 +129,7 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 		}
 				
 		boolean relevantValidationMessage = form.indicate(validationMessages);
-		nextAction.setEnabled(!relevantValidationMessage);
+		nextAction.setInvalidFormElement(relevantValidationMessage);
 		finishAction.setValidationMessages(validationMessages);
 	}
 	
@@ -151,16 +176,21 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 	}	
 
 	protected final class NextWizardStepAction extends ValidationAwareAction {
-		private boolean valid = false;
+		private boolean invalidFormElement = false;
 		
 		@Override
 		public void run() {
 			next(stepObject);
 		}
 
+		public void setInvalidFormElement(boolean invalidFormElement) {
+			this.invalidFormElement = invalidFormElement;
+			fireChange();
+		}
+		
 		@Override
 		public boolean isEnabled() {
-			return valid && step.hasNext();
+			return !invalidFormElement && step.hasNext();
 		}
 	}
 	

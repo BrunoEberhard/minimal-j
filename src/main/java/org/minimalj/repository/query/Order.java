@@ -25,4 +25,8 @@ public class Order extends Query {
 		return ascending;
 	}
 	
+	@Override
+	public String toString() {
+		return query + " ORDER BY " + path + (ascending ? "" : " DESCENDING");
+	}
 }

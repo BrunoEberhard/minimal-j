@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 	}
 
 	public ELEMENT read(Object parentId, Integer version, Map<Class<?>, Map<Object, Object>> loadedReferences) {
-		try (PreparedStatement selectByIdStatement = createStatement(sqlRepository.getConnection(), selectByIdQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdStatement = createStatement(connection, selectByIdQuery, false)) {
 			selectByIdStatement.setObject(1, parentId);
 			ELEMENT object = executeSelect(selectByIdStatement, loadedReferences);
 			return object;
@@ -61,7 +62,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 	}
 
 	protected void doUpdate(Object parentId, ELEMENT object, Integer version) {
-		try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement updateStatement = createStatement(connection, updateQuery, false)) {
 			setParameters(updateStatement, object, ParameterMode.UPDATE, parentId);
 			updateStatement.execute();
 		} catch (Exception x) {
@@ -70,7 +71,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 	}
 	
 	protected void insert(Object parentId, ELEMENT object, Integer version) {
-		try (PreparedStatement insertStatement = createStatement(sqlRepository.getConnection(), insertQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement insertStatement = createStatement(connection, insertQuery, false)) {
 			setParameters(insertStatement, object, ParameterMode.INSERT, parentId);
 			insertStatement.execute();
 		} catch (Exception x) {
@@ -79,7 +80,7 @@ public class DependableTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> {
 	}
 
 	protected void delete(Object parentId, Integer version) {
-		try (PreparedStatement deleteStatement = createStatement(sqlRepository.getConnection(), deleteQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement deleteStatement = createStatement(connection, deleteQuery, false)) {
 			deleteStatement.setObject(1, parentId);
 			deleteStatement.execute();
 		} catch (Exception x) {

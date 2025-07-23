@@ -23,7 +23,7 @@ public class JsonUpload extends JsonInputComponent<NamedFile[]> implements Input
 	}
 	
 	@Override
-	void changedValue(Object value) {
+	public void changedValue(Object value) {
 		if (value instanceof List) {
 			List<?> list = (List<?>) value;
 			List<NamedFile> namedFileList = new ArrayList<>();

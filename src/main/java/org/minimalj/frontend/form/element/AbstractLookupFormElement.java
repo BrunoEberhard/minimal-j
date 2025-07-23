@@ -8,16 +8,21 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.SwitchComponent;
+import org.minimalj.frontend.action.Action;
+import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
+import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 // Framework internal. Only use specializations
 public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> implements Enable {
 	private static Logger logger = Logger.getLogger(AbstractLookupFormElement.class.getSimpleName());
 
-	protected final SwitchComponent switchComponent;
-	protected Input<String> lookup;
-	protected Input<String> readOnlyInput;
+	private final SwitchComponent switchComponent;
+	private Input<String> lookup;
+	private Input<String> readOnlyInput;
+	private boolean initialized = false;
 
 	private T object;
 
@@ -25,7 +30,6 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		super(key);
 		if (editable) {
 			switchComponent = Frontend.getInstance().createSwitchComponent();
-			switchComponent.show(getLookup());
 		} else {
 			switchComponent = null;
 		}
@@ -35,6 +39,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	public final void setEnabled(boolean enabled) {
 		if (switchComponent != null) {
 			switchComponent.show(enabled ? getLookup() : getReadOnlyInput());
+			initialized = true;
 		}
 	}
 
@@ -54,7 +59,27 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 			} else {
 				input = Frontend.getInstance().createReadOnlyTextField();
 			}
-			lookup = Frontend.getInstance().createLookup(input, this::lookup);
+			ActionGroup actionGroup = createActionGroup();
+			if (actionGroup != null) {
+				lookup = Frontend.getInstance().createLookup(input, actionGroup);
+			} else {
+				String description = getLookupDescription();
+				if (!StringUtils.isEmpty(description)) {
+					lookup = Frontend.getInstance().createLookup(input, new Action(Resources.getString("SearchAction")) {
+						@Override
+						public void run() {
+							lookup();
+						}
+						
+						@Override
+						public String getDescription() {
+							return description;
+						}
+					});
+				} else {
+					lookup = Frontend.getInstance().createLookup(input, this::lookup);
+				}
+			}
 			lookup.setValue(render(object));
 		}
 		return lookup;
@@ -70,6 +95,14 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 			readOnlyInput.setValue(render(object));
 		}
 		return readOnlyInput;
+	}
+	
+	protected ActionGroup createActionGroup() {
+		return null;
+	}
+	
+	protected String getLookupDescription() {
+		return null;
 	}
 
 	public interface LookupParser {
@@ -88,7 +121,14 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 
 	@Override
 	public IComponent getComponent() {
-		return switchComponent != null ? switchComponent : getReadOnlyInput();
+		if (switchComponent != null) {
+			if (!initialized) {
+				switchComponent.show(getLookup());
+			}
+			return switchComponent;
+		} else {
+			return getReadOnlyInput();
+		}
 	}
 
 	@Override

@@ -9,7 +9,7 @@ public class History<T> {
 	private final HistoryListener historyListener;
 	private T present;
 	private int presentIndex = -1;
-	private ArrayList<T> snapshot = new ArrayList<>();
+	private final ArrayList<T> snapshot = new ArrayList<>();
 	
 	public History(HistoryListener historyListener) {
 		this.historyListener = historyListener;
@@ -94,6 +94,14 @@ public class History<T> {
 			history.addAll(snapshot);
 			fireHistoryChanged();
 		}
+	}
+	
+	public void clear() {
+		// for logout
+		history.clear();
+		snapshot.clear();
+		presentIndex = -1;
+		fireHistoryChanged();
 	}
 	
 	public interface HistoryListener {

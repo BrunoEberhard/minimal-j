@@ -127,30 +127,25 @@ body {
 #navigation {
 	flex-grow: 1;
 	overflow: auto;
-	padding-left: 0.7rem;
 	background: var(--navigationBackground);
 }
 
-#navigation ul {
-	padding-left: 0.2rem;
+#navigation, .actionSideBar, .contextMenu {
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
 }
 
-#navigation li, .contextMenu li, .actionSideBar li {
-	margin: 0.4rem;
-}
-
-#navigation li, .contextMenu li, .actionSideBar li {
-	list-style: none;
-}
-
-#navigation li a, .contextMenu li a, .actionSideBar li a {
+#navigation ul > *, .contextMenu ul > *, .actionSideBar ul > * {
 	display: block;
-	border-top: 0.2rem transparent solid;
-	border-bottom: 0.2rem transparent solid;
-	width: 100%;
-	box-sizing: border-box;
+	padding: 0.25rem;
 }
 
+ul, #navigation ul ul, .contextMenu ul ul, .actionSideBar ul ul {
+	padding-top: 0rem;
+	padding-bottom: 0rem;
+	padding-left: 0.6rem;
+}
+	
 .action {
 	color: -moz-hyperlinktext;
 	color: blue;
@@ -231,7 +226,7 @@ body {
 	padding-right: 1em;
 }
 
-.pageContent iframe {
+.pageContent > iframe {
 	height: calc(100% + 0.5ex);
 	width: calc(100% + 1.4rem);
 	margin-left: -0.7rem;
@@ -243,6 +238,40 @@ body {
 
 .pageContent .contentLogin {
 	width: 90%;
+}
+
+.pageContent .dashContainer {
+	width: 550px;
+	height: 350px;
+	overflow: clip;
+	background: var(--navigationBackground);
+}
+
+.pageContent .dashTitle {
+	position: relative;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: var(--headerHeight);
+	display: flex;
+	align-items: center;
+	background: var(--pageHeaderBackground);
+	padding-left: 1rem;
+}
+
+.pageContent .dashContent {
+	position: relative;
+	left: 0px;
+	box-sizing: border-box;	
+	width: 100%;
+	bottom: 0px;
+	border: 0;
+	padding: 1rem;
+}
+
+.dashContainer iframe.dashContent {
+	height: 280px;
+	width: 500px;
 }
 
 table.table tr td {
@@ -259,7 +288,7 @@ table.table tr th:last-child {
 	padding-right: 0em;
 }
 
-table.table thead {
+.pageContent > table.table > thead, .pageContent > .contentCustomFilter > table.table > thead  {
 	position: sticky;
 	top: -0.5ex;
 	padding-top: 0.5ex;
@@ -293,8 +322,13 @@ table.table thead {
 	position: fixed;
 	height: unset;
 	border: 1px var(--borderColor) solid;
-	padding: 0.2rem 0ex 0.2rem 1.2rem;
 	z-index: 20;
+}
+
+.contextMenu ul {
+	padding-top: -0.3rem;
+	padding-left: 0.3rem;
+	padding-bottom: 0rem;
 }
 
 .actionSideBar {
@@ -303,7 +337,7 @@ table.table thead {
 	height: 100%;
 	box-sizing: border-box;
 	margin: 0px;
-	padding-left: 1.5rem;
+	padding-left: 1rem;
 	overflow: auto;
 	flex-grow: 0;
 	flex-basis: 15em;
@@ -509,7 +543,7 @@ dialog table {
 	width: 100%;
 }
 
-.form > div > div, .dialogButtons {
+.form > div > div {
 	padding-right: 0.7rem;
 }
 
@@ -537,12 +571,17 @@ dialog table {
  	box-sizing: border-box;
 }
 
-.form .text {
+.formElement .text, .formElement .action {
 	padding-top: 0.35em;
+}
+
+.formElement > .action {
+	display: block
 }
 
 .form .noCaption {
 	padding-top: 1.2rem;
+	display: inline-block;
 }
 
 /* radio buttons would be too low */
@@ -585,6 +624,10 @@ dialog table {
 	top: -1px;
 	color: red;
 	padding-left: 0.2ex;
+}
+
+label[disabled="true"] .asterisk {
+	visibility: hidden;
 }
 
 th .form {
@@ -695,9 +738,9 @@ textarea[disabled] {
 }
 
 hr {
-	margin: 0px;
-	border: 0px;
-	border-top: 1px var(--borderColor) solid;
+	padding: 0px !important;
+	margin-right: 1rem;
+	border-bottom: transparent;
 }
 
 fieldset {

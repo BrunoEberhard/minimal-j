@@ -116,7 +116,7 @@ public abstract class AbstractTable<T> {
 	}
 	
 	protected void execute(String s) {
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), s, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, s, false)) {
 			statement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Statement failed: \n" + s);
@@ -260,7 +260,7 @@ public abstract class AbstractTable<T> {
 	}
 
 	public void clear() {
-		try (PreparedStatement statement = createStatement(sqlRepository.getConnection(), clearQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement statement = createStatement(connection, clearQuery, false)) {
 			statement.execute();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, sqlLogger, "Clear of Table " + getTableName() + " failed");
@@ -447,7 +447,7 @@ public abstract class AbstractTable<T> {
 		if (isHistorized()) {
 			query += " AND VERSION = 0";
 		}
-		try (PreparedStatement preparedStatement = createStatement(sqlRepository.getConnection(), query, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement preparedStatement = createStatement(connection, query, false)) {
 			preparedStatement.setObject(1, id);
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				if (resultSet.next()) {

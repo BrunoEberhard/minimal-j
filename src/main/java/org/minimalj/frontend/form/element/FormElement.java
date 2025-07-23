@@ -30,5 +30,7 @@ public interface FormElement<T> {
 
 	public String getCaption();
 
+	public String getTooltip();
+
 	public boolean canBeEmpty();
 }

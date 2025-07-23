@@ -15,9 +15,9 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
-import org.minimalj.test.web.WebTest;
+import org.minimalj.test.UiTest;
 
-public class FormatFormElementTest extends WebTest {
+public class FormatFormElementTest extends UiTest {
 	
 	@Test
 	public void test() {
@@ -34,6 +34,9 @@ public class FormatFormElementTest extends WebTest {
 
 		Assertions.assertEquals("01.02.2023", form.element(FormatFormElementTestEntity.$.date).getText(), "Date should be formatted");
 		Assertions.assertEquals("01:23", form.element(FormatFormElementTestEntity.$.time).getText(), "Time should be formatted");
+		// TODO das dateTime darf den Focus nicht behalten, da damit die Neu-Formattierung verhindert wird.
+		// Dies ist nur ein Hack, damit ein anderes Feld den Fokus bekommt.
+		form.element(FormatFormElementTestEntity.$.time).setText("1:24");
 		Assertions.assertEquals("01.02.2023 01:23:45.678", form.element(FormatFormElementTestEntity.$.dateTime).getText(), "DateTime should be formatted");
 	}
 

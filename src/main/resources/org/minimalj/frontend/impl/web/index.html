@@ -82,6 +82,9 @@ $ICON
 		if (dataObject.title) {
 			titleElement.replaceChild(document.createTextNode(dataObject.title), titleElement.firstChild);
 		}
+		if (dataObject.navigation) {
+			updateNavigation(dataObject.navigation);
+		}		
 		if (dataObject.hasSearchPages === true) {
 			document.getElementById("search").removeAttribute("disabled");
 			document.getElementById("searchButton").classList.remove("hide");
@@ -97,6 +100,7 @@ $ICON
 			updatePageButtons();
 			resizeNavigation();
 			saveStateInHistory();
+			updateNavigationSelection(dataObject.showPage)
 		} else if ("updatePage" in dataObject) {
 			closeDialogs();
 			dataObject.closeDialog = undefined;
@@ -105,11 +109,12 @@ $ICON
 			resizeNavigation();
 		} else if ("showPages" in dataObject) {
 			var pages = dataObject.showPages;
-			for (var i = 0; i < pages.length; i++) {
-				showPage(pages[i]);
-			}
+			pages.forEach(page => showPage(page));
 			updatePageButtons();
 			resizeNavigation();
+			if (pages.length > 0) {
+				updateNavigationSelection(pages[0]);
+			}
 		} else if ("hidePage" in dataObject) {
 			addNewStateToHistory();
 			hidePage(dataObject.hidePage);
@@ -140,9 +145,6 @@ $ICON
 			pageContainer.style.flexDirection = horizontalDetailLayout ? "row" : "column";
 			updatePageButtons();
 		}
-		if (dataObject.navigation) {
-			updateNavigation(dataObject.navigation);
-		}
 		if (dataObject.dialog) {
 			showDialog(dataObject.dialog);
 		}
@@ -150,6 +152,7 @@ $ICON
 			for (var i = 0; i < dataObject.closeDialog.length; i++) {
 				var dialog = document.getElementById(dataObject.closeDialog[i]);
 				dialog.close();
+				dialog.remove();
 			}
 		}
 		if (dataObject.propertyChanges) {
@@ -161,11 +164,11 @@ $ICON
 						var value = propertyChanges[id][property];
 						if (property === "tableContent") {
 							var tbody = element.tBodies[0];
-							removeChildren(tbody);
+							tbody.replaceChildren();
 							addTableRows(id, tbody, value);
 						} else if (property === "tableModel") {
 							var thead = element.tHead;
-							removeChildren(thead);
+							thead.replaceChildren();
 							fillTableHead(thead, id, value);
 						} else if (property === "selectedRows") {
 							var tbody = element.getElementsByTagName("tbody")[0];
@@ -174,7 +177,7 @@ $ICON
 							}					
 						} else if (property === "paging") {
 							var tfoot = element.tFoot;
-							removeChildren(tfoot);
+							tfoot.replaceChildren();
 							addTableFooter(tfoot, value);
 						} else if (property === "validationMessage") {
 							var element = document.getElementById(id);
@@ -207,6 +210,8 @@ $ICON
 							} else {
 								formElement.classList.remove("hideFormElement");
 							}
+						} else if (property === "link") {
+							element.setAttribute("href", config.link);
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
 							element.checked = value ? "checked" : "";
 						} else if (property === "value" && (element.tagName === "DIV" || element.tagName === "SPAN")) {
@@ -221,10 +226,8 @@ $ICON
 								document.getElementById(value).checked = true;
 							}
 							if (document.activeElement != element || element.id != dataObject.source || element.changeOnFocus) {
-								// a date (formatted input) should not change while user is entering more characters
+								// a date (or other formatted input) should not change while user is entering more characters
 								element[property] = value;
-							} else {
-								element.valueOnBlur = value;
 							}
 						}
 					}
@@ -265,12 +268,8 @@ $ICON
 		if (dataObject.canLogout != undefined) {
 			document.getElementById("logout").style.display = dataObject.canLogout ? "inline" : "none";
 		}
-	}
-	
-	function setDeferredValue(element) {
-		if (element.valueOnBlur) {
-			element.value = element.valueOnBlur;
-			element.valueOnBlur = undefined;
+		if (dataObject.route != undefined) {
+			saveStateInHistory(dataObject.route);
 		}
 	}
 	
@@ -278,18 +277,17 @@ $ICON
 	var lastChangedTextField = null;
 	
 	function ontextchange(element) {
-		if (timerTextFieldChange) {
-			clearTimeout(timerTextFieldChange);
-			timerTextFieldChange = null;
-			sendchange(element);
-		}
+		clearTimeout(timerTextFieldChange);
+		timerTextFieldChange = null;
+		sendchange(element);
 		lastChangedTextField = null;
 	}
 	
 	function ontextinput(element) {
-		element.valueOnBlur = null;
 		if (element !== lastChangedTextField) {
-			ontextchange(lastChangedTextField);
+			if (lastChangedTextField != null) {
+				ontextchange(lastChangedTextField);
+			}
 			sendchange(element);
 			lastChangedTextField = element;
 		} else {
@@ -303,21 +301,25 @@ $ICON
 		timerTextFieldChange = null;
 	}
 	
-	function addNewStateToHistory(fragment) {
+	function addNewStateToHistory(route) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
-			history.pushState(null, titleElement.innerText, fragment ? "." + fragment : ""); // second argument is ignored by browsers (!)
+			history.pushState(null, titleElement.innerText, "." + (route ? route : "")); // second argument is ignored by browsers (!)
 		}
 	}
-	
-	function saveStateInHistory() {
+
+	function saveStateInHistory(route) {
 		var pages = document.getElementsByClassName("page");
 		if (pages.length > 0) {
 			var state = [];
 			for (var i = 0; i < pages.length; i++) {
 				state.push(pages[i].id);
 			}
-			history.replaceState(state, titleElement.innerText);
+			if (route) {
+				history.replaceState(state, titleElement.innerText, "." + route);
+			} else {
+				history.replaceState(state, titleElement.innerText);
+			}
 		}
 	}
 	
@@ -328,6 +330,12 @@ $ICON
 			};
 			send(data, true);
 		}
+	}
+	
+	function updateNavigationSelection(page) {
+		document.querySelectorAll("a.selected").forEach(a => a.classList.remove("selected"));
+		var navigationRoute = page.navigationRoute != undefined ? page.navigationRoute : page.route;
+		document.querySelector("[href='" + navigationRoute + "']")?.classList.add("selected");
 	}
 	
 	function onError(evt) {}
@@ -371,13 +379,7 @@ $ICON
 				contentElement = document.createElement("iframe");
 				// the iframe must be already attached to have the document
 				pageContent.appendChild(contentElement);
-				if (!!("srcdoc" in contentElement)) {
-					// in chrome this works best
-					contentElement.srcdoc = page.content.htmlOrUrl;
-				} else {
-					// in IE before chromium this allows back after a link in the content was clicked
-					contentElement.contentWindow.document.write(page.content.htmlOrUrl);
-				}
+				contentElement.srcdoc = page.content.htmlOrUrl;
 				contentElement.height = contentElement.contentWindow.document.firstChild.scrollHeight + "px";
 			} else {
 				var contentElement = createContent(page.content);
@@ -386,7 +388,7 @@ $ICON
 			contentElement.classList.add("content" + page.content.type);
 			
 			headerElement.ondblclick = function(e) { selectAll(contentElement); }
-			// :not([type='hidden']) is not supported on old browsers but there shoul be no hidden input anyway
+			// :not([type='hidden']) is not supported on old browsers but there should be no hidden input anyway
 			var inputs = contentElement.querySelectorAll("input, textarea, select");
 			if (inputs.length > 0) {
 				inputs[0].focus();
@@ -402,10 +404,10 @@ $ICON
 		document.getElementById("sideBarActionButton").style.display = hasActionMenu ? null : "none";
 	
 		if (hasActionMenu) {
-			var sideBarElement = createMenu(page.actionMenu, page.pageId);
+			var sideBarElement = document.createElement("div");
 			sideBarElement.classList.add("actionSideBar");
 			sideBarElement.classList.add("hidden-print");
-	
+			sideBarElement.appendChild(createMenu(page.actionMenu, page.pageId));
 			pageContentAndActionsElement.appendChild(sideBarElement);
 		}
 	
@@ -472,6 +474,9 @@ $ICON
 	}
 	
 	function showContextMenu(event) {
+		if (event.srcElement.hasAttribute("href")) {
+			return;
+		}
 		var pageElement = getPageElement(event);
 		var pageContentAndActionsElement = pageElement.querySelector(".pageContentAndActions");
 		var sideBarElement = pageElement.querySelector(".actionSideBar");
@@ -585,9 +590,7 @@ $ICON
 	
 		var isTable = page.content != null && (page.content.type === "Table" || page.content.type === "CustomFilter");
 		if (isTable) {
-			document.getElementById("tablePageHeaderButtons").childNodes.forEach(function(item) {
-		    	element.appendChild(item.cloneNode(true));
-			});
+			element.appendChild(template("tablePageHeaderButtons"));
 			document.getElementById("tableFilterButton").classList.remove("hide");
 			
 			var download = element.querySelector('.downloadButton a');
@@ -597,10 +600,7 @@ $ICON
 			document.getElementById("tableFilterButton").classList.add("hide");
 		}		
 		
-		document.getElementById("pageHeaderButtons").childNodes.forEach(function(item) {
-	    	element.appendChild(item.cloneNode(true));
-		});
-	
+		element.appendChild(template("pageHeaderButtons"));
 		return element;
 	}
 	
@@ -627,10 +627,8 @@ $ICON
 				element.appendChild(formRow);
 			}
 		} else if (type === "Query") {
-			element = document.getElementById("queryCaption");
-			removeChildren(element);
-			element.appendChild(document.createTextNode(content.caption));
-			element = document.getElementById("query").cloneNode(true);
+			element = template("query").children[0];
+			element.children[1].appendChild(document.createTextNode(content.caption));
 			var actions = content.actions;
 			if (actions != undefined) {
 				for (var i = 0; i < actions.length; i++) {
@@ -644,7 +642,8 @@ $ICON
 			element = document.createElement("div");
 			element.style = "height: 100%; display: flex; align-items: center; justify-content: center";
 			var formAndActions = document.createElement("div");
-			formAndActions.style = "width: 25em;";
+			var width = ((content.content.columns * content.content.columnWidth) / 8 + 2) + "rem";
+			formAndActions.style = "width: " + width;
 			element.appendChild(formAndActions);
 			var contentElement = createContent(content.content);
 			formAndActions.appendChild(contentElement);
@@ -655,9 +654,9 @@ $ICON
 				button.id = action.id;
 				button.style="margin-right: 1em;"
 				button.appendChild(document.createTextNode(action.name));
-				button.setAttribute("onclick", "action(\"" + action.id + "\");");
-				if (!action.enabled)
-					button.setAttribute("disabled", "true");
+				button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + contentElement.id + "\");");
+				if (action.description) element.setAttribute("title", action.description);
+				if (!action.enabled) button.setAttribute("disabled", "true");
 				footer.appendChild(button);
 			});
 			formAndActions.appendChild(footer);
@@ -732,7 +731,7 @@ $ICON
 				element.appendChild(createContent(content.component));
 			}
 		} else if (type === "Action") {
-			element = document.createElement("div");
+			element = document.createElement("a");
 			createAction(element, content);
 		} else if (type === "TextField") {
 			element = document.createElement("input");
@@ -750,7 +749,6 @@ $ICON
 			}
 			if (element.type === "text") {
 				element.setAttribute("oninput", "ontextinput(this);");
-				element.setAttribute("onblur", "setDeferredValue(this);");
 				element.setAttribute("onchange", "ontextchange(this);");
 			} else {
 				element.setAttribute("onchange", "sendchange(this);");
@@ -777,7 +775,8 @@ $ICON
 			element.changeOnFocus = content.changeOnFocus;
 		} else if (type === "AreaField") {
 			element = document.createElement("textarea");
-			element.setAttribute("onkeyup", "sendchange(this);");
+			element.setAttribute("oninput", "ontextinput(this);");
+			element.setAttribute("onchange", "ontextchange(this);");
 			element.setAttribute("maxlength", content.maxLength);
 			if (content.placeholder) {
 				element.setAttribute("placeholder", content.placeholder);
@@ -849,6 +848,7 @@ $ICON
 			var button = document.createElement("div");
 			button.className = "lookupButton";
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
+			button.setAttribute("title", content.description);
 			element.appendChild(button);
 		} else if (type === "LookupActions") {
 			element = document.createElement("div");
@@ -895,9 +895,13 @@ $ICON
 			element.src = content.htmlOrUrl;
 			element.height = "50%"; // cross origin doesn't allow to get childs height
 		} else if (type === "Html") {
-			// this is not used at the moment as IE (before chrome) doesn't support it
-			element = document.createElement("iframe");
-			element.srcdoc = content.htmlOrUrl;
+			if (content.htmlOrUrl.indexOf("<html") >= 0) {
+				element = document.createElement("iframe");
+				element.srcdoc = content.htmlOrUrl;
+			} else {
+				element = document.createElement("div");
+				element.innerHTML = content.htmlOrUrl;
+			}
 		} else if (type === "Upload" || type === "Image" && editable) {
 			element = document.createElement("input");
 			element.type = "file";
@@ -911,8 +915,24 @@ $ICON
 				element.src = "data:image;base64, " + content.value;
 			}
 			if (content.maxHeight) {
+				element.style.width = "unset";
 				element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
 			}
+		} else if (type === "Dashboard") {
+			element = document.createElement("div");
+			element.style = "height: 100%; width: 100%; display: flex; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; justify-content: flex-start; gap: 1.3rem; padding: 2ex;";
+			content.dashes.forEach(dash => {
+				var dashContainer = document.createElement("div");
+				dashContainer.classList.add("dashContainer");
+				var dashTitle = document.createElement("div");
+				dashTitle.appendChild(document.createTextNode(dash.title));
+				dashTitle.classList.add("dashTitle");
+				var dashContent = createContent(dash.content);
+				dashContent.classList.add("dashContent");
+				dashContainer.appendChild(dashTitle);
+				dashContainer.appendChild(dashContent);
+				element.appendChild(dashContainer);
+			});
 		} else {
 			element = document.createElement("div");
 			element.appendChild(document.createTextNode("unknown: " + type));
@@ -931,6 +951,15 @@ $ICON
 		}
 		if (content.validationMessage != undefined && content.validationMessage.length > 0) {
 			element.title = content.validationMessage;
+		}
+		if (content.row != undefined) {
+			element.setAttribute("row", content.row);
+		}
+		if (content.column != undefined) {
+			element.setAttribute("column", content.column);
+		}
+		if (content.ui != undefined) {
+			element.setAttribute("ui", content.ui);
 		}
 		return element;
 	}
@@ -1080,10 +1109,17 @@ $ICON
 	function createTableCell(tableId, rowIndex, columnIndex, cell) {
 		var td = document.createElement("td");
 		if (cell) {
-			if (cell.action) {
+			if (cell.route) {
+				var a = document.createElement("a");
+				a.appendChild(document.createTextNode(cell.value));
+				a.setAttribute("href", cell.route);
+				a.className = "action";
+				a.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + "); return false;");
+				td.appendChild(a);
+			} else if (cell.action) {
 				td.appendChild(document.createTextNode(cell.action));
 				td.className = "action";
-				td.setAttribute("onclick", "cellAction(\"" + tableId + "\", " + rowIndex + ", " + columnIndex + ");");
+				td.setAttribute("onclick", "cellAction(event, \"" + tableId + "\", " + rowIndex + ", " + columnIndex + "); return false;");
 			} else if (cell.value) {
 				td.appendChild(document.createTextNode(cell.value));
 				td.classList.add(cell.styles);
@@ -1101,9 +1137,7 @@ $ICON
 			var td = document.createElement("td");
 			td.setAttribute("colspan", tableFooterElement.columnCount);
 			td.style = "text-align: center; padding: 1em;";
-			document.getElementById("tableFooterButtons").childNodes.forEach(function(item) {
-		    	td.appendChild(item.cloneNode(true));
-			});
+			td.appendChild(template("tableFooterButtons"));
 			td.querySelector(".currentPage").innerHTML = content;
 			tr.appendChild(td);
 		}
@@ -1113,21 +1147,21 @@ $ICON
 		element.className = "action";
 		element.textContent = config.name;
 		if (config.description) element.setAttribute("title", config.description);
-		element.setAttribute("onclick", "action(\"" + config.id + "\");");
-	}
-	
-	function removeChildren(element) {
-		while (element.firstChild) {
-			element.removeChild(element.firstChild);
+		if (config.link != undefined) {
+			element.setAttribute("href", config.link);
 		}
+		element.setAttribute("onclick", "action(\"" + config.id + "\"); return false;");
+	}
+
+	function template(id) {
+		return document.getElementById(id).content.cloneNode(true);
 	}
 	
 	function updateNavigation(menus) {
 		var navigationElement = document.getElementById("navigation");
-		removeChildren(navigationElement);
+		navigationElement.replaceChildren();
 	
 		var menuElement = createMenu(menus);
-		menuElement.style.marginTop = "0px";
 		navigationElement.appendChild(menuElement);
 	}
 	
@@ -1136,15 +1170,16 @@ $ICON
 	
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
-			var li = document.createElement("li");
-			ul.appendChild(li);
 			if (item.type !== "Separator") {
 				if (item.items) {
-					li.appendChild(document.createTextNode(item.name));
-					li.appendChild(createMenu(item.items));
+					var nameElement = document.createElement("div");
+					nameElement.appendChild(document.createTextNode(item.name));
+					ul.appendChild(nameElement);
+					ul.appendChild(createMenu(item.items));
 				} else if (item.id) {
 					var a = document.createElement("a");
 					a.setAttribute("onclick", "action(\"" + item.id + "\"); return false;");
+					if (item.description) a.setAttribute("title", item.description);
 					a.setAttribute("href", item.link != undefined ? item.link : ".");
 					if (!item.enabled) {
 						a.setAttribute("disabled", "true");
@@ -1152,10 +1187,10 @@ $ICON
 					a.id = item.id;
 					a.classList.add("action");
 					a.appendChild(document.createTextNode(item.name));
-					li.appendChild(a);
+					ul.appendChild(a);
 				}
 			} else {
-				li.appendChild(document.createElement("hr"));
+				ul.appendChild(document.createElement("hr"));
 			}
 		}
 		return ul;
@@ -1195,7 +1230,7 @@ $ICON
 		var headerText = document.createElement("span");
 		headerText.appendChild(document.createTextNode(json.title));
 		header.appendChild(headerText);
-		var buttons = document.getElementById("dialogButtonsTemplate").cloneNode(true);
+		var buttons = template("dialogButtonsTemplate");
 		while (buttons.children.length> 0) header.appendChild(buttons.children[0]);
 		dialog.appendChild(header);
 	
@@ -1218,8 +1253,8 @@ $ICON
 				var button = document.createElement("button");
 				button.id = action.id;
 				button.appendChild(document.createTextNode(action.name));
-				if (action.form) {
-					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.form + "\");");
+				if (action.formId) {
+					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.formId + "\");");
 				} else {
 					button.setAttribute("onclick", "action(\"" + action.id + "\");");
 				}
@@ -1230,8 +1265,7 @@ $ICON
 			dialog.appendChild(footer);
 		}
 		
-		var resize = document.getElementById("dialogResizeTemplate").cloneNode(true);
-		dialog.appendChild(resize);
+		dialog.appendChild(template("dialogResizeTemplate"));
 	
 		if (content.classList.contains("form")) {
 			addEnterAction(json.saveAction, content);
@@ -1247,7 +1281,6 @@ $ICON
 		    dialog.closeAction = json.closeAction;
 			dialog.addEventListener("cancel", closeDialogButton);
 		}
-		dialog.addEventListener("close", dialogClosedListener);
 		
 		dialog.showModal();
 
@@ -1318,13 +1351,10 @@ $ICON
 			event.preventDefault();
 		} else {
 			dialog.close();
+			dialog.remove();
 		}
 	}
 
-	function dialogClosedListener(event) {
-		document.getElementById("body").removeChild(event.target);
-	}
-	
 	function closeDialogs() {
 		var dialogs = document.getElementsByTagName("dialog");
 		Array.from(dialogs).forEach(dialog => document.getElementById("body").removeChild(dialog));
@@ -1451,11 +1481,13 @@ $ICON
 	
 	function createSuggestions(id, suggestions) {
 		var datalist = document.getElementById(id + "-list");
-		removeChildren(datalist);
-		for (var i = 0; i < suggestions.length; i++) {
-			var option = document.createElement("option");
-			option.setAttribute("value", suggestions[i]);
-			datalist.appendChild(option);
+		if (datalist != null) {
+			datalist.replaceChildren();
+			for (var i = 0; i < suggestions.length; i++) {
+				var option = document.createElement("option");
+				option.setAttribute("value", suggestions[i]);
+				datalist.appendChild(option);
+			}
 		}
 	}
 
@@ -1468,6 +1500,10 @@ $ICON
 	}
 
 	function action(actionId, formId) {
+		if (timerTextFieldChange && lastChangedTextField) {
+			ontimeout();
+			clearTimeout(timerTextFieldChange);
+		}		
 		if (formId) {
 			var formElement = document.getElementById(formId);
 			formElement.classList.add("showValidations");
@@ -1479,7 +1515,7 @@ $ICON
 		send(data, true);
 	}
 	
-	function cellAction(tableId, row, column) {
+	function cellAction(event, tableId, row, column) {
 		closeActionMenu();
 		
 		var data = {
@@ -1505,9 +1541,10 @@ $ICON
 	}
 	
 	function tableSelection(event) {
-		if (event.type === "contextmenu") {
+		if (event.type === "contextmenu" || event.target.tagName == "A" || event.detail > 1) {
 			return;
 		}	
+		
 		var rowElement = event.target.tagName == "TD" ? event.target.parentElement : event.target;
 		var tbodyElement = rowElement.parentElement;
 		var tableElement = tbodyElement.parentElement;
@@ -1681,10 +1718,10 @@ $ICON
 	
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
-				pendingRequests--;			
 				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
+				pendingRequests--;	
 			}
 		}
 		pendingRequests++;
@@ -1708,8 +1745,8 @@ $ICON
 			var socketUrl = wsProtocol + "://" + hostAndPort + pathname + "$WS";
 			websocket = new WebSocket(socketUrl);
 			websocket.onmessage = function(evt) {
-				pendingRequests--;
 				onMessage(evt.data)
+				pendingRequests--;
 			};
 			websocket.onopen = function(evt) {
 				websocket.send(JSON.stringify(data));
@@ -1798,8 +1835,13 @@ $ICON
 		window.onpopstate = popState;
 	
 		var initParameters = {};
-		initParameters.initialize = window.history.state ? window.history.state : "$PATH";
+		initParameters.pageIds = window.history.state;
+		initParameters.path = "$PATH";
 		if (localStorage.rememberMeToken != undefined) initParameters.rememberMeToken = localStorage.rememberMeToken;
+		if (window.location.hash) {
+			initParameters.locationFragment = window.location.hash.substring(1);
+			history.replaceState({}, '', window.location.href.slice(0, -initParameters.locationFragment.length-1));
+		}
 		send(initParameters, true);
 	}
 	
@@ -1899,89 +1941,96 @@ $ICON
 	</div>
 	<div id="applicationVersion" class="hidden-print">$APPLICATION-VERSION</div>
 
-	<div id="templates" style="display: none">
-		<div id="tablePageHeaderButtons">
-			<svg style="stroke-width:0px" class="filterButton pageButton button hidden-print" onclick="toggleFilter(evt);">
-				<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
-				<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
-				<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:15%" />
-				<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:20%" />
-			</svg>
-			<svg style="stroke-width:0px" class="downloadButton pageButton button hidden-print">
-				<line x1="6%" y1="6%" x2="89%" y2="6%" style="stroke-width:12%" />
-				<line x1="6%" y1="6%" x2="6%" y2="85%" style="stroke-width:12%" />
-				<line x1="89%" y1="6%" x2="89%" y2="94%" style="stroke-width:12%" />
-				<line x1="15%" y1="94%" x2="89%" y2="94%" style="stroke-width:12%" />
-				<line x1="6%" y1="85%" x2="15%" y2="94%" style="stroke-width:12%" />
-				<line x1="35%" y1="94%" x2="35%" y2="65%" style="stroke-width:8%" />
-				<line x1="35%" y1="65%" x2="65%" y2="65%" style="stroke-width:8%" />
-				<line x1="65%" y1="65%" x2="65%" y2="94%" style="stroke-width:8%" />
-				<line x1="25%" y1="6%" x2="25%" y2="45%" style="stroke-width:6%" />
-				<line x1="25%" y1="45%" x2="75%" y2="45%" style="stroke-width:6%" />
-				<line x1="75%" y1="45%" x2="75%" y2="6%" style="stroke-width:6%" />
-				<a href="download">
-					<rect x="0" y="0" width="100%" height="100" style="fill:transparent"/>
-				</a>
-			</svg>
-		</div>
-		<div id="tableFooterButtons">
-			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'first');">
-				<line x1="20%" y1="15%" x2="20%" y2="85%" style="stroke-width:15%" />
-				<line x1="80%" y1="20%" x2="40%" y2="50%" style="stroke-width:15%" />
-				<line x1="80%" y1="80%" x2="40%" y2="50%" style="stroke-width:15%" />
-			</svg>
-			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
-				<line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
-				<line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
-			</svg>
-			<span class="currentPage tablePageing hidden-print">-</span>
-			<svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
-				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
-				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
-			</svg>
-			<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'last');">
-				<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
-				<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
-				<line x1="80%" y1="15%" x2="80%" y2="85%" style="stroke-width:15%" />
-			</svg>
-		</div>		
-		<div id="pageHeaderButtons">
-			<svg style="stroke-width:0px" class="sideBarActionButton pageButton button hidden-print" onclick="toggleActionSideBar(evt);">
-				<rect x="30%" y="13%" width="40%" height="17%"/>
-				<rect x="30%" y="46%" width="40%" height="17%"/>
-				<rect x="30%" y="80%" width="40%" height="17%"/>
-			</svg>
-			<svg class="pageButton button toggleButton hidden-print" onclick="togglePage(evt);">
-			  <rect x="20%" y="80%" width="80%" height="13%" />
-			</svg>
-			<svg class="pageButton button closeButton hidden-print" onclick="closePage(evt);">
-				<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
-				<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
-			</svg>
-		</div>
-		<div id="dialogButtonsTemplate" class="dialogButtons">
-			<svg class="pageButton button maximizeButton" onclick="dialogClickListener(evt)">
-			  <rect x="22%" y="22%" width="56%" height="56%" stroke-width="12%" fill="none" />
-			</svg>
-			<svg class="pageButton button" onclick="closeDialogButton(evt)">
-			  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
-			  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
-			</svg>
-		</div>
-		<div id="dialogResizeTemplate" class="dialogResize">
+	<template id="tablePageHeaderButtons">
+		<svg style="stroke-width:0px" class="filterButton pageButton button hidden-print" onclick="toggleFilter(evt);">
+			<line x1="7%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+			<line x1="93%" y1="12%" x2="50%" y2="57%" style="stroke-width:15%" />
+			<line x1="7%" y1="12%" x2="93%" y2="12%" style="stroke-width:15%" />
+			<line x1="50%" y1="57%" x2="50%" y2="93%" style="stroke-width:20%" />
+		</svg>
+		<svg style="stroke-width:0px" class="downloadButton pageButton button hidden-print">
+			<line x1="6%" y1="6%" x2="89%" y2="6%" style="stroke-width:12%" />
+			<line x1="6%" y1="6%" x2="6%" y2="85%" style="stroke-width:12%" />
+			<line x1="89%" y1="6%" x2="89%" y2="94%" style="stroke-width:12%" />
+			<line x1="15%" y1="94%" x2="89%" y2="94%" style="stroke-width:12%" />
+			<line x1="6%" y1="85%" x2="15%" y2="94%" style="stroke-width:12%" />
+			<line x1="35%" y1="94%" x2="35%" y2="65%" style="stroke-width:8%" />
+			<line x1="35%" y1="65%" x2="65%" y2="65%" style="stroke-width:8%" />
+			<line x1="65%" y1="65%" x2="65%" y2="94%" style="stroke-width:8%" />
+			<line x1="25%" y1="6%" x2="25%" y2="45%" style="stroke-width:6%" />
+			<line x1="25%" y1="45%" x2="75%" y2="45%" style="stroke-width:6%" />
+			<line x1="75%" y1="45%" x2="75%" y2="6%" style="stroke-width:6%" />
+			<a href="download">
+				<rect x="0" y="0" width="100%" height="100" style="fill:transparent"/>
+			</a>
+		</svg>
+	</template>
+
+	<template id="tableFooterButtons">
+		<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'first');">
+			<line x1="20%" y1="15%" x2="20%" y2="85%" style="stroke-width:15%" />
+			<line x1="80%" y1="20%" x2="40%" y2="50%" style="stroke-width:15%" />
+			<line x1="80%" y1="80%" x2="40%" y2="50%" style="stroke-width:15%" />
+		</svg>
+		<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'prev');">
+			<line x1="60%" y1="20%" x2="20%" y2="50%" style="stroke-width:15%" />
+			<line x1="60%" y1="80%" x2="20%" y2="50%" style="stroke-width:15%" />
+		</svg>
+		<span class="currentPage tablePageing hidden-print">-</span>
+		<svg style="stroke-width:0px" class="nextButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'next');">
+			<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+			<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+		</svg>
+		<svg style="stroke-width:0px" class="prevButton pageButton button tablePageing hidden-print" onclick="tablePage(evt, 'last');">
+			<line x1="20%" y1="20%" x2="60%" y2="50%" style="stroke-width:15%" />
+			<line x1="20%" y1="80%" x2="60%" y2="50%" style="stroke-width:15%" />
+			<line x1="80%" y1="15%" x2="80%" y2="85%" style="stroke-width:15%" />
+		</svg>
+	</template>
+	
+	<template id="pageHeaderButtons">
+		<svg style="stroke-width:0px" class="sideBarActionButton pageButton button hidden-print" onclick="toggleActionSideBar(evt);">
+			<rect x="30%" y="13%" width="40%" height="17%"/>
+			<rect x="30%" y="46%" width="40%" height="17%"/>
+			<rect x="30%" y="80%" width="40%" height="17%"/>
+		</svg>
+		<svg class="pageButton button toggleButton hidden-print" onclick="togglePage(evt);">
+		  <rect x="20%" y="80%" width="80%" height="13%" />
+		</svg>
+		<svg class="pageButton button closeButton hidden-print" onclick="closePage(evt);">
+			<line x1="7%" y1="7%" x2="93%" y2="93%" style="stroke-width:20%" />
+			<line x1="7%" y1="93%" x2="93%" y2="7%" style="stroke-width:20%" />
+		</svg>
+	</template>
+	
+	<template id="dialogButtonsTemplate">
+		<svg class="pageButton button maximizeButton" onclick="dialogClickListener(evt)">
+		  <rect x="22%" y="22%" width="56%" height="56%" stroke-width="12%" fill="none" />
+		</svg>
+		<svg class="pageButton button" onclick="closeDialogButton(evt)">
+		  <line x1="14%" y1="14%" x2="86%" y2="86%" style="stroke-width:16%" />
+		  <line x1="14%" y1="86%" x2="86%" y2="14%" style="stroke-width:16%" />
+		</svg>
+	</template>
+
+	<template id="dialogResizeTemplate">
+		<div class="dialogResize">
 			<svg class="button" onmousedown="addResizeListener(evt)">
 			  <line x1="10%" y1="90%" x2="90%" y2="10%" style="stroke-width:10%" />
 			  <line x1="40%" y1="90%" x2="90%" y2="40%" style="stroke-width:10%" />
 			  <line x1="70%" y1="90%" x2="90%" y2="70%" style="stroke-width:10%" />
 			</svg>
-		</div>		
-		<div id="query" style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
+		</div>
+	</template>	
+	
+	<template id="query">
+		<div style="height: 100%; display: flex; flex-direction: column; align-items: stretch;">
 			<div style="flex-grow: 2;"></div>
 			<div id="queryCaption" style="text-align: center;"></div>
 			<div style="text-align: center; margin-top: 1em"><input type="text" id="querySearch" onkeydown="if (event.keyCode == 13) { querySearch() }" style="width:100%; max-width: 600px; height: 2em;"></div>
 			<div id="queryBottom" style="flex-grow: 3;"></div>
 		</div>
-	</div>
+	</template>	
 
 	<div class="is-blocked"></div>
 </body>

@@ -94,7 +94,9 @@ public interface PageContainerTestFacade {
 		public default void save() {
 			String caption = Resources.getString("SaveAction");
 			ActionTestFacade action = getAction(caption);
-			action.run();
+			if (action.isEnabled()) {
+				action.run();
+			}
 		}
 		
 		public default FormTestFacade form() {
@@ -104,12 +106,15 @@ public interface PageContainerTestFacade {
 	
 	public interface FormTestFacade {
 
-		public FormElementTestFacade getElement(String caption);
+		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue);
+
+		public default FormElementTestFacade getElement(String caption) {
+			return getElement(caption, null);
+		}
 
 		public default FormElementTestFacade getElement(String caption, int index) {
 			return null;
 		}
-
 		
 		public default FormElementTestFacade getElement(int row, int column) {
 			return null;
@@ -122,7 +127,7 @@ public interface PageContainerTestFacade {
 		public default FormElementTestFacade element(Object key) {
 			Property property = Keys.getProperty(key);
 			String caption = Resources.getPropertyName(property);
-			return getElement(caption);
+			return getElement(caption, null);
 		}
 		
 		public default void assertMandatory(Object key) {
@@ -131,13 +136,13 @@ public interface PageContainerTestFacade {
 		}
 		
 		public default void set(String caption, String value) {
-			FormElementTestFacade element = getElement(caption);
+			FormElementTestFacade element = getElement(caption, false);
 			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
 			element.setText(value);
 		}
 
 		public default void set(String caption, boolean checked) {
-			FormElementTestFacade element = getElement(caption);
+			FormElementTestFacade element = getElement(caption, true);
 			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
 			element.setChecked(checked);
 		}
@@ -163,7 +168,7 @@ public interface PageContainerTestFacade {
 
 		public List<ActionTestFacade> getLineActions(int line);
 		
-		public default FormElementTestFacade groupItem(int pos) {
+		public default FormElementTestFacade groupItem(int... pos) {
 			return null;
 		}
 
@@ -212,7 +217,7 @@ public interface PageContainerTestFacade {
 		
 		public String getFilter(int column);
 		
-		public DialogTestFacade filterLookup(int column);
+		public void filterLookup(int column);
 		
 		public default int findRow(String text) {
 			for (int row = 0; row < getRowCount(); row++) {

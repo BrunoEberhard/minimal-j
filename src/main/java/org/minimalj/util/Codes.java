@@ -60,10 +60,6 @@ public class Codes {
 		return getCache().getCacheItems(null, clazz).getCodes(LocaleContext.getCurrent());
 	}
 
-	public static <T extends Code> T getOrInstantiate(Repository repository, Class<T> clazz, Object id) {
-		return getCache().getOrInstantiate(repository, clazz, id);
-	}
-
 	public static void invalidateCodeCache(Class<? extends Object> clazz) {
 		getCache().invalidateCodeCache(clazz);
 	}
@@ -74,10 +70,7 @@ public class Codes {
 
 		public <T extends Code> CodeCacheItem<T> getCacheItems(Repository repository, Class<T> clazz);
 
-		public <T extends Code> T getOrInstantiate(Repository repository, Class<T> clazz, Object id);
-
 		public void invalidateCodeCache(Class<? extends Object> clazz);
-
 	}
 
 	private static enum DefaultCodeCache implements CodeCache {
@@ -100,11 +93,7 @@ public class Codes {
 			}
 		}
 
-		public <T extends Code> T getOrInstantiate(Repository repository, Class<T> clazz, Object id) {
-			CodeCacheItem<T> cacheItem = getCacheItems(repository, (Class<T>) clazz);
-			return cacheItem.getOrInstantiate(clazz, id);
-		}
-
+		@Override
 		public void invalidateCodeCache(Class<? extends Object> clazz) {
 			cache.remove(clazz);
 		}
@@ -168,15 +157,6 @@ public class Codes {
 
 		public S getCode(Object id) {
 			return codes.get(id);
-		}
-
-		public S getOrInstantiate(Class<S> clazz, Object id) {
-			return codes.computeIfAbsent(id, newId -> {
-				S code = CloneHelper.newInstance(clazz);
-				IdUtils.setId(code, newId);
-				codesSortedByLocale = new HashMap<>();
-				return code;
-			});
 		}
 
 		public void setCodes(List<S> codes) {

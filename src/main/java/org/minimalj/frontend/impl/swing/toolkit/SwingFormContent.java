@@ -11,6 +11,7 @@ import java.awt.LayoutManager2;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +27,8 @@ import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingCaption;
+
+import com.formdev.flatlaf.FlatClientProperties;
 
 public class SwingFormContent extends JPanel implements FormContent {
 	private static final long serialVersionUID = 1L;
@@ -93,12 +96,23 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 	@Override
 	public void setValidationMessages(IComponent component, List<String> validationMessages) {
-		SwingCaption swingCaption = captionByComponent.get(component);
-		if (swingCaption != null) {
-			swingCaption.setValidationMessages(validationMessages);
+//		SwingCaption swingCaption = captionByComponent.get(component);
+//		if (swingCaption != null) {
+//			swingCaption.setValidationMessages(validationMessages);
+//		}
+		if (component instanceof Component) {
+			setValidationMessages((Component) component, validationMessages);
 		}
 	}
 
+	private void setValidationMessages(Component component, List<String> validationMessages) {
+		if (component instanceof JComponent) {
+			JComponent jComponent = (JComponent) component;
+			jComponent.putClientProperty(FlatClientProperties.OUTLINE, validationMessages.isEmpty() ? null : FlatClientProperties.OUTLINE_ERROR);
+			Arrays.stream(jComponent.getComponents()).forEach(c -> setValidationMessages(c, validationMessages));
+		}
+	}
+	
 	@Override
 	public void setVisible(IComponent component, boolean visible) {
 		if (visible != ((Component) component).isVisible()) {
@@ -170,7 +184,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 	public void invalidate() {
 		super.invalidate();
-		layoutManager.lastParentBounds = null;
+		layoutManager.lastBounds = null;
 	}
 	
 	private static class GridFormLayoutConstraint {
@@ -232,9 +246,9 @@ public class SwingFormContent extends JPanel implements FormContent {
 		private int marginLeftRight, marginTopBottom;
 
 		private Dimension size;
-		private Rectangle lastParentBounds = null;
+		private Rectangle lastBounds = null;
+		private Insets lasttInsets;
 		private int column = Integer.MAX_VALUE;
-		private Insets insets;
 		private List<Integer> rowHeights = new ArrayList<>();
 
 		private List<Integer> groupedRows = new ArrayList<>();
@@ -278,12 +292,12 @@ public class SwingFormContent extends JPanel implements FormContent {
 		
 		public void setMarginTopBottom(int marginTopBottom) {
 			this.marginTopBottom = marginTopBottom;
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 		
 		public void setMarginLeftRight(int marginLeftRight) {
 			this.marginLeftRight = marginLeftRight;
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 
 		@Override
@@ -300,14 +314,16 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 		@Override
 		public void layoutContainer(Container parent) {
-			if (lastParentBounds != null && lastParentBounds.equals(parent.getBounds())) {
+			Insets insets = parent.getInsets();
+			Rectangle bounds = parent.getBounds();
+			if (bounds.equals(lastBounds) && insets.equals(lasttInsets) && parent.isValid()) {
 				return;
 			}
 
-			lastParentBounds = parent.getBounds();
+			lastBounds = bounds;
+			lasttInsets = insets;
 			rowHeights.clear();
-
-			insets = parent.getInsets();
+			
 			int y = insets.top + marginTopBottom;
 			int width = parent.getWidth() - insets.left - insets.right - 2 * marginLeftRight;
 
@@ -319,7 +335,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 				rowVisible.add(isRowVisible);
 				if (isRowVisible) {
 					boolean hasCaption = hasCaption(row);
-					int height = layoutRow(width, row, y, hasCaption);
+					int height = layoutRow(insets, width, row, y, hasCaption);
 					rowHeights.add(height);
 					y += height + padding;
 					addBorder = true;
@@ -353,9 +369,10 @@ public class SwingFormContent extends JPanel implements FormContent {
 			return false;
 		}
 
-		private int layoutRow(int width, List<Component> row, int y, boolean hasCaption) {
+		private int layoutRow(Insets insets, int width, List<Component> row, int y, boolean hasCaption) {
 			int rowHeight = 0;
 			int column = 0;
+			boolean verticallyGrowing = row.stream().anyMatch(c -> constraints.get(c).isVerticallyGrowing());
 			for (Component component : row) {
 				int x = insets.left + marginLeftRight + column * (width + padding) / columns;
 				component.setLocation(x, y);
@@ -366,7 +383,10 @@ public class SwingFormContent extends JPanel implements FormContent {
 				int maxHeight = height + (constraint.getMax() - 1) * fixHeightWithoutCaption;
 
 				Dimension preferredSize = component.getPreferredSize();
-				height = Math.min(Math.max(minHeight, preferredSize.height), maxHeight);
+				height = Math.max(minHeight, preferredSize.height);
+				if (!verticallyGrowing) {
+					height = Math.min(height, maxHeight);
+				}
 				component.setSize(componentWidth, height);
 				if (height > rowHeight) {
 					rowHeight = height;
@@ -399,7 +419,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 			}
 			row.add(comp);
 			column = formConstraint.isCompleteRow() ? columns : column + formConstraint.getSpan();
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 
 		@Override
@@ -409,7 +429,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 
 		@Override
 		public void invalidateLayout(Container target) {
-			lastParentBounds = null;
+			lastBounds = null;
 		}
 
 		@Override

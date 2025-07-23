@@ -109,7 +109,6 @@ public abstract class TableDetailPage<T> extends TablePage<T> implements TableAc
 		public DetailPageAction(ChangeableDetailPage<T> page, String resourceName) {
 			this.page = Objects.requireNonNull(page);
 			this.resourceName = resourceName;
-			setEnabled(false);
 		}
 		
 		@Override

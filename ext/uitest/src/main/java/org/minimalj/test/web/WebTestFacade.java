@@ -3,10 +3,15 @@ package org.minimalj.test.web;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
+import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
@@ -23,11 +28,15 @@ import org.minimalj.util.resources.Resources;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -35,32 +44,70 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WebTestFacade implements UiTestFacade {
-
-	private final RemoteWebDriver driver = createDriver();
-
-	private static final String WEBDRIVER_EDGE_DRIVER = "webdriver.edge.driver";
+	private static final Logger logger = Logger.getLogger(WebTestFacade.class.getName());
+	private final UiTestDriver driverName;
+	private final boolean headless;
 	
-	private static RemoteWebDriver createDriver() {
-		// https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium/?tabs=java
-		// https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
-		System.setProperty(WEBDRIVER_EDGE_DRIVER, "C:\\Data\\programme\\selenium_driver\\msedgedriver.exe");
-		RemoteWebDriver driver = new EdgeDriver();
-		Window window = driver.manage().window();
-
-		window.setPosition(new Point(0, 0));
-		window.setSize(new Dimension(1600, 900));
-		
-		Assertions.assertEquals(1600, window.getSize().width);
-		Assertions.assertEquals(900, window.getSize().height);
-		
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
-		return driver;
+	private RemoteWebDriver driver;
+	
+	public enum UiTestDriver {
+		firefox, chrome;
+	}
+	
+	public WebTestFacade(UiTestDriver driverName, boolean headless) {
+		this.driverName = driverName;
+		this.headless = headless;
+	}
+	
+	private void init() {
+		if (driver == null) {
+			driver = createDriver(driverName, headless);
+			
+			Window window = driver.manage().window();
+			
+			window.setPosition(new Point(0, 0));
+			window.setSize(new Dimension(1600, 900));
+			
+			Assertions.assertEquals(1600, window.getSize().width);
+			Assertions.assertEquals(900, window.getSize().height);
+			
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> driver.quit()));
+		}
 	}
 
-	public WebTestFacade() {
+	static RemoteWebDriver createDriver(UiTestDriver driverName, boolean headless) {
+		String language = Locale.getDefault().getLanguage();
+		logger.info("Language for uitest is: " + language);
+		switch (driverName) {
+		case chrome:
+			ChromeOptions chromeOptions = new ChromeOptions();
+			var prefs = Map.of("autofill.profile_enabled", false, "autofill.credit_card_enabled", false, "credentials_enable_service", false,
+					"profile.password_manager_enabled", false, "profile.password_manager_leak_detection", false, "--headless", headless);
+			chromeOptions.setExperimentalOption("prefs", prefs);
+			if (headless) {
+				chromeOptions.addArguments("--headless");
+			}
+			chromeOptions.addArguments("--accept-lang=" + language);
+			return new ChromeDriver(chromeOptions);
+		case firefox:
+			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			if (headless) {
+				firefoxOptions.addArguments("--headless");
+			}
+			firefoxOptions.addPreference("intl.accept_languages", language);
+			return new FirefoxDriver(firefoxOptions);
+		default:
+			throw new IllegalStateException();
+		}
+	}	
+
+	@Override
+	public void start(Application application) {
+		WebServer.start(application);
+		init();
 		reload();
 	}
-
+	
 	public void reload() {
 		driver.get("about:blank");
 		String portString = Configuration.get("MjFrontendPort", "8080");
@@ -105,7 +152,6 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public void close() {
 			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -147,7 +193,15 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public DialogTestFacade getDialog() {
 			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
-			return new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1));
+			if (!dialogs.isEmpty()) {
+				return new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1));
+			} else {
+				List<WebElement> contentLogins = driver.findElements(By.className("contentLogin"));
+				if (!contentLogins.isEmpty()) {
+					return new HtmlDialogTestFacade(contentLogins.get(0));
+				}
+			}
+			return null;
 		}
 
 		@Override
@@ -178,7 +232,7 @@ public class WebTestFacade implements UiTestFacade {
 			@Override
 			public Runnable get(String text) {
 				WebElement divNavigation = driver.findElement(By.id("navigation"));
-				WebElement item = divNavigation.findElement(By.xpath(".//a[text()=" + WebTest.escapeXpath(text) + "]"));
+				WebElement item = divNavigation.findElement(By.xpath(".//a[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 				return () -> {
 					if (!divNavigation.isDisplayed()) {
 						WebElement navigationToggle = driver.findElement(By.id("navigationToggle"));
@@ -261,6 +315,9 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public FormTestFacade getForm() {
 			WebElement form = divPage.findElement(By.className("form"));
+			if (!form.findElement(By.xpath("./..")).getAttribute("class").contains("pageContent")) {
+				throw new IllegalArgumentException("Page is a table not a form. If you want access the filter of the table please use getTable().getOverview() or table().getOverview()");
+			}
 			return new HtmlFormTestFacade(form);
 		}
 
@@ -296,15 +353,16 @@ public class WebTestFacade implements UiTestFacade {
 				WebElement actionMenu = divPage.findElement(By.className("contextMenu"));
 				WebElement item;
 				if (actionMenu.isDisplayed()) {
-					item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+					item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 				} else {
 					WebElement actionMenuButton = divPage.findElement(By.className("actionMenuButton"));
 					if (!actionMenuButton.isDisplayed()) {
 						actionMenuButton = driver.findElement(By.id("actionMenuButton"));
 					}
 					actionMenuButton.click();
-					item = divPage.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+					item = divPage.findElement(By.xpath(".//*[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 				}
+				Assertions.assertFalse("true".equals(item.getAttribute("disabled")), "Context action should not be disabled: " + text);
 				item.click();
 				waitScript();
 			};
@@ -346,7 +404,7 @@ public class WebTestFacade implements UiTestFacade {
 		
 		@Override
 		public ActionTestFacade getAction(String caption) {
-			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
+			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 			return new HtmlActionTestFacade(button);
 		}
 	}
@@ -379,13 +437,23 @@ public class WebTestFacade implements UiTestFacade {
 		}
 
 		@Override
-		public FormElementTestFacade getElement(String caption) {
-			return getElement(caption, 0);
+		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue) {
+			List<WebElement> labels = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
+			for (var label : labels) {
+				String id = label.getAttribute("for");
+				WebElement element = form.findElement(By.id(id));
+				String type = element.getAttribute("type");
+				boolean isRadioOrCheckBox = StringUtils.equals(type, "radio", "checkbox");
+				if (isBooleanValue == null || isRadioOrCheckBox == isBooleanValue) {
+					return new HtmlFormElementTestFacade(element);
+				}
+			}
+			return null;
 		}
 		
 		@Override
 		public FormElementTestFacade getElement(String caption, int index) {
-			WebElement label = form.findElements(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]")).get(index);
+			WebElement label = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]")).get(index);
 			String id = label.getAttribute("for");
 			WebElement element = form.findElement(By.id(id));
 			return new HtmlFormElementTestFacade(element);
@@ -401,7 +469,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public ActionTestFacade getAction(String label) {
 //			<div class="action" onclick="action(&quot;a94bef74-8838-4449-8661-99f01159705b&quot;);" id="a94bef74-8838-4449-8661-99f01159705b">Verpackungseinheit hinzufügen</div>
-			WebElement rowElement = form.findElement(By.xpath(".//div[text()=" + WebTest.escapeXpath(label) + "]"));
+			WebElement rowElement = form.findElement(By.xpath(".//a[text()=" + WebTestUtil.escapeXpath(label) + "]"));
 			return new HtmlActionTestFacade(rowElement);
 		}
 	}
@@ -478,7 +546,7 @@ public class WebTestFacade implements UiTestFacade {
 			dropdownButton.click();
 			waitScript();
 			WebElement actionMenu = formElement.findElement(By.cssSelector("div.dropdown"));
-			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTest.escapeXpath(text) + "]"));
+			WebElement item = actionMenu.findElement(By.xpath(".//*[text()=" + WebTestUtil.escapeXpath(text) + "]"));
 			item.click();
 			waitScript();
 		}
@@ -521,9 +589,15 @@ public class WebTestFacade implements UiTestFacade {
 		}
 		
 		@Override
-		public FormElementTestFacade groupItem(int pos) {
-			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div")).get(pos);
-			return new HtmlFormElementTestFacade(groupItemElement);
+		public FormElementTestFacade groupItem(int... positions) {
+			WebElement element = formElement;
+			while (!element.getDomAttribute("class").contains("formElement")) {
+				element = element.findElement(By.xpath(".."));
+			} 		
+			for (int pos : positions) {
+				element = element.findElements(By.xpath("./div/div")).get(pos);
+			}
+			return new HtmlFormElementTestFacade(element);
 		}
 		
 		@Override
@@ -582,8 +656,8 @@ public class WebTestFacade implements UiTestFacade {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
 			Actions action = new Actions(driver);
-			// TODO understand and fix this 'td'
-			action.doubleClick(tr.findElement(By.tagName("td"))).perform();
+			WebElement firstTdWithoutLink = tr.findElement(By.xpath("td[not(child::a)][1]"));
+			action.doubleClick(firstTdWithoutLink).perform();
 			waitScript();
 		}
 
@@ -598,7 +672,7 @@ public class WebTestFacade implements UiTestFacade {
 		
 		@Override
 		public FormTestFacade getOverview() {
-			WebElement form = table.findElement(By.cssSelector(".form"));
+			WebElement form = table.findElement(By.xpath("./..")).findElement(By.cssSelector(".form"));
 			return new HtmlFormTestFacade(form);
 		}
 		
@@ -641,14 +715,11 @@ public class WebTestFacade implements UiTestFacade {
 		}
 		
 		@Override
-		public DialogTestFacade filterLookup(int column) {
+		public void filterLookup(int column) {
 			WebElement columnFilter = getColumnFilter(column);
 			WebElement lookupButton = columnFilter.findElement(By.className("lookupButton"));
 			driver.executeScript(lookupButton.getAttribute("onclick"));
 			waitScript();
-			List<WebElement> dialogs = driver.findElements(By.tagName("dialog"));
-			return new HtmlDialogTestFacade(dialogs.get(dialogs.size() - 1));
-
 		}
 	}
 
@@ -678,21 +749,27 @@ public class WebTestFacade implements UiTestFacade {
 
 	private void clickButton(String resourceName) {
 		String caption = Resources.getString(resourceName);
-		WebElement element = driver.findElement(By.xpath(".//button[text()=" + WebTest.escapeXpath(caption) + "]"));
+		WebElement element = driver.findElement(By.xpath(".//button[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 		driver.executeScript(element.getAttribute("onclick"));
 		waitScript();
 	}
 
 	private void setText(WebElement container, String caption, String text) {
-		WebElement label = container.findElement(By.xpath(".//label[text()=" + WebTest.escapeXpath(caption) + "]"));
+		WebElement label = container.findElement(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 		String id = label.getAttribute("for");
 		WebElement element = container.findElement(By.id(id));
 		setText(element, text);
 	}
 
 	private WebElement findValueElement(WebElement element) {
-		while (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea") && !element.getTagName().equalsIgnoreCase("select")) {
-			element = element.findElement(By.cssSelector("input,textarea,select,div"));
+		var tagName = element.getTagName().toLowerCase();
+		while (!tagName.equals("input") && !tagName.equals("textarea") && !tagName.equals("select")) {
+			try {
+				element = element.findElement(By.cssSelector("input,textarea,select,div"));
+				tagName = element.getTagName().toLowerCase();
+			} catch (NoSuchElementException x) {
+				break;
+			}
 		}
 		return element;
 	}
@@ -703,26 +780,43 @@ public class WebTestFacade implements UiTestFacade {
 			Select select = new Select(element);
 			select.selectByVisibleText(text);
 		} else {
-//			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
-//				element = element.findElement(By.xpath(".//input"));
-//			}
+			element.click();
 			element.clear();
-			element.sendKeys(text);
-			// TODO replace with 'blur'
-			element.sendKeys("\t");
+			// same reason for waitScript as with the first character
+			waitScript();
+			if (!StringUtils.isEmpty(text)) {
+				// the browser makes a call to the server when one character is entered (to refresh validation)
+				// we must wait for the response because the response could otherwise overwrite further characters
+				element.sendKeys(text.substring(0, 1));
+				if (text.length() > 1) {
+					waitScript();
+					element.sendKeys(text.substring(1));
+				}
+			}
+
+			// blur
+			Actions actions = new Actions(driver);
+			actions.sendKeys(Keys.TAB);
+			actions.perform();
 		}
 	}
 	
 	private String getText(WebElement element) {
+		if (element.getTagName().toLowerCase().equals("div") && element.getAttribute("class") != null && element.getAttribute("class").contains("text")) {
+			return element.getText();
+		}
 		element = findValueElement(element);
 		if (element.getTagName().equalsIgnoreCase("select")) {
 			Select select = new Select(element);
 			select.getAllSelectedOptions();
 			return select.getAllSelectedOptions().isEmpty() ? null : select.getFirstSelectedOption().getText();
-		} else {
-//			if (!element.getTagName().equalsIgnoreCase("input") && !element.getTagName().equalsIgnoreCase("textarea")) {
-//				element = element.findElement(By.xpath(".//input"));
-//			}
+		} if (element.getTagName().equalsIgnoreCase("div")) {
+			var anchors = element.findElements(By.tagName("a"));
+			if (anchors.size() == 1) {
+				return anchors.get(0).getText();
+			}
+			return element.getText();
+		}  else {
 			return element.getAttribute("value");
 		}
 	}
@@ -732,12 +826,12 @@ public class WebTestFacade implements UiTestFacade {
 	}
 
 	public static void waitScript(JavascriptExecutor driver) {
-		do {
+		while ((Boolean) driver.executeScript("return pendingRequests > 0") == Boolean.TRUE) {
 			try {
 				Thread.sleep(2);
 			} catch (InterruptedException e) {
 				throw new RuntimeException();
 			}
-		} while ((Long) driver.executeScript("return pendingRequests") > 0);
+		}
 	}
 }

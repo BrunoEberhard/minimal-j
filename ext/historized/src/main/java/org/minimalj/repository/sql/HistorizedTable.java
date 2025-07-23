@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -84,7 +85,7 @@ class HistorizedTable<T> extends Table<T> {
 	private void update(Object id, T object) {
 		try {
 			int version = IdUtils.getVersion(object);
-			try (PreparedStatement endStatement = createStatement(sqlRepository.getConnection(), endQuery, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement endStatement = createStatement(sqlRepository.getConnection(), endQuery, false)) {
 				endStatement.setObject(1, id);
 				endStatement.setInt(2, version);
 				endStatement.execute();	
@@ -94,7 +95,7 @@ class HistorizedTable<T> extends Table<T> {
 			}
 			
 			int newVersion = version + 1;
-			try (PreparedStatement updateStatement = createStatement(sqlRepository.getConnection(), updateQuery, false)) {
+			try (Connection connection = sqlRepository.getConnection(); PreparedStatement updateStatement = createStatement(connection, updateQuery, false)) {
 				int parameterIndex = setParameters(updateStatement, object, ParameterMode.HISTORIZE, id);
 				updateStatement.setInt(parameterIndex, newVersion);
 				updateStatement.execute();
@@ -112,7 +113,7 @@ class HistorizedTable<T> extends Table<T> {
 	
 	public int getMaxVersion(Object id) {
 		int result = 0;
-		try (PreparedStatement selectMaxVersionStatement = createStatement(sqlRepository.getConnection(), selectMaxVersionQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectMaxVersionStatement = createStatement(connection, selectMaxVersionQuery, false)) {
 			selectMaxVersionStatement.setObject(1, id);
 			try (ResultSet resultSet = selectMaxVersionStatement.executeQuery()) {
 				if (resultSet.next()) {
@@ -130,7 +131,7 @@ class HistorizedTable<T> extends Table<T> {
 	}
 	
 	public T read(Object id, int time, Map<Class<?>, Map<Object, Object>> loadedReferences) {
-		try (PreparedStatement selectByIdAndTimeStatement = createStatement(sqlRepository.getConnection(), selectByIdAndTimeQuery, false)) {
+		try (Connection connection = sqlRepository.getConnection(); PreparedStatement selectByIdAndTimeStatement = createStatement(connection, selectByIdAndTimeQuery, false)) {
 			selectByIdAndTimeStatement.setObject(1, id);
 			selectByIdAndTimeStatement.setInt(2, time);
 			T object = executeSelect(selectByIdAndTimeStatement, loadedReferences);

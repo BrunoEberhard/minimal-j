@@ -16,6 +16,7 @@ import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Model;
+import org.minimalj.model.annotation.AutoIncrement;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.rest.openapi.model.OpenAPI;
@@ -28,6 +29,7 @@ import org.minimalj.rest.openapi.model.OpenAPI.Property;
 import org.minimalj.rest.openapi.model.OpenAPI.RequestBody;
 import org.minimalj.rest.openapi.model.OpenAPI.Response;
 import org.minimalj.rest.openapi.model.OpenAPI.Schema;
+import org.minimalj.rest.openapi.model.OpenAPI.Tag;
 import org.minimalj.rest.openapi.model.OpenAPI.Type;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
@@ -58,16 +60,20 @@ public class OpenAPIFactory {
 			if ((entity.getClazz().getModifiers() & Modifier.ABSTRACT) > 0) {
 				continue;
 			}
+			
 			String entityName = entity.getClassName();
+			boolean hasPropertyWithId = false;
 
+			
 			if (IdUtils.hasId(entity.getClazz()) && entity.type != MjEntityType.VIEW) {
 				Map<String, Operation> operations = new LinkedHashMap<>();
+				hasPropertyWithId = entity.type != MjEntityType.CODE && hasPropertyWithId(entity);
 
 				Operation operation = operationGetById(entity);
 				operations.put("get", operation);
 				
 				if (mjApi == null || mjApi.canCreate(entity.getClazz())) {
-					operation = operationPut(entity);
+					operation = operationPut(entity, hasPropertyWithId);
 					operations.put("put", operation);
 				}
 
@@ -89,7 +95,7 @@ public class OpenAPIFactory {
 				}
 				
 				if (mjApi == null || mjApi.canUpdate(entity.getClazz())) {
-					operation = operationPost(entity);
+					operation = operationPost(entity, hasPropertyWithId);
 					operations.put("post", operation);
 				}
 				
@@ -97,18 +103,22 @@ public class OpenAPIFactory {
 					api.paths.put("/" + entityName, operations);
 				}
 			}
+
+
+			addSchema(api, mjApi, entity, hasPropertyWithId);
 			
-			addSchema(api, mjApi, entity);	
+			addTag(api, entity);
 		}
 		
 		if (mjApi != null) {
 			for (var transaction : mjApi.getTransactions()) {
 				Class<?> requestClass = transaction.request;
-				addSchema(api, mjApi, new MjEntity(mjModel, requestClass));
+				boolean hasPropertyWithId = FlatProperties.getProperties(requestClass).values().stream().anyMatch(property -> IdUtils.hasId(property.getClazz()));
+				addSchema(api, mjApi, new MjEntity(mjModel, requestClass), hasPropertyWithId);
 
 				Class<?> responseClass = transaction.response;
 				new MjEntity(mjModel, responseClass);
-				addSchema(api, mjApi, new MjEntity(mjModel, responseClass));
+				addSchema(api, mjApi, new MjEntity(mjModel, responseClass), false);
 				
 				Map<String, Operation> operations = new LinkedHashMap<>();
 				Operation operation = operationPost(transaction);
@@ -132,27 +142,61 @@ public class OpenAPIFactory {
 		
 		return api;
 	}
+	
+	private boolean hasPropertyWithId(MjEntity entity) {
+		for (MjProperty property : entity.properties) {
+			if (property.propertyType == MjPropertyType.INLINE) {
+				boolean inlineHasPropertyWithId = hasPropertyWithId(property.type);
+				if (inlineHasPropertyWithId) {
+					return true;
+				}
+			} else if (IdUtils.hasId(property.type.getClazz())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-	public void addSchema(OpenAPI api, Api mjApi, MjEntity entity) {
+	public void addSchema(OpenAPI api, Api mjApi, MjEntity entity, boolean hasPropertyWithId) {
 		String entityName = entity.getClassName();	
  		if (api.components.schemas.containsKey(entityName)) {
  			return;
 		}
-		
+ 		
 		if (entity.isEnumeration()) {
 			api.components.schemas.put(entityName, eNum(entity));
 		} else {
 			api.components.schemas.put(entityName, schema(entity, mjApi));
-			api.components.schemas.put(entityName + "_write", schemaWrite(mjApi, entity));
+//			if (hasPropertyWithId) {
+//				api.components.schemas.put(entityName + "_write", schemaWrite(mjApi, entity));	
+//			}
 		}
 	}
-
+	
+	private void addTag(OpenAPI api, MjEntity entity) {
+		String pakkage = getTagName(entity.getClazz());
+		if (api.tags.stream().noneMatch(t -> StringUtils.equals(t.name, pakkage))) {
+			Tag tag = new Tag();
+			tag.name = pakkage;
+			api.tags.add(tag);
+		}
+	}
+	
+	private String getTagName(Class<?> clazz) {
+		String pakkage = clazz.getPackageName();
+		return pakkage.substring(pakkage.lastIndexOf(".") + 1);
+	}
+	
+	private String tagOf(MjEntity entity) {
+		return getTagName(entity.getClazz());
+	}
 
 	private Operation operationGetById(MjEntity entity) {
 		String entityName = entity.getClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Gets a " + entityName + " by id";
+		operation.tags.add(tagOf(entity));
 		
 		Parameter parameter = parameter("id", Type.STRING);
 		parameter.required = true;
@@ -187,7 +231,8 @@ public class OpenAPIFactory {
 
 		Operation operation = new Operation();
 		operation.summary = "Gets all " + entityName;
-
+		operation.tags.add(tagOf(entity));
+		
 		addRangeParameters(operation);
 		
 		Response response = new Response();
@@ -229,15 +274,16 @@ public class OpenAPIFactory {
 		return parameter;
 	}
 	
-	private Operation operationPost(MjEntity entity) {
+	private Operation operationPost(MjEntity entity, boolean hasPropertyWithId) {
 		String entityName = entity.getClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Add a new " + entityName;
+		operation.tags.add(tagOf(entity));
 		
 		Content content = new Content();
 		content.schema = new Schema();
-		content.schema.$ref = SCHEMAS + entityName + "_write";
+		content.schema.$ref = SCHEMAS + entityName; //  + (hasPropertyWithId ? "_write" : "");
 		
 		RequestBody requestBody = new RequestBody();
 		requestBody.content.put("application/json", content);
@@ -263,7 +309,7 @@ public class OpenAPIFactory {
 		
 		{
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + transaction.request.getSimpleName() + "_write";
+			schema.$ref = SCHEMAS + transaction.request.getSimpleName(); // + "_write";
 
 			Content content = new Content();
 			content.schema = schema;
@@ -307,11 +353,12 @@ public class OpenAPIFactory {
 		return operation;
 	}
 	
-	private Operation operationPut(MjEntity entity) {
+	private Operation operationPut(MjEntity entity, boolean hasPropertyWithId) {
 		String entityName = entity.getClassName();
 		
 		Operation operation = new Operation();
 		operation.summary = "Update a " + entityName;
+		operation.tags.add(tagOf(entity));
 
 		Parameter parameter = parameter("id", Type.STRING);
 		parameter.required = true;
@@ -321,7 +368,7 @@ public class OpenAPIFactory {
 
 		Content content = new Content();
 		content.schema = new Schema();
-		content.schema.$ref = SCHEMAS + entityName + "_write";
+		content.schema.$ref = SCHEMAS + entityName; // + (hasPropertyWithId ? "_write" : "");
 		
 		RequestBody requestBody = new RequestBody();
 		requestBody.content.put("application/json", content);
@@ -340,6 +387,7 @@ public class OpenAPIFactory {
 		
 		Operation operation = new Operation();
 		operation.summary = "Delete a " + entityName;
+		operation.tags.add(tagOf(entity));
 
 		Parameter parameter = parameter("id", Type.STRING);
 		parameter.required = true;
@@ -417,15 +465,15 @@ public class OpenAPIFactory {
 			property.nullable = false;
 			if (idProperty.getClazz() == Integer.class || idProperty.getClazz() == Long.class) {
 				property.type = OpenAPI.Type.INTEGER;
-//				AutoIncrement autoIncrement = null;
-//				try {
-//					autoIncrement = idProperty.getAnnotation(AutoIncrement.class);
-//				} catch (Exception x) {
-//					System.out.println("AutoIncrement not working for: " + entity.getClassName());
-//				}
-//				if (autoIncrement == null || autoIncrement.value()) {
-//					property.readOnly = true;
-//				}
+				AutoIncrement autoIncrement = null;
+				try {
+					autoIncrement = idProperty.getAnnotation(AutoIncrement.class);
+				} catch (Exception x) {
+					System.out.println("AutoIncrement not working for: " + entity.getClassName());
+				}
+				if (autoIncrement == null || autoIncrement.value()) {
+					property.readOnly = true;
+				}
 			} else {
 				property.type = OpenAPI.Type.STRING;
 			}
@@ -463,28 +511,30 @@ public class OpenAPIFactory {
 				property.$ref = SCHEMAS + mjProperty.type.getClassName();
 			}
 			boolean primitiveOrCode = mjProperty.type.isPrimitiv() || Code.class.isAssignableFrom(mjProperty.type.getClazz());
-			if (!write && !primitiveOrCode) {
-				property.type = null;
-				property.$ref = SCHEMAS + mjProperty.type.getClassName();
-			}
-			if (write && !primitiveOrCode) {
-				if (IdUtils.hasId(mjProperty.type.getClazz()) && (mjApi == null || mjApi.canCreate(mjProperty.type.getClazz()))) {
-					var schemaRef = new Schema();
-					schemaRef.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
-
-					var schemaId = new Schema();
-					schemaId.type = property.type;
+			if (!primitiveOrCode) {
+				if (!write) {
 					property.type = null;
-					
-					property.oneOf = List.of(schemaId, schemaRef);
+					property.$ref = SCHEMAS + mjProperty.type.getClassName();
 				} else {
-					property.$ref = SCHEMAS + mjProperty.type.getClassName() + "_write";
+					if (IdUtils.hasId(mjProperty.type.getClazz()) && (mjApi == null || mjApi.canCreate(mjProperty.type.getClazz()))) {
+						var schemaRef = new Schema();
+						schemaRef.$ref = SCHEMAS + mjProperty.type.getClassName(); // + "_write";
+
+						var schemaId = new Schema();
+						schemaId.type = property.type;
+						property.type = null;
+						
+						property.oneOf = List.of(schemaId, schemaRef);
+					} else {
+						property.$ref = SCHEMAS + mjProperty.type.getClassName();// + "_write";
+					}
 				}
 			}
 		}
 		
 		// it's not allowed to have $ref and description for same property:
 		// https://github.com/OAI/OpenAPI-Specification/issues/556
+		// Would be solved with OpenApi 3.1. But to migrate also the nullable - logic must be migrated
 		if (!StringUtils.isEmpty(property.description) && property.$ref != null) {
 			var schemaRef = new Schema();
 			schemaRef.$ref = property.$ref;
@@ -556,7 +606,8 @@ public class OpenAPIFactory {
 //		}
 		if (property.propertyType == MjPropertyType.LIST || property.propertyType == MjPropertyType.ENUM_SET) {
 			Schema schema = new Schema();
-			schema.$ref = SCHEMAS + property.type.getClassName() + (write && property.propertyType != MjPropertyType.ENUM_SET ? "_write" : "");
+			// schema.$ref = SCHEMAS + property.type.getClassName() + (write && property.propertyType != MjPropertyType.ENUM_SET ? "_write" : "");
+			schema.$ref = SCHEMAS + property.type.getClassName();
 			return schema;
 		} else {
 			return null;

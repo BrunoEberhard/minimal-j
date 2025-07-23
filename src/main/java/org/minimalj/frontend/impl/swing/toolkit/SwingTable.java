@@ -5,11 +5,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +53,7 @@ import org.minimalj.model.Column.ColumnAlignment;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
+import org.minimalj.model.Rendering.FontStyle;
 import org.minimalj.model.annotation.Width;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
@@ -77,6 +80,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 	private int page;
 	private Object[] sortColumns = new Object[0];
 	private boolean[] sortDirections = new boolean[0];
+	private boolean useGroupInset = true;
 	
 	public SwingTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		this.listener = listener;
@@ -148,11 +152,20 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 		return tableModel.properties;
 	}
 	
+	public void setUseGroupInset(boolean useGroupInset) {
+		this.useGroupInset = useGroupInset;
+		updateBorder();
+	}
+	
 	protected void updateBorder() {
-		int inset = UIManager.getInt("Group.Inset");
-		Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
 		Border lineBorder = BorderFactory.createLineBorder(UIManager.getColor("Group.BorderColor"));
-		setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
+		if (useGroupInset) {
+			int inset = UIManager.getInt("Group.Inset");
+			Border emptyBorder = BorderFactory.createEmptyBorder(inset, inset, inset, inset);
+			setBorder(BorderFactory.createCompoundBorder(emptyBorder, lineBorder));
+		} else {
+			setBorder(lineBorder);
+		}
 	}
 	
 	private List<Property> convert(Object[] keys) {
@@ -511,6 +524,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 			}
 			
 			Color color = null;
+			Collection<FontStyle> styles = null;
 			String stringValue;
 
 			int columIndexModel = table.convertColumnIndexToModel(columnIndex);
@@ -525,6 +539,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 				} else {
 					color = getColor(Column.getColor(column, object, value));
 				}
+				styles = column.getFontStyles(object, value);
 				ColumnAlignment alignment = column.getAlignment();
 				if (alignment == ColumnAlignment.center) {
 					setHorizontalAlignment(JLabel.CENTER);
@@ -536,6 +551,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 			} else {
 				stringValue = Rendering.toString(value, property);
 				color = getColor(Rendering.getColor(object, value));
+				styles = Rendering.getFontStyles(object, value);
 				if (Number.class.isAssignableFrom(property.getClazz())) {
 					setHorizontalAlignment(JLabel.TRAILING);
 				} else {
@@ -564,6 +580,16 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 				} else {
 					setHorizontalAlignment(JLabel.LEADING);
 				}
+			}
+			if (styles != null && !styles.isEmpty()) {
+				Font font = getFont();
+				if (styles.contains(FontStyle.BOLD)) {
+					font = font.deriveFont(font.getStyle() | Font.BOLD);
+				}
+				if (styles.contains(FontStyle.ITALIC)) {
+					font = font.deriveFont(font.getStyle() | Font.ITALIC);
+				}
+				setFont(font);
 			}
 			return c;
 		}

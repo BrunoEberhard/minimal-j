@@ -101,8 +101,11 @@ public class TableDialog<T> implements Dialog {
 	protected class CancelAction extends Action {
 		@Override
 		public void run() {
-			Frontend.closeDialog(TableDialog.this);
+			cancel();
 		}
 	}
-
+	
+	protected void cancel() {
+		Frontend.closeDialog(TableDialog.this);
+	}
 }

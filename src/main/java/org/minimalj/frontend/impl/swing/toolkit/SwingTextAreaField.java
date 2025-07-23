@@ -37,8 +37,11 @@ public class SwingTextAreaField extends JScrollPane implements Input<String> {
 			}
 		};
 		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
 		// textArea.setRows(calcRows(maxLength));
-		textArea.getDocument().addDocumentListener(new TextFieldChangeListener());
+		if (changeListener != null) {
+			textArea.getDocument().addDocumentListener(new TextFieldChangeListener());
+		}
 		setViewportView(textArea);
 		
 		this.changeListener = changeListener;

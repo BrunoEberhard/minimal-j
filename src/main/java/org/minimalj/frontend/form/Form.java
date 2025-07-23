@@ -24,6 +24,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
+import org.minimalj.frontend.Frontend.Tooltip;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
@@ -32,6 +33,7 @@ import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
 import org.minimalj.frontend.form.element.FormElement;
+import org.minimalj.frontend.form.element.FormElementConstraint;
 import org.minimalj.frontend.form.element.Indication;
 import org.minimalj.frontend.form.element.IntegerFormElement;
 import org.minimalj.frontend.form.element.LocalDateFormElement;
@@ -64,6 +66,8 @@ import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.mock.Mocking;
 
+import com.formdev.flatlaf.util.StringUtils;
+
 public class Form<T> {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
 
@@ -71,10 +75,12 @@ public class Form<T> {
 	public static final boolean READ_ONLY = false;
 
 	public static final int DEFAULT_COLUMN_WIDTH = 100;
+	
+	private static final FormElementConstraint TEXT_FORM_ELEMENT_CONSTRAINT = new FormElementConstraint(1, 3);
 
 	protected final boolean editable;
 
-	private final int columns;
+	public final int columns;
 	private final FormContent formContent;
 	private boolean ignoreCaption;
 
@@ -242,19 +248,27 @@ public class Form<T> {
 			if (element != null) {
 				add(element, elementSpan, forcedNotEmpty);
 			} else {
-				formContent.add(null, false, Frontend.getInstance().createText("" + key), null, elementSpan);
+				formContent.add(null, false, Frontend.getInstance().createText("" + key), TEXT_FORM_ELEMENT_CONSTRAINT, elementSpan);
 			}
 		}
 	}
 
 	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
 		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null);
+		setTooltip(element);
 		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
 
-	//
+	private void setTooltip(FormElement<?> element) {
+		if (element instanceof Tooltip) {
+			String tooltip = element.getTooltip();
+			if (!StringUtils.isEmpty(tooltip)) {
+				((Tooltip) element).setTooltip(tooltip);
+			}
+		}
+	}
 
 	public static Object readonly(Object key) {
 		ReadOnlyWrapper wrapper = new ReadOnlyWrapper();
@@ -313,19 +327,35 @@ public class Form<T> {
 	 */
 	public void addDependency(Object from, Object... to) {
 		Property fromProperty = Keys.getProperty(from);
-		List<Property> list = dependencies.computeIfAbsent(fromProperty.getPath(), p -> new ArrayList<>());
+		String fromPropertyPath = fromProperty.getPath();
 		for (Object key : to) {
-			list.add(Objects.requireNonNull(Keys.getProperty(key)));
+			Property toProperty = Objects.requireNonNull(Keys.getProperty(key));
+			addDependency(fromPropertyPath, toProperty);
+		}
+	}
+	
+	private void addDependencyRecursive(Property property) {
+		for (Property dependency : Keys.getDependencies(property)) {
+			addDependencyRecursive(dependency, property);
 		}
 	}
 
-	private void addDependency(Property fromProperty, Property to) {
+	private void addDependencyRecursive(Property fromProperty, Property to) {
 		addDependency(fromProperty.getPath(), to);
+		for (Property dependency : Keys.getDependencies(fromProperty)) {
+			addDependencyRecursive(dependency, to);
+		}
 	}
 
 	private void addDependency(String fromPropertyPath, Property to) {
 		List<Property> list = dependencies.computeIfAbsent(fromPropertyPath, p -> new ArrayList<>());
-		list.add(to);
+		if (!to.getPath().equals(fromPropertyPath)) {
+			if (!list.contains(to)) {
+				list.add(to);
+			}
+		} else {
+			throw new IllegalArgumentException("Self Dependency: " + fromPropertyPath);
+		}
 	}
 
 	/**
@@ -378,11 +408,8 @@ public class Form<T> {
 
 	private void addDependencies(FormElement<?> field) {
 		Property property = field.getProperty();
-		List<Property> dependencies = Keys.getDependencies(property);
-		for (Property dependency : dependencies) {
-			addDependency(dependency, field.getProperty());
-		}
-
+		addDependencyRecursive(field.getProperty());
+		
 		// a.b.c
 		String path = property.getPath();
 		while (path != null && path.contains(".")) {
@@ -474,7 +501,9 @@ public class Form<T> {
 			Object propertyValue = property.getValue(object);
 			set(property, propertyValue);
 		}
-		updateEnable();
+		if (editable) {
+			updateEnable();
+		}
 		updateVisible();
 	}
 
@@ -549,8 +578,9 @@ public class Form<T> {
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private void executeUpdater(Property property, Object updaterInput, Object clonedObject, HashSet<Property> changedProperties) {
+		private void executeUpdaters(Property property, Object updaterInput, Object object, HashSet<Property> changedProperties) {
 			if (propertyUpdater.containsKey(property)) {
+				Object clonedObject = CloneHelper.clone(object); // clone before change! TODO only clone if necessary!
 				Map<Property, PropertyUpdater> updaters = propertyUpdater.get(property);
 				for (Map.Entry<Property, PropertyUpdater> entry : updaters.entrySet()) {
 					logger.finer(() -> "Update from " + property.getPath() + " to " + entry.getKey().getPath());
@@ -564,15 +594,13 @@ public class Form<T> {
 			Object oldValue = property.getValue(object);
 			logger.finest(() -> "Set " + property.getPath() + " to " + newValue + " (previous: " + oldValue + ")");
 			if (!EqualsHelper.equals(oldValue, newValue) || newValue instanceof Collection) {
-				Object clonedObject = CloneHelper.clone(object); // clone before change!
 				property.setValue(object, newValue);
-				executeUpdater(property, newValue, clonedObject, changedProperties);
+				executeUpdaters(property, newValue, object, changedProperties);
 				addChangedPropertyRecursive(property, changedProperties);
 			} else if (newValue instanceof Collection) {
 				// same instance of Collection can have changed content always assume a change.
 				// But not need of setValue .
-				Object clonedObject = CloneHelper.clone(object);
-				executeUpdater(property, newValue, clonedObject, changedProperties);
+				executeUpdaters(property, newValue, object, changedProperties);
 				addChangedPropertyRecursive(property, changedProperties);
 			}
 		}

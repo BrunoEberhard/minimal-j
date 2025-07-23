@@ -9,9 +9,9 @@ import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.TestApplication;
 import org.minimalj.test.TestUtil;
-import org.minimalj.test.web.WebTest;
+import org.minimalj.test.UiTest;
 
-public class HtmlAuthenticationTest extends WebTest {
+public class HtmlAuthenticationTest extends UiTest {
 
 	@AfterEach
 	public void cleanup() {
@@ -73,14 +73,13 @@ public class HtmlAuthenticationTest extends WebTest {
 
 		pageContainer.logout();
 		
-		ui().getCurrentPageContainerTestFacade().getBack().run();
+		var back = ui().getCurrentPageContainerTestFacade().getBack();
+		if (back.isEnabled()) {
+			back.run();
 
-		login();
-
-		page = pageContainer.getPage();
-		Assertions.assertTrue(page.contains("Page 2"));
-
-		pageContainer.logout();
+			page = pageContainer.getPage();
+			Assertions.assertTrue(page.contains("refresh"), "User cannot return to previous page after logout");
+		}
 	}
 	
 	@Test

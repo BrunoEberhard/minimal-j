@@ -13,8 +13,9 @@ public class JsonAction extends JsonComponent {
 		super("Action");
 		this.action = action;
 		put("name", action.getName());
-		if (!StringUtils.isEmpty(action.getDescription())) {
-			put("description", action.getDescription());
+		String description = action.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			put("description", description);
 		}
 		updateEnabled(action);
 		action.setChangeListener(new JsonActionChangeListener());
@@ -29,7 +30,7 @@ public class JsonAction extends JsonComponent {
 			put("enabled", true);
 			ValidationAwareAction validationAwareAction = (ValidationAwareAction) action;
 			JsonFormContent formContent = (JsonFormContent) validationAwareAction.getForm().getContent();
-			put("form", formContent.getId());
+			put("formId", formContent.getId());
 		} else {
 			put("enabled", action.isEnabled());
 		}
@@ -49,6 +50,10 @@ public class JsonAction extends JsonComponent {
 		if (enabled) {
 			action.run();
 		}
+	}
+	
+	public boolean isEnabled() {
+		return !Boolean.FALSE.equals(get("enabled"));
 	}
 	
 	public static class JsonActionGroup extends JsonComponent {

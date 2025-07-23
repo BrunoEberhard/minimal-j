@@ -1,5 +1,6 @@
 package org.minimalj.repository.sql;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -17,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.BlockingDeque;
@@ -38,6 +40,7 @@ import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Searched;
+import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
@@ -45,15 +48,19 @@ import org.minimalj.model.properties.Property;
 import org.minimalj.model.test.ModelTest;
 import org.minimalj.repository.DataSourceFactory;
 import org.minimalj.repository.TransactionalRepository;
+import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.Query;
 import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.Codes;
+import org.minimalj.util.CsvReader;
+import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.LoggingRuntimeException;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.UnclosingConnection;
 
 /**
  * The Mapper to a relational Database
@@ -75,10 +82,10 @@ public class SqlRepository implements TransactionalRepository {
 	
 	protected final DataSource dataSource;
 	
-	private Connection autoCommitConnection;
-	private final List<Connection> connections = new ArrayList<>();
-	private final BlockingDeque<Connection> connectionDeque = new LinkedBlockingDeque<>();
-	private final ThreadLocal<Stack<Connection>> threadLocalTransactionConnection = new ThreadLocal<>();
+	private UnclosingConnection autoCommitConnection;
+	private final List<UnclosingConnection> connections = new ArrayList<>();
+	private final BlockingDeque<UnclosingConnection> connectionDeque = new LinkedBlockingDeque<>();
+	private final ThreadLocal<Stack<UnclosingConnection>> threadLocalTransactionConnection = new ThreadLocal<>();
 
 	public SqlRepository(Model model) {
 		this(DataSourceFactory.create(), model.getEntityClasses());
@@ -88,19 +95,22 @@ public class SqlRepository implements TransactionalRepository {
 		this.dataSource = dataSource;
 		new ModelTest(classes).assertValid();
 
-		try (Connection connection = getAutoCommitConnection()) {
+		try (Connection connection = getConnection()) {
 			sqlDialect = findDialect(connection);
 			sqlIdentifier = createSqlIdentifier();
 			Model.getEntityClassesRecursive(classes).forEach(this::addClass);
 			tables.values().forEach(table -> table.collectEnums(enums));
-			
-			SchemaPreparation schemaPreparation = getSchemaPreparation();
-			schemaPreparation.prepare(this);
+			prepareSchema();
 		} catch (SQLException x) {
 			throw new LoggingRuntimeException(x, logger, "Initialize of SqlRepository failed");
 		}
 	}
 
+	protected void prepareSchema() throws SQLException {
+		SchemaPreparation schemaPreparation = getSchemaPreparation();
+		schemaPreparation.prepare(this);
+	}
+	
 	private SchemaPreparation getSchemaPreparation() throws SQLException {
 		if (Configuration.available("schemaPreparation")) {
 			try {
@@ -160,7 +170,8 @@ public class SqlRepository implements TransactionalRepository {
 		if (sqlDialect instanceof PostgresqlDialect) {
 			// https://stackoverflow.com/questions/13409094/why-does-postgresql-default-everything-to-lower-case
 			return new SqlIdentifier(sqlDialect.getMaxIdentifierLength()) {
-				protected String identifier(String identifier, Set<String> alreadyUsedIdentifiers) {
+				@Override
+				protected String identifier(String identifier, Collection<String> alreadyUsedIdentifiers) {
 					identifier = super.identifier(identifier, alreadyUsedIdentifiers);
 					return identifier.toLowerCase();
 				}
@@ -170,16 +181,14 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	protected Connection getAutoCommitConnection() {
-		try {
-			if (autoCommitConnection == null || !sqlDialect.isValid(autoCommitConnection)) {
-				autoCommitConnection = dataSource.getConnection();
-				autoCommitConnection.setAutoCommit(true);
-			}
-			return autoCommitConnection;
-		} catch (Exception e) {
-			throw new LoggingRuntimeException(e, logger, "Not possible to create autocommit connection");
+	protected UnclosingConnection getAutoCommitConnection() throws SQLException {
+		if (autoCommitConnection == null || !sqlDialect.isValid(autoCommitConnection)) {
+			autoCommitConnection = new UnclosingConnection(dataSource.getConnection());
+			autoCommitConnection.setAutoCommit(true);
+		} else {
+			autoCommitConnection.use();
 		}
+		return autoCommitConnection;
 	}
 	
 	public SqlDialect getSqlDialect() {
@@ -188,7 +197,7 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public void startTransaction(int transactionIsolationLevel) {
-		Connection transactionConnection = allocateConnection(transactionIsolationLevel);
+		UnclosingConnection transactionConnection = allocateConnection(transactionIsolationLevel);
 		if (threadLocalTransactionConnection.get() == null) {
 			threadLocalTransactionConnection.set(new Stack<>());
 		}
@@ -200,7 +209,7 @@ public class SqlRepository implements TransactionalRepository {
 
 	@Override
 	public void endTransaction(boolean commit) {
-		Connection transactionConnection = isTransactionActive() ? threadLocalTransactionConnection.get().peek() : null;
+		UnclosingConnection transactionConnection = isTransactionActive() ? threadLocalTransactionConnection.get().peek() : null;
 		if (transactionConnection == null) return;
 		
 		try {
@@ -219,9 +228,9 @@ public class SqlRepository implements TransactionalRepository {
 		threadLocalTransactionConnection.get().pop();
 	}
 	
-	protected Connection allocateConnection(int transactionIsolationLevel) {
+	protected UnclosingConnection allocateConnection(int transactionIsolationLevel) {
 		logger.finest(() -> "Current connections in pool " + connectionDeque.size());
-		Connection connection = connectionDeque.poll();
+		UnclosingConnection connection = connectionDeque.poll();
 		while (true) {
 			boolean valid = false;
 			try {
@@ -236,7 +245,7 @@ public class SqlRepository implements TransactionalRepository {
 			}
 			try {
 				if (!valid) {
-					connections.add(connection = dataSource.getConnection());
+					connections.add(connection = new UnclosingConnection(dataSource.getConnection()));
 				}
 				if (transactionIsolationLevel != Connection.TRANSACTION_NONE) {
 					connection.setTransactionIsolation(transactionIsolationLevel);
@@ -249,6 +258,8 @@ public class SqlRepository implements TransactionalRepository {
 				// this could happen if there are already too many connections
 				logger.log(Level.FINE, "Not possible to create additional connection", e);
 			}
+			//
+			garbageCollectConnection();
 			// so no connection available and not possible to create one
 			// block and wait till a connection is in deque
 			try {
@@ -259,20 +270,23 @@ public class SqlRepository implements TransactionalRepository {
 		}
 	}
 	
-	private void releaseConnection(Connection connection) {
+	protected void garbageCollectConnection() {
+	}
+
+	protected void releaseConnection(UnclosingConnection connection) {
 		// last in first out in the hope that recent accessed objects are the fastest
 		connectionDeque.push(connection);
 	}
-	
+
 	/**
 	 * Use with care. Closes all connections. Should only be used for Tests or
 	 * special startups.
 	 */
 	public void closeAllConnections() {
 		try {
-			getAutoCommitConnection().close();
-			for (Connection c : connections) {
-				c.close();
+			getAutoCommitConnection().closeDelegate();
+			for (UnclosingConnection c : connections) {
+				c.closeDelegate();
 			}
 			connections.clear();
 		} catch (SQLException x) {
@@ -296,7 +310,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 	
 	// TODO make final
-	public Connection getConnection() {
+	public Connection getConnection() throws SQLException {
 		if (isTransactionActive()) {
 			return threadLocalTransactionConnection.get().peek();
 		} else {
@@ -311,7 +325,7 @@ public class SqlRepository implements TransactionalRepository {
 			if (url.startsWith("jdbc:h2:mem")) {
 				return true;
 			}
-			try (ResultSet tableDescriptions = getConnection().getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
+			try (Connection connection = getConnection(); ResultSet tableDescriptions = connection.getMetaData().getTables(null, "PUBLIC", null, new String[] {"TABLE"})) {
 				return !tableDescriptions.next();
 			}
 		}
@@ -390,7 +404,7 @@ public class SqlRepository implements TransactionalRepository {
 	//
 	
 	private PreparedStatement createStatement(Connection connection, String query, Object[] parameters) throws SQLException {
-		PreparedStatement preparedStatement = AbstractTable.createStatement(getConnection(), query, false);
+		PreparedStatement preparedStatement = AbstractTable.createStatement(connection, query, false);
 		int param = 1; // !
 		for (Object parameter : parameters) {
 			getSqlDialect().setParameter(preparedStatement, param++, parameter);
@@ -450,7 +464,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public <T> List<T> find(Class<T> clazz, String query, int maxResults, Object... parameters) {
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+		try (Connection connection = getConnection(); PreparedStatement preparedStatement = createStatement(connection, query, parameters)) {
 			if (tables.containsKey(clazz)) {
 				Table<T> table = (Table<T>) tables.get(clazz);
 				return table.executeSelectAll(preparedStatement);
@@ -473,7 +487,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public int execute(String query, Serializable... parameters) {
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+		try (Connection connection = getConnection(); PreparedStatement preparedStatement = createStatement(connection, query, parameters)) {
 			preparedStatement.execute();
 			return preparedStatement.getUpdateCount();
 		} catch (SQLException x) {
@@ -482,7 +496,7 @@ public class SqlRepository implements TransactionalRepository {
 	}
 
 	public <T> T execute(Class<T> resultClass, String query, Serializable... parameters) {
-		try (PreparedStatement preparedStatement = createStatement(getConnection(), query, parameters)) {
+		try (Connection connection = getConnection(); PreparedStatement preparedStatement = createStatement(connection, query, parameters)) {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				T result = null;
 				if (resultSet.next()) {
@@ -552,14 +566,8 @@ public class SqlRepository implements TransactionalRepository {
 			values.put(property, value);
 		}
 		
-		R result;
-		if (!Codes.isCode(clazz)) {
-			result = CloneHelper.newInstance(clazz);
-			IdUtils.setId(result, id);
-		} else {
-			// Self reference is allowed for Codes. Use a previously referenced instance.
-			result = (R) Codes.getOrInstantiate(this, (Class<? extends Code>) clazz, id);
-		}
+		R result = CloneHelper.newInstance(clazz);
+		IdUtils.setId(result, id);
 		if (version != null) {
 			IdUtils.setVersion(result, version);
 		}
@@ -584,9 +592,9 @@ public class SqlRepository implements TransactionalRepository {
 			Object value = entry.getValue();
 			if (value != null) {
 				Class<?> fieldClass = property.getClazz();
-				if (Codes.isCode(fieldClass)) {
+				if (Codes.isCode(fieldClass) && !referenceLoaded(value, fieldClass, loadedReferences)) {
 					Class<? extends Code> codeClass = (Class<? extends Code>) fieldClass;
-					value = Codes.get(codeClass, value);
+					value = Codes.getCache().getCacheItems(this, codeClass).getCode(value);
 				} else if (IdUtils.hasId(fieldClass)) {
 					value = loadReference(value, fieldClass, loadedReferences);
 				} else if (AbstractTable.isDependable(property)) {
@@ -605,6 +613,14 @@ public class SqlRepository implements TransactionalRepository {
 		return result;
 	}
 
+	protected boolean referenceLoaded(Object value, Class<?> fieldClass, Map<Class<?>, Map<Object, Object>> loadedReferences) {
+		if (loadedReferences != DONT_LOAD_REFERENCES && loadedReferences.containsKey(fieldClass)) {
+			Map<Object, Object> loadedReferencesOfClass = loadedReferences.get(fieldClass);
+			return loadedReferencesOfClass.containsKey(value);
+		}
+		return false;
+	}
+	
 	protected <C> C loadReference(Object value, Class<C> fieldClass, Map<Class<?>, Map<Object, Object>> loadedReferences) {
 		if (loadedReferences != DONT_LOAD_REFERENCES) {
 			Map<Object, Object> loadedReferencesOfClass = loadedReferences.computeIfAbsent(fieldClass, c -> new HashMap<>());
@@ -616,7 +632,7 @@ public class SqlRepository implements TransactionalRepository {
 					Class<?> viewedClass = ViewUtils.getViewedClass(fieldClass);
 					if (Codes.isCode(viewedClass)) {
 						Class<? extends Code> codeClass = (Class<? extends Code>) viewedClass;
-						referencedValue = ViewUtils.view(Codes.get(codeClass, value), CloneHelper.newInstance(fieldClass));
+						referencedValue = ViewUtils.view(Codes.getCache().getCacheItems(this, codeClass).getCode(value), CloneHelper.newInstance(fieldClass));
 					} else {
 						Table<?> referenceTable = getTable(viewedClass);
 						referencedValue = referenceTable.readView(fieldClass, value, loadedReferences);
@@ -656,15 +672,15 @@ public class SqlRepository implements TransactionalRepository {
 		return new Table<>(this, clazz);
 	}
 	
-	protected void beforeSchemaPreparation(SchemaPreparation schemaPreparation) {
+	protected void beforeSchemaPreparation(SchemaPreparation schemaPreparation) throws SQLException {
 		// for extensions
 	}
 	
-	void afterSchemaPreparation(SchemaPreparation schemaPreparation) {
+	void afterSchemaPreparation(SchemaPreparation schemaPreparation) throws SQLException {
 		afterSchemaPreparation(schemaPreparation, Collections.unmodifiableCollection(tables.values()));
 	}
 	
-	protected void afterSchemaPreparation(SchemaPreparation schemaPreparation, Collection<AbstractTable<?>> tables) {
+	protected void afterSchemaPreparation(SchemaPreparation schemaPreparation, Collection<AbstractTable<?>> tables) throws SQLException {
 		// for extensions
 	}
 	
@@ -785,4 +801,79 @@ public class SqlRepository implements TransactionalRepository {
 	public Map<String, AbstractTable<?>> getTableByName() {
 		return tableByName;
 	}
+	
+	//
+	
+	// TODO move someplace where it's available for all kind of repositories (Memory
+	// DB for example)
+	protected void updateCodes() {
+		updateConstantCodes();
+		updateCsvCodes();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateConstantCodes() {
+		for (AbstractTable<?> t : tables.values()) {
+			if (Code.class.isAssignableFrom(t.getClazz())) {
+				Table<Code> table = (Table<Code>) t;
+				List<? extends Code> constants = Codes.getConstants(table.getClazz());
+				if (!constants.isEmpty()) {
+					insertMissingCodes(table, constants);
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateCsvCodes() {
+		for (AbstractTable<?> t : tables.values()) {
+			if (Code.class.isAssignableFrom(t.getClazz())) {
+				Table<Code> table = (Table<Code>) t;
+				Class<? extends Code> clazz = (Class<? extends Code>) table.getClazz();
+				InputStream is = clazz.getResourceAsStream(clazz.getSimpleName() + ".csv");
+				if (is != null) {
+					CsvReader reader = new CsvReader(is, getObjectProvider());
+					List<? extends Code> values = reader.readValues(clazz);
+					insertMissingCodes(table, values);
+				}
+			}
+		}
+	}
+	
+	private void insertMissingCodes(Table<Code> table, List<? extends Code> codes) {
+		List<? extends Code> existingConstants = (List<? extends Code>) table.find(By.ALL, table.getClazz(), new HashMap<>());
+		for (Code code : codes) {
+			if (IdUtils.getId(code) != null) {
+				if (existingConstants.stream().noneMatch(e -> EqualsHelper.equalsById(e, code))) {
+					((Table<Code>) table).insert(code);
+				}
+			} else {
+				Optional<? extends Code> existing = existingConstants.stream().filter(e -> equalsByFields(e, code)).findFirst();
+				if (existing.isPresent()) {
+					IdUtils.setId(code, IdUtils.getId(existing.get()));
+				} else {
+					IdUtils.setId(code, ((Table<Code>) table).insert(code));
+				}
+			}
+		}
+	}
+
+	private static boolean equalsByFields(Object a, Object b) {
+		Object c1 = CloneHelper.clone(a);
+		Object c2 = CloneHelper.clone(b);
+		clearTechnicalFiels(c1);
+		clearTechnicalFiels(c2);
+		IdUtils.setId(c1, null);
+		IdUtils.setId(c2, null);
+		return EqualsHelper.equals(c1, c2);
+	}
+	
+	private static void clearTechnicalFiels(Object o) {
+		for (Property p : FlatProperties.getProperties(o.getClass()).values()) {
+			if (p.getAnnotation(TechnicalField.class) != null) {
+				p.setValue(o, null);
+			}
+		}
+	}
+
 }

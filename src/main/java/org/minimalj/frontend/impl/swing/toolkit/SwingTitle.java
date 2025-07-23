@@ -12,7 +12,7 @@ public class SwingTitle extends JLabel implements IComponent {
 
 	public SwingTitle(String string) {
 		super(string);
-		setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+		setBorder(BorderFactory.createEmptyBorder(7, 0, 3, 0));
 		setFont(getFont().deriveFont(Font.BOLD));
 	}
 

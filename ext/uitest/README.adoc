@@ -1,0 +1,13 @@
+= Minimal-J uitest
+In diesem Projekt beinhaltet die Basisklassen, welche zum automatisierten GUI Testing via Selenium benötigt werden.
+
+=== Konfiguration
+Über den VM Parameter UiTestDriver kann man steuern, welchen Browser Selenium bei der Ausführung der Tests benutzen soll.
+
+Mit der Einstellung -DUiTestDriver=firefox wird der Firefox Browser benutzt. Mit "chrome" der Chrome Browser.
+
+Bei VM Parameter UiTestHeadless=true werden die Tests ausgeführt ohne das ein Browser Fenster geöffnet wird.
+Bei nicht gesetztem UiTestDriver wird kein Browser verwendet. Dies führt zu einer 10x schnelleren Ausführung, muss
+jedoch nicht unbedingt das gleiche Verhalten zeigen.
+
+=== Line endings

@@ -33,8 +33,8 @@ public class PageTest {
 	}
 
 	@Test
-	public void startWithoutSlashRouteNotValid() {
-		Assert.assertFalse(Page.validateRoute("a"));
+	public void startWithoutSlashRouteValid() {
+		Assert.assertTrue(Page.validateRoute("a"));
 	}
 
 	@Test

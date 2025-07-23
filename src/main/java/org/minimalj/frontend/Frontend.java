@@ -1,8 +1,20 @@
 package org.minimalj.frontend;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -13,6 +25,7 @@ import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.PageManager;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.annotation.Size;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -73,7 +86,16 @@ public abstract class Frontend {
 	}
 
 	public interface PasswordField extends Input<char[]> {
-
+	}
+	
+	public interface PlaceHolderComponent extends IComponent {
+		
+		public void setPlaceHolder(String placeHolder);
+	}
+	
+	// Experimental for ai assistants
+	public void log(String text) {
+		//
 	}
 	
 	// http://www.w3schools.com/html/html_form_input_types.asp 
@@ -96,21 +118,9 @@ public abstract class Frontend {
 		return Optional.empty();
 	}
 	
-//	public interface PositionListModel {
-//		int getColumnCount();
-//		int getWidth(int column);
-//		int getRowCount();
-//		boolean canAdd();
-//		void addRow(int beforeRow);
-//		boolean canDelete();
-//		void deleteRow(int row);
-//		boolean canMove();
-//		void moveRow(int row, int beforeRow);
-//	}
-//	
-//	public <T extends Position<T>> Input<List<T>> createPositionListInput(PositionListModel model, InputComponentListener changeListener) {
-//		throw new RuntimeException("Not yet implemented");
-//	}
+	public interface Tooltip {
+		public void setTooltip(String tooltip);
+	}
 
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Rendering rendering);
@@ -132,8 +142,47 @@ public abstract class Frontend {
 	}
 
 	public static class NamedFile {
+		@Size(2048)
 		public String name;
 		public byte[] content;
+
+		private Long creationTime, lastModifiedTime;
+		
+		public static NamedFile of(File file) {
+			return of(file.toPath());
+		}
+		
+		public static NamedFile of(Path path) {
+			NamedFile namedFile = new NamedFile();
+			namedFile.name = path.getFileName().toString();
+			try {
+				namedFile.content = Files.readAllBytes(path);
+				BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+				namedFile.creationTime = attributes.creationTime().toMillis();
+				namedFile.lastModifiedTime = attributes.lastModifiedTime().toMillis();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			return namedFile;
+		}
+		
+		public InputStream getInputStream() {
+			return new ByteArrayInputStream(content);
+		}
+		
+		public void writeTo(File directory) {
+			File file = new File(directory, name);
+			try (FileOutputStream fos = new FileOutputStream(file); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+				fos.write(content, 0, content.length);
+				if (creationTime != null && lastModifiedTime != null) {
+					Path path = file.toPath();
+					Files.setAttribute(path, "creationTime", FileTime.fromMillis(creationTime));
+					Files.setAttribute(path, "lastModifiedTime", FileTime.fromMillis(lastModifiedTime));
+				}
+			} catch (IOException x) {
+				throw new RuntimeException(x);
+			}
+		}
 	}
 
 	public Input<NamedFile[]> createUpload(InputComponentListener changeListener, boolean multiple) {
@@ -291,8 +340,20 @@ public abstract class Frontend {
 		getPageManager().showMessage(text);
 	}
 	
-	protected  void doShowError(String text) {
+	protected void doShowError(String text) {
 		getPageManager().showError(text);
+	}
+	
+	// 
+	
+
+	public <RESULT> void longRun(Supplier<RESULT> supplier, Consumer<RESULT> finishedListener, Consumer<Exception> exceptionListener) {
+		try {
+			RESULT result = supplier.get();
+			finishedListener.accept(result);
+		} catch (Exception x) {
+ 			exceptionListener.accept(x);
+		}
 	}
 	
 	//
