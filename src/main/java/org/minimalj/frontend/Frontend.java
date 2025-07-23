@@ -93,6 +93,11 @@ public abstract class Frontend {
 		public void setPlaceHolder(String placeHolder);
 	}
 	
+	// Experimental for ai assistants
+	public void log(String text) {
+		//
+	}
+	
 	// http://www.w3schools.com/html/html_form_input_types.asp 
 	public enum InputType { TEXT, EMAIL, URL, TEL, NUMBER, DATE, TIME, DATETIME; }
 	
