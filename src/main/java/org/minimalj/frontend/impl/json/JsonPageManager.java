@@ -464,16 +464,15 @@ public class JsonPageManager implements PageManager {
 		if (this.subject == null || !EqualsHelper.equalsById(this.subject, subject)) {
 			this.subject = subject;
 			Subject.setCurrent(subject);
-			
-			if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
-				output.add("canLogin", subject == null);
-				output.add("canLogout", subject != null);
-			}
 
 			if (navigation != null) {
 				unregister(navigation);
 			}
 			navigation = createNavigation();
+		}
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+			output.add("canLogin", subject == null);
+			output.add("canLogout", subject != null);
 		}
 		updateNavigation();
 		
