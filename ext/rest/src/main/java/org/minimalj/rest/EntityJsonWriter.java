@@ -16,6 +16,7 @@ import org.minimalj.frontend.impl.json.JsonWriter;
 import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
+import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
@@ -34,24 +35,24 @@ import org.minimalj.util.IdUtils;
 
 public class EntityJsonWriter {
 
-	public static String write(Object entity) {
+	public static String write(Object entity, boolean includeTechnicalFields) {
 		if (entity instanceof List) {
-			return write((List<?>) entity);
+			return write((List<?>) entity, includeTechnicalFields);
 		} else {
-			Map<String, Object> map = convert(entity);
+			Map<String, Object> map = convert(entity, includeTechnicalFields);
 			return new JsonWriter().write(map);
 		}
 	}
 
-	public static String write(List<?> entities) {
+	public static String write(List<?> entities, boolean includeTechnicalFields) {
 		List<Map<String, Object>> mapList = new ArrayList<>();
 		for (Object entity : entities) {
-			mapList.add(convert(entity));
+			mapList.add(convert(entity, includeTechnicalFields));
 		}
 		return new JsonWriter().write(mapList);
 	}
 
-	private static Map<String, Object> convert(Object entity) {
+	private static Map<String, Object> convert(Object entity, boolean includeTechnicalFields) {
 		Map<String, Object> values = new LinkedHashMap<>();
 
 		if (entity instanceof Map) {
@@ -60,7 +61,7 @@ public class EntityJsonWriter {
 				return null;
 			}
 			for (Map.Entry<String, Object> e2 : map.entrySet()) {
-				values.put(e2.getKey(), convert(e2.getValue()));
+				values.put(e2.getKey(), convert(e2.getValue(), includeTechnicalFields));
 			}
 			return values;
 		}
@@ -74,6 +75,8 @@ public class EntityJsonWriter {
 				continue;
 			} else if (entity instanceof Dependable d && d.getParent() == value) {
 				continue;
+			} else if (property.getAnnotation(TechnicalField.class) != null && !includeTechnicalFields) {
+				continue;				
 			} else {
 				String propertyName = e.getKey();
 				if (propertyName.equals("eNum")) {
@@ -106,7 +109,7 @@ public class EntityJsonWriter {
 						} else if (element instanceof Enum) {
 							list.add(((Enum<?>) element).name());
 						} else {
-							list.add(convert(element));
+							list.add(convert(element, includeTechnicalFields));
 						}
 					}
 					values.put(propertyName, list);
@@ -118,7 +121,7 @@ public class EntityJsonWriter {
 					values.put(propertyName, IdUtils.getId(value));
 					// values.put(propertyName + "_text", Rendering.render(value));
 				} else if (!EmptyObjects.isEmpty(value)) {
-					value = convert(value);
+					value = convert(value, includeTechnicalFields);
 					if (value != null) {
 						values.put(propertyName, value);
 					}
