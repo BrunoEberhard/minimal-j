@@ -111,6 +111,9 @@ public class EntityJsonReader {
 					System.out.println("Not found: " + entity.getClass().getSimpleName() + "." + key + " for " + value);
 					continue;
 				}
+			} else if (property instanceof FieldProperty fieldProperty && fieldProperty.isTransient()) {
+				System.out.println("Ignore transient field: " + fieldProperty.toString());
+				continue;
 			}
 			var propertyClazz = property.getClazz();
 			if (IdUtils.hasId(propertyClazz)) {

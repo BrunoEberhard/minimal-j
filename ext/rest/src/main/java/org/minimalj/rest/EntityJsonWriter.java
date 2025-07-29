@@ -17,6 +17,7 @@ import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.TechnicalField;
+import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.list.RelationCriteria;
@@ -76,7 +77,9 @@ public class EntityJsonWriter {
 			} else if (entity instanceof Dependable d && d.getParent() == value) {
 				continue;
 			} else if (property.getAnnotation(TechnicalField.class) != null && !includeTechnicalFields) {
-				continue;				
+				continue;
+			} else if (property instanceof FieldProperty fieldProperty && fieldProperty.isTransient()) {
+				continue;
 			} else {
 				String propertyName = e.getKey();
 				if (propertyName.equals("eNum")) {
