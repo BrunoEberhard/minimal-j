@@ -155,7 +155,7 @@ public class RestHttpHandler implements MjHttpHandler {
 					var server = new Server();
 					server.url = this.path;
 					openApi.servers.add(server);
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(openApi), "application/json");
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(openApi, true), "application/json");
 					return;
 				} else {
 					int pos = uriString.lastIndexOf('.');
@@ -169,6 +169,7 @@ public class RestHttpHandler implements MjHttpHandler {
 					return;
 				}
 			}
+			boolean includeTechnicalFields = Boolean.TRUE.toString().equals(exchange.getParameter("technicalFields"));
 			if (pathElements.length == 1 && clazz != null) {
 				// GET entity (get all or pages of size x)
 				Query query = By.all();
@@ -193,7 +194,7 @@ public class RestHttpHandler implements MjHttpHandler {
 					}
 				}
 				List<?> object = Backend.find(clazz, query);
-				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
+				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object, includeTechnicalFields), "application/json");
 				return;
 			}
 			if (pathElements.length == 2) {
@@ -201,7 +202,7 @@ public class RestHttpHandler implements MjHttpHandler {
 				String id = pathElements[1];
 				Object object = Backend.read(clazz, id);
 				if (object != null) {
-					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
+					exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object, includeTechnicalFields), "application/json");
 				} else {
 					exchange.sendResponse(HttpsURLConnection.HTTP_NOT_FOUND, clazz.getSimpleName() + " with id " + id + " not found", "text/plain");
 				}
@@ -225,7 +226,7 @@ public class RestHttpHandler implements MjHttpHandler {
 						Object inputObject = EntityJsonReader.read(inputClass, exchange.getRequest());
 						Transaction<?> transaction = (Transaction<?>) clazz.getConstructors()[0].newInstance(inputObject);
 						Object outputObject = Backend.execute(transaction);
-						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject), "application/json");
+						exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(outputObject, true), "application/json");
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 						throw new RuntimeException(e);
 					}
@@ -268,7 +269,7 @@ public class RestHttpHandler implements MjHttpHandler {
 				Object inputObject = EntityJsonReader.read(object, exchange.getRequest());
 				IdUtils.setId(object, id); // don't let the id be changed
 				object = Backend.save(inputObject);
-				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object), "application/json");
+				exchange.sendResponse(HttpsURLConnection.HTTP_OK, EntityJsonWriter.write(object, true), "application/json");
 				return;
 			} else {
 				exchange.sendResponse(HttpsURLConnection.HTTP_BAD_REQUEST, "Put excepts class/id in url", "text/plain");

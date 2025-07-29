@@ -202,8 +202,9 @@ public class OpenAPIFactory {
 		parameter.required = true;
 		parameter.in = In.path;
 		parameter.description = entityName + " id";
-		
 		operation.parameters.add(parameter);
+		
+		addTechnicalFieldsParameter(operation, entity);
 		
 		Response response = new Response();
 		response.description = "Successful operation";
@@ -225,6 +226,17 @@ public class OpenAPIFactory {
 		
 		return operation;
 	}
+	
+	private void addTechnicalFieldsParameter(Operation operation, MjEntity entity) {
+		var technicalProperties = entity.properties.stream().filter(p -> p.technical != null).toList();
+		if (!technicalProperties.isEmpty()) {
+			Parameter parameter = parameter("technicalFields", Type.BOOLEAN);
+			parameter.required = false;
+			parameter.in = In.query;
+			parameter.description = "include " + String.join(", ", technicalProperties.stream().map(p -> p.name).toList().toArray(new String[technicalProperties.size()]));
+			operation.parameters.add(parameter);
+		}
+	}
 
 	private Operation operationGetAll(MjEntity entity) {
 		String entityName = entity.getClassName();
@@ -234,6 +246,8 @@ public class OpenAPIFactory {
 		operation.tags.add(tagOf(entity));
 		
 		addRangeParameters(operation);
+		
+		addTechnicalFieldsParameter(operation, entity);
 		
 		Response response = new Response();
 		response.description = "Successful operation";
