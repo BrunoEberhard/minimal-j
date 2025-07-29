@@ -20,12 +20,13 @@ public class FieldProperty implements Property {
 
 	private final Field field;
 	private final Class<?> declaringClass;
-	private final boolean isFinal;
+	private final boolean isFinal, isTransient;
 	private final Class<?> type;
 
 	public FieldProperty(Field field, Class<?> declaringClass) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
+		this.isTransient = FieldUtils.isTransient(field);
 		this.type = field.getType();
 		this.declaringClass = declaringClass;
 	}
@@ -120,6 +121,10 @@ public class FieldProperty implements Property {
 	@Override
 	public boolean isFinal() {
 		return isFinal;
+	}
+	
+	public boolean isTransient() {
+		return isTransient;
 	}
 
 	@Override
