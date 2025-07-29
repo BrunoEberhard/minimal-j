@@ -22,7 +22,6 @@ import org.minimalj.model.properties.Properties;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
 import org.minimalj.rest.openapi.model.OpenAPI.In;
-import org.minimalj.rest.openapi.model.OpenAPI.Info;
 import org.minimalj.rest.openapi.model.OpenAPI.Operation;
 import org.minimalj.rest.openapi.model.OpenAPI.Parameter;
 import org.minimalj.rest.openapi.model.OpenAPI.Property;
@@ -127,9 +126,6 @@ public class OpenAPIFactory {
 				api.paths.put("/" + transaction.clazz.getSimpleName(), operations);
 			}
 		}
-		
-		api.info = new Info();
-		// api.info.title = "API for " + Application.getInstance().getClass().getSimpleName();
 		
 		api.info.description = "<p>This API contains the generic methods provided by the REST interface of Minimal-J plus the specialized POST request.</p>"
 				
@@ -448,7 +444,7 @@ public class OpenAPIFactory {
 				continue;
 			}
 			var property = property(mjProperty, mjApi, false);
-			if (mjProperty.notEmpty) {
+			if (mjProperty.notEmpty && mjProperty.technical == null) {
 				schema.required.add(mjProperty.name);
 			}
 			schema.properties.put(mjProperty.name, property);
