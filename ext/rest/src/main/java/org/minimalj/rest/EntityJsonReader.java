@@ -99,6 +99,9 @@ public class EntityJsonReader {
 			Object value = entry.getValue();
 			if (key.equals("enum")) {
 				key = "eNum";
+			} else if (key.equals("id")) {
+				IdUtils.setId(entity, value);
+				continue;
 			}
 			Property property = properties.get(key);
 			if (property == null) {
