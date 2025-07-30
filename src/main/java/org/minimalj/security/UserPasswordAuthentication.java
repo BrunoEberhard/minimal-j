@@ -236,12 +236,12 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 				rememberMeToken.series = generateRandomString();
 				rememberMeToken.token = generateRandomString();
 				rememberMeToken.lastUsed = LocalDateTime.now();
-				rememberMeToken.userName = user.getName();
+				rememberMeToken.userName = user.getRememberedByName();
 				Backend.save(rememberMeToken);
 				((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeToken.series + ":" + rememberMeToken.token);
 			} else {
 				String timestamp = String.valueOf(System.currentTimeMillis());
-				String rememberMeCookie = user.getName() + ":" + timestamp + ":" + sign(user, timestamp);
+				String rememberMeCookie = user.getRememberedByName() + ":" + timestamp + ":" + sign(user, timestamp);
 				((JsonPageManager) Frontend.getInstance().getPageManager()).setRememberMeCookie(rememberMeCookie);
 			}
 		}
@@ -256,7 +256,7 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	private static String sign(UserData user, String timestamp) {
 		String key = getRememberMeKey();
 		String passwordHash = user.getPassword().hash != null ? Base64.getEncoder().encodeToString(user.getPassword().hash) : "";
-		String data = user.getName() + ":" + timestamp + ":" + passwordHash + ":" + key;
+		String data = user.getRememberedByName() + ":" + timestamp + ":" + passwordHash + ":" + key;
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			return Base64.getEncoder().encodeToString(digest.digest(data.getBytes()));
