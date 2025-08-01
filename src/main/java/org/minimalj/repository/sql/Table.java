@@ -618,25 +618,31 @@ public class Table<T> extends AbstractTable<T> {
 
 		StringBuilder s = new StringBuilder();
 		
-		s.append("INSERT INTO ").append(getTableName()).append(" (");
-		for (String columnName : getColumns().keySet()) {
-			s.append(columnName).append(", ");
-		}
-		if (autoIncrementId) {
-			s.delete(s.length() - 2, s.length());
+		s.append("INSERT INTO ").append(getTableName()).append(' ');
+		
+		if (!getColumns().isEmpty()) {
+			s.append('(');
+			for (String columnName : getColumns().keySet()) {
+				s.append(columnName).append(", ");
+			}
+			if (autoIncrementId) {
+				s.delete(s.length() - 2, s.length());
+			} else {
+				s.append("id");
+			}
+			s.append(") VALUES (");
+			for (int i = 0; i<getColumns().size(); i++) {
+				s.append("?, ");
+			}
+			if (autoIncrementId) {
+				s.delete(s.length() - 2, s.length());
+			} else {
+				s.append("?");
+			}
+			s.append(")");
 		} else {
-			s.append("id");
+			s.append("(id) VALUES (DEFAULT)");
 		}
-		s.append(") VALUES (");
-		for (int i = 0; i<getColumns().size(); i++) {
-			s.append("?, ");
-		}
-		if (autoIncrementId) {
-			s.delete(s.length() - 2, s.length());
-		} else {
-			s.append("?");
-		}
-		s.append(")");
 
 		return s.toString();
 	}
