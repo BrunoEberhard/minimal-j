@@ -66,7 +66,7 @@ public class HtmlPage implements Page {
 			}
 		}
 		if (title == null) {
-			title = Resources.getPageTitle(this);
+			title = Resources.getString(getClass());
 		}
 		return title;
 	}

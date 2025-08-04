@@ -25,9 +25,13 @@ public interface Page extends AccessControl {
 	public static final int STRETCH = Integer.MAX_VALUE;
 	
 	public default String getTitle() {
-		return Resources.getPageTitle(this);
+		return Resources.getString(getClass());
 	}
-	
+
+	public default String getDescription() {
+		return Resources.getString(Resources.getResourceName(getClass()) + ".description", false);
+	}
+
 	public IContent getContent();
 	
 	/**
