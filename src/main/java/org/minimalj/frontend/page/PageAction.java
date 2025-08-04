@@ -16,6 +16,11 @@ public final class PageAction extends Action implements Routable {
 		super(name != null ? name : page.getTitle());
 		this.page = page;
 	}
+	
+	@Override
+	public String getDescription() {
+		return page.getDescription();
+	}
 
 	@Override
 	public void run() {
