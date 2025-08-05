@@ -630,6 +630,10 @@ public class JsonPageManager implements PageManager {
 	public void showDialog(Dialog dialog) {
 		JsonDialog jsonDialog = new JsonDialog(dialog.getTitle(), dialog.getContent(), dialog.getSaveAction(), dialog.getCancelAction(), dialog.getActions());
 		jsonDialog.put("className", dialog.getClass().getSimpleName());
+		String description = dialog.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			jsonDialog.put("description", description);
+		}
 		jsonDialog.put("height", dialog.getHeight());
 		jsonDialog.put("width", dialog.getWidth());
 		output.add("dialog", jsonDialog);

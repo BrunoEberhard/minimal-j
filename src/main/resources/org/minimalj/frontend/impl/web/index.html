@@ -586,9 +586,7 @@ $ICON
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
 		titleElement.textContent = page.title;
-		if (page.description) {
-			titleElement.setAttribute("title", page.description);
-		};
+		if (page.description) titleElement.setAttribute("title", page.description);
 		element.appendChild(titleElement);
 	
 		var isTable = page.content != null && (page.content.type === "Table" || page.content.type === "CustomFilter");
@@ -1229,6 +1227,7 @@ $ICON
 		dialog.appendChild(block);
 	
 		var header = document.createElement("div");
+		if (json.description) header.setAttribute("title", json.description);
 		header.classList.add("dialogHeader");
 		var headerText = document.createElement("span");
 		headerText.appendChild(document.createTextNode(json.title));
