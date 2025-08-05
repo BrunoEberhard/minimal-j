@@ -308,6 +308,7 @@ public class SwingFrame extends JFrame {
 				throw new RuntimeException("Page null");
 			}
 			tabbedPane.setTitleAt(index, page.getTitle());
+			tabbedPane.setToolTipTextAt(index, page.getDescription());
 		}
 	}
 
