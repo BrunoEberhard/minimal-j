@@ -29,7 +29,12 @@ public interface Page extends AccessControl {
 	}
 
 	public default String getDescription() {
-		return Resources.getString(Resources.getResourceName(getClass()) + ".description", false);
+		String resourceName = Resources.getResourceName(getClass()) + ".description";
+		if (Resources.isAvailable(resourceName)) {
+			return Resources.getString(resourceName, false);
+		} else {
+			return null;
+		}
 	}
 
 	public IContent getContent();

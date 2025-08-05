@@ -513,6 +513,10 @@ public class JsonPageManager implements PageManager {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
+		String description = page.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			json.put("description", description);
+		}
 		json.put("className", page.getClass().getSimpleName());
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
