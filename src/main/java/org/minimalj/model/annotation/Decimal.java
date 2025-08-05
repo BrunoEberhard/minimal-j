@@ -12,8 +12,16 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD })
 public @interface Decimal {
 
+	/**
+	 * 
+	 * @return the maximal decimal places persisted
+	 */
 	int value();
-	
-	int minDecimals() default Integer.MAX_VALUE;
 
+	/**
+	 * {@link org.minimalj.model.Rendering#toString(Object)}
+	 * 
+	 * @return the minimal decimal places shown when the annotated BigDecimal is rendered
+	 */
+	int minDecimals() default Integer.MAX_VALUE;
 }
