@@ -84,7 +84,7 @@ public class ActionFormElement implements FormElement<Void> {
 	}
 
 	@Override
-	public String getTooltip() {
+	public String getDescription() {
 		return description;
 	}
 	

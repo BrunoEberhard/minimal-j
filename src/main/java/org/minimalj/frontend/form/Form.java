@@ -24,7 +24,6 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.frontend.Frontend.Tooltip;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
@@ -255,18 +254,17 @@ public class Form<T> {
 
 	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
 		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null);
-		setTooltip(element);
-		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
+		IComponent component = element.getComponent();
+		setDescription(element, component);
+		formContent.add(ignoreCaption ? null : element.getCaption(), required, component, element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
 
-	private void setTooltip(FormElement<?> element) {
-		if (element instanceof Tooltip) {
-			String tooltip = element.getTooltip();
-			if (!StringUtils.isEmpty(tooltip)) {
-				((Tooltip) element).setTooltip(tooltip);
-			}
+	private void setDescription(FormElement<?> element, IComponent component) {
+		String description = element.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			formContent.setDescription(component, description);
 		}
 	}
 

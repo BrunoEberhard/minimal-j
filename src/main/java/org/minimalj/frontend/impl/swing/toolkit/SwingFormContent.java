@@ -123,6 +123,13 @@ public class SwingFormContent extends JPanel implements FormContent {
 	}
 
 	@Override
+	public void setDescription(IComponent component, String description) {
+		if (component instanceof JComponent) {
+			((JComponent) component).setToolTipText(description);
+		}
+	}
+	
+	@Override
 	protected void paintComponent(Graphics g) {
 		if (!nested) {
 			super.paintComponent(g);

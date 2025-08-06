@@ -118,10 +118,6 @@ public abstract class Frontend {
 		return Optional.empty();
 	}
 	
-	public interface Tooltip {
-		public void setTooltip(String tooltip);
-	}
-
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createText(Action action);
@@ -241,6 +237,10 @@ public abstract class Frontend {
 		
 		public default void setVisible(IComponent component, boolean visible) {
 			// throw new RuntimeException("Not implemented");
+		}
+		
+		public default void setDescription(IComponent component, String description) {
+			//
 		}
 
 	}

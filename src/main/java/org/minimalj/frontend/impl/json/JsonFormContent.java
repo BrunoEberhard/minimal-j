@@ -145,4 +145,10 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		((JsonComponent) component).setFormElementVisible(visible);
 	}
 	
+	@Override
+	public void setDescription(IComponent component, String description) {
+		if (component instanceof JsonInputComponent) {
+			((JsonInputComponent<?>) component).put(JsonInputComponent.DESCRIPTION, description);
+		}
+	}
 }

@@ -37,8 +37,8 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 
 	@Override
-	public String getTooltip() {
-		return Resources.getPropertyName(getProperty(), "tooltip");
+	public String getDescription() {
+		return Resources.getPropertyName(getProperty(), "description");
 	}
 	
 	@Override
