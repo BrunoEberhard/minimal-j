@@ -618,32 +618,17 @@ public class Table<T> extends AbstractTable<T> {
 
 		StringBuilder s = new StringBuilder();
 		
-		s.append("INSERT INTO ").append(getTableName()).append(' ');
+		s.append("INSERT INTO ").append(getTableName()).append(" (");
 		
-		if (!getColumns().isEmpty()) {
-			s.append('(');
-			for (String columnName : getColumns().keySet()) {
-				s.append(columnName).append(", ");
-			}
-			if (autoIncrementId) {
-				s.delete(s.length() - 2, s.length());
-			} else {
-				s.append("id");
-			}
-			s.append(") VALUES (");
-			for (int i = 0; i<getColumns().size(); i++) {
-				s.append("?, ");
-			}
-			if (autoIncrementId) {
-				s.delete(s.length() - 2, s.length());
-			} else {
-				s.append("?");
-			}
-			s.append(")");
-		} else {
-			s.append("(id) VALUES (DEFAULT)");
+		for (String columnName : getColumns().keySet()) {
+			s.append(columnName).append(", ");
 		}
-
+		s.append("id) VALUES (");
+		for (int i = 0; i<getColumns().size(); i++) {
+			s.append("?, ");
+		}
+		
+		s.append(autoIncrementId ? "DEFAULT" : "?").append(")");
 		return s.toString();
 	}
 	
