@@ -183,8 +183,10 @@ $ICON
 							var element = document.getElementById(id);
 							if (value) {
 								element.title = value;
+								element.setAttribute("hasValidationMessage", true);
 							} else {
 								element.removeAttribute("title");
+								element.removeAttribute("hasValidationMessage");
 							}
 						} else if (property === "enabled" && element.className === "list") {
 							element.style.display = value ? "block" : "none";
@@ -952,6 +954,7 @@ $ICON
 		}
 		if (content.validationMessage != undefined && content.validationMessage.length > 0) {
 			element.title = content.validationMessage;
+			element.setAttribute("hasValidationMessage", true);
 		}
 		if (content.row != undefined) {
 			element.setAttribute("row", content.row);

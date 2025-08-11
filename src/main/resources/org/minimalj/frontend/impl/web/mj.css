@@ -612,9 +612,9 @@ dialog table {
 	text-align: right;
 }
 
-.changed[title],
-.form.showValidations *[title],
-.form.showValidations div[title] *
+.changed[hasValidationMessage],
+.form.showValidations *[hasValidationMessage],
+.form.showValidations div[hasValidationMessage] *
 {
 	border-color: red;
 }
