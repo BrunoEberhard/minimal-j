@@ -320,6 +320,8 @@ public class Form<T> {
 	 * a getter that calculates something that depends on the <i>from</i> in some
 	 * way.
 	 * 
+	 * TODO: evaluate if this can be removed. Getters should declare their dependencies themselves
+	 * 
 	 * @param from the key or property of the field triggering the update
 	 * @param to   the field possible changed its value implicitly
 	 */
