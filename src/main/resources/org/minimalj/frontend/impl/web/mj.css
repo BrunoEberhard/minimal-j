@@ -679,6 +679,14 @@ input[disabled]::placeholder, textarea[disabled]::placeholder {
 	text-decoration: underline;
 }
 
+.dropdown div[disabled] {
+	color: unset;
+}
+
+.dropdown div[disabled]:hover {
+	text-decoration: none;
+}
+
 .form .groupItem:first-child .lookup .text {
 	border-top: lightgray solid 1px;
 }

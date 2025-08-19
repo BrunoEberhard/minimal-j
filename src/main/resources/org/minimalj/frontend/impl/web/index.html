@@ -879,6 +879,7 @@ $ICON
 				var a = content.actions[i];
 				var item = document.createElement("div");
 				item.innerHTML = escapeText(a.name);
+				item.setAttribute("id", a.id);
 				item.setAttribute("onclick", "action(\"" + a.id + "\");");
 				dropdownElement.appendChild(item);
 			}
