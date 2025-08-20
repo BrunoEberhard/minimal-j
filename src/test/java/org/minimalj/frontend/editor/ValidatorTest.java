@@ -2,6 +2,8 @@ package org.minimalj.frontend.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.UUID;
 
 import org.junit.AfterClass;
@@ -15,12 +17,18 @@ import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.test.TestUtil;
+import org.minimalj.util.resources.MultiResourceBundle;
 
 public class ValidatorTest {
 
 	@BeforeClass
 	public static void initApplication() {
-		Application.setInstance(new Application() {});
+		Application.setInstance(new Application() {
+			@Override
+			public ResourceBundle getResourceBundle(Locale locale) {
+				return new MultiResourceBundle();
+			}
+		});
 	}
 	
 	@AfterClass
