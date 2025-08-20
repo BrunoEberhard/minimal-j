@@ -125,7 +125,11 @@ public interface Rendering {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String toDescriptionString(Object o) {
+		if (o instanceof Enum) {
+			return EnumUtils.getDescription((Enum) o);
+		}
 		CharSequence c = o instanceof Rendering ? ((Rendering) o).renderDescription() : null;
 		return toString(c);
 	}
