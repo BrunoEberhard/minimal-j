@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
@@ -160,7 +161,7 @@ public class Resources {
 				return getProperty(chainedProperty, postfix);
 			}
 
-			Class<?> fieldClass = property.getClazz();
+			Class<?> fieldClass = StringUtils.isEmpty(postfix) ? property.getClazz() : null;
 			String fieldName = property.getName();
 			if (postfix != null)
 				fieldName += postfix;
@@ -175,7 +176,7 @@ public class Resources {
 			if (postfix != null)
 				fieldName += postfix;
 			while (chain.size() > 1) {
-				String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(), chainedProperty.getClazz(), true);
+				String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(), StringUtils.isEmpty(postfix) ? chainedProperty.getClazz() : null, true);
 				if (result != null) {
 					return result;
 				} else {
@@ -186,7 +187,7 @@ public class Resources {
 			return getPropertyName(chain.get(0), postfix);
 		}
 
-		String getPropertyName(String fieldName, Class<?> declaringClass, Class<?> fieldClass, boolean optional) {
+		String getPropertyName(String fieldName, Class<?> declaringClass, @Nullable Class<?> fieldClass, boolean optional) {
 			// completeQualifiedKey example: "ch.openech.model.Person.nationality"
 			String completeQualifiedKey = declaringClass.getName() + "." + fieldName;
 			if (resourceBundle.containsKey(completeQualifiedKey)) {
@@ -206,7 +207,7 @@ public class Resources {
 			}
 
 			// class of field
-			String byFieldClass = getStringOrNull(fieldClass);
+			String byFieldClass = fieldClass != null ? getStringOrNull(fieldClass) : null;
 			if (byFieldClass != null) {
 				return byFieldClass;
 			}
@@ -217,7 +218,7 @@ public class Resources {
 			}
 			
 			// class of same name
-			String className = getStringOrNull(fieldClass);
+			String className = fieldClass != null ? getStringOrNull(fieldClass) : null;
 			if (className != null) {
 				return className;
 			}
