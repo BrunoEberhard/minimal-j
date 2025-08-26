@@ -781,9 +781,7 @@ public class WebTestFacade implements UiTestFacade {
 			select.selectByVisibleText(text);
 		} else {
 			element.click();
-			element.clear();
-			// same reason for waitScript as with the first character
-			waitScript();
+			element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
 			if (!StringUtils.isEmpty(text)) {
 				// the browser makes a call to the server when one character is entered (to refresh validation)
 				// we must wait for the response because the response could otherwise overwrite further characters
@@ -792,8 +790,11 @@ public class WebTestFacade implements UiTestFacade {
 					waitScript();
 					element.sendKeys(text.substring(1));
 				}
+			} else {
+				element.clear();
+				// same reason for waitScript as with the first character
+				waitScript();
 			}
-
 			// blur
 			Actions actions = new Actions(driver);
 			actions.sendKeys(Keys.TAB);
