@@ -371,6 +371,11 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 						public boolean isEnabled() {
 							return action.isEnabled();
 						}
+						
+						@Override
+						public String getDescription() {
+							return (String) action.get("description");
+						}
 					});
 				}
 				return actionTestFacades;

@@ -585,6 +585,11 @@ public class WebTestFacade implements UiTestFacade {
 				public String toString() {
 					return divAction.getText();
 				}
+				
+				@Override
+				public String getDescription() {
+					return (String) divAction.getAttribute("title");
+				}
 			};
 		}
 		

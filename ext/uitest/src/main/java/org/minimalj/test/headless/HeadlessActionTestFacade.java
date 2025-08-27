@@ -19,4 +19,9 @@ public class HeadlessActionTestFacade implements ActionTestFacade {
 	public boolean isEnabled() {
 		return action.isEnabled();
 	}
+	
+	@Override
+	public String getDescription() {
+		return action.getDescription();
+	}
 }

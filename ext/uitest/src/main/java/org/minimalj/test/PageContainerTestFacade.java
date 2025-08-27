@@ -42,6 +42,10 @@ public interface PageContainerTestFacade {
 	public interface ActionTestFacade extends Runnable {
 
 		public boolean isEnabled();
+		
+		public default String getDescription() {
+			return null;
+		}
 	}
 
 	public interface NavigationTestFacade {
