@@ -116,17 +116,11 @@ public interface PageContainerTestFacade {
 			return getElement(caption, null);
 		}
 
-		public default FormElementTestFacade getElement(String caption, int index) {
-			return null;
-		}
+		public FormElementTestFacade getElement(String caption, int index);
 		
-		public default FormElementTestFacade getElement(int row, int column) {
-			return null;
-		}
+		public FormElementTestFacade getElement(int row, int column);
 		
-		public default ActionTestFacade getAction(String label) {
-			return null;
-		}
+		public ActionTestFacade getAction(String label);
 
 		public default FormElementTestFacade element(Object key) {
 			Property property = Keys.getProperty(key);
@@ -185,9 +179,7 @@ public interface PageContainerTestFacade {
 		}
 		
 		// only allowed if FormElement is a TableFormElement
-		public default FormTestFacade row(int pos) {
-			return null; // TODO
-		}
+		public FormTestFacade row(int pos);
 
 	}
 
