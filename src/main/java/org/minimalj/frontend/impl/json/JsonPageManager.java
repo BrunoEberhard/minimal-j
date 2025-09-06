@@ -571,8 +571,9 @@ public class JsonPageManager implements PageManager {
 					ui = component instanceof JsonFormContent ? "form" : "";
 				}
 				
-				if (component.get(JsonFormContent.CAPTION) instanceof String) {
-					ui += ".getElement(\"" + component.get(JsonFormContent.CAPTION) + "\")";
+				String captionOrName = JsonFormContent.getCaptionOrName(component);
+				if (!StringUtils.isEmpty(captionOrName)) {
+					ui += ".getElement(\"" + captionOrName + "\")";
 				} else if (component.containsKey("formRowIndex")) {
 					ui += ".getElement(" + component.get("formRowIndex") + ", " + component.get("formColumnIndex") + ")";
 				} 

@@ -448,6 +448,10 @@ public class WebTestFacade implements UiTestFacade {
 					return new HtmlFormElementTestFacade(element);
 				}
 			}
+			List<WebElement> elementsByName = form.findElements(By.xpath(".//*[@name=" + WebTestUtil.escapeXpath(caption) + "]"));
+		    if (!elementsByName.isEmpty()) {
+		    	return new HtmlFormElementTestFacade(elementsByName.get(0));
+		    }
 			return null;
 		}
 		
@@ -607,7 +611,7 @@ public class WebTestFacade implements UiTestFacade {
 		
 		@Override
 		public FormTestFacade row(int pos) {
-			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div/div")).get(pos).findElement(By.tagName("div"));
+			WebElement groupItemElement = formElement.findElement(By.xpath(".//div[@class='groupVertical']")).findElements(By.xpath("./div")).get(pos).findElement(By.xpath("./div"));
 			return new HtmlFormTestFacade(groupItemElement);
 		}		
 	}
@@ -808,7 +812,8 @@ public class WebTestFacade implements UiTestFacade {
 	}
 	
 	private String getText(WebElement element) {
-		if (element.getTagName().toLowerCase().equals("div") && element.getAttribute("class") != null && element.getAttribute("class").contains("text")) {
+		String tagName = element.getTagName().toLowerCase();
+		if (tagName.equals("a") || tagName.equals("div") && element.getAttribute("class") != null && element.getAttribute("class").contains("text")) {
 			return element.getText();
 		}
 		element = findValueElement(element);

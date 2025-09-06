@@ -65,7 +65,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 			if (Boolean.TRUE.equals(jsonComponent.get("hideFormElement"))) {
 				return null;
 			}
-			if (caption.equals(jsonComponent.get(JsonFormContent.CAPTION))) {
+			if (caption.equals(JsonFormContent.getCaptionOrName(jsonComponent))) {
 				// TODO check isBooleanValue
 				return new HeadlessFormElement(jsonComponent);
 			}
@@ -160,7 +160,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		Predicate<JsonComponent> filter = new Predicate<JsonComponent>() {
 			@Override
 			public boolean test(JsonComponent component) {
-				return component instanceof JsonAction && label.equals(component.get("name"));
+				return component instanceof JsonAction && label.equals(component.get("text"));
 			}
 		};
 		JsonAction jsonAction = (JsonAction) getComponent(form, filter);
@@ -213,7 +213,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 			if (component instanceof JsonInputComponent inputComponent || component.containsKey(JsonInputComponent.VALUE)) {
 				return (String) component.get(JsonInputComponent.VALUE);
 			} else if (component instanceof JsonAction jsonAction) {
-				return (String) jsonAction.get("name");
+				return (String) jsonAction.get("text");
 			} else {
 				throwNotInputComponent(component);
 				return null;
@@ -332,7 +332,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 			if (getComponent() instanceof JsonLookupActions jsonLookupActions) {
 				List<JsonAction> actionLabels = (List<JsonAction>) jsonLookupActions.get("actions");
 				for (var jsonAction : actionLabels) {
-					if (text.equals(jsonAction.get("name"))) {
+					if (text.equals(jsonAction.get("text"))) {
 						jsonAction.run();
 						return;
 					}

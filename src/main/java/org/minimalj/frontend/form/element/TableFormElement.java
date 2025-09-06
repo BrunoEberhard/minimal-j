@@ -149,6 +149,12 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 	public String getCaption() {
 		return null;
 	}
+	
+	@Override
+	public String getDescription() {
+		String description = super.getDescription();
+		return description != null ? description : super.getCaption();
+	}
 
 	public void clearFormCache() {
 		formByObject.clear();

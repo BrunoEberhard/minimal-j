@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.json;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -155,8 +156,18 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 	
 	@Override
 	public void setDescription(IComponent component, String description) {
+		if (StringUtils.isEmpty(description) && Configuration.isDevModeActive()) {
+			throw new IllegalArgumentException();
+		}
 		if (component instanceof JsonInputComponent) {
 			((JsonInputComponent<?>) component).put(JsonInputComponent.DESCRIPTION, description);
+		} else {
+			((JsonComponent) component).put(NAME, description);
 		}
+	}
+	
+	public static String getCaptionOrName(JsonComponent component) {
+		String result = (String) component.get(CAPTION);
+		return !StringUtils.isEmpty(result) ? result : (String) component.get(NAME);
 	}
 }
