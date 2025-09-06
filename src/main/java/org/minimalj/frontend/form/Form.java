@@ -81,7 +81,6 @@ public class Form<T> {
 
 	public final int columns;
 	private final FormContent formContent;
-	private boolean ignoreCaption;
 
 	private final LinkedHashMap<Property, FormElement<?>> elements = new LinkedHashMap<>();
 
@@ -193,7 +192,6 @@ public class Form<T> {
 	}
 
 	public void setIgnoreCaption(boolean ignoreCaption) {
-		this.ignoreCaption = ignoreCaption;
 		formContent.setIgnoreCaption(ignoreCaption);
 	}
 
@@ -256,7 +254,7 @@ public class Form<T> {
 		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null);
 		IComponent component = element.getComponent();
 		setDescription(element, component);
-		formContent.add(ignoreCaption ? null : element.getCaption(), required, component, element.getConstraint(), span);
+		formContent.add(element.getCaption(), required, component, element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}

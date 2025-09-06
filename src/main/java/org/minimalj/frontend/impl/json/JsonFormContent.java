@@ -11,6 +11,7 @@ import org.minimalj.util.StringUtils;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 
+	public static final String NAME = "name";
 	public static final String CAPTION = "caption";
 	public static final String REQUIRED = "required";
 	public static final String VALIDATION_MESSAGE = "validationMessage";
@@ -87,15 +88,22 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		}
 		
 		JsonComponent jsonComponent = component != null ? (JsonComponent) component : new JsonComponent("Empty");
-		if (!StringUtils.isBlank(caption)) {
-			jsonComponent.put(CAPTION, caption);
-		} else if (!ignoreCaption && (jsonComponent instanceof JsonText || jsonComponent instanceof Input<?> || jsonComponent instanceof JsonAction)) {
-			// if there is no caption the component needs an offset or would be
-			// displayed too high.
-			// (this is not the case if ignoreCaption is active, then all components are 
-			// on upper edge)
-			jsonComponent.setNoCaption();
+		
+		if (!ignoreCaption) {
+			if (!StringUtils.isBlank(caption)) {
+				jsonComponent.put(CAPTION, caption);
+			} else if (jsonComponent instanceof JsonText || jsonComponent instanceof Input<?> || jsonComponent instanceof JsonAction) {
+				// if there is no caption the component needs an offset or would be
+				// displayed too high.
+				// (this is not the case if ignoreCaption is active, then all components are 
+				// on upper edge)
+				jsonComponent.setNoCaption();
+			}
 		}
+		if (!StringUtils.isBlank(caption)) {
+			jsonComponent.put(NAME, caption);
+		}
+		
 		if (required) {
 			jsonComponent.put(REQUIRED, required);
 		}
