@@ -656,7 +656,7 @@ $ICON
 				var button = document.createElement("button");
 				button.id = action.id;
 				button.style="margin-right: 1em;"
-				button.appendChild(document.createTextNode(action.name));
+				button.appendChild(document.createTextNode(action.text));
 				button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + contentElement.id + "\");");
 				if (action.description) element.setAttribute("title", action.description);
 				if (!action.enabled) button.setAttribute("disabled", "true");
@@ -702,7 +702,7 @@ $ICON
 					var button = document.createElement("button");
 					button.style="min-width: 7rem; padding: 0.1rem;" // TODO
 					button.id = action.id;
-					button.appendChild(document.createTextNode(action.name));
+					button.appendChild(document.createTextNode(action.text));
 					button.setAttribute("onclick", "action(\"" + action.id + "\");");
 					if (!action.enabled) {
 						button.setAttribute("disabled", "true");
@@ -878,7 +878,7 @@ $ICON
 			for (var i = 0; i < content.actions.length; i++) {
 				var a = content.actions[i];
 				var item = document.createElement("div");
-				item.innerHTML = escapeText(a.name);
+				item.innerHTML = escapeText(a.text);
 				item.setAttribute("id", a.id);
 				item.setAttribute("onclick", "action(\"" + a.id + "\");");
 				dropdownElement.appendChild(item);
@@ -1156,7 +1156,7 @@ $ICON
 	
 	function createAction(element, config) {
 		element.className = "action";
-		element.textContent = config.name;
+		element.textContent = config.text;
 		if (config.description) element.setAttribute("title", config.description);
 		if (config.link != undefined) {
 			element.setAttribute("href", config.link);
@@ -1184,7 +1184,7 @@ $ICON
 			if (item.type !== "Separator") {
 				if (item.items) {
 					var nameElement = document.createElement("div");
-					nameElement.appendChild(document.createTextNode(item.name));
+					nameElement.appendChild(document.createTextNode(item.text));
 					ul.appendChild(nameElement);
 					ul.appendChild(createMenu(item.items));
 				} else if (item.id) {
@@ -1197,7 +1197,7 @@ $ICON
 					}
 					a.id = item.id;
 					a.classList.add("action");
-					a.appendChild(document.createTextNode(item.name));
+					a.appendChild(document.createTextNode(item.text));
 					ul.appendChild(a);
 				}
 			} else {
@@ -1264,7 +1264,7 @@ $ICON
 				var action = actions[i];
 				var button = document.createElement("button");
 				button.id = action.id;
-				button.appendChild(document.createTextNode(action.name));
+				button.appendChild(document.createTextNode(action.text));
 				if (action.formId) {
 					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.formId + "\");");
 				} else {
