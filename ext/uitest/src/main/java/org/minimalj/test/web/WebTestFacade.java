@@ -441,11 +441,17 @@ public class WebTestFacade implements UiTestFacade {
 			List<WebElement> labels = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 			for (var label : labels) {
 				String id = label.getAttribute("for");
-				WebElement element = form.findElement(By.id(id));
-				String type = element.getAttribute("type");
-				boolean isRadioOrCheckBox = StringUtils.equals(type, "radio", "checkbox");
-				if (isBooleanValue == null || isRadioOrCheckBox == isBooleanValue) {
-					return new HtmlFormElementTestFacade(element);
+				if (id != null) {
+					WebElement element = form.findElement(By.id(id));
+					String type = element.getAttribute("type");
+					boolean isRadioOrCheckBox = StringUtils.equals(type, "radio", "checkbox");
+					if (isBooleanValue == null || isRadioOrCheckBox == isBooleanValue) {
+						return new HtmlFormElementTestFacade(element);
+					}
+				} else if (!Boolean.FALSE.equals(isBooleanValue)) {
+					if (StringUtils.equals(label.getAttribute("class"), "checkboxLabel")) {
+						return new HtmlFormElementTestFacade(label.findElement(By.tagName("input")));
+					}
 				}
 			}
 			List<WebElement> elementsByName = form.findElements(By.xpath(".//*[@name=" + WebTestUtil.escapeXpath(caption) + "]"));
