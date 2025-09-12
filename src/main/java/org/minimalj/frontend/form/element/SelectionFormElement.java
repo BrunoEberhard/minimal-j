@@ -11,6 +11,7 @@ import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.model.Selection;
+import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.util.IdUtils;
 
@@ -22,11 +23,21 @@ public class SelectionFormElement<T> extends AbstractFormElement<Selection<T>> i
 	private boolean hasSelection;
 	private List<T> values;
 
-	public SelectionFormElement(Object key) {
+	public SelectionFormElement(Selection<T> key) {
 		this(key, ComboBoxFormElement.NO_NULL_STRING);
 	}
 	
-	public SelectionFormElement(Object key, String nullText) {
+	public SelectionFormElement(Property property) {
+		this(property, ComboBoxFormElement.NO_NULL_STRING);
+	}
+	
+	public SelectionFormElement(Property property, String nullText) {
+		super(property);
+		this.nullText = nullText;
+		component = Frontend.getInstance().createSwitchComponent();
+	}
+	
+	public SelectionFormElement(Selection<T> key, String nullText) {
 		super(key);
 		this.nullText = nullText;
 		component = Frontend.getInstance().createSwitchComponent();

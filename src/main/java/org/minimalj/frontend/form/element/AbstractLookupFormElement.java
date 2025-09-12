@@ -12,6 +12,7 @@ import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -26,15 +27,20 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 
 	private T object;
 
-	AbstractLookupFormElement(Object key, boolean editable) {
+	AbstractLookupFormElement(T key, boolean editable) {
 		super(key);
-		if (editable) {
-			switchComponent = Frontend.getInstance().createSwitchComponent();
-		} else {
-			switchComponent = null;
-		}
+		switchComponent = createSwitchComponent(editable);
+	}
+	
+	AbstractLookupFormElement(Property property, boolean editable) {
+		super(property);
+		switchComponent = createSwitchComponent(editable);
 	}
 
+	private static SwitchComponent createSwitchComponent(boolean editable) {
+		return editable ? Frontend.getInstance().createSwitchComponent() : null;
+	}
+	
 	@Override
 	public final void setEnabled(boolean enabled) {
 		if (switchComponent != null) {

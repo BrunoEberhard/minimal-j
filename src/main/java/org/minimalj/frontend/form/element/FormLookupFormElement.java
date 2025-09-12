@@ -2,15 +2,20 @@ package org.minimalj.frontend.form.element;
 
 import org.minimalj.frontend.editor.Editor.SimpleEditor;
 import org.minimalj.frontend.form.Form;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.resources.Resources;
 
 public abstract class FormLookupFormElement<T> extends AbstractLookupFormElement<T> {
 
-	public FormLookupFormElement(Object key, boolean editable) {
+	public FormLookupFormElement(T key, boolean editable) {
 		super(key, editable);
 	}
 
+	public FormLookupFormElement(Property property, boolean editable) {
+		super(property, editable);
+	}
+	
 	@Override
 	protected void lookup() {
 		new ParserFormElementEditor().run();
