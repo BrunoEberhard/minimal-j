@@ -30,10 +30,7 @@ jobs:
       run: chmod +x mvnw
 
     - name: Build minimal-j
-      run: |
-        echo "::group::Building and deploying minimal-j"
-        ./mvnw deploy -P github-workflow
-        echo "::endgroup::"
+      run: ./mvnw deploy -P github-workflow
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
