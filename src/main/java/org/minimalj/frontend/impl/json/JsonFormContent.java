@@ -159,8 +159,8 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		if (StringUtils.isEmpty(description) && Configuration.isDevModeActive()) {
 			throw new IllegalArgumentException();
 		}
-		if (component instanceof JsonInputComponent) {
-			((JsonInputComponent<?>) component).put(JsonInputComponent.DESCRIPTION, description);
+		if (component instanceof Input<?>) {
+			((JsonComponent) component).put(JsonInputComponent.DESCRIPTION, description);
 		} else {
 			((JsonComponent) component).put(NAME, description);
 		}
