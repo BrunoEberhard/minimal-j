@@ -63,9 +63,8 @@ import org.minimalj.util.Codes;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
-
-import com.formdev.flatlaf.util.StringUtils;
 
 public class Form<T> {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
