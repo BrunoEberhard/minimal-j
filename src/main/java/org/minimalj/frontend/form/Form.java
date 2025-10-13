@@ -575,9 +575,8 @@ public class Form<T> {
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private void executeUpdaters(Property property, Object updaterInput, Object object, HashSet<Property> changedProperties) {
+		private void executeUpdaters(Property property, Object updaterInput, Object clonedObject, HashSet<Property> changedProperties) {
 			if (propertyUpdater.containsKey(property)) {
-				Object clonedObject = CloneHelper.clone(object); // clone before change! TODO only clone if necessary!
 				Map<Property, PropertyUpdater> updaters = propertyUpdater.get(property);
 				for (Map.Entry<Property, PropertyUpdater> entry : updaters.entrySet()) {
 					logger.finer(() -> "Update from " + property.getPath() + " to " + entry.getKey().getPath());
@@ -590,9 +589,10 @@ public class Form<T> {
 		private void setValue(Property property, Object newValue, HashSet<Property> changedProperties) {
 			Object oldValue = property.getValue(object);
 			logger.finest(() -> "Set " + property.getPath() + " to " + newValue + " (previous: " + oldValue + ")");
-			if (!EqualsHelper.equals(oldValue, newValue) || newValue instanceof Collection) {
+			if (!EqualsHelper.equals(oldValue, newValue)) {
+				Object clonedObject = CloneHelper.clone(object); // clone before change!
 				property.setValue(object, newValue);
-				executeUpdaters(property, newValue, object, changedProperties);
+				executeUpdaters(property, newValue, clonedObject, changedProperties);
 				addChangedPropertyRecursive(property, changedProperties);
 			} else if (newValue instanceof Collection) {
 				// same instance of Collection can have changed content always assume a change.
