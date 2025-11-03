@@ -305,6 +305,10 @@ public class Resources {
 	}
 
 	public static void addMimeType(String postfix, String contentType) {
+		if (postfix.startsWith(".")) {
+			logger.warning("Postfix must not start with '.' :" + postfix);
+			postfix = postfix.substring(1);
+		}
 		mimeTypeByPostfix.put(postfix, contentType);
 	}
 
