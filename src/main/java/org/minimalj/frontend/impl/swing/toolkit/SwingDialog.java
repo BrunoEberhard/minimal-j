@@ -38,6 +38,7 @@ public class SwingDialog extends JDialog {
 		
 		setTitle(dialog.getTitle());
 		setResizable(true);
+		((JComponent) content).setToolTipText(dialog.getDescription());
 		
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		WindowListener listener = new WindowAdapter() {

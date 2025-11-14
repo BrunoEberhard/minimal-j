@@ -22,7 +22,6 @@ import org.minimalj.model.properties.Properties;
 import org.minimalj.rest.openapi.model.OpenAPI;
 import org.minimalj.rest.openapi.model.OpenAPI.Content;
 import org.minimalj.rest.openapi.model.OpenAPI.In;
-import org.minimalj.rest.openapi.model.OpenAPI.Info;
 import org.minimalj.rest.openapi.model.OpenAPI.Operation;
 import org.minimalj.rest.openapi.model.OpenAPI.Parameter;
 import org.minimalj.rest.openapi.model.OpenAPI.Property;
@@ -128,9 +127,6 @@ public class OpenAPIFactory {
 			}
 		}
 		
-		api.info = new Info();
-		// api.info.title = "API for " + Application.getInstance().getClass().getSimpleName();
-		
 		api.info.description = "<p>This API contains the generic methods provided by the REST interface of Minimal-J plus the specialized POST request.</p>"
 				
 				+ "<p>There is a special type of entity classes named 'Codes'. There should be a limited amount of objects for each code class. There is a GET method that can request all of them. "
@@ -202,8 +198,9 @@ public class OpenAPIFactory {
 		parameter.required = true;
 		parameter.in = In.path;
 		parameter.description = entityName + " id";
-		
 		operation.parameters.add(parameter);
+		
+		addTechnicalFieldsParameter(operation, entity);
 		
 		Response response = new Response();
 		response.description = "Successful operation";
@@ -225,6 +222,17 @@ public class OpenAPIFactory {
 		
 		return operation;
 	}
+	
+	private void addTechnicalFieldsParameter(Operation operation, MjEntity entity) {
+		var technicalProperties = entity.properties.stream().filter(p -> p.technical != null).toList();
+		if (!technicalProperties.isEmpty()) {
+			Parameter parameter = parameter("technicalFields", Type.BOOLEAN);
+			parameter.required = false;
+			parameter.in = In.query;
+			parameter.description = "include " + String.join(", ", technicalProperties.stream().map(p -> p.name).toList().toArray(new String[technicalProperties.size()]));
+			operation.parameters.add(parameter);
+		}
+	}
 
 	private Operation operationGetAll(MjEntity entity) {
 		String entityName = entity.getClassName();
@@ -234,6 +242,8 @@ public class OpenAPIFactory {
 		operation.tags.add(tagOf(entity));
 		
 		addRangeParameters(operation);
+		
+		addTechnicalFieldsParameter(operation, entity);
 		
 		Response response = new Response();
 		response.description = "Successful operation";
@@ -434,7 +444,7 @@ public class OpenAPIFactory {
 				continue;
 			}
 			var property = property(mjProperty, mjApi, false);
-			if (mjProperty.notEmpty) {
+			if (mjProperty.notEmpty && mjProperty.technical == null) {
 				schema.required.add(mjProperty.name);
 			}
 			schema.properties.put(mjProperty.name, property);

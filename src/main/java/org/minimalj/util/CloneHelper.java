@@ -51,6 +51,13 @@ public class CloneHelper {
 			return copy;
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
+		} catch (RuntimeException r) {
+			if (r.getCause() instanceof NoSuchMethodException) {
+				// TODO JDK update. directly return object if it is a record
+				return object;
+			} else {
+				throw r;
+			}
 		}
 	}
 	

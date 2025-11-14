@@ -183,8 +183,10 @@ $ICON
 							var element = document.getElementById(id);
 							if (value) {
 								element.title = value;
+								element.setAttribute("hasValidationMessage", true);
 							} else {
 								element.removeAttribute("title");
+								element.removeAttribute("hasValidationMessage");
 							}
 						} else if (property === "enabled" && element.className === "list") {
 							element.style.display = value ? "block" : "none";
@@ -586,6 +588,7 @@ $ICON
 		var titleElement = document.createElement("span");
 		titleElement.className = "pageTitle";
 		titleElement.textContent = page.title;
+		if (page.description) titleElement.setAttribute("title", page.description);
 		element.appendChild(titleElement);
 	
 		var isTable = page.content != null && (page.content.type === "Table" || page.content.type === "CustomFilter");
@@ -653,7 +656,7 @@ $ICON
 				var button = document.createElement("button");
 				button.id = action.id;
 				button.style="margin-right: 1em;"
-				button.appendChild(document.createTextNode(action.name));
+				button.appendChild(document.createTextNode(action.text));
 				button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + contentElement.id + "\");");
 				if (action.description) element.setAttribute("title", action.description);
 				if (!action.enabled) button.setAttribute("disabled", "true");
@@ -699,7 +702,7 @@ $ICON
 					var button = document.createElement("button");
 					button.style="min-width: 7rem; padding: 0.1rem;" // TODO
 					button.id = action.id;
-					button.appendChild(document.createTextNode(action.name));
+					button.appendChild(document.createTextNode(action.text));
 					button.setAttribute("onclick", "action(\"" + action.id + "\");");
 					if (!action.enabled) {
 						button.setAttribute("disabled", "true");
@@ -848,7 +851,7 @@ $ICON
 			var button = document.createElement("div");
 			button.className = "lookupButton";
 			button.setAttribute("onclick", "openLookupDialog(\"" + content.id + "\");");
-			button.setAttribute("title", content.description);
+			if (content.description) button.setAttribute("title", content.description);
 			element.appendChild(button);
 		} else if (type === "LookupActions") {
 			element = document.createElement("div");
@@ -875,7 +878,8 @@ $ICON
 			for (var i = 0; i < content.actions.length; i++) {
 				var a = content.actions[i];
 				var item = document.createElement("div");
-				item.innerHTML = escapeText(a.name);
+				item.innerHTML = escapeText(a.text);
+				item.setAttribute("id", a.id);
 				item.setAttribute("onclick", "action(\"" + a.id + "\");");
 				dropdownElement.appendChild(item);
 			}
@@ -951,6 +955,7 @@ $ICON
 		}
 		if (content.validationMessage != undefined && content.validationMessage.length > 0) {
 			element.title = content.validationMessage;
+			element.setAttribute("hasValidationMessage", true);
 		}
 		if (content.row != undefined) {
 			element.setAttribute("row", content.row);
@@ -960,6 +965,12 @@ $ICON
 		}
 		if (content.ui != undefined) {
 			element.setAttribute("ui", content.ui);
+		}
+		if (content.name != undefined) {
+			element.setAttribute("name", content.name);
+		}
+		if (content.description != undefined) {
+			element.setAttribute("title", content.description);
 		}
 		return element;
 	}
@@ -1145,7 +1156,7 @@ $ICON
 	
 	function createAction(element, config) {
 		element.className = "action";
-		element.textContent = config.name;
+		element.textContent = config.text;
 		if (config.description) element.setAttribute("title", config.description);
 		if (config.link != undefined) {
 			element.setAttribute("href", config.link);
@@ -1186,7 +1197,7 @@ $ICON
 					}
 					a.id = item.id;
 					a.classList.add("action");
-					a.appendChild(document.createTextNode(item.name));
+					a.appendChild(document.createTextNode(item.text));
 					ul.appendChild(a);
 				}
 			} else {
@@ -1226,6 +1237,7 @@ $ICON
 		dialog.appendChild(block);
 	
 		var header = document.createElement("div");
+		if (json.description) header.setAttribute("title", json.description);
 		header.classList.add("dialogHeader");
 		var headerText = document.createElement("span");
 		headerText.appendChild(document.createTextNode(json.title));
@@ -1252,7 +1264,7 @@ $ICON
 				var action = actions[i];
 				var button = document.createElement("button");
 				button.id = action.id;
-				button.appendChild(document.createTextNode(action.name));
+				button.appendChild(document.createTextNode(action.text));
 				if (action.formId) {
 					button.setAttribute("onclick", "action(\"" + action.id + "\", \"" + action.formId + "\");");
 				} else {
@@ -1420,6 +1432,10 @@ $ICON
 	}
 	
 	function sendchange(source, saveAction) {
+		if (!document.body.contains(source)) {
+			console.log("Skip send change of " + source); // can happen with lastChangedTextField
+			return;
+		}
 		source.classList.add("changed");
 		var data = {};
 		var changedValue = {};

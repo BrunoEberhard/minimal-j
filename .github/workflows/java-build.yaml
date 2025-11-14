@@ -30,10 +30,9 @@ jobs:
       run: chmod +x mvnw
 
     - name: Build minimal-j
-      run: ./mvnw deploy
+      run: ./mvnw deploy -P github-workflow
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # run: ./mvnw package -DskipTests
 
     - name: Build uitest
       run: ./mvnw deploy -DUiTestDriver=headless -DskipTests -f ./ext/uitest/pom.xml

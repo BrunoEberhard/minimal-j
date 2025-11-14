@@ -72,7 +72,7 @@ public class SwingFormContent extends JPanel implements FormContent {
 	}
 
 	@Override
-	public void add(String caption, IComponent c, FormElementConstraint constraint, int span) {
+	public void add(String caption, boolean required, IComponent c, FormElementConstraint constraint, int span) {
 		if (layoutManager.getGroupedRows().isEmpty()) {
 			layoutManager.group(null);
 		}
@@ -122,6 +122,13 @@ public class SwingFormContent extends JPanel implements FormContent {
 		}
 	}
 
+	@Override
+	public void setDescription(IComponent component, String description) {
+		if (component instanceof JComponent) {
+			((JComponent) component).setToolTipText(description);
+		}
+	}
+	
 	@Override
 	protected void paintComponent(Graphics g) {
 		if (!nested) {

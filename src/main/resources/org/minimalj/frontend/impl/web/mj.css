@@ -612,9 +612,9 @@ dialog table {
 	text-align: right;
 }
 
-.changed[title],
-.form.showValidations *[title],
-.form.showValidations div[title] *
+.changed[hasValidationMessage],
+.form.showValidations *[hasValidationMessage],
+.form.showValidations div[hasValidationMessage] *
 {
 	border-color: red;
 }
@@ -677,6 +677,14 @@ input[disabled]::placeholder, textarea[disabled]::placeholder {
 
 .dropdown div:hover {
 	text-decoration: underline;
+}
+
+.dropdown div[disabled] {
+	color: unset;
+}
+
+.dropdown div[disabled]:hover {
+	text-decoration: none;
 }
 
 .form .groupItem:first-child .lookup .text {

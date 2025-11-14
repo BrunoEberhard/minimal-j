@@ -54,7 +54,7 @@ import org.minimalj.util.Codes;
  * </UL>
  */
 public class Backend {
-	private static Backend instance;
+	private static volatile Backend instance;
 	
 	public static Backend create() {
 		String backendAddress = Configuration.get("MjBackendAddress");
@@ -69,31 +69,32 @@ public class Backend {
 		return new Backend();
 	};
 	
-	private Repository repository = null; 
+	private volatile Repository repository = null; 
 	private Boolean authenticationActive = null;
-	private Authentication authentication = null; 
+	private volatile Authentication authentication = null; 
 	private TransactionLogger transactionLogger = new DefaultTransactionLogger();
 	
 	private InheritableThreadLocal<Transaction<?>> currentTransaction = new InheritableThreadLocal<>();
 	
 	public static void setInstance(Backend instance) {
 		Objects.requireNonNull(instance);
-		if (Backend.instance != null) {
-			throw new IllegalStateException("Not allowed to change instance of " + Backend.class.getSimpleName());
+		synchronized (Backend.class) {
+			if (Backend.instance != null) {
+				throw new IllegalStateException("Not allowed to change instance of " + Backend.class.getSimpleName());
+			}
+			Backend.instance = instance;
+			Application.getInstance().initBackend();
 		}
-		Backend.instance = instance;
-		Application.getInstance().initBackend();
 	}
 	
-	private static synchronized void createInstance() {
-		if (instance == null) {
-			setInstance(create());
-		}
-	}
-
 	public static Backend getInstance() {
 		if (instance == null) {
-			createInstance();
+			synchronized (Backend.class) {
+                if (instance == null) {
+                	instance = create();
+                	Application.getInstance().initBackend();
+                }
+            }
 		}
 		return instance;
 	}
@@ -131,10 +132,12 @@ public class Backend {
 	}
 	
 	public Authentication getAuthentication() {
-		if (authentication == null) {
-			if (authenticationActive == null) {
-				authentication = createAuthentication();
-				authenticationActive = authentication != null;
+		if (authentication == null && authenticationActive == null) {
+			synchronized (this) {
+				if (authentication == null && authenticationActive == null) {
+					authentication = createAuthentication();
+					authenticationActive = authentication != null;
+				}
 			}
 		}
 		return authentication;

@@ -52,8 +52,8 @@ public class TextFormElement implements FormElement<Object> {
 	}
 
 	@Override
-	public String getTooltip() {
-		return Resources.getPropertyName(getProperty(), "tooltip");
+	public String getDescription() {
+		return Resources.getPropertyName(getProperty(), "description");
 	}
 	
 	@Override

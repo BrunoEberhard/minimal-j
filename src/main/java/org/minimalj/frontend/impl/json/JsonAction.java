@@ -12,7 +12,7 @@ public class JsonAction extends JsonComponent {
 	public JsonAction(Action action) {
 		super("Action");
 		this.action = action;
-		put("name", action.getName());
+		put("text", action.getName());
 		String description = action.getDescription();
 		if (!StringUtils.isEmpty(description)) {
 			put("description", description);
@@ -39,7 +39,7 @@ public class JsonAction extends JsonComponent {
 	public JsonAction(Runnable runnable, String name) {
 		super("Action");
 		this.action = runnable;
-		put("name", name);
+		put("text", name);
 		put("enabled", true);
 	}
 

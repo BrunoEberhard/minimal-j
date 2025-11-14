@@ -4,12 +4,10 @@ import java.util.Objects;
 
 import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
-import org.minimalj.frontend.Frontend.Tooltip;
 
-public abstract class JsonInputComponent<T> extends JsonComponent implements Input<T>, Tooltip {
-	public static final String VALUE = "value";
-	public static final String EDITABLE = "editable";
-	public static final String TOOLTIP = "tooltip";
+public abstract class JsonInputComponent<T> extends JsonComponent implements Input<T> {
+	public static final String VALUE = "value";	public static final String EDITABLE = "editable";
+	public static final String DESCRIPTION = "description";
 
 	private final InputComponentListener changeListener;
 	
@@ -23,9 +21,8 @@ public abstract class JsonInputComponent<T> extends JsonComponent implements Inp
 		put(EDITABLE, editable);
 	}
 
-	@Override
-	public void setTooltip(String tooltip) {
-		put(TOOLTIP, tooltip);
+	public void setDescription(String description) {
+		put(DESCRIPTION, description);
 	}
 	
 	/*

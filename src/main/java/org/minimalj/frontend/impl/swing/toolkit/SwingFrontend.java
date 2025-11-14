@@ -409,6 +409,11 @@ public class SwingFrontend extends Frontend {
 
 	@Override
 	public IContent createFilteredTable(FormContent filter, ITable<?> table, Action search, Action reset) {
+		return createFilteredTable(filter, (Component) table, search, reset);
+	}
+
+	// experimental
+	public IContent createFilteredTable(FormContent filter, Component component, Action search, Action reset) {
 		SwingBorderLayoutContent content = new SwingBorderLayoutContent();
 		if (filter != null) {
 			JPanel northPanel = new JPanel(new GridBagLayout());
@@ -427,12 +432,12 @@ public class SwingFrontend extends Frontend {
 			northPanel.add(new JPanel(), c);
 			content.add(northPanel, BorderLayout.NORTH);
 		}
-		if (table != null) {
-			content.add((Component) table, BorderLayout.CENTER);
+		if (component != null) {
+			content.add(component, BorderLayout.CENTER);
 		}
 		return content;
 	}
-
+	
 	@Override
 	public <T> ITable<T> createTable(Object[] keys, boolean multiSelect, TableActionListener<T> listener) {
 		return new SwingTable<>(keys, multiSelect, listener);

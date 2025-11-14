@@ -3,6 +3,7 @@ package org.minimalj.frontend.impl.json;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
@@ -11,6 +12,7 @@ import org.minimalj.util.StringUtils;
 
 public class JsonFormContent extends JsonComponent implements FormContent {
 
+	public static final String NAME = "name";
 	public static final String CAPTION = "caption";
 	public static final String REQUIRED = "required";
 	public static final String VALIDATION_MESSAGE = "validationMessage";
@@ -87,15 +89,22 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		}
 		
 		JsonComponent jsonComponent = component != null ? (JsonComponent) component : new JsonComponent("Empty");
-		if (!StringUtils.isBlank(caption)) {
-			jsonComponent.put(CAPTION, caption);
-		} else if (!ignoreCaption && (jsonComponent instanceof JsonText || jsonComponent instanceof Input<?> || jsonComponent instanceof JsonAction)) {
-			// if there is no caption the component needs an offset or would be
-			// displayed too high.
-			// (this is not the case if ignoreCaption is active, then all components are 
-			// on upper edge)
-			jsonComponent.setNoCaption();
+		
+		if (!ignoreCaption) {
+			if (!StringUtils.isBlank(caption)) {
+				jsonComponent.put(CAPTION, caption);
+			} else if (jsonComponent instanceof JsonText || jsonComponent instanceof Input<?> || jsonComponent instanceof JsonAction) {
+				// if there is no caption the component needs an offset or would be
+				// displayed too high.
+				// (this is not the case if ignoreCaption is active, then all components are 
+				// on upper edge)
+				jsonComponent.setNoCaption();
+			}
 		}
+		if (!StringUtils.isBlank(caption)) {
+			jsonComponent.put(NAME, caption);
+		}
+		
 		if (required) {
 			jsonComponent.put(REQUIRED, required);
 		}
@@ -145,4 +154,20 @@ public class JsonFormContent extends JsonComponent implements FormContent {
 		((JsonComponent) component).setFormElementVisible(visible);
 	}
 	
+	@Override
+	public void setDescription(IComponent component, String description) {
+		if (StringUtils.isEmpty(description) && Configuration.isDevModeActive()) {
+			throw new IllegalArgumentException();
+		}
+		if (component instanceof Input<?>) {
+			((JsonComponent) component).put(JsonInputComponent.DESCRIPTION, description);
+		} else {
+			((JsonComponent) component).put(NAME, description);
+		}
+	}
+	
+	public static String getCaptionOrName(JsonComponent component) {
+		String result = (String) component.get(CAPTION);
+		return !StringUtils.isEmpty(result) ? result : (String) component.get(NAME);
+	}
 }

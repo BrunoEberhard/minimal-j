@@ -80,6 +80,10 @@ public abstract class Editor<T, RESULT> extends Action implements Dialog, Result
 		
 		validate(form);
 
+		show();
+	}
+	
+	protected void show() {
 		Frontend.showDialog(this);
 	}
 	

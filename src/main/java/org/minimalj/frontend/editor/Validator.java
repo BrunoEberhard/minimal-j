@@ -28,9 +28,11 @@ import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 /**
- * Framework internal. To do validation use the Annotations Size or NotEmpty or
- * implement Validation interface on your business entities or override validate
- * in the Editor.
+ * framework-internal utility for validating business entities. It uses
+ * annotations like @NotEmpty and @Size, and also supports a Validation
+ * interface for custom validation logic. The class recursively validates
+ * objects, including collections and nested properties.
+ * 
  */
 public class Validator {
 	private static final Logger logger = Logger.getLogger(Validator.class.getName());

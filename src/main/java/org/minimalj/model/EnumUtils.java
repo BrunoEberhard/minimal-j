@@ -64,7 +64,7 @@ public class EnumUtils {
 		}
 
 		private static <T extends Enum<T>> String getText(T enumElement, boolean description) {
-			String name = enumElement.name();
+			String name = enumElement.name() + (description ? ".description" : "");
 
 			String bundleName = enumElement.getClass().getName();
 			while (true) {

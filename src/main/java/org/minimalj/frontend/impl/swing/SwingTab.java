@@ -428,6 +428,7 @@ public class SwingTab extends EditablePanel implements PageManager {
 			tabbedPane.setTabsClosable(true);
 			tabbedPane.addTab(page.getTitle(), content);
 			tabbedPane.setTabCloseCallback((tab, index) -> removeDetails(visiblePageAndDetailsList.indexOf(page)));
+			tabbedPane.setToolTipTextAt(0, page.getDescription());
 			verticalPanel.add(tabbedPane, "");
 		}
 		verticalPanel.revalidate();

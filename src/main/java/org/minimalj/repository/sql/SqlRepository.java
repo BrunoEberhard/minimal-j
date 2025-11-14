@@ -802,7 +802,66 @@ public class SqlRepository implements TransactionalRepository {
 		return tableByName;
 	}
 	
-	//
+	// schema updates
+	
+	public boolean existsTable(String name) {
+		Integer tableCount = execute(Integer.class, "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema AND table_name ilike '" + name + "'");
+		return tableCount != null && tableCount > 0;
+	}
+	
+	public void renameTable(String oldName, Class<?> clazz) {
+		if (existsTable(oldName)) {
+			String newName = name(clazz);
+			logger.info("Alter table "+ oldName + " rename to " + newName);
+			execute("ALTER TABLE "+ oldName + " RENAME TO " + newName);
+		}
+	}
+	
+	public void dropTable(String name) {
+		if (existsTable(name)) {
+			logger.info("Drop table " + name);
+			execute("DROP TABLE "+ name);
+		}
+	}
+	
+	public void renameColumn(Class<?> clazz, String oldName, String newName) {
+		int count = execute(Integer.class, "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike '" + name(clazz) + "' AND column_name ilike '" + oldName + "'");
+		if (count > 0) {
+			logger.info("Alter table "+ name(clazz) + " rename column " + oldName + " to " + newName);
+			execute("ALTER TABLE "+ name(clazz) + " RENAME COLUMN " + oldName + " TO " + newName);
+		}
+	}
+	
+	public void addUniqueConstraint(Class<?> clazz, Object... columns) {
+		String constraintName = "unique_" + name(clazz);
+		String list = "";
+		for (Object column : columns) {
+			constraintName += "_" + name(column);
+			list += "," + name(column);
+		}
+		int count = execute(Integer.class, "SELECT COUNT(*) FROM information_schema.table_constraints WHERE table_schema = current_schema AND constraint_name ilike ?", constraintName);
+		if (count < 1) {
+			execute("ALTER TABLE " + name(clazz) + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + list.substring(1) + ");");
+		}
+	}
+	
+	public void addRegexConstraint(Class<?> clazz, String columnKey, String regex) {
+		String constraintName = "regex_" + name(clazz) + "_" + name(columnKey);
+		int count = execute(Integer.class, "SELECT COUNT(*) FROM information_schema.table_constraints WHERE table_schema = current_schema AND constraint_name ilike ?", constraintName);
+		if (count < 1) {
+			execute("ALTER TABLE " + name(clazz) + " ADD CONSTRAINT " + constraintName + " CHECK (" + name(columnKey) +" ~ '" + regex + "');");
+		}
+	}
+	
+	public void dropConstraint(Class<?> clazz, String constraintName) {
+		int count = execute(Integer.class, "SELECT COUNT(*) FROM information_schema.table_constraints WHERE table_schema = current_schema AND constraint_name ilike ?", constraintName);
+		if (count > 0) {
+			logger.info("Drop constraint " + constraintName);
+			execute("ALTER TABLE " + name(clazz) + " DROP CONSTRAINT " + constraintName);
+		}
+	}
+	
+	// TODO enum updates still projected specific
 	
 	// TODO move someplace where it's available for all kind of repositories (Memory
 	// DB for example)

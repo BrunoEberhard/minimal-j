@@ -37,6 +37,13 @@ public class Password implements Serializable {
 		hash = hash(password, salt);
 	}
 
+	/**
+	 * Set the password with no salt. This is useful in development mode. After a
+	 * restart the remember me does still work and you don't have to login.
+	 * 
+	 * @param password the new password
+	 * @throws IllegalStateException if development mode is not active
+	 */
 	public void setPasswordWithoutSalt(char[] password) {
 		if (!Configuration.isDevModeActive()) {
 			throw new IllegalStateException("Passwords without salt are only allowed in develop mode");

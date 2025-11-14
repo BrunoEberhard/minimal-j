@@ -30,5 +30,9 @@ public interface UserData extends Code {
 	public default List<String> getRoleNames() {
 		return getRoles().stream().map(role -> role.name).collect(Collectors.toList());
 	}
+	
+	public default String getRememberedByName() {
+		return getName();
+	}
 
 }

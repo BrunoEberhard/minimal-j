@@ -118,10 +118,6 @@ public abstract class Frontend {
 		return Optional.empty();
 	}
 	
-	public interface Tooltip {
-		public void setTooltip(String tooltip);
-	}
-
 	public abstract IComponent createText(String string);
 	public abstract IComponent createText(Rendering rendering);
 	public abstract IComponent createText(Action action);
@@ -231,16 +227,16 @@ public abstract class Frontend {
 		public default void setIgnoreCaption(boolean ignoreCaption) {
 		}
 		
-		public void add(String caption, IComponent component, FormElementConstraint constraint, int span);
 		public void setValidationMessages(IComponent component, List<String> validationMessages);
 		
-		// TODO remove method without required
-		public default void add(String caption, boolean required, IComponent component, FormElementConstraint constraint, int span) {
-			add(caption, component, constraint, span);
-		}
+		public void add(String caption, boolean required, IComponent component, FormElementConstraint constraint, int span);
 		
 		public default void setVisible(IComponent component, boolean visible) {
 			// throw new RuntimeException("Not implemented");
+		}
+		
+		public default void setDescription(IComponent component, String description) {
+			//
 		}
 
 	}

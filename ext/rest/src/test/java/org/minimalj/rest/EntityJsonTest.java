@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.minimalj.model.annotation.TechnicalField;
+import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 
 public class EntityJsonTest {
 
@@ -25,7 +27,9 @@ public class EntityJsonTest {
 		input.testEnum = TestEnum.B;
 		input.testEnums.add(TestEnum.A);
 		input.testEnums.add(TestEnum.D);
-		String json = EntityJsonWriter.write(input);
+		input.createUser = "test";
+		String json = EntityJsonWriter.write(input, false);
+		
 		TestClass output = EntityJsonReader.read(TestClass.class, json);
 		Assert.assertEquals(input.id, output.id);
 		Assert.assertEquals(input.s, output.s);
@@ -38,6 +42,11 @@ public class EntityJsonTest {
 		Assert.assertTrue(input.bigDecimal.compareTo(output.bigDecimal) == 0);
 		Assert.assertEquals(input.testEnum, output.testEnum);
 		Assert.assertEquals(input.testEnums, output.testEnums);
+		Assert.assertNull(output.createUser);
+		
+		json = EntityJsonWriter.write(input, true);
+		output = EntityJsonReader.read(TestClass.class, json);
+		Assert.assertEquals(input.createUser, output.createUser);
 	}
 	
 	public static class TestClass {
@@ -53,6 +62,8 @@ public class EntityJsonTest {
 		public BigDecimal bigDecimal;
 		public TestEnum testEnum;
 		public Set<TestEnum> testEnums = new TreeSet<>();
+		@TechnicalField(TechnicalFieldType.CREATE_USER)
+		public String createUser;
 	}
 	
 	public static enum TestEnum {

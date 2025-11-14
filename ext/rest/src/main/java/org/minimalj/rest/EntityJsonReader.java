@@ -99,6 +99,9 @@ public class EntityJsonReader {
 			Object value = entry.getValue();
 			if (key.equals("enum")) {
 				key = "eNum";
+			} else if (key.equals("id")) {
+				IdUtils.setId(entity, value);
+				continue;
 			}
 			Property property = properties.get(key);
 			if (property == null) {
@@ -108,6 +111,9 @@ public class EntityJsonReader {
 					System.out.println("Not found: " + entity.getClass().getSimpleName() + "." + key + " for " + value);
 					continue;
 				}
+			} else if (property instanceof FieldProperty fieldProperty && fieldProperty.isTransient()) {
+				System.out.println("Ignore transient field: " + fieldProperty.toString());
+				continue;
 			}
 			var propertyClazz = property.getClazz();
 			if (IdUtils.hasId(propertyClazz)) {

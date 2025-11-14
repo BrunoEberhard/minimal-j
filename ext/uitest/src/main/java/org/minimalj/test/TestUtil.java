@@ -2,6 +2,7 @@ package org.minimalj.test;
 
 import java.awt.Window;
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Properties;
 
 import org.minimalj.application.Application;
@@ -9,6 +10,8 @@ import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.util.Codes;
+import org.minimalj.util.Codes.CodeCache;
 
 public class TestUtil {
 
@@ -33,7 +36,13 @@ public class TestUtil {
 			for (Window w : Window.getWindows()) {
 				w.setVisible(false);
 			}
-			
+
+			CodeCache codeCache = Codes.getCache();
+			field = codeCache.getClass().getDeclaredField("cache");
+			field.setAccessible(true);
+			Map<?, ?> cache = (Map<?, ?>) field.get(null);
+			cache.clear();
+
 			WebServer.stop();
 		} catch (Exception e) {
 			throw new RuntimeException(e);

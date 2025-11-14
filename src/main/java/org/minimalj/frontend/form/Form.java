@@ -24,7 +24,6 @@ import org.minimalj.application.Configuration;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.FormContent;
 import org.minimalj.frontend.Frontend.IComponent;
-import org.minimalj.frontend.Frontend.Tooltip;
 import org.minimalj.frontend.form.element.BigDecimalFormElement;
 import org.minimalj.frontend.form.element.CheckBoxFormElement;
 import org.minimalj.frontend.form.element.CodeFormElement;
@@ -64,9 +63,8 @@ import org.minimalj.util.Codes;
 import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.ExceptionUtils;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
-
-import com.formdev.flatlaf.util.StringUtils;
 
 public class Form<T> {
 	private static Logger logger = Logger.getLogger(Form.class.getSimpleName());
@@ -82,7 +80,6 @@ public class Form<T> {
 
 	public final int columns;
 	private final FormContent formContent;
-	private boolean ignoreCaption;
 
 	private final LinkedHashMap<Property, FormElement<?>> elements = new LinkedHashMap<>();
 
@@ -194,7 +191,6 @@ public class Form<T> {
 	}
 
 	public void setIgnoreCaption(boolean ignoreCaption) {
-		this.ignoreCaption = ignoreCaption;
 		formContent.setIgnoreCaption(ignoreCaption);
 	}
 
@@ -255,18 +251,17 @@ public class Form<T> {
 
 	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
 		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null);
-		setTooltip(element);
-		formContent.add(ignoreCaption ? null : element.getCaption(), required, element.getComponent(), element.getConstraint(), span);
+		IComponent component = element.getComponent();
+		setDescription(element, component);
+		formContent.add(element.getCaption(), required, component, element.getConstraint(), span);
 		registerNamedElement(element);
 		addDependencies(element);
 	}
 
-	private void setTooltip(FormElement<?> element) {
-		if (element instanceof Tooltip) {
-			String tooltip = element.getTooltip();
-			if (!StringUtils.isEmpty(tooltip)) {
-				((Tooltip) element).setTooltip(tooltip);
-			}
+	private void setDescription(FormElement<?> element, IComponent component) {
+		String description = element.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			formContent.setDescription(component, description);
 		}
 	}
 
@@ -321,6 +316,8 @@ public class Form<T> {
 	 * <i>to</i> could change. This is normally used if the to <i>to</i> property is
 	 * a getter that calculates something that depends on the <i>from</i> in some
 	 * way.
+	 * 
+	 * TODO: evaluate if this can be removed. Getters should declare their dependencies themselves
 	 * 
 	 * @param from the key or property of the field triggering the update
 	 * @param to   the field possible changed its value implicitly
@@ -578,9 +575,8 @@ public class Form<T> {
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private void executeUpdaters(Property property, Object updaterInput, Object object, HashSet<Property> changedProperties) {
+		private void executeUpdaters(Property property, Object updaterInput, Object clonedObject, HashSet<Property> changedProperties) {
 			if (propertyUpdater.containsKey(property)) {
-				Object clonedObject = CloneHelper.clone(object); // clone before change! TODO only clone if necessary!
 				Map<Property, PropertyUpdater> updaters = propertyUpdater.get(property);
 				for (Map.Entry<Property, PropertyUpdater> entry : updaters.entrySet()) {
 					logger.finer(() -> "Update from " + property.getPath() + " to " + entry.getKey().getPath());
@@ -593,9 +589,10 @@ public class Form<T> {
 		private void setValue(Property property, Object newValue, HashSet<Property> changedProperties) {
 			Object oldValue = property.getValue(object);
 			logger.finest(() -> "Set " + property.getPath() + " to " + newValue + " (previous: " + oldValue + ")");
-			if (!EqualsHelper.equals(oldValue, newValue) || newValue instanceof Collection) {
+			if (!EqualsHelper.equals(oldValue, newValue)) {
+				Object clonedObject = CloneHelper.clone(object); // clone before change!
 				property.setValue(object, newValue);
-				executeUpdaters(property, newValue, object, changedProperties);
+				executeUpdaters(property, newValue, clonedObject, changedProperties);
 				addChangedPropertyRecursive(property, changedProperties);
 			} else if (newValue instanceof Collection) {
 				// same instance of Collection can have changed content always assume a change.

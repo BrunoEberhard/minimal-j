@@ -141,8 +141,8 @@ public class JsonFrontend extends Frontend {
 	}
 	
 	// experimental
-	public IContent createFilteredTable(FormContent filter, IComponent table, Action search, Action reset) {
-		return new JsonCustomFilter(filter, table, search, reset);
+	public IContent createFilteredTable(FormContent filter, IComponent component, Action search, Action reset) {
+		return new JsonCustomFilter(filter, component, search, reset);
 	}
 
 	@Override

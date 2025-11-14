@@ -441,13 +441,23 @@ public class WebTestFacade implements UiTestFacade {
 			List<WebElement> labels = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 			for (var label : labels) {
 				String id = label.getAttribute("for");
-				WebElement element = form.findElement(By.id(id));
-				String type = element.getAttribute("type");
-				boolean isRadioOrCheckBox = StringUtils.equals(type, "radio", "checkbox");
-				if (isBooleanValue == null || isRadioOrCheckBox == isBooleanValue) {
-					return new HtmlFormElementTestFacade(element);
+				if (id != null) {
+					WebElement element = form.findElement(By.id(id));
+					String type = element.getAttribute("type");
+					boolean isRadioOrCheckBox = StringUtils.equals(type, "radio", "checkbox");
+					if (isBooleanValue == null || isRadioOrCheckBox == isBooleanValue) {
+						return new HtmlFormElementTestFacade(element);
+					}
+				} else if (!Boolean.FALSE.equals(isBooleanValue)) {
+					if (StringUtils.equals(label.getAttribute("class"), "checkboxLabel")) {
+						return new HtmlFormElementTestFacade(label.findElement(By.tagName("input")));
+					}
 				}
 			}
+			List<WebElement> elementsByName = form.findElements(By.xpath(".//*[@name=" + WebTestUtil.escapeXpath(caption) + "]"));
+		    if (!elementsByName.isEmpty()) {
+		    	return new HtmlFormElementTestFacade(elementsByName.get(0));
+		    }
 			return null;
 		}
 		
@@ -585,6 +595,11 @@ public class WebTestFacade implements UiTestFacade {
 				public String toString() {
 					return divAction.getText();
 				}
+				
+				@Override
+				public String getDescription() {
+					return (String) divAction.getAttribute("title");
+				}
 			};
 		}
 		
@@ -602,7 +617,7 @@ public class WebTestFacade implements UiTestFacade {
 		
 		@Override
 		public FormTestFacade row(int pos) {
-			WebElement groupItemElement = formElement.findElements(By.xpath("./div/div/div")).get(pos).findElement(By.tagName("div"));
+			WebElement groupItemElement = formElement.findElement(By.xpath(".//div[@class='groupVertical']")).findElements(By.xpath("./div")).get(pos).findElement(By.xpath("./div"));
 			return new HtmlFormTestFacade(groupItemElement);
 		}		
 	}
@@ -781,9 +796,7 @@ public class WebTestFacade implements UiTestFacade {
 			select.selectByVisibleText(text);
 		} else {
 			element.click();
-			element.clear();
-			// same reason for waitScript as with the first character
-			waitScript();
+			element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
 			if (!StringUtils.isEmpty(text)) {
 				// the browser makes a call to the server when one character is entered (to refresh validation)
 				// we must wait for the response because the response could otherwise overwrite further characters
@@ -792,8 +805,11 @@ public class WebTestFacade implements UiTestFacade {
 					waitScript();
 					element.sendKeys(text.substring(1));
 				}
+			} else {
+				element.clear();
+				// same reason for waitScript as with the first character
+				waitScript();
 			}
-
 			// blur
 			Actions actions = new Actions(driver);
 			actions.sendKeys(Keys.TAB);
@@ -802,7 +818,8 @@ public class WebTestFacade implements UiTestFacade {
 	}
 	
 	private String getText(WebElement element) {
-		if (element.getTagName().toLowerCase().equals("div") && element.getAttribute("class") != null && element.getAttribute("class").contains("text")) {
+		String tagName = element.getTagName().toLowerCase();
+		if (tagName.equals("a") || tagName.equals("div") && element.getAttribute("class") != null && element.getAttribute("class").contains("text")) {
 			return element.getText();
 		}
 		element = findValueElement(element);

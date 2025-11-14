@@ -37,7 +37,7 @@ public class ExternalPage implements Page {
 
 	@Override
 	public String getTitle() {
-		return title != null ? title : Resources.getPageTitle(this);
+		return title != null ? title : Resources.getString(getClass());
 	}
 	
 	@Override

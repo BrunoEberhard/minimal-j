@@ -464,16 +464,15 @@ public class JsonPageManager implements PageManager {
 		if (this.subject == null || !EqualsHelper.equalsById(this.subject, subject)) {
 			this.subject = subject;
 			Subject.setCurrent(subject);
-			
-			if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
-				output.add("canLogin", subject == null);
-				output.add("canLogout", subject != null);
-			}
 
 			if (navigation != null) {
 				unregister(navigation);
 			}
 			navigation = createNavigation();
+		}
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+			output.add("canLogin", subject == null);
+			output.add("canLogout", subject != null);
 		}
 		updateNavigation();
 		
@@ -514,6 +513,10 @@ public class JsonPageManager implements PageManager {
 		json.put("masterPageId", masterPageId);
 		json.put("pageId", pageId);
 		json.put("title", page.getTitle());
+		String description = page.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			json.put("description", description);
+		}
 		json.put("className", page.getClass().getSimpleName());
 		String route = Routing.getRouteSafe(page);
 		if (route != null) {
@@ -568,8 +571,9 @@ public class JsonPageManager implements PageManager {
 					ui = component instanceof JsonFormContent ? "form" : "";
 				}
 				
-				if (component.get(JsonFormContent.CAPTION) instanceof String) {
-					ui += ".getElement(\"" + component.get(JsonFormContent.CAPTION) + "\")";
+				String captionOrName = JsonFormContent.getCaptionOrName(component);
+				if (!StringUtils.isEmpty(captionOrName)) {
+					ui += ".getElement(\"" + captionOrName + "\")";
 				} else if (component.containsKey("formRowIndex")) {
 					ui += ".getElement(" + component.get("formRowIndex") + ", " + component.get("formColumnIndex") + ")";
 				} 
@@ -627,6 +631,10 @@ public class JsonPageManager implements PageManager {
 	public void showDialog(Dialog dialog) {
 		JsonDialog jsonDialog = new JsonDialog(dialog.getTitle(), dialog.getContent(), dialog.getSaveAction(), dialog.getCancelAction(), dialog.getActions());
 		jsonDialog.put("className", dialog.getClass().getSimpleName());
+		String description = dialog.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			jsonDialog.put("description", description);
+		}
 		jsonDialog.put("height", dialog.getHeight());
 		jsonDialog.put("width", dialog.getWidth());
 		output.add("dialog", jsonDialog);

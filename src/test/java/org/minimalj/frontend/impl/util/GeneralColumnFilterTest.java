@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -17,6 +18,7 @@ import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.model.Keys;
 import org.minimalj.test.TestUtil;
 import org.minimalj.util.LocaleContext;
+import org.minimalj.util.resources.MultiResourceBundle;
 
 public class GeneralColumnFilterTest {
 
@@ -31,6 +33,11 @@ public class GeneralColumnFilterTest {
 			@Override
 			public Class<?>[] getEntityClasses() {
 				return new Class<?>[] { GeneralColumnFilterTestEntity.class };
+			}
+			
+			@Override
+			public ResourceBundle getResourceBundle(Locale locale) {
+				return new MultiResourceBundle();
 			}
 		});
 		Frontend.setInstance(new JsonFrontend());

@@ -103,12 +103,14 @@ public interface Rendering {
 			Enum enumElement = (Enum) o;
 			return EnumUtils.getText(enumElement);
 		} else if (o instanceof BigDecimal) {
-			int decimalPlaces = AnnotationUtil.getDecimal(property);
-			int minDecimalPlaces = Math.min(decimalPlaces, AnnotationUtil.getMinDecimals(property));
-			// TODO DecimalFormat is not thread safe. But create an instance for each call is expensive
 			DecimalFormat format = new DecimalFormat();
-			format.setMaximumFractionDigits(decimalPlaces);
-			format.setMinimumFractionDigits(minDecimalPlaces);
+			if (property != null) {
+				int decimalPlaces = AnnotationUtil.getDecimal(property);
+				int minDecimalPlaces = Math.min(decimalPlaces, AnnotationUtil.getMinDecimals(property));
+				// TODO DecimalFormat is not thread safe. But create an instance for each call is expensive
+				format.setMaximumFractionDigits(decimalPlaces);
+				format.setMinimumFractionDigits(minDecimalPlaces);
+			}
 			return format.format(o);
 		} else if (o instanceof LocalDate) {
 			return DateUtils.format((LocalDate) o); 
@@ -123,7 +125,11 @@ public interface Rendering {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String toDescriptionString(Object o) {
+		if (o instanceof Enum) {
+			return EnumUtils.getDescription((Enum) o);
+		}
 		CharSequence c = o instanceof Rendering ? ((Rendering) o).renderDescription() : null;
 		return toString(c);
 	}
