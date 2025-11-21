@@ -56,7 +56,7 @@ public class VaadinFormContent extends FormLayout implements FormContent, Vaadin
 	}
 
 	@Override
-	public void add(String caption, IComponent field, FormElementConstraint constraint, int span) {
+	public void add(String caption, boolean required, IComponent field, FormElementConstraint constraint, int span) {
         Component component = field instanceof HasComponent ? ((HasComponent) field).getComponent() : (Component) field;
         if (component instanceof HasSize) {
             ((HasSize) component).setWidthFull();
