@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.minimalj</groupId>
 	<artifactId>uitest</artifactId>
-	<version>0.1.0.0-SNAPSHOT</version>
+	<version>0.2.0.0</version>
 	<name>Minimal-J UI-Test</name>
 	<description>Tests and helper for tests</description>
 
