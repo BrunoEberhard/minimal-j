@@ -680,9 +680,19 @@ public class WebTestFacade implements UiTestFacade {
 		public void select(int row) {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
+			List<WebElement> cells = tr.findElements(By.tagName("td"));
 			Actions action = new Actions(driver);
-			action.click(tr).perform();
-			waitScript();
+
+			// Find first cell without a link. We don't want the link to be activated but the row to be selected.
+			for (WebElement cell : cells) {
+				if (cell.getDomAttribute("onclick") == null) {
+					action.click(cell).perform();
+					waitScript();
+					return;
+				}
+			}
+
+			throw new IllegalArgumentException("Cannot select row as there is no cell without link");
 		}
 		
 		@Override
