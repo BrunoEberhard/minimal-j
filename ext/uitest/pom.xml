@@ -16,6 +16,25 @@
 		</snapshotRepository>
 	</distributionManagement>
 
+	<profiles>
+		<profile>
+			<id>github-workflow</id>
+			<activation>
+				<property>
+					<name>github-workflow</name>
+				</property>
+			</activation>
+
+			<distributionManagement>
+				<repository>
+					<id>github</id>
+					<name>GitHub Packages</name>
+					<url>https://maven.pkg.github.com/BrunoEberhard/minimal-j</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
+		
 	<build>
 		<plugins>
 			<plugin>
