@@ -35,6 +35,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build uitest
-      run: ./mvnw deploy -DUiTestDriver=headless -DskipTests -f ./ext/uitest/pom.xml
+      run: ./mvnw deploy -DUiTestDriver=headless -DskipTests -f ./ext/uitest/pom.xml -P github-workflow
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
