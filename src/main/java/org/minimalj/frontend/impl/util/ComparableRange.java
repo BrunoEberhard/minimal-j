@@ -53,10 +53,10 @@ public class ComparableRange implements Predicate<Object> {
 	}
 	
 	public boolean valid() {
-		if (value1 == null || InvalidValues.isInvalid(value1)) {
+		if (!InvalidValues.isValid(value1)) {
 			return false;
 		}
-		if (value2 == null || InvalidValues.isInvalid(value2)) {
+		if (!InvalidValues.isValid(value2)) {
 			return false;
 		}
 		if (value1.compareTo(value2) > 1) {
