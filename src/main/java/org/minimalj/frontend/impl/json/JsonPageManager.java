@@ -41,7 +41,6 @@ import org.minimalj.security.Authentication;
 import org.minimalj.security.Authorization;
 import org.minimalj.security.RememberMeAuthentication;
 import org.minimalj.security.Subject;
-import org.minimalj.util.EqualsHelper;
 import org.minimalj.util.StringUtils;
 
 public class JsonPageManager implements PageManager {
@@ -89,7 +88,13 @@ public class JsonPageManager implements PageManager {
 		return lastUsed;
 	}
 
-	private void updateNavigation() {
+	@Override
+	public void updateNavigation() {
+		if (navigation != null) {
+			unregister(navigation);
+		}
+		navigation = createNavigation();
+
 		output.add("navigation", navigation);
 		output.add("hasSearchPages", Application.getInstance().hasSearch());
 	}
@@ -461,20 +466,14 @@ public class JsonPageManager implements PageManager {
 	
 	@Override
 	public void login(Subject subject) {
-		if (this.subject == null || !EqualsHelper.equalsById(this.subject, subject)) {
-			this.subject = subject;
-			Subject.setCurrent(subject);
+		this.subject = subject;
+		Subject.setCurrent(subject);
+		updateNavigation();
 
-			if (navigation != null) {
-				unregister(navigation);
-			}
-			navigation = createNavigation();
-		}
 		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
 			output.add("canLogin", subject == null);
 			output.add("canLogout", subject != null);
 		}
-		updateNavigation();
 		
 		if (subject == null && /* initializing && */ Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
 			Backend.getInstance().getAuthentication().showLogin();

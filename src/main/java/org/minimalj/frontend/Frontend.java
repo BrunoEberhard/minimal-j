@@ -296,6 +296,10 @@ public abstract class Frontend {
 		throw new RuntimeException("Not yet implemented");
 	}
 
+	public void updateNavigation() {
+		getPageManager().updateNavigation();
+	}
+
 	/**
 	 * Create a content with a caption and a large search field. Something like
 	 * what a really big search engine show.

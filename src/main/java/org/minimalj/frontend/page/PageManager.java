@@ -1,5 +1,8 @@
 package org.minimalj.frontend.page;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.security.Subject;
 
@@ -36,5 +39,9 @@ public interface PageManager {
 	public abstract void showError(String text);
 
 	public abstract void login(Subject subject);
+
+	public default void updateNavigation() {
+		Logger.getLogger(getClass().getName()).log(Level.WARNING, "updateNavigation not implemented");
+	}
 
 }
