@@ -1,12 +1,12 @@
 package org.minimalj.security;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.security.model.UserData;
+import org.minimalj.security.model.UserRole;
 import org.minimalj.transaction.Role;
 
 public final class Subject implements Serializable {
@@ -17,7 +17,6 @@ public final class Subject implements Serializable {
 	private final Object id;
 	private final String name;
 	private final Serializable token;
-	private final List<String> roles;
 
 	/**
 	 * Only for tests
@@ -29,7 +28,6 @@ public final class Subject implements Serializable {
 		this.id = null;
 		this.name = name;
 		this.token = null;
-		this.roles = Collections.emptyList();
 	}
 
 	public Subject(UserData user) {
@@ -37,7 +35,6 @@ public final class Subject implements Serializable {
 		this.id = user.getId();
 		this.name = user.getName();
 		this.token = UUID.randomUUID();
-		this.roles = user.getRoleNames();
 	}
 
 	public Object getId() {
@@ -52,17 +49,17 @@ public final class Subject implements Serializable {
 		return token;
 	}
 
-	public List<String> getRoles() {
-		return roles;
-	}
-
 	public UserData getUser() {
 		return user;
 	}
 
 	public boolean hasRole(String... roleNames) {
+		if (user == null) {
+			return false;
+		}
+		List<UserRole> roles = user.getRoles();
 		for (String roleName : roleNames) {
-			if (roles.contains(roleName)) {
+			if (roles.stream().anyMatch(r -> r.name.equals(roleName))) {
 				return true;
 			}
 		}
