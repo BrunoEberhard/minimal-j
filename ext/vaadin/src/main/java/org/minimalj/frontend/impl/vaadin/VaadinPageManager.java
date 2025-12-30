@@ -95,7 +95,8 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		}
 	}
 	
-	private void updateNavigation() {
+	@Override
+	public void updateNavigation() {
 		menuLayout.setSpacing(false);
 		menuLayout.removeAll();
 		
