@@ -518,7 +518,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	@SuppressWarnings("unchecked")
 	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
-		if (FieldUtils.isAllowedPrimitive(clazz)) {
+		if (FieldUtils.isAllowedPrimitive(clazz) || Enum.class.isAssignableFrom(clazz)) {
 			return (R) sqlDialect.convertToFieldClass(clazz, resultSet.getObject(1));
 		}
 		
