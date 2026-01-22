@@ -265,10 +265,8 @@ public abstract class TablePage<T> implements Page, TableActionListener<T> {
 		
 		@Override
 		public void selectionChanged(U selectedObject) {
-			if (this.selectedObject != selectedObject) {
-				this.selectedObject = selectedObject;
-				setEnabled(accept(selectedObject));
-			}
+			this.selectedObject = selectedObject;
+			setEnabled(accept(selectedObject));
 		}
 
 		protected boolean accept(U selectedObject) {
