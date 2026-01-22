@@ -629,16 +629,17 @@ public class Form<T> {
 	private void updateEnable() {
 		for (Map.Entry<Property, FormElement<?>> element : elements.entrySet()) {
 			Property property = element.getKey();
+			FormElement<?> formElement = element.getValue();
 
 			boolean enabled = !(property.isFinal() && FieldUtils.isAllowedPrimitive(property.getClazz())) && evaluate(object, property, Enabled.class);
 
-			if (element.getValue() instanceof Enable) {
-				((Enable) element.getValue()).setEnabled(enabled);
-			} else if (!enabled && !property.isFinal()) {
+			if (formElement instanceof Enable) {
+				((Enable) formElement).setEnabled(enabled);
+			} else if (!enabled && !property.isFinal() && !(formElement instanceof TextFormElement)) {
 				if (editable) {
-					logger.severe("element " + (element.getValue().getClass().getName()) + " for "  + property.getPath() + " should implement Enable");
+					logger.severe("element " + (formElement.getClass().getName()) + " for "  + property.getPath() + " should implement Enable");
 				} else {
-					logger.fine("element " + (element.getValue().getClass().getName()) + " for "  + property.getPath() + " should maybe implement Enable");
+					logger.fine("element " + (formElement.getClass().getName()) + " for "  + property.getPath() + " should maybe implement Enable");
 				}
 			}
 		}
