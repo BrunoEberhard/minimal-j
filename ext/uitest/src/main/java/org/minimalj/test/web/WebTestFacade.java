@@ -498,8 +498,12 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public void setText(String value) {
-			WebTestFacade.this.setText(formElement, value);
-			waitScript();
+			try {
+				WebTestFacade.this.setText(formElement, value);
+				waitScript();
+			} catch (NoSuchElementException e) {
+				// catch this exception, value simply stays the same
+			}
 		}
 		
 		@Override
