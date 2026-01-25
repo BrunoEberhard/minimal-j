@@ -612,7 +612,7 @@ dialog table {
 	text-align: right;
 }
 
-.changed[hasValidationMessage],
+.changed[hasValidationMessage], *[hasValidationMessage] .changed,
 .form.showValidations *[hasValidationMessage],
 .form.showValidations div[hasValidationMessage] *
 {
