@@ -508,7 +508,7 @@ table tbody  tr:nth-child(odd).selected {
 	padding-right: var(--formGroupPadding);
 }
 
-.form>div.ignoreCaption {
+.form>div.ignoreCaption:has(> :not(.hideFormElement)) {
 	min-height: 1.7rem;
 }
 

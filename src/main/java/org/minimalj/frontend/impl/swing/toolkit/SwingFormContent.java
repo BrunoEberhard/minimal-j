@@ -372,6 +372,9 @@ public class SwingFormContent extends JPanel implements FormContent {
 			if (c instanceof SwingCaption) {
 				SwingCaption swingCaption = (SwingCaption) c;
 				return swingCaption.isEmpty();
+			} else if (c instanceof JPanel) {
+				JPanel jPanel = (JPanel) c;
+				return jPanel.getComponentCount() == 0;
 			}
 			return false;
 		}
