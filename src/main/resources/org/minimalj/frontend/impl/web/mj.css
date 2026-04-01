@@ -533,6 +533,10 @@ table tbody  tr:nth-child(odd).selected {
 	margin: 0px;
 }
 
+.form>div:not(:has(> div:not(.hideFormElement))) {
+	display: none;
+}
+
 .dialogContent, .dialogHeader {
 	padding: 0.4rem 1rem;
 	box-sizing: border-box;
