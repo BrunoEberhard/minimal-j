@@ -728,6 +728,20 @@ $ICON
 				item.appendChild(createContent(component));
 				element.appendChild(item);
 			});
+		} else if (type === "inline") {
+			element = document.createElement("div");
+			element.classList.add(type);
+			content.components.forEach(component => {
+				if (component.type == "Action") {
+					var actionElement = document.createElement("a");
+					createAction(actionElement, component);
+					element.appendChild(actionElement);
+				} else {
+					var spanElement = document.createElement("span");
+					spanElement.innerHTML = escapeText(component.value);
+					element.appendChild(spanElement);
+				}
+			});
 		} else if (type === "Switch") {
 			element = document.createElement("div");
 			if (content.component != undefined) {
