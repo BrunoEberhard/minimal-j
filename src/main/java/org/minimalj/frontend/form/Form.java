@@ -484,13 +484,13 @@ public class Form<T> {
 	public void setObject(T object) {
 		if (editable && changeListener == null)
 			throw new IllegalStateException("Listener has to be set on a editable Form");
-		if (logger.isLoggable(Level.FINE)) {
-			logDependencies();
-		}
 		changeFromOutside = true;
 		this.object = object;
 		readValueFromObject();
 		changeFromOutside = false;
+		if (logger.isLoggable(Level.FINE)) {
+			logDependencies();
+		}
 	}
 
 	private void readValueFromObject() {
@@ -540,6 +540,8 @@ public class Form<T> {
 
 			HashSet<Property> changedProperties = new HashSet<>();
 
+//			Keys.getDependencies(Keys.getDependencies(property).get(0))
+			
 			setValue(property, newValue, changedProperties);
 			logger.finer(() -> "Changed properties: " + changedProperties.stream().map(Property::getPath).collect(Collectors.joining(", ")));
 
