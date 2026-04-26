@@ -437,6 +437,17 @@ public class WebTestFacade implements UiTestFacade {
 		}
 
 		@Override
+		public void printElementCaptions() {
+			List<WebElement> labels = form.findElements(By.tagName("label"));
+			List<String> captions = labels.stream()
+					.filter(WebElement::isDisplayed)
+					.map(WebElement::getText)
+					.filter(text -> !text.isEmpty())
+					.collect(Collectors.toList());
+			System.out.println("Captions of visible elements: " + String.join(", ", captions));
+		}
+
+		@Override
 		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue) {
 			List<WebElement> labels = form.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 			for (var label : labels) {

@@ -144,6 +144,11 @@ public interface PageContainerTestFacade {
 			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
 			element.setChecked(checked);
 		}
+		
+		/**
+		 * For development: prints the captions of all visible elements
+		 */
+		public void printElementCaptions();
 	}
 	
 	public interface FormElementTestFacade {
