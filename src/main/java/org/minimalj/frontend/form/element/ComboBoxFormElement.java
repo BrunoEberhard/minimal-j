@@ -3,6 +3,7 @@ package org.minimalj.frontend.form.element;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
@@ -18,6 +19,7 @@ import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
 public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
+	private static Logger logger = Logger.getLogger(AbstractFormElement.class.getName());
 
 	public static final String NO_NULL_STRING = null;
 	public static final String EMPTY_NULL_STRING = "";
@@ -62,12 +64,17 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 
 	@Override
 	public void setValue(T value) {
-		// 'contains' uses the default equals method 
+		// 'contains' uses the default equals method
 		if (value != null && !values.contains(value)) {
-			// there could be a different instance with same id.
-			// if yes take it.
-			Object id = IdUtils.getId(value);
-			value = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
+			if (IdUtils.hasId(value.getClass())) {
+				// there could be a different instance with same id.
+				// if yes take it.
+				Object id = IdUtils.getId(value);
+				value = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
+			} else {
+				logger.warning("Invalid value: " + value + ", field: " + getProperty().getPath());
+				return;
+			}
 		}
 		comboBox.setValue(value);
 	}
