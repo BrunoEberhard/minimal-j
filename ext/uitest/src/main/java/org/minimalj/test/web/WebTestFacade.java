@@ -375,6 +375,11 @@ public class WebTestFacade implements UiTestFacade {
 		public HtmlDialogTestFacade(WebElement dialog) {
 			this.dialog = dialog;
 		}
+		
+		@Override
+		public String getTitle() {
+			return dialog.findElement(By.cssSelector(".dialogHeader span")).getText();
+		}
 
 		@Override
 		public void close() {

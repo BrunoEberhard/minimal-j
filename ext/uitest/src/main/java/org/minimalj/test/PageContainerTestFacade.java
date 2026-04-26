@@ -85,6 +85,8 @@ public interface PageContainerTestFacade {
 
 	public interface DialogTestFacade {
 		
+		public String getTitle();
+		
 		public void close();
 		
 		public FormTestFacade getForm();

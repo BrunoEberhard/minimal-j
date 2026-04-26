@@ -35,6 +35,11 @@ public class HeadlessDialogTestFacade implements DialogTestFacade {
 		actions.forEach(this::addAction);
 	}
 
+	@Override
+	public String getTitle() {
+		return dialog.getTitle();
+	}
+	
 	public Dialog getDialog() {
 		return dialog;
 	}

@@ -220,6 +220,11 @@ public class SwingTestFacade implements UiTestFacade {
 		}
 		
 		@Override
+		public String getTitle() {
+			return swingDialog.getTitle();
+		}
+		
+		@Override
 		public void close() {
 			swingDialog.closeDialog();
 		}
