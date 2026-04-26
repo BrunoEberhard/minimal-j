@@ -50,8 +50,9 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this.switchComponent = Frontend.getInstance().createSwitchComponent();
 		this.propertyAsChain = ChainedProperty.getChain(getProperty());
 		formFactory.setChangeListener(() -> {
+			clearFormCache();
+			update(true);
 			super.fireChange();
-			update(false);
 		});
 		update(true);
 	}
