@@ -375,6 +375,11 @@ public class WebTestFacade implements UiTestFacade {
 		public HtmlDialogTestFacade(WebElement dialog) {
 			this.dialog = dialog;
 		}
+		
+		@Override
+		public String getTitle() {
+			return dialog.findElement(By.cssSelector(".dialogHeader span")).getText();
+		}
 
 		@Override
 		public void close() {
@@ -434,6 +439,17 @@ public class WebTestFacade implements UiTestFacade {
 
 		public HtmlFormTestFacade(WebElement form) {
 			this.form = form;
+		}
+
+		@Override
+		public void printElementCaptions() {
+			List<WebElement> labels = form.findElements(By.tagName("label"));
+			List<String> captions = labels.stream()
+					.filter(WebElement::isDisplayed)
+					.map(WebElement::getText)
+					.filter(text -> !text.isEmpty())
+					.collect(Collectors.toList());
+			System.out.println("Captions of visible elements: " + String.join(", ", captions));
 		}
 
 		@Override
@@ -498,8 +514,12 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public void setText(String value) {
-			WebTestFacade.this.setText(formElement, value);
-			waitScript();
+			try {
+				WebTestFacade.this.setText(formElement, value);
+				waitScript();
+			} catch (NoSuchElementException e) {
+				// catch this exception, value simply stays the same
+			}
 		}
 		
 		@Override
@@ -680,9 +700,19 @@ public class WebTestFacade implements UiTestFacade {
 		public void select(int row) {
 			WebElement tbody = table.findElement(By.tagName("tbody"));
 			WebElement tr = tbody.findElements(By.tagName("tr")).get(row);
+			List<WebElement> cells = tr.findElements(By.tagName("td"));
 			Actions action = new Actions(driver);
-			action.click(tr).perform();
-			waitScript();
+
+			// Find first cell without a link. We don't want the link to be activated but the row to be selected.
+			for (WebElement cell : cells) {
+				if (cell.getDomAttribute("onclick") == null) {
+					action.click(cell).perform();
+					waitScript();
+					return;
+				}
+			}
+
+			throw new IllegalArgumentException("Cannot select row as there is no cell without link");
 		}
 		
 		@Override

@@ -94,6 +94,10 @@ The project uses JUnit for testing. Key annotations:
 - Include examples for complex features
 - Update release notes for each release
 
+## Repository
+- The project is hosted on github
+- There is a /.github/workflow/java-build.yaml file to trigger the workflow from github
+
 ## Contributing
 
 - Fork the repository

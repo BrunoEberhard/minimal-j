@@ -174,7 +174,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean valid() {
-			return value != null && !InvalidValues.isInvalid(value);
+			return InvalidValues.isValid(value);
 		}
 
 		@Override
@@ -254,7 +254,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean valid() {
-			return value != null && !InvalidValues.isInvalid(value);
+			return InvalidValues.isValid(value);
 		}
 
 		@Override
@@ -312,7 +312,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean valid() {
-			return value != null && !InvalidValues.isInvalid(value);
+			return InvalidValues.isValid(value);
 		}
 
 		@Override

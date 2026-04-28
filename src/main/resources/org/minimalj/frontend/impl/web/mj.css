@@ -508,7 +508,7 @@ table tbody  tr:nth-child(odd).selected {
 	padding-right: var(--formGroupPadding);
 }
 
-.form>div.ignoreCaption {
+.form>div.ignoreCaption:has(> :not(.hideFormElement)) {
 	min-height: 1.7rem;
 }
 
@@ -531,6 +531,10 @@ table tbody  tr:nth-child(odd).selected {
 	border: 0px;
 	padding: 0px;
 	margin: 0px;
+}
+
+.form>div:not(:has(> div:not(.hideFormElement))) {
+	display: none;
 }
 
 .dialogContent, .dialogHeader {
@@ -612,7 +616,7 @@ dialog table {
 	text-align: right;
 }
 
-.changed[hasValidationMessage],
+.changed[hasValidationMessage], *[hasValidationMessage] .changed,
 .form.showValidations *[hasValidationMessage],
 .form.showValidations div[hasValidationMessage] *
 {

@@ -819,6 +819,13 @@ public class SwingFrontend extends Frontend {
 		return true;
 	}
 	
+	@Override
+	public void updateNavigation() {
+		for (SwingFrame frame : FrameManager.getInstance().getNavigationFrames()) {
+			frame.updateNavigation();
+		}
+	}
+	
 	public void show(File file) {
 		try {
 			Desktop.getDesktop().open(file);

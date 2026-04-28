@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
@@ -86,11 +87,53 @@ public enum SchemaPreparation {
 	
 	// update
 
+	public static class InformationSchemaTable {
+		public String tableName;
+	}
+
+	public static class InformationSchemaColumn {
+		public String tableName;
+		public String columnName;
+		public boolean isNullable;
+		public Integer maxLength;
+	}
+
+	static class InformationSchema {
+		public List<InformationSchemaTable> tables;
+		public List<InformationSchemaColumn> columns;
+
+		public InformationSchema(SqlRepository repository) {
+			tables = repository.find(InformationSchemaTable.class,
+					"SELECT LOWER(table_name) tableName FROM information_schema.tables WHERE table_schema = current_schema", 10000);
+			columns = repository.find(InformationSchemaColumn.class,
+					"SELECT LOWER(table_name) tableName, LOWER(column_name) columnName, (is_nullable = 'YES') isNullable, character_maximum_length maxLength FROM information_schema.columns WHERE table_schema = current_schema",
+					10000);
+		}
+
+		public boolean tableExists(String tableName) {
+			return tables.stream().anyMatch(t -> t.tableName.equalsIgnoreCase(tableName));
+		}
+
+		public List<String> getColumnNames(String tableName) {
+			return columns.stream().filter(t -> t.tableName.equalsIgnoreCase(tableName)).map(c -> c.columnName).collect(Collectors.toList());
+		}
+
+		public List<String> getNullableColumnNames(String tableName) {
+			return columns.stream().filter(c -> c.isNullable && c.tableName.equalsIgnoreCase(tableName)).map(c -> c.columnName).collect(Collectors.toList());
+		}
+
+		public int getMaxLength(String tableName, String columnName) {
+			return columns.stream().filter(c -> c.tableName.equalsIgnoreCase(tableName) && c.columnName.equalsIgnoreCase(columnName)).findFirst().get().maxLength;
+		}
+	}
+	
 	protected void updateTables(SqlRepository repository, SchemaPreparation schemaPreparation) {
+		InformationSchema informationSchema = new InformationSchema(repository);
+		
 		List<AbstractTable<?>> createdTables = new ArrayList<>();
 		List<NewColumn> newColumns = new ArrayList<>();
 		for (AbstractTable<?> table : repository.tables.values()) {
-			updateTable(repository, schemaPreparation, createdTables, newColumns, table);
+			updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, table);
 		}
 		for (AbstractTable<?> table : createdTables) {
 			table.createIndexes(repository.sqlDialect);
@@ -103,22 +146,21 @@ public enum SchemaPreparation {
 		}
 	}
 
-	protected void updateTable(SqlRepository repository, SchemaPreparation schemaPreparation, List<AbstractTable<?>> createdTables, List<NewColumn> newColumns, AbstractTable<?> table) {
-		int count = repository.find(Integer.class, tableExists(table.clazz, table.name), 1).get(0);
-		if (count == 0) {
+	protected void updateTable(SqlRepository repository, InformationSchema informationSchema, SchemaPreparation schemaPreparation, List<AbstractTable<?>> createdTables, List<NewColumn> newColumns, AbstractTable<?> table) {
+		if (!informationSchema.tableExists(table.name)) {
 			logger.info("New table: " + table.name);
 			table.createTable(repository.sqlDialect);
 			createdTables.add(table);
 		} else {
 			if (!(table instanceof CrossTable)) {
-				updateTableColumns(repository, schemaPreparation, table, newColumns);
+				updateTableColumns(repository, informationSchema, schemaPreparation, table, newColumns);
 			}
 			if (table instanceof Table) {
 				for (Object dependableTable : ((Table) table).getDependableTables()) {
-					updateTable(repository, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) dependableTable);
+					updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) dependableTable);
 				}
 				for (Object listTable : ((Table) table).getListTables()) {
-					updateTable(repository, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) listTable);
+					updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) listTable);
 				}
 			}
 		}
@@ -130,9 +172,9 @@ public enum SchemaPreparation {
 		public Property property;
 	}
 
-	protected void updateTableColumns(SqlRepository repository, SchemaPreparation schemaPreparation, AbstractTable<?> table, List<NewColumn> newColumns) {
-		List<String> columnNames = repository.find(String.class, selectColumns(table.name), 10000);
-		List<String> nullableColumns = repository.find(String.class, "SELECT LOWER(column_name) FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND is_nullable = 'YES'", 10000, table.name);
+	protected void updateTableColumns(SqlRepository repository, InformationSchema informationSchema, SchemaPreparation schemaPreparation, AbstractTable<?> table, List<NewColumn> newColumns) {
+		List<String> columnNames = informationSchema.getColumnNames(table.name);
+		List<String> nullableColumns = informationSchema.getNullableColumnNames(table.name);;
 		for (Map.Entry<String, Property> column : table.getColumns().entrySet()) {
 			Property property = column.getValue();
 			String columnName = column.getKey();
@@ -161,7 +203,7 @@ public enum SchemaPreparation {
 				newColumn.property = property;
 				newColumns.add(newColumn);
 			} else {
-				boolean nullableColumn = nullableColumns.contains(columnName);
+				boolean nullableColumn = nullableColumns.contains(columnName.toLowerCase());
 				if (!nullableColumn && !notEmptyProperty) {
 					logger.info("Make column nullable: " + table.name + "." + columnName);
 					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " DROP NOT NULL";
@@ -185,7 +227,7 @@ public enum SchemaPreparation {
 				}
 				
 				if (property.getClazz() == String.class) {
-					int maxLength = repository.execute(Integer.class, "SELECT character_maximum_length FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND column_name ilike ?", table.name, columnName);
+					int maxLength = informationSchema.getMaxLength(table.name, columnName);
 					int annotatedSize = AnnotationUtil.getSize(property);
 					if (maxLength > annotatedSize) {
 						// TODO shorten content
@@ -243,10 +285,6 @@ public enum SchemaPreparation {
 		}
 	}
 
-	protected String tableExists(Class<?> clazz, String identifier) {
-		return "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = current_schema AND table_name ilike '" + identifier + "'";
-	}
-
 	protected String enumExists(Class<?> clazz, String identifier) {
 		return "SELECT COUNT(*) FROM pg_type WHERE typcategory = 'E' AND typname ilike '" + identifier + "' AND typnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = current_schema)";
 	}
@@ -258,13 +296,4 @@ public enum SchemaPreparation {
 	protected String addEnumValue(Class<?> clazz, String enumIdentifier, String value) {
 		return "ALTER TYPE " + enumIdentifier + " ADD VALUE '" + value + "'";
 	}
-
-	protected String selectColumns(String tableIdentifier) {
-		return "SELECT LOWER(column_name) FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike '" + tableIdentifier + "'";
-	}
-
-	protected String isNullableColumn(Class<?> clazz, String tableIdentifier, String columnIdentifier) {
-		return "SELECT is_nullable FROM information_schema.columns WHERE table_schema = current_schema AND table_name ilike ? AND column_name ilike ?";
-	}
-
 }

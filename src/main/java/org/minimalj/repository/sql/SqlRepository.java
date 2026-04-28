@@ -518,7 +518,7 @@ public class SqlRepository implements TransactionalRepository {
 	
 	@SuppressWarnings("unchecked")
 	public <R> R readResultSetRow(Class<R> clazz, ResultSet resultSet, Map<Class<?>, Map<Object, Object>> loadedReferences) throws SQLException {
-		if (FieldUtils.isAllowedPrimitive(clazz)) {
+		if (FieldUtils.isAllowedPrimitive(clazz) || Enum.class.isAssignableFrom(clazz)) {
 			return (R) sqlDialect.convertToFieldClass(clazz, resultSet.getObject(1));
 		}
 		
@@ -805,15 +805,24 @@ public class SqlRepository implements TransactionalRepository {
 	// schema updates
 	
 	public boolean existsTable(String name) {
-		Integer tableCount = execute(Integer.class, "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema AND table_name ilike '" + name + "'");
-		return tableCount != null && tableCount > 0;
+		Integer count = execute(Integer.class, "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema AND table_name ilike '" + name + "'");
+		return count != null && count > 0;
 	}
-	
+
+	public boolean existsConstraint(String name) {
+		Integer count = execute(Integer.class, "SELECT count(*) FROM information_schema.table_constraints WHERE table_schema = current_schema AND constraint_name ilike '" + name + "'");
+		return count != null && count > 0;
+	}
+
 	public void renameTable(String oldName, Class<?> clazz) {
+		String newName = name(clazz);
 		if (existsTable(oldName)) {
-			String newName = name(clazz);
 			logger.info("Alter table "+ oldName + " rename to " + newName);
 			execute("ALTER TABLE "+ oldName + " RENAME TO " + newName);
+		}
+		if (existsConstraint(oldName + "_pkey")) {
+			logger.info("Alter contraint "+ oldName + "_pkey rename to " + newName + "_pkey");
+			execute("ALTER TABLE "+ newName + " RENAME CONSTRAINT " + oldName + "_pkey TO " + newName + "_pkey");
 		}
 	}
 	

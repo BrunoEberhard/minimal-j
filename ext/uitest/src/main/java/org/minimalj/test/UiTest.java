@@ -1,5 +1,6 @@
 package org.minimalj.test;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
@@ -33,6 +34,17 @@ public abstract class UiTest {
 			ui = new WebTestFacade(uiTestDriver, headless);
 		} else {
 			ui = new HeadlessTestFacade();
+		}
+	}
+	
+	@AfterEach
+	public void closeAllDialogs() {
+		// if a test fails and a dialog stays open the coming tests would fail.
+		// therefore close all open dialogs at the end of each test.
+		var dialog = dialog();
+		while (dialog != null) {
+			dialog.close();
+			dialog = dialog();
 		}
 	}
 

@@ -113,7 +113,7 @@ public interface Validation {
 	 *         createInvalid method
 	 */
 	public default boolean isValid(Object value) {
-		return value != null && !InvalidValues.isInvalid(value);
+		return InvalidValues.isValid(value);
 	}
 	
 }

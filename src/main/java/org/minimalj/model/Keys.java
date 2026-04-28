@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.minimalj.model.properties.ChainedProperty;
@@ -176,6 +177,8 @@ public class Keys {
 			return Array.newInstance(clazz.getComponentType(), 0);
 		} else if (clazz == List.class) {
 			return new ArrayList<>();			
+		} else if (clazz == Set.class) {
+			return new HashSet<>();
 		} else if (clazz.isAssignableFrom(String.class)) {
 			return new String(fieldName);
 		} else {

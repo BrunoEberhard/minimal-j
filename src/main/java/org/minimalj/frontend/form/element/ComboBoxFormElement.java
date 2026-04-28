@@ -3,10 +3,13 @@ package org.minimalj.frontend.form.element;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.Input;
+import org.minimalj.frontend.Frontend.InputComponentListener;
+import org.minimalj.frontend.action.Action;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.NotEmpty;
@@ -16,6 +19,7 @@ import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
 public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
+	private static Logger logger = Logger.getLogger(AbstractFormElement.class.getName());
 
 	public static final String NO_NULL_STRING = null;
 	public static final String EMPTY_NULL_STRING = "";
@@ -60,12 +64,17 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 
 	@Override
 	public void setValue(T value) {
-		// 'contains' uses the default equals method 
+		// 'contains' uses the default equals method
 		if (value != null && !values.contains(value)) {
-			// there could be a different instance with same id.
-			// if yes take it.
-			Object id = IdUtils.getId(value);
-			value = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
+			if (IdUtils.hasId(value.getClass())) {
+				// there could be a different instance with same id.
+				// if yes take it.
+				Object id = IdUtils.getId(value);
+				value = values.stream().filter(c -> Objects.equals(id, IdUtils.getId(c))).findFirst().orElse(null);
+			} else {
+				logger.warning("Invalid value: " + value + ", field: " + getProperty().getPath());
+				return;
+			}
 		}
 		comboBox.setValue(value);
 	}
@@ -132,6 +141,72 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 			int index = (int)(Math.random() * values.size());
 			comboBox.setValue(values.get(index));
 		}
+	}
+	
+	// TODO finish implementation
+	private static class ComboBoxActionFormElement<T> extends ComboBoxFormElement<Object> implements InputComponentListener {
+
+		private final List<Action> actions;
+		private IComponent lookup;
+		private Object lastValue;
 		
+		public ComboBoxActionFormElement(Property property, List<T> values, List<Action> actions, String nullText) {
+			super(property, combine(values, actions), nullText);
+			this.actions = actions;
+		}
+
+		public ComboBoxActionFormElement(Property property, List<T> values, List<Action> actions) {
+			super(property, combine(values, actions));
+			this.actions = actions;
+		}
+
+		public ComboBoxActionFormElement(T key, List<T> values, List<Action> actions, String nullText) {
+			super(key, combine(values, actions), nullText);
+			this.actions = actions;
+		}
+
+		public ComboBoxActionFormElement(T key, List<T> values, List<Action> actions) {
+			super(key, combine(values, actions));
+			this.actions = actions;
+		}
+		
+		private static List<Object> combine(List<?> values, List<Action> actions) {
+			List<Object> result = new ArrayList<>(values.size() + actions.size());
+			result.addAll(values);
+			result.addAll(actions);
+			return result;
+		}
+
+		@Override
+		protected InputComponentListener listener() {
+			return this;
+		}
+		
+		@Override
+		public Object getValue() {
+			Object value = super.getValue();
+			if (value == null || getProperty().getClazz().isAssignableFrom(value.getClass())) {
+				return value;
+			} else {
+				return lastValue;
+			}
+		}
+
+		@Override
+		public void setValue(Object value) {
+			super.setValue(value);
+			lastValue = super.getValue();
+		}
+		
+		@Override
+		public void changed(IComponent source) {
+			Object value = super.getValue();
+			if (value instanceof Action) {
+				super.setValue(lastValue);
+				((Action) value).run();
+			} else {
+				super.fireChange();
+			}
+		}
 	}
 }

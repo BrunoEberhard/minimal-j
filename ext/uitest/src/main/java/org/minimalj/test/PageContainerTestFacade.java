@@ -85,6 +85,8 @@ public interface PageContainerTestFacade {
 
 	public interface DialogTestFacade {
 		
+		public String getTitle();
+		
 		public void close();
 		
 		public FormTestFacade getForm();
@@ -144,6 +146,11 @@ public interface PageContainerTestFacade {
 			Assertions.assertNotNull(element, "There should be a FormElement with caption'" + caption + "'");
 			element.setChecked(checked);
 		}
+		
+		/**
+		 * For development: prints the captions of all visible elements
+		 */
+		public void printElementCaptions();
 	}
 	
 	public interface FormElementTestFacade {

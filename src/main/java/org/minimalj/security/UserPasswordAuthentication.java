@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
@@ -143,21 +142,11 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 			@Override
 			public void run() {
 				if (valid(userPassword) && validate(form)) {
-					Subject subject = Backend.execute(new LoginTransaction(userPassword));
-					if (subject != null) {
+					UserData user = Backend.execute(new RetrieveUserTransaction(userPassword));
+					if (user != null) {
+						Subject subject = createSubject(user);
 						Frontend.closeDialog(UserPasswordLoginAction.this);
-						
-						beforeLogin(userPassword, subject, resultSubject -> {
-							if (resultSubject != null) {
-								Frontend.getInstance().login(resultSubject);
-								if (userPassword.rememberMe) {
-									setRememberMeCookie(resultSubject.getUser());
-								}
-							} else {
-								resetPassword();
-								// do login again
-							}
-						});
+						loginSubject(subject, userPassword);
 					} else {
 						Frontend.showMessage(Resources.getString("UsernamePasswordInvalid"));
 					}
@@ -169,20 +158,22 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 	/**
 	 * An application can enforce password change or acceptance of disclaimer
 	 * 
-	 * @param userPassword the value the user provided
 	 * @param subject the subject that will be logged in
-	 * @param finishedListener Can get a modified subject
+	 * @param userPassword the value the user provided
 	 */
-	public void beforeLogin(UserPassword userPassword, Subject subject, Consumer<Subject> finishedListener) {
-		finishedListener.accept(subject);
+	protected void loginSubject(Subject subject, UserPassword userPassword) {
+		Frontend.getInstance().login(subject);
+		if (userPassword.rememberMe) {
+			setRememberMeCookie(subject.getUser());
+		}
 	}
 	
-	public static class LoginTransaction implements Transaction<Subject> {
+	public static class RetrieveUserTransaction implements Transaction<UserData> {
 		private static final long serialVersionUID = 1L;
 		
 		private final UserPassword userPassword;
 		
-		public LoginTransaction(UserPassword userPassword) {
+		public RetrieveUserTransaction(UserPassword userPassword) {
 			Objects.requireNonNull(userPassword);
 			Objects.requireNonNull(userPassword.user);
 			
@@ -190,12 +181,8 @@ public abstract class UserPasswordAuthentication extends Authentication implemen
 		}
 		
 		@Override
-		public Subject execute() {
-			UserData user = ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
-			if (user == null) {
-				return null;
-			}
-			return Backend.getInstance().getAuthentication().createSubject(user);
+		public UserData execute() {
+			return ((UserPasswordAuthentication) Backend.getInstance().getAuthentication()).retrieveUser(userPassword.user, userPassword.password);
 		}
 	}
 	

@@ -49,6 +49,11 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		this.formFactory = formFactory;
 		this.switchComponent = Frontend.getInstance().createSwitchComponent();
 		this.propertyAsChain = ChainedProperty.getChain(getProperty());
+		formFactory.setChangeListener(() -> {
+			clearFormCache();
+			update(true);
+			super.fireChange();
+		});
 		update(true);
 	}
 
@@ -60,7 +65,15 @@ public class TableFormElement<T> extends AbstractFormElement<List<T>> {
 		public default IComponent createFooter() {
 			return null;
 		}
-		
+
+		/**
+		 * 
+		 * @param changeListener to be called if TableFormElement should fire a change.
+		 */
+		public default void setChangeListener(Runnable changeListener) {
+			// default
+		}
+
 		public static IComponent createFooter(List<? extends Action> actions, int columns, int columnWidth) {
 			if (actions != null && !actions.isEmpty()) {
 				Form<Object> rowForm = new Form<>(Form.READ_ONLY, columns, columnWidth);

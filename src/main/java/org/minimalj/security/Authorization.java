@@ -1,7 +1,5 @@
 package org.minimalj.security;
 
-import java.util.List;
-
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.transaction.Role;
 
@@ -29,25 +27,16 @@ public class Authorization {
 	public static Boolean hasAccessByAnnotation(Subject subject, Class<?> clazz) {
 		Role role = AnnotationUtil.getAnnotationOfClassOrPackage(clazz, Role.class);
 		if (role != null) {
+			String[] roles = role.value();
+			if (roles == null || roles.length == 0) {
+				throw new IllegalArgumentException("No Roles specified in annotation of " + clazz.getSimpleName());
+			}
 			if (subject != null) {
-				return hasAccess(subject.getRoles(), role.value());
+				return subject.hasRole(roles);
 			} else {
 				return false;
 			}
 		}
 		return null;
 	}
-
-	private static boolean hasAccess(List<String> currentRoles, String[] roles) {
-		if (roles != null) {
-			for (String allowingRole : roles) {
-				if (currentRoles.contains(allowingRole)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		return true;
-	}
-
 }

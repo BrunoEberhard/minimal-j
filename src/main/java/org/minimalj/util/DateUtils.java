@@ -53,10 +53,16 @@ public class DateUtils {
 	private static DateTimeFormatter getDateTimeFormatter() {
 		Locale locale = getLocale();
 		if (!dateFormatByLocale.containsKey(locale)) {
-			DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
-			dateFormatByLocale.put(locale, formatter);
-			String localizedDatePattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(FormatStyle.MEDIUM, null, IsoChronology.INSTANCE, locale);
-			germanDateStyle.put(locale,	StringUtils.equals(localizedDatePattern, "dd.MM.yyyy", "dd.MM.y"));
+			if (locale.getLanguage().toLowerCase().startsWith("de")) {
+				DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendPattern("dd.MM.yyyy").toFormatter(Locale.GERMANY);
+				dateFormatByLocale.put(locale, formatter);
+				germanDateStyle.put(locale,	true);
+			} else {
+				DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendLocalized(FormatStyle.MEDIUM, null).toFormatter(locale);
+				dateFormatByLocale.put(locale, formatter);
+				String localizedDatePattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(FormatStyle.MEDIUM, null, IsoChronology.INSTANCE, locale);
+				germanDateStyle.put(locale,	StringUtils.equals(localizedDatePattern, "dd.MM.yyyy", "dd.MM.y"));
+			}
 		}
 		return dateFormatByLocale.get(locale);
 	}
@@ -343,8 +349,8 @@ public class DateUtils {
 				String[] parts = s.split(" ");
 				LocalDate date = parseDate(parts[0], upperEnd);
 				LocalTime time = parseTime(parts[1], upperEnd);
-				if (date != null && !InvalidValues.isInvalid(date)) {
-					if (time != null && !InvalidValues.isInvalid(time)) {
+				if (InvalidValues.isValid(date)) {
+					if (InvalidValues.isValid(time)) {
 						return LocalDateTime.of(date, time);
 					} else {
 						return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
@@ -352,7 +358,7 @@ public class DateUtils {
 				}
 			} else {
 				LocalDate date = parseDate(s, upperEnd);
-				if (date != null && !InvalidValues.isInvalid(date)) {
+				if (InvalidValues.isValid(date)) {
 					return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
 				}
 			}
