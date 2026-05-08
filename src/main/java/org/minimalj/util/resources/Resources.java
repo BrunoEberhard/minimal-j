@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
@@ -37,8 +36,10 @@ public class Resources {
 		Locale locale = LocaleContext.getCurrent();
 		if (!resourcesByLocale.containsKey(locale)) {
 			ResourceBundle resourceBundle = Application.getInstance().getResourceBundle(locale);
-			ResourceBundle frameworkResourceBundle = ResourceBundle.getBundle("MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
-			resourcesByLocale.put(locale, new ResourceBundleAccess(new MultiResourceBundle(resourceBundle, frameworkResourceBundle)));
+			ResourceBundle frameworkResourceBundle = ResourceBundle.getBundle("MinimalJ", locale,
+					Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
+			resourcesByLocale.put(locale,
+					new ResourceBundleAccess(new MultiResourceBundle(resourceBundle, frameworkResourceBundle)));
 		}
 		return resourcesByLocale.get(locale);
 	}
@@ -56,8 +57,10 @@ public class Resources {
 	}
 
 	/**
-	 * @param resourceName the name of the resource. No further prefixes or postfixes are applied
-	 * @param reportIfMissing Use the constant OPTIONAL if its not an application error when the resource is not available
+	 * @param resourceName    the name of the resource. No further prefixes or
+	 *                        postfixes are applied
+	 * @param reportIfMissing Use the constant OPTIONAL if its not an application
+	 *                        error when the resource is not available
 	 * @return the String or 'resourceName' if the resourceName does not exist
 	 */
 	public static String getString(String resourceName, boolean reportIfMissing) {
@@ -129,7 +132,7 @@ public class Resources {
 			logger.finest(resourceName);
 			return fillPlaceHolder(resourceBundle.getString(resourceName));
 		}
-		
+
 		String getString(Class<?> clazz) {
 			String result = getStringOrNull(clazz);
 			if (result != null) {
@@ -144,7 +147,7 @@ public class Resources {
 			} else if (isAvailable(clazz.getSimpleName())) {
 				return getString(clazz.getSimpleName());
 			} else if (isAvailable(StringUtils.lowerFirstChar(clazz.getSimpleName()))) {
-				return getString(StringUtils.lowerFirstChar(clazz.getSimpleName()));				
+				return getString(StringUtils.lowerFirstChar(clazz.getSimpleName()));
 			} else if (View.class.isAssignableFrom(clazz) && !Code.class.isAssignableFrom(clazz)) {
 				Class<?> viewedClass = ViewUtils.getViewedClass(clazz);
 				String byViewedClass = getStringOrNull(viewedClass);
@@ -176,7 +179,8 @@ public class Resources {
 			if (postfix != null)
 				fieldName += postfix;
 			while (chain.size() > 1) {
-				String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(), StringUtils.isEmpty(postfix) ? chainedProperty.getClazz() : null, true);
+				String result = getPropertyName(fieldName, chain.get(0).getDeclaringClass(),
+						StringUtils.isEmpty(postfix) ? chainedProperty.getClazz() : null, true);
 				if (result != null) {
 					return result;
 				} else {
@@ -187,7 +191,7 @@ public class Resources {
 			return getPropertyName(chain.get(0), postfix);
 		}
 
-		String getPropertyName(String fieldName, Class<?> declaringClass, @Nullable Class<?> fieldClass, boolean optional) {
+		String getPropertyName(String fieldName, Class<?> declaringClass, Class<?> fieldClass, boolean optional) {
 			// completeQualifiedKey example: "ch.openech.model.Person.nationality"
 			String completeQualifiedKey = declaringClass.getName() + "." + fieldName;
 			if (resourceBundle.containsKey(completeQualifiedKey)) {
@@ -216,7 +220,7 @@ public class Resources {
 			if (resourceBundle.containsKey(fieldName)) {
 				return doGetString(fieldName);
 			}
-			
+
 			// class of same name
 			String className = fieldClass != null ? getStringOrNull(fieldClass) : null;
 			if (className != null) {
@@ -246,18 +250,18 @@ public class Resources {
 				if (isAvailable(simpleName)) {
 					return simpleName;
 				}
-				
+
 				simpleName = StringUtils.lowerFirstChar(c.getSimpleName());
 				if (isAvailable(simpleName)) {
 					return StringUtils.lowerFirstChar(simpleName);
 				}
-				
+
 				c = c.getSuperclass();
 			}
 
 			return clazz.getSimpleName();
 		}
-		
+
 		private Pattern pattern = Pattern.compile("\\$\\{([\\w\\.]+)\\}");
 
 		private String fillPlaceHolder(String text) {
