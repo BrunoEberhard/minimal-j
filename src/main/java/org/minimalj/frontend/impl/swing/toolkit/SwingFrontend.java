@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -60,10 +61,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
-import org.fife.ui.autocomplete.AutoCompletion;
-import org.fife.ui.autocomplete.BasicCompletion;
-import org.fife.ui.autocomplete.Completion;
-import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.minimalj.application.Application;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.frontend.Frontend;
@@ -78,6 +75,7 @@ import org.minimalj.frontend.impl.swing.SwingTab;
 import org.minimalj.frontend.impl.swing.component.QueryLayout;
 import org.minimalj.frontend.impl.swing.component.QueryLayout.QueryLayoutConstraint;
 import org.minimalj.frontend.impl.swing.component.SwingHtmlContent;
+import org.minimalj.frontend.impl.swing.component.SwingSuggestion;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.frontend.page.Page.Dialog;
 import org.minimalj.frontend.page.Page.WheelPage;
@@ -94,6 +92,7 @@ import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.util.SystemInfo;
 
 public class SwingFrontend extends Frontend {
+	public static final Logger logger = Logger.getLogger(SwingFrontend.class.getName());
 
 	private static final Icon ICON_FIELD_ACTION = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldAction.svg");
 	private static final Icon ICON_FIELD_MENU = new FlatSVGIcon(Swing.class.getPackage().getName().replace(".", "/") + "/fieldMenu.svg");
@@ -267,40 +266,24 @@ public class SwingFrontend extends Frontend {
 		return new SwingReadOnlyTextField();
 	}
 
+	private static Boolean completionProviderAvailable;
+	
 	@Override
 	public Input<String> createTextField(int maxLength, String allowedCharacters, Search<String> suggestionSearch, InputComponentListener changeListener) {
 		SwingTextField textField = new SwingTextField(changeListener, maxLength, allowedCharacters);
 		if (suggestionSearch != null) {
-			DefaultCompletionProvider acp = new DefaultCompletionProvider() {
-				@Override
-				public boolean isAutoActivateOkay(JTextComponent tc) {
-					return true;
-				}				
-				
-				@Override
-				protected List<Completion> getCompletionsImpl(JTextComponent comp) {
-					List<Completion> retVal = new ArrayList<>();
-					String text = getAlreadyEnteredText(comp);
-
-					if (text != null) {
-						List<String> suggestions = suggestionSearch.search(text);
-						for (String s : suggestions) {
-							retVal.add(new BasicCompletion(this, s));
-						}
-					}
-
-					return retVal;
-				}
-			};
-//			acp.addCompletion(new BasicCompletion(acp, "Test"));
-//			acp.addCompletion(new BasicCompletion(acp, "Test2"));
-//			acp.addCompletion(new BasicCompletion(acp, "Fasel"));
-			AutoCompletion ac = new AutoCompletion(acp);
-			ac.setAutoCompleteEnabled(true);
-			ac.setAutoActivationDelay(100);
-			ac.setAutoActivationEnabled(true);
-			ac.setAutoCompleteSingleChoices(false);
-			ac.install(textField);
+			if (completionProviderAvailable == null) {
+				try {
+					SwingSuggestion.ping();
+					completionProviderAvailable = true;
+			    } catch (Exception e) {
+			    	logger.warning("Missing dependency com.fifesoft.autocomplete.autocomplete - Suggestions not available");
+			    	completionProviderAvailable = false;
+			    }
+			}
+			if (completionProviderAvailable) {
+				SwingSuggestion.apply(textField, suggestionSearch);
+			}
 		}
 		return textField;
 	}
