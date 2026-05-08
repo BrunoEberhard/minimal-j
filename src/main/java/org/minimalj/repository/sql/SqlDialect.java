@@ -65,7 +65,7 @@ public abstract class SqlDialect {
 		} else if (clazz == LocalTime.class) {
 			s.append("TIME");		
 		} else if (clazz == LocalDateTime.class) {
-			s.append("DATETIME");
+			s.append("TIMESTAMP");
 		} else if (clazz == BigDecimal.class) {
 			s.append("DECIMAL");
 			int size = AnnotationUtil.getSize(property);
@@ -223,8 +223,6 @@ public abstract class SqlDialect {
 				s.append("BYTEA");	
 			} else if (clazz == Boolean.class) {
 				s.append("BOOLEAN");	
-			} else if (clazz == LocalDateTime.class) {
-				s.append("TIMESTAMP");		
 			} else  {
 				super.addColumnDefinition(s, property);
 			}
