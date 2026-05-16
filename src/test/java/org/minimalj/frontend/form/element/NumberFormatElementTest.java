@@ -18,8 +18,8 @@ public class NumberFormatElementTest {
 	public void testInteger() {
 		IntegerFormElement element = new IntegerFormElement(Keys.getProperty(TestNumbers.$.anInteger), true);
 		Assert.assertEquals((Integer) 123, element.parse("123"));
-		Assert.assertTrue("Values larger than 2^31 should parsed as invalid", InvalidValues.isInvalid(element.parse("3234567890")));
-		Assert.assertTrue("Negative values should parsed as invalid", InvalidValues.isInvalid(element.parse("-3")));
+		Assert.assertThrows("Values larger than 10 digits should be parsed as invalid", NumberFormatException.class, () -> element.parse("12345678901234L"));
+		Assert.assertThrows("Negative values should parsed as invalid", IllegalArgumentException.class, () -> element.parse("-3"));
 	}
 	
 	@Test
@@ -34,7 +34,7 @@ public class NumberFormatElementTest {
 		IntegerFormElement element = new IntegerFormElement(Keys.getProperty(TestNumbers.$.aSignedIntegerOfSize3), true);
 		Assert.assertEquals((Integer) 123, element.parse("123"));
 		Assert.assertEquals(Integer.valueOf(-3), element.parse("-3"));
-		Assert.assertTrue("Values larger than size 3 should be invalid", InvalidValues.isInvalid(element.parse("1234")));
+		Assert.assertThrows("Values larger than size 3 should be invalid", IllegalArgumentException.class, () -> element.parse("1234"));
 	}
 	
 	// Long
@@ -44,8 +44,8 @@ public class NumberFormatElementTest {
 		LongFormElement element = new LongFormElement(Keys.getProperty(TestNumbers.$.aLong), true);
 		Assert.assertEquals((Long) 123L, element.parse("123"));
 		Assert.assertEquals((Long) 12345678901234L, element.parse("12345678901234"));
-		Assert.assertTrue("Values larger than 2^63 should parsed as invalid", InvalidValues.isInvalid(element.parse("12345678901234567890")));
-		Assert.assertTrue("Negative values should parsed as invalid", InvalidValues.isInvalid(element.parse("-3")));
+		Assert.assertThrows("Values larger than 2^63 should parsed as invalid", NumberFormatException.class, () -> element.parse("12345678901234567890"));
+		Assert.assertThrows("Negative values should parsed as invalid", IllegalArgumentException.class, () -> element.parse("-3"));
 	}
 	
 	@Test
@@ -60,7 +60,7 @@ public class NumberFormatElementTest {
 		LongFormElement element = new LongFormElement(Keys.getProperty(TestNumbers.$.aSignedLongOfSize3), true);
 		Assert.assertEquals((Long) 123L, element.parse("123"));
 		Assert.assertEquals(Long.valueOf(-3), element.parse("-3"));
-		Assert.assertTrue("Values larger than size 3 should be invalid", InvalidValues.isInvalid(element.parse("1234")));
+		Assert.assertThrows("Values larger than size 3 should be invalid", IllegalArgumentException.class, () -> element.parse("1234"));
 	}
 	
 	// BigDecimal
@@ -69,8 +69,8 @@ public class NumberFormatElementTest {
 	public void testBigDecimal() {
 		BigDecimalFormElement element = new BigDecimalFormElement(Keys.getProperty(TestNumbers.$.aBigDecimal), true);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123")) == 0);
-		Assert.assertTrue("Values larger than 10 digits should be parsed as invalid", InvalidValues.isInvalid(element.parse("12345678901234L")));
-		Assert.assertTrue("Negative values should parsed as invalid", InvalidValues.isInvalid(element.parse("-3")));
+		Assert.assertThrows("Values larger than 10 digits should be parsed as invalid", NumberFormatException.class, () -> element.parse("12345678901234L"));
+		Assert.assertThrows("Negative values should parsed as invalid", IllegalArgumentException.class, () -> element.parse("-3"));
 	}
 	
 	@Test
@@ -83,15 +83,13 @@ public class NumberFormatElementTest {
 	@Test
 	public void testSignedBigDecimalWith2Decimals() {
 		BigDecimalFormElement element = new BigDecimalFormElement(Keys.getProperty(TestNumbers.$.aBigDecimalOfSize3With2Decimals), true);
+		
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123")) == 0);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123.")) == 0);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123.0")) == 0);
 		Assert.assertTrue(BigDecimal.valueOf(12.3).compareTo(element.parse("12.3")) == 0);		
 		Assert.assertTrue(BigDecimal.valueOf(0.3).compareTo(element.parse(".3")) == 0);		
-		Assert.assertTrue("Too many decimal places should be parsed as invalid", InvalidValues.isInvalid(element.parse("1.234")));
-		Assert.assertTrue("Too high precision should be parsed as invalid", InvalidValues.isInvalid(element.parse("12.34")));
-		Assert.assertTrue("Too high precision should be parsed as invalid", InvalidValues.isInvalid(element.parse("123.4")));
-		Assert.assertTrue("Too high precision should be parsed as invalid", InvalidValues.isInvalid(element.parse("1234.0")));
+		Assert.assertThrows("Too many decimal places should be parsed as invalid", IllegalArgumentException.class, () -> element.parse("1.234"));
 	}
 	
 	public static class TestNumbers {

@@ -7,7 +7,6 @@ import java.time.LocalTime;
 import java.util.function.Predicate;
 
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.repository.query.By;
 import org.minimalj.repository.query.Criteria;
 import org.minimalj.repository.query.FieldOperator;
@@ -15,7 +14,8 @@ import org.minimalj.util.DateUtils;
 import org.minimalj.util.StringUtils;
 
 public class ComparableRange implements Predicate<Object> {
-
+	public static final String INVALID = "invalid";
+	
 	private final Class<?> clazz;
 	private Comparable value1, value2;
 
@@ -23,10 +23,6 @@ public class ComparableRange implements Predicate<Object> {
 		this.clazz = clazz;
 	}
 
-	public void setValue1(Comparable value1) {
-		this.value1 = value1;
-	}
-	
 	public void setStringValue1(String string1) {
 		this.value1 = parse(clazz, string1, false);
 	}
@@ -35,31 +31,19 @@ public class ComparableRange implements Predicate<Object> {
 		this.value2 = parse(clazz, string2, true);
 	}
 
-	public void setValue2(Comparable value2) {
-		this.value2 = value2;
-	}
-
 	public void setStringValue(String value) {
 		setStringValue1(value);
 		setStringValue2(value);
 	}
 	
-	public Comparable getValue1() {
-		return value1;
-	}
-	
-	public Comparable getValue2() {
-		return value2;
-	}
-	
 	public boolean valid() {
-		if (!InvalidValues.isValid(value1)) {
+		if (value1 == INVALID) {
 			return false;
 		}
-		if (!InvalidValues.isValid(value2)) {
+		if (value2 == INVALID) {
 			return false;
 		}
-		if (value1.compareTo(value2) > 1) {
+		if (value1 != null && value2 != null && value1.compareTo(value2) > 1) {
 			return false;
 		}
 		return true;
@@ -68,7 +52,9 @@ public class ComparableRange implements Predicate<Object> {
 	public static Comparable parse(Class<?> clazz, String string, Boolean upperEnd) {
 		if (!StringUtils.isEmpty(string)) {
 			try {
-				if (clazz == Integer.class) {
+				if (clazz == String.class) {
+					return string;
+				} else if (clazz == Integer.class) {
 					return Integer.parseInt(string);
 				} else if (clazz == Long.class) {
 					return Long.parseLong(string);
@@ -83,16 +69,8 @@ public class ComparableRange implements Predicate<Object> {
 				} else {
 					throw new IllegalArgumentException(clazz.getName());
 				}
-			} catch (NumberFormatException ignored) {
-				if (clazz == Integer.class) {
-					return InvalidValues.createInvalidInteger(string);
-				} else if (clazz == Long.class) {
-					return InvalidValues.createInvalidLong(string);
-				} else if (clazz == BigDecimal.class) {
-					return InvalidValues.createInvalidBigDecimal(string);
-				} else {
-					throw new IllegalArgumentException(clazz.getName());
-				}
+			} catch (RuntimeException ignored) {
+				return INVALID;
 			}
 		}
 		return null;
@@ -104,6 +82,12 @@ public class ComparableRange implements Predicate<Object> {
 	}
 
 	private int compare(Comparable c1, Comparable c2) {
+		if (!valid()) {
+			throw new IllegalStateException();
+		}
+		if (c2 == null) {
+			return 0;
+		}
 		if (c1 instanceof LocalDateTime) {
 			if (c2 instanceof LocalDateTime) {
 				int result = ((LocalDateTime) c1).toLocalDate().compareTo(((LocalDateTime) c2).toLocalDate());

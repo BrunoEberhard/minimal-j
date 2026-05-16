@@ -21,21 +21,17 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 	}
 
 	@Override
-	public Long parse(String text) {
+	public Long parse(String text) throws NumberFormatException {
 		if (!StringUtils.isEmpty(text)) {
-			try {
-				long value = Long.parseLong(text);
-				if (value < 0 && !this.signed) {
-					return InvalidValues.createInvalidLong(text);
-				}
-				int size = value < 0 ? text.length() - 1 : text.length();
-				if (size <= this.size) {
-					return value;
-				} else {
-					return InvalidValues.createInvalidLong(text);
-				}
-			} catch (NumberFormatException nfe) {
-				return InvalidValues.createInvalidLong(text);
+			long value = Long.parseLong(text);
+			if (value < 0 && !this.signed) {
+				throw new IllegalArgumentException("negative values not allowed");
+			}
+			int size = value < 0 ? text.length() - 1 : text.length();
+			if (size <= this.size) {
+				return value;
+			} else {
+				throw new IllegalArgumentException(text + " longer than " + this.size);
 			}
 		} else {
 			return null;

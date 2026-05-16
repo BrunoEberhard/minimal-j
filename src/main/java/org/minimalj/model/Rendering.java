@@ -12,7 +12,7 @@ import java.util.List;
 import org.minimalj.frontend.impl.util.HtmlString;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.validation.InvalidValues;
+import org.minimalj.model.properties.Property.StringBasedProperty;
 import org.minimalj.util.DateUtils;
 
 /**
@@ -84,6 +84,12 @@ public interface Rendering {
 	
 	public static CharSequence render(Object o, Property property) {
 		if (o == null) {
+			if (property instanceof StringBasedProperty) {
+				String invalidString = ((StringBasedProperty) property).getInvalidString(o);
+				if (invalidString != null) {
+					return invalidString;
+				}
+			}
 			return "";
 		} else if (o instanceof Rendering) {
 			return ((Rendering) o).render();
@@ -118,8 +124,6 @@ public interface Rendering {
 			return DateUtils.getTimeFormatter(property).format((LocalTime) o); 
 		} else if (o instanceof LocalDateTime) {
 			return DateUtils.format((LocalDateTime) o, property);
-		} else if (InvalidValues.isInvalid(o)) {
-			return InvalidValues.getInvalidValue(o);
 		} else {
 			return o.toString();
 		}

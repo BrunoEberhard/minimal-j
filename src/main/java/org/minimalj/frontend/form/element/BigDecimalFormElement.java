@@ -8,7 +8,6 @@ import java.util.Random;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 
@@ -40,24 +39,20 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	}
 	
 	@Override
-	public BigDecimal parse(String text) {
+	public BigDecimal parse(String text) throws IllegalArgumentException {
 		if (!StringUtils.isEmpty(text)) {
-			try {
-				BigDecimal value = new BigDecimal(text);
-				if (value.signum() < 0 && !this.signed) {
-					return InvalidValues.createInvalidBigDecimal(text);
-				}
-				value = value.stripTrailingZeros();
-				if (value.precision() > this.size) {
-					return InvalidValues.createInvalidBigDecimal(text);
-				}
-				if (value.scale() > this.decimalPlaces) {
-					return InvalidValues.createInvalidBigDecimal(text);
-				}
-				return value;
-			} catch (NumberFormatException nfe) {
-				return InvalidValues.createInvalidBigDecimal(text);
+			BigDecimal value = new BigDecimal(text);
+			if (value.signum() < 0 && !this.signed) {
+				throw new IllegalArgumentException("negative values not allowed");
 			}
+			value = value.stripTrailingZeros();
+			if (value.precision() > this.size) {
+				throw new IllegalArgumentException("Precision " + value.precision() + " > " + this.size);
+			}
+			if (value.scale() > this.decimalPlaces) {
+				throw new IllegalArgumentException("Decimal places " + value.scale() + " > " + this.decimalPlaces);
+			}
+			return value;
 		} else {
 			return null;
 		}
@@ -65,9 +60,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	
 	@Override
 	public String render(BigDecimal number) {
-		if (InvalidValues.isInvalid(number)) {
-			return InvalidValues.getInvalidValue(number);
-		} else if (number != null) {
+		if (number != null) {
 			BigDecimal correctScale = number.setScale(format.getMaximumFractionDigits(), RoundingMode.DOWN);
 			return format.format(correctScale);
 		} else {

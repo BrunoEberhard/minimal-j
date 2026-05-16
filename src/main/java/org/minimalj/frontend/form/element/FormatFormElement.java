@@ -1,5 +1,6 @@
 package org.minimalj.frontend.form.element;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.frontend.Frontend.Search;
+import org.minimalj.frontend.form.element.FormElement.StringBasedFormElement;
 import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
@@ -23,7 +25,7 @@ import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
 
-public abstract class FormatFormElement<T> extends AbstractFormElement<T> implements Enable, Mocking {
+public abstract class FormatFormElement<T> extends AbstractFormElement<T> implements StringBasedFormElement<T>, Enable, Mocking {
 
 	private final boolean editable;
 	
@@ -49,6 +51,8 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 * only used if setValue is called before getComponent()
 	 */
 	private String setText;
+	
+	private String invalidString;
 	
 	public FormatFormElement(Property property, boolean editable) {
 		super(property);
@@ -108,22 +112,48 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 
 	@Override
 	public final T getValue() {
-		return parse(textField.getValue());
+		invalidString = null;
+		try {
+			return parse(textField.getValue());
+		} catch (RuntimeException x) {
+			invalidString = textField.getValue();
+			return null;
+		}
 	}
 
+	@Override
+	public String getInvalidString() {
+		return invalidString;
+	}
+	
 	/**
 	 * @param text input by the user
 	 * @return the parsed value. Or if text cannot be parsed a invalid value.
 	 * @see InvalidValues
 	 */
-	protected abstract T parse(String text);
+	protected abstract T parse(String text) throws IllegalArgumentException;
 	
 	@Override
 	public final void setValue(T value) {
-		setText = InvalidValues.isInvalid(value) ? InvalidValues.getInvalidValue(value) : render(value);
-		if (textField != null && !StringUtils.equals(setText, textField.getValue())) {
-			textField.setValue(setText);
+		setText = value != null ? render(value) : null;
+		if (value != null) {
+			invalidString = null;
 		}
+		if (textField != null && !StringUtils.equals(setText, textField.getValue())) {
+			textField.setValue(setText != null ? setText : invalidString);
+		}
+	}
+	
+	@Override
+	public void setInvalidString(String string) {
+		invalidString = string;
+		if (string != null && textField != null) {
+			textField.setValue(string);
+		}
+	}
+	
+	protected boolean valid(String text) {
+		return StringUtils.isEmpty(text) || parse(text) != null;
 	}
 
 	/**
@@ -138,7 +168,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 		public void changed(IComponent source) {
 			// Redo format
 			T value = getValue();
-			boolean valid = !InvalidValues.isInvalid(value);
+			boolean valid = invalidString == null;
 			if (value instanceof Validation) {
 				List<ValidationMessage> validationMessages = ((Validation) value).validateNullSafe();
 				valid &= validationMessages.isEmpty();

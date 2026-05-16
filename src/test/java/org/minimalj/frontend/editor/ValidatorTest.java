@@ -60,14 +60,6 @@ public class ValidatorTest {
 	}
 
 	@Test
-	public void testInvalidString() {
-		TestClassA a = new TestClassA();
-		a.s = InvalidValues.createInvalidString("invalid");
-		List<ValidationMessage> messages = Validator.validate(a);
-		Assert.assertTrue("There should be a validation message about invalid value", messages.size() == 1);
-	}
-
-	@Test
 	public void testInnterEmpty() {
 		TestClassB b = new TestClassB();
 		b.a = new TestClassA();
@@ -82,15 +74,6 @@ public class ValidatorTest {
 		b.a.s = "123456789012345678901";
 		List<ValidationMessage> messages = Validator.validate(b);
 		Assert.assertTrue("There should be a validation message about size", messages.size() == 1);
-	}
-
-	@Test
-	public void testInnerInvalidString() {
-		TestClassB b = new TestClassB();
-		b.a = new TestClassA();
-		b.a.s = InvalidValues.createInvalidString("invalid");
-		List<ValidationMessage> messages = Validator.validate(b);
-		Assert.assertTrue("There should be a validation message about invalid value", messages.size() == 1);
 	}
 
 	@Test
@@ -113,16 +96,6 @@ public class ValidatorTest {
 	}
 
 	@Test
-	public void testListWithOneElementWithInvalidString() {
-		TestClassB b = new TestClassB();
-		TestClassA a = new TestClassA();
-		a.s = InvalidValues.createInvalidString("invalid");
-		b.list.add(a);
-		List<ValidationMessage> messages = Validator.validate(b);
-		Assert.assertTrue("There should be a validation message for a invalid element", messages.size() == 1);
-	}
-
-	@Test
 	public void testListWithOneInvalidElement() {
 		TestClassB b = new TestClassB();
 		TestClassA a = new TestClassA();
@@ -130,19 +103,6 @@ public class ValidatorTest {
 		b.list.add(a);
 		List<ValidationMessage> messages = Validator.validate(b);
 		Assert.assertTrue("There should be a validation message for a invalid element", messages.size() == 1);
-	}
-
-	@Test
-	public void testListWithTwoInvalidElement() {
-		TestClassB b = new TestClassB();
-		TestClassA a = new TestClassA();
-		a.s = InvalidValues.createInvalidString("invalid 1");
-		b.list.add(a);
-		a = new TestClassA();
-		a.s = InvalidValues.createInvalidString("invalid 2");
-		b.list.add(a);
-		List<ValidationMessage> messages = Validator.validate(b);
-		Assert.assertTrue("There should be a validation message for each invalid element", messages.size() == 2);
 	}
 
 	@Test

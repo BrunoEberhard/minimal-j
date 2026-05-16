@@ -33,16 +33,12 @@ public class LocalDateFormElement extends FormatFormElement<LocalDate> {
 	}
 
 	@Override
-	public LocalDate parse(String string) {
+	public LocalDate parse(String string) throws DateTimeParseException {
 		if (string != null) {
-			try {
-				if (typed) {
-					return LocalDate.parse(string);
-				} else {
-					return DateUtils.parse(string);
-				}
-			} catch (DateTimeParseException x) {
-				return InvalidValues.createInvalidLocalDate(string);
+			if (typed) {
+				return LocalDate.parse(string);
+			} else {
+				return DateUtils.parse(string);
 			}
 		} else {
 			return null;

@@ -73,7 +73,7 @@ public class SmallCodeListFormElement<T extends Code> extends AbstractLookupForm
 				if (values.containsKey(s)) {
 					value.add(values.get(s));
 				} else {
-					((List) value).add(InvalidValues.createInvalidString(s));
+					((List) value).add(null);
 				}
 			}
 		}

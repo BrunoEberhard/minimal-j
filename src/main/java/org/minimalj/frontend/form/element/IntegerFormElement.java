@@ -5,7 +5,6 @@ import java.util.Random;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 
@@ -21,21 +20,17 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 	}
 
 	@Override
-	public Integer parse(String text) {
+	public Integer parse(String text) throws NumberFormatException {
 		if (!StringUtils.isEmpty(text)) {
-			try {
-				int value = Integer.parseInt(text);
-				if (value < 0 && !this.signed) {
-					return InvalidValues.createInvalidInteger(text);
-				}
-				int size = value < 0 ? text.length() - 1 : text.length();
-				if (size <= this.size) {
-					return value;
-				} else {
-					return InvalidValues.createInvalidInteger(text);
-				}
-			} catch (NumberFormatException nfe) {
-				return InvalidValues.createInvalidInteger(text);
+			int value = Integer.parseInt(text);
+			if (value < 0 && !this.signed) {
+				throw new IllegalArgumentException("negative values not allowed");
+			}
+			int size = value < 0 ? text.length() - 1 : text.length();
+			if (size <= this.size) {
+				return value;
+			} else {
+				throw new IllegalArgumentException(text + " longer than " + this.size);
 			}
 		} else {
 			return null;

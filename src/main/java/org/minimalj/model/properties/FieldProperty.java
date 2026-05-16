@@ -9,20 +9,22 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
+import org.minimalj.model.properties.Property.StringBasedProperty;
+import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
-public class FieldProperty implements Property {
+public class FieldProperty implements StringBasedProperty {
 	private static Logger logger = Logger.getLogger(FieldProperty.class.getName());
 
 	private final Field field;
 	private final Class<?> declaringClass;
 	private final boolean isFinal, isTransient;
 	private final Class<?> type;
-
+	
 	public FieldProperty(Field field, Class<?> declaringClass) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
@@ -43,6 +45,11 @@ public class FieldProperty implements Property {
 		} catch (Exception e) {
 			throw new LoggingRuntimeException(e, logger, "get of " + field.getName() + " failed");
 		}
+	}
+	
+	@Override
+	public String getInvalidString(Object object) {
+		return InvalidValues.getInvalidString(object, field);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -73,6 +80,11 @@ public class FieldProperty implements Property {
 		}
 	}
 
+	@Override
+	public void setInvalidString(Object object, String string) {
+		InvalidValues.setInvalidString(object, field, string);
+	}
+	
 	@Override
 	public String getName() {
 		return field.getName();

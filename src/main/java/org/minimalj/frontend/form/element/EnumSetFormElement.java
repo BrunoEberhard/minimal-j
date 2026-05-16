@@ -45,7 +45,7 @@ public class EnumSetFormElement<E extends Set<Enum<?>>> extends AbstractLookupFo
 						continue SPLITS;
 					}
 				}
-				value.add(InvalidValues.createInvalidEnum(enumClass, s));
+				// value.add(InvalidValues.createInvalidEnum(enumClass, s));
 			}
 		}
 		return value;

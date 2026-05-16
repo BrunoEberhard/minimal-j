@@ -35,4 +35,11 @@ public interface Property {
 	public void setValue(Object object, Object value);
 
 	public boolean isFinal();
+	
+	public interface StringBasedProperty extends Property {
+		
+		public String getInvalidString(Object object);
+		
+		public void setInvalidString(Object object, String string);
+	}
 }

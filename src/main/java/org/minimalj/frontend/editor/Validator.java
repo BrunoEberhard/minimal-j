@@ -18,8 +18,8 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
+import org.minimalj.model.properties.Property.StringBasedProperty;
 import org.minimalj.model.properties.VirtualProperty;
-import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.sql.EmptyObjects;
@@ -53,7 +53,7 @@ public class Validator {
 			int index = 0;
 			for (Object element : list) {
 				IndexProperty indexProperty = new IndexProperty(index);
-				if (InvalidValues.isInvalid(element)) {
+				if (element == null) {
 					messages.add(new ValidationMessage(null, Resources.getString("ObjectValidator.message")));
 				} else {
 					List<ValidationMessage> elementMessages = validate(element, validated);
@@ -70,7 +70,7 @@ public class Validator {
 
 				validateEmpty(validationMessages, value, property);
 				validateSize(validationMessages, value, property);
-				validateInvalid(validationMessages, value, property);
+				validateInvalid(validationMessages, object, value, property);
 
 				List<ValidationMessage> innerMessages = validate(value, validated);
 				innerMessages.forEach(m -> validationMessages.add(new ValidationMessage(chain(property, m.getProperty()), m.getFormattedText())));
@@ -167,9 +167,12 @@ public class Validator {
 		}
 	}
 
-	private static void validateInvalid(List<ValidationMessage> validationMessages, Object value, Property property) {
-		if (InvalidValues.isInvalid(value)) {
-			validationMessages.add(Validation.createInvalidValidationMessage(property));
+	private static void validateInvalid(List<ValidationMessage> validationMessages, Object object, Object value, Property property) {
+		if (value == null && property instanceof StringBasedProperty) {
+			String invalidValue = ((StringBasedProperty) property).getInvalidString(object);
+			if (invalidValue != null) {
+				validationMessages.add(Validation.createInvalidValidationMessage(property));
+			}
 		}
 	}
 	

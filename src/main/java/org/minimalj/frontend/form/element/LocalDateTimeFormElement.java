@@ -6,7 +6,6 @@ import java.time.format.DateTimeParseException;
 import org.minimalj.frontend.Frontend.InputType;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.DateUtils;
 import org.minimalj.util.mock.MockDate;
 
@@ -37,16 +36,12 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 	}
 
 	@Override
-	public LocalDateTime parse(String string) {
+	public LocalDateTime parse(String string) throws DateTimeParseException {
 		if (string != null) {
-			try {
-				if (typed) {
-					return LocalDateTime.parse(string);
-				} else {
-					return DateUtils.parseDateTime(string, getProperty());
-				}
-			} catch (DateTimeParseException x) {
-				return InvalidValues.createInvalidLocalDateTime(string);
+			if (typed) {
+				return LocalDateTime.parse(string);
+			} else {
+				return DateUtils.parseDateTime(string, getProperty());
 			}
 		} else {
 			return null;
@@ -55,9 +50,7 @@ public class LocalDateTimeFormElement extends FormatFormElement<LocalDateTime> {
 	
 	@Override
 	public String render(LocalDateTime value) {
-		if (InvalidValues.isInvalid(value)) {
-			return typed ? InvalidValues.getInvalidValue(value) : null;
-		} else if (value != null) {
+		if (value != null) {
 			if (typed) {
 				return value.toString();
 			} else {

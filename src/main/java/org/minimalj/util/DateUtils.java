@@ -214,15 +214,11 @@ public class DateUtils {
 	 * like 1.2.2013 or 010214
 	 * 
 	 * @param date date as a String or <code>null</code>
-	 * @return LocalDate date object (valid or invalid) or <code>null</code>
+	 * @return LocalDate date object (valid) or <code>null</code>
+	 * @throws DateTimeParseException
 	 */
-	public static LocalDate parse(String date) {
-		if (StringUtils.isEmpty(date)) return null;
-		try {
-			return parse_(date);
-		} catch (DateTimeParseException x) {
-			return InvalidValues.createInvalidLocalDate(date);
-		}
+	public static LocalDate parse(String date) throws DateTimeParseException {
+		return StringUtils.isEmpty(date) ? null : parse_(date);
 	}
 
 	// framework internal, only used by LocalDateTimeFormElement
@@ -248,8 +244,6 @@ public class DateUtils {
 	public static String format(String value) {
 		if (StringUtils.isEmpty(value))
 			return "";
-		if (InvalidValues.isInvalid(value))
-			return InvalidValues.getInvalidValue(value);
 		
 		TrippleString trippleString = new TrippleString(value);
 		if (!StringUtils.isEmpty(trippleString.s3)) {
@@ -417,7 +411,7 @@ public class DateUtils {
 			} catch (DateTimeParseException ignored) {
 				//
 			}
-			return InvalidValues.createInvalidLocalTime(s);
+			return null;
 		}
 		return null;
 	}

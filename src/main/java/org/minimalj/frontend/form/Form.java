@@ -33,6 +33,7 @@ import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
 import org.minimalj.frontend.form.element.FormElement;
 import org.minimalj.frontend.form.element.FormElementConstraint;
+import org.minimalj.frontend.form.element.FormatFormElement;
 import org.minimalj.frontend.form.element.Indication;
 import org.minimalj.frontend.form.element.IntegerFormElement;
 import org.minimalj.frontend.form.element.LocalDateFormElement;
@@ -46,6 +47,7 @@ import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TableFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
 import org.minimalj.frontend.form.element.UnknownFormElement;
+import org.minimalj.frontend.form.element.FormElement.StringBasedFormElement;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
@@ -55,6 +57,7 @@ import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Visible;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Property;
+import org.minimalj.model.properties.Property.StringBasedProperty;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
@@ -450,10 +453,15 @@ public class Form<T> {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void set(Property property, Object value) {
+	private void set(Property property, Object object) {
 		FormElement element = elements.get(property);
 		try {
+			Object value = property.getValue(object);
 			element.setValue(value);
+			if (value == null && element instanceof StringBasedFormElement && property instanceof StringBasedProperty) {
+				String invalidString = ((StringBasedProperty) property).getInvalidString(object);
+				((StringBasedFormElement) element).setInvalidString(invalidString);
+			}
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
 		}
@@ -495,8 +503,7 @@ public class Form<T> {
 
 	private void readValueFromObject() {
 		for (Property property : getProperties()) {
-			Object propertyValue = property.getValue(object);
-			set(property, propertyValue);
+			set(property, object);
 		}
 		if (editable) {
 			updateEnable();
@@ -539,12 +546,15 @@ public class Form<T> {
 			logger.finer(() -> "ChangeEvent from element: " + getName(changedField) + ", property: " + property.getPath() + ", value: " + newValue);
 
 			HashSet<Property> changedProperties = new HashSet<>();
-
-//			Keys.getDependencies(Keys.getDependencies(property).get(0))
 			
 			setValue(property, newValue, changedProperties);
 			logger.finer(() -> "Changed properties: " + changedProperties.stream().map(Property::getPath).collect(Collectors.joining(", ")));
 
+			String newInvalidString = changedField instanceof StringBasedFormElement ? ((StringBasedFormElement<?>) changedField).getInvalidString() : null;
+			if (property instanceof StringBasedProperty) {
+				((StringBasedProperty) property).setInvalidString(object, newInvalidString);
+			}
+			
 			if (!changedProperties.isEmpty()) {
 				// propagate all possible changed values to the form elements
 				updateDependingFormElements(changedField, changedProperties);
@@ -553,8 +563,10 @@ public class Form<T> {
 				updateEnable();
 				updateVisible();
 
-				changeListener.changed(Form.this);
 			}
+
+			// propagate change to trigger validation even if no changedProperty
+			changeListener.changed(Form.this);
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -10,6 +10,7 @@ import org.minimalj.frontend.Frontend.Search;
 import org.minimalj.frontend.Frontend.SwitchComponent;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
+import org.minimalj.frontend.form.element.FormElement.StringBasedFormElement;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.properties.Property;
@@ -17,7 +18,7 @@ import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
 // Framework internal. Only use specializations
-public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> implements Enable {
+public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T> implements StringBasedFormElement<T>, Enable {
 	private static Logger logger = Logger.getLogger(AbstractLookupFormElement.class.getSimpleName());
 
 	private final SwitchComponent switchComponent;
@@ -26,6 +27,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	private boolean initialized = false;
 
 	private T object;
+	private String invalidString;
 
 	AbstractLookupFormElement(T key, boolean editable) {
 		super(key);
@@ -160,7 +162,26 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 		setValue(object);
 		listener().changed(lookup);
 	}
+	
+	@Override
+	public String getInvalidString() {
+		return invalidString;
+	}
 
+	@Override
+	public void setInvalidString(String string) {
+		this.invalidString = string;
+		if (string != null) {
+			this.object = null;
+			if (lookup != null) {
+				lookup.setValue(null);
+			}
+			if (readOnlyInput != null) {
+				readOnlyInput.setValue(string);
+			}
+		}
+	}
+	
 	protected String render(T value) {
 		return Rendering.toString(value, getProperty());
 	}
@@ -172,7 +193,13 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	public void inputChanged(IComponent source) {
 		String newInputValue = lookup.getValue();
 		if (object == null || !render(object).equals(newInputValue)) {
-			object = (T) ((LookupParser) this).parse(newInputValue);
+			try {
+				object = (T) ((LookupParser) this).parse(newInputValue);
+				invalidString = null;
+			} catch (RuntimeException x) {
+				object = null;
+				invalidString = newInputValue;
+			}
 			if (object != null && !(object instanceof Collection) && object.getClass() != getProperty().getClazz()) {
 				throw new IllegalStateException("Parser result of wrong class: " + object.getClass().getName() + " instead of " + getProperty().getClazz().getName());
 			}

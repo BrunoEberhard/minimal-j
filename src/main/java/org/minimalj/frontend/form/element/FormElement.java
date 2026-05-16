@@ -33,4 +33,11 @@ public interface FormElement<T> {
 	public String getDescription();
 
 	public boolean canBeEmpty();
+	
+	public interface StringBasedFormElement<T> extends FormElement<T> {
+		
+		public String getInvalidString();
+		
+		public void setInvalidString(String string);
+	}
 }

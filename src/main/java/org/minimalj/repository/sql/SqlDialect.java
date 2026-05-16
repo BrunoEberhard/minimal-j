@@ -347,7 +347,7 @@ public abstract class SqlDialect {
 
 		@Override
 		public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
-			if (value instanceof Temporal && !InvalidValues.isInvalid(value)) {
+			if (value instanceof Temporal) {
 				value = value.toString();
 			}
 			super.setParameter(preparedStatement, param, value);
@@ -389,25 +389,21 @@ public abstract class SqlDialect {
 	
 	public void setParameter(PreparedStatement preparedStatement, int param, Object value) throws SQLException {
 		Objects.requireNonNull(value);
-		if (InvalidValues.isInvalid(value)) {
-			setParameterNull(preparedStatement, param, value.getClass());
-		} else {
-			if (value instanceof Enum<?>) {
-				Enum<?> e = (Enum<?>) value;
-				value = e.ordinal();
-			} else if (value instanceof LocalDate) {
-				value = java.sql.Date.valueOf((LocalDate) value);
-			} else if (value instanceof LocalTime) {
-				value = java.sql.Time.valueOf((LocalTime) value);
-			} else if (value instanceof LocalDateTime) {
-				value = java.sql.Timestamp.valueOf((LocalDateTime) value);
-			} else if (value instanceof Set<?>) {
-				value = EnumUtils.getInt((Set<?>) value);
-			} else if (value instanceof UUID) {
-				value = value.toString();
-			}
-			preparedStatement.setObject(param, value);
-		} 
+		if (value instanceof Enum<?>) {
+			Enum<?> e = (Enum<?>) value;
+			value = e.ordinal();
+		} else if (value instanceof LocalDate) {
+			value = java.sql.Date.valueOf((LocalDate) value);
+		} else if (value instanceof LocalTime) {
+			value = java.sql.Time.valueOf((LocalTime) value);
+		} else if (value instanceof LocalDateTime) {
+			value = java.sql.Timestamp.valueOf((LocalDateTime) value);
+		} else if (value instanceof Set<?>) {
+			value = EnumUtils.getInt((Set<?>) value);
+		} else if (value instanceof UUID) {
+			value = value.toString();
+		}
+		preparedStatement.setObject(param, value);
 	}
 	
 	public void setParameterNull(PreparedStatement preparedStatement, int param, Class<?> clazz) throws SQLException {

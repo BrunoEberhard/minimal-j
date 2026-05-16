@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.minimalj.model.Selection;
+import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.repository.list.RelationList;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -48,6 +49,7 @@ public class CloneHelper {
 			originals.add(object);
 			copies.add(copy);
 			_deepCopy(object, copy, originals, copies);
+			InvalidValues.clone(object, copy);
 			return copy;
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);

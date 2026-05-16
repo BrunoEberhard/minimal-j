@@ -174,11 +174,14 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean valid() {
-			return InvalidValues.isValid(value);
+			return value != ComparableRange.INVALID;
 		}
 
 		@Override
 		public boolean doTest(Object t) {
+			if (value == null) {
+				return true;
+			}
 			return t != null ? ((Comparable) value).compareTo(t) == 0 : false;
 		}
 
@@ -212,7 +215,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null ? ((ComparableRange) value).test(t) : false;
+			return value != null && t != null ? ((ComparableRange) value).test(t) : false;
 		}
 
 		@Override
@@ -254,12 +257,12 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean valid() {
-			return InvalidValues.isValid(value);
+			return value != ComparableRange.INVALID;
 		}
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null ? value.compareTo(t) <= 0 : false;
+			return value != null && t != null ? value.compareTo(t) <= 0 : false;
 		}
 
 		@Override
@@ -312,12 +315,12 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 
 		@Override
 		public boolean valid() {
-			return InvalidValues.isValid(value);
+			return value != ComparableRange.INVALID;
 		}
 
 		@Override
 		public boolean doTest(Object t) {
-			return t != null ? value.compareTo(t) >= 0 : true;
+			return value != null && t != null ? value.compareTo(t) >= 0 : true;
 		}
 
 		@Override
@@ -338,7 +341,7 @@ public abstract class ColumnFilterPredicate implements Predicate<Object>, Render
 	}
 
 	public static class RangeFilterPredicate extends ColumnFilterPredicate {
-		private ComparableRange range;
+		private final ComparableRange range;
 		private Input<String> input1, input2;
 
 		public RangeFilterPredicate(Class<?> clazz) {
