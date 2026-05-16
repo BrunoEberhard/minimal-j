@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
+import org.minimalj.frontend.Frontend;
 import org.minimalj.test.PageContainerTestFacade.DialogTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
@@ -39,12 +40,14 @@ public abstract class UiTest {
 	
 	@AfterEach
 	public void closeAllDialogs() {
-		// if a test fails and a dialog stays open the coming tests would fail.
-		// therefore close all open dialogs at the end of each test.
-		var dialog = dialog();
-		while (dialog != null) {
-			dialog.close();
-			dialog = dialog();
+		if (Frontend.isAvailable()) {
+			// if a test fails and a dialog stays open the coming tests would fail.
+			// therefore close all open dialogs at the end of each test.
+			var dialog = dialog();
+			while (dialog != null) {
+				dialog.close();
+				dialog = dialog();
+			}
 		}
 	}
 
