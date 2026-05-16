@@ -46,11 +46,20 @@ public class FlatProperties {
 	}
 
 	public static Object getValue(Object domainObject, String key) {
+		Property property = getProperty(domainObject, key);
+		if (property != null) {
+			return property.getValue(domainObject);
+		} else {
+			return null;
+		}
+	}
+	
+	public static Property getProperty(Object domainObject, String key) {
 		Class<?> clazz = domainObject.getClass();
 		Map<String, Property> propertiesForClass = getProperties(clazz);
-		Property propertyInterface = propertiesForClass.get(key);
-		if (propertyInterface != null) {
-			return propertyInterface.getValue(domainObject);
+		Property property = propertiesForClass.get(key);
+		if (property != null) {
+			return property;
 		} else {
 			logger.severe("No column " + key + " in Class " + clazz.getName());
 			return null;
