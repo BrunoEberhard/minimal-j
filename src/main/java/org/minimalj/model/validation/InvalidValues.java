@@ -23,12 +23,6 @@ public class InvalidValues {
 
 	private static final Map<Object, Map<Field, String>> invalidStrings = new WeakIdentityHashMap<>();
 
-	@Deprecated
-	// TODO replace all calls with "!= null"
-	public static boolean isValid(Object value) {
-		return value != null;
-	}
-	
 	public static String getInvalidString(Object object, Field field) {
 		if (invalidStrings.containsKey(object)) {
 			Map<Field, String> invalidFieldStringByField = invalidStrings.get(object);

@@ -343,8 +343,8 @@ public class DateUtils {
 				String[] parts = s.split(" ");
 				LocalDate date = parseDate(parts[0], upperEnd);
 				LocalTime time = parseTime(parts[1], upperEnd);
-				if (InvalidValues.isValid(date)) {
-					if (InvalidValues.isValid(time)) {
+				if (date != null) {
+					if (time != null) {
 						return LocalDateTime.of(date, time);
 					} else {
 						return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
@@ -352,7 +352,7 @@ public class DateUtils {
 				}
 			} else {
 				LocalDate date = parseDate(s, upperEnd);
-				if (InvalidValues.isValid(date)) {
+				if (date != null) {
 					return LocalDateTime.of(date, upperEnd ? LocalTime.MAX : LocalTime.MIN);
 				}
 			}
