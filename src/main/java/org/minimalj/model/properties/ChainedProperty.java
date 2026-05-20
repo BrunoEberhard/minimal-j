@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.minimalj.model.properties.Property.StringBasedProperty;
@@ -15,8 +16,8 @@ public class ChainedProperty implements StringBasedProperty {
 	private final Property property2;
 
 	public ChainedProperty(Property property1, Property property2) {
-		this.property1 = property1;
-		this.property2 = property2;
+		this.property1 = Objects.requireNonNull(property1);
+		this.property2 = Objects.requireNonNull(property2);
 	}
 
 	public List<Property> getChain() {
