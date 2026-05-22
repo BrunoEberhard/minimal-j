@@ -114,6 +114,12 @@ public class EnumUtils {
 	@SuppressWarnings("rawtypes")
 	private static Map itemLists = new HashMap();
 
+	public static void clearCache() {
+		EnumTextCache.instance.cacheText.clear();
+		EnumTextCache.instance.cacheDescription.clear();
+		itemLists.clear();
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T extends Enum<T>> List<CodeItem<T>> itemList(Class<T> enumClass) {
 		if (!itemLists.containsKey(enumClass)) {

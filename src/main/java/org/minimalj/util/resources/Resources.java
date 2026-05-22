@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +16,7 @@ import java.util.regex.Pattern;
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.model.Code;
+import org.minimalj.model.EnumUtils;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.properties.ChainedProperty;
@@ -30,16 +32,26 @@ public class Resources {
 	public static final String APPLICATION_NAME = "Application.name";
 	public static final String APPLICATION_ICON = "Application.icon";
 
-	private static final Map<Locale, ResourceBundleAccess> resourcesByLocale = new HashMap<>();
+	private static final Map<Locale, ResourceBundleAccess> resourcesByLocale = new ConcurrentHashMap<>();
+
+	static {
+		if (Configuration.isDevModeActive()) {
+			ResourceWatcher.start(Resources::invalidate);
+		}
+	}
+
+	private static void invalidate() {
+		resourcesByLocale.clear();
+		ResourceBundle.clearCache();
+		EnumUtils.clearCache();
+	}
 
 	private static ResourceBundleAccess getAccess() {
 		Locale locale = LocaleContext.getCurrent();
 		if (!resourcesByLocale.containsKey(locale)) {
 			ResourceBundle resourceBundle = Application.getInstance().getResourceBundle(locale);
-			ResourceBundle frameworkResourceBundle = ResourceBundle.getBundle("MinimalJ", locale,
-					Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
-			resourcesByLocale.put(locale,
-					new ResourceBundleAccess(new MultiResourceBundle(resourceBundle, frameworkResourceBundle)));
+			ResourceBundle frameworkResourceBundle = ResourceBundle.getBundle("MinimalJ", locale, Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
+			resourcesByLocale.put(locale, new ResourceBundleAccess(new MultiResourceBundle(resourceBundle, frameworkResourceBundle)));
 		}
 		return resourcesByLocale.get(locale);
 	}
