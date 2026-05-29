@@ -1,7 +1,6 @@
 package org.minimalj.example.library.frontend.form;
 
 import static org.minimalj.example.library.model.Book.$;
-import static org.minimalj.example.library.model.Book.$available;
 
 import org.minimalj.example.library.model.Book;
 import org.minimalj.frontend.form.Form;
@@ -14,7 +13,7 @@ public class BookForm extends Form<Book> {
 		line($.title);
 		line($.author, $.date);
 		line($.media, $.pages);
-		line($available, $.price);
+		line($.available(), $.price);
 	}
 	
 }

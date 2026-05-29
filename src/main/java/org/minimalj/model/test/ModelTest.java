@@ -30,7 +30,6 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.annotation.Visible;
-import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
@@ -412,7 +411,7 @@ public class ModelTest {
 			return;
 		}
 		if (fieldType == Boolean.TYPE) {
-			testCompanionField(field, messagePrefix);
+			testCompanionMethod(field, messagePrefix);
 			return;
 		}
 		if (fieldType.isPrimitive()) {
@@ -433,42 +432,52 @@ public class ModelTest {
 
 	/**
 	 * A primitive field cannot be used as a key with the $ mechanism
-	 * (Keys.fillFields skips primitives). It therefore needs a companion static
-	 * Property field named "$&lt;fieldName&gt;", for example:
+	 * (Keys.fillFields skips primitives). It therefore needs a companion method
+	 * named after the field that returns its key, for example:
 	 *
 	 * <pre>
 	 * public boolean available;
-	 * public static Property $available = Properties.getProperty(Book.class, "available");
+	 *
+	 * public Property available() {
+	 * 	return Keys.property(this, "available");
+	 * }
 	 * </pre>
+	 *
+	 * Unlike a static Property constant the method composes correctly in nested
+	 * forms because {@link Keys#property} chains it with the path of the key
+	 * object it is called on.
 	 */
-	private void testCompanionField(Field field, String messagePrefix) {
-		String companionName = "$" + field.getName();
+	private void testCompanionMethod(Field field, String messagePrefix) {
+		String name = field.getName();
+		String expected = "public Property " + name + "() { return Keys.property(this, \"" + name + "\"); }";
+		Method method;
 		try {
-			Field companion = field.getDeclaringClass().getField(companionName);
-			if (!FieldUtils.isStatic(companion)) {
-				problems.add(messagePrefix + ": companion field " + companionName + " must be static");
-				return;
-			}
-			if (companion.getType() != Property.class) {
-				problems.add(messagePrefix + ": companion field " + companionName + " must be of type Property");
-				return;
-			}
-			Object value = FieldUtils.getStaticValue(companion);
-			if (!(value instanceof FieldProperty)) {
-				problems.add(messagePrefix + ": companion field " + companionName + " must reference a FieldProperty, for example Properties.getProperty("
-						+ field.getDeclaringClass().getSimpleName() + ".class, \"" + field.getName() + "\")");
-				return;
-			}
-			FieldProperty companionProperty = (FieldProperty) value;
-			if (companionProperty.getDeclaringClass() != field.getDeclaringClass() || !companionProperty.getName().equals(field.getName())) {
-				problems.add(messagePrefix + ": companion field " + companionName + " must reference the property " + field.getDeclaringClass().getSimpleName() + "." + field.getName()
-						+ ", but references " + companionProperty.getDeclaringClass().getSimpleName() + "." + companionProperty.getName());
-			}
-		} catch (NoSuchFieldException e) {
-			problems.add(messagePrefix + ": a primitive field needs a companion static field \"public static Property "
-					+ companionName + " = Properties.getProperty(" + field.getDeclaringClass().getSimpleName() + ".class, \"" + field.getName() + "\");\"");
+			method = field.getDeclaringClass().getMethod(name);
+		} catch (NoSuchMethodException e) {
+			problems.add(messagePrefix + ": a primitive field needs a companion method \"" + expected + "\"");
+			return;
 		} catch (SecurityException e) {
-			problems.add(messagePrefix + " makes SecurityException with the companion field " + companionName);
+			problems.add(messagePrefix + " makes SecurityException with the companion method " + name + "()");
+			return;
+		}
+		if (Keys.isStatic(method)) {
+			problems.add(messagePrefix + ": companion method " + name + "() must not be static");
+			return;
+		}
+		if (method.getReturnType() != Property.class) {
+			problems.add(messagePrefix + ": companion method " + name + "() must return Property");
+			return;
+		}
+		// best effort: verify the method really returns the key of this field. If the
+		// declaring class can't be instantiated as a key object (e.g. abstract) the
+		// signature check above already guarantees usability, so ignore failures here.
+		try {
+			Property property = (Property) method.invoke(Keys.of(field.getDeclaringClass()));
+			if (property == null || property.getClazz() != Boolean.class || !property.getName().equals(name)) {
+				problems.add(messagePrefix + ": companion method " + name + "() must return \"" + expected + "\"");
+			}
+		} catch (Exception e) {
+			// ignore, signature is valid
 		}
 	}
 

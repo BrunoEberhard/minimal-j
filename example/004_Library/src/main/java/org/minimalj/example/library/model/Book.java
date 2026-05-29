@@ -11,7 +11,6 @@ import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.mock.Mocking;
 
@@ -28,8 +27,10 @@ public class Book implements Rendering, Mocking {
 	public String author;
 
 	public final Set<Media> media = new HashSet<>();
+	
 	public boolean available;
-	public static Property $available = Properties.getProperty(Book.class, "available");
+	public Property available() { return Keys.propertyOf(this, "available"); }
+
 	public LocalDate date;
 	@Size(4)
 	public Integer pages;

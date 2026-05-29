@@ -204,6 +204,28 @@ public class Keys {
 			return properties.get(key);
 		}
 	}
+
+	/**
+	 * Creates a key for a field that cannot be tracked by the $ mechanism itself,
+	 * most notably primitive fields like <code>boolean</code>. The returned
+	 * property is chained with the path of the given key object, so it composes
+	 * correctly in nested forms. Intended to be returned from a no argument method
+	 * named after the field:
+	 *
+	 * <pre>
+	 * public boolean available;
+	 * public Property available() { return Keys.propertyOf(this, "available"); }
+	 * </pre>
+	 *
+	 * @param keyObject the key object the method is called on (<code>this</code>)
+	 * @param name      the name of the field
+	 * @return the (possibly chained) property for the field
+	 */
+	public static Property propertyOf(Object keyObject, String name) {
+		Property property = Properties.getProperty(keyObject.getClass(), name);
+		Property enclosingProperty = properties.get(keyObject);
+		return enclosingProperty != null ? new ChainedProperty(enclosingProperty, property) : property;
+	}
 	
 	public static Property[] getProperties(Object[] keys) {
 		Property[] properties = new Property[keys.length];

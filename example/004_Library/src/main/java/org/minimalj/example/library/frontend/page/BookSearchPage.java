@@ -19,7 +19,7 @@ public class BookSearchPage extends SearchPage<Book> {
 		$.date, //
 		$.media, //
 		$.pages, //
-		$.available, //
+		$.available(), //
 	};
 	
 	public BookSearchPage(String query) {
