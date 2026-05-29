@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
-import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.util.IdUtils;
@@ -178,7 +177,7 @@ public enum SchemaPreparation {
 		for (Map.Entry<String, Property> column : table.getColumns().entrySet()) {
 			Property property = column.getValue();
 			String columnName = column.getKey();
-			boolean notEmptyProperty = property.getAnnotation(NotEmpty.class) != null;
+			boolean notEmptyProperty = property.notEmpty();
 			if (!columnNames.contains(column.getKey().toLowerCase())) {
 				logger.info("New column: " + table.name + "." + columnName);
 				String s = "ALTER TABLE " + table.name + " ADD COLUMN " + columnName + " "

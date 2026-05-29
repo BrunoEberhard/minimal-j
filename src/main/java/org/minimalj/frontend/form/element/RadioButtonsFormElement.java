@@ -10,7 +10,6 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.mock.Mocking;
 import org.minimalj.util.resources.Resources;
@@ -38,7 +37,7 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 	static <T> List<CodeItem<T>> createCodeItems(Boolean key, String resourceNames) {
 		Property property = Keys.getProperty(key);
 		List<CodeItem<T>> codeItems = new ArrayList<>();
-		if (property.getAnnotation(NotEmpty.class) == null) {
+		if (!property.notEmpty()) {
 			codeItems.add(new CodeItem(null, Resources.getString(resourceNames + ".null")));
 		}
 		codeItems.add(new CodeItem(Boolean.FALSE, Resources.getString(resourceNames + ".false")));

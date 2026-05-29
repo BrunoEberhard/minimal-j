@@ -14,7 +14,6 @@ import org.minimalj.frontend.editor.Editor.NewObjectEditor;
 import org.minimalj.frontend.editor.SearchDialog;
 import org.minimalj.frontend.editor.TableDialog;
 import org.minimalj.frontend.form.Form;
-import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.query.By;
@@ -71,7 +70,7 @@ public class LookupFormElement<T> extends AbstractLookupFormElement<T> {
 		if (newForm != null) {
 			additionalActions.add(new NewReferenceEditor());
 		}
-		boolean required = getProperty().getAnnotation(NotEmpty.class) != null;
+		boolean required = getProperty().notEmpty();
 		if (!required && !EmptyObjects.isEmpty(getValue())) {
 			additionalActions.add(new ClearAction());
 		}

@@ -2,6 +2,8 @@ package org.minimalj.model.properties;
 
 import java.lang.annotation.Annotation;
 
+import org.minimalj.model.annotation.NotEmpty;
+
 /**
  * Properties can be public fields or getter/setter pairs. This interface is
  * intended for internal Minimal-J use. Sometimes it's also usefull for an
@@ -35,6 +37,10 @@ public interface Property {
 	public void setValue(Object object, Object value);
 
 	public boolean isFinal();
+	
+	public default boolean notEmpty() {
+		return getAnnotation(NotEmpty.class) != null;
+	}
 	
 	public interface StringBasedProperty extends Property {
 		

@@ -22,7 +22,6 @@ import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Comment;
-import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.properties.FlatProperties;
@@ -199,7 +198,7 @@ public abstract class AbstractTable<T> {
 		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
 			Property property = column.getValue();
 			s.append(",\n ").append(column.getKey()).append(' ').append(getColumnDefinition(dialect, property));
-			boolean isNotEmpty = property.getAnnotation(NotEmpty.class) != null;
+			boolean isNotEmpty = property.notEmpty();
 			s.append(isNotEmpty ? " NOT NULL" : " DEFAULT NULL");
 		}
 	}

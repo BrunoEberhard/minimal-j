@@ -32,8 +32,8 @@ import org.minimalj.frontend.form.element.Enable;
 import org.minimalj.frontend.form.element.EnumFormElement;
 import org.minimalj.frontend.form.element.EnumSetFormElement;
 import org.minimalj.frontend.form.element.FormElement;
+import org.minimalj.frontend.form.element.FormElement.StringBasedFormElement;
 import org.minimalj.frontend.form.element.FormElementConstraint;
-import org.minimalj.frontend.form.element.FormatFormElement;
 import org.minimalj.frontend.form.element.Indication;
 import org.minimalj.frontend.form.element.IntegerFormElement;
 import org.minimalj.frontend.form.element.LocalDateFormElement;
@@ -47,13 +47,11 @@ import org.minimalj.frontend.form.element.StringFormElement;
 import org.minimalj.frontend.form.element.TableFormElement;
 import org.minimalj.frontend.form.element.TextFormElement;
 import org.minimalj.frontend.form.element.UnknownFormElement;
-import org.minimalj.frontend.form.element.FormElement.StringBasedFormElement;
 import org.minimalj.model.Code;
 import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Selection;
 import org.minimalj.model.annotation.Enabled;
-import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Visible;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Property;
@@ -253,7 +251,7 @@ public class Form<T> {
 	}
 
 	private void add(FormElement<?> element, int span, boolean forcedNotEmpty) {
-		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().getAnnotation(NotEmpty.class) != null);
+		boolean required = editable && element.canBeEmpty() && (forcedNotEmpty || element.getProperty().notEmpty());
 		IComponent component = element.getComponent();
 		setDescription(element, component);
 		formContent.add(element.getCaption(), required, component, element.getConstraint(), span);

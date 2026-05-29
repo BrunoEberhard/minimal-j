@@ -302,7 +302,7 @@ public class InMemoryRepository implements Repository {
 	
 	private void check(Object root) {
 		apply(root, (object, property, value) -> {
-			if (property.getAnnotation(NotEmpty.class) != null) {
+			if (property.notEmpty()) {
 				if (value == null) {
 					throw new IllegalArgumentException(property.getPath() + " must not be null");
 				} else if (value instanceof String && ((String)value).isEmpty()) {

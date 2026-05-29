@@ -64,7 +64,7 @@ public class MjProperty {
 		} else {
 			this.type = MjEntity.PRIMITIVES.get(field.getType());
 		}
-		notEmpty = field.getAnnotation(NotEmpty.class) != null;
+		notEmpty = notNull();
 		searched = field.getAnnotation(Searched.class) != null;
 		Enabled enabled = field.getAnnotation(Enabled.class);
 		this.enabled = enabled != null ? enabled.value() : null;
@@ -91,7 +91,7 @@ public class MjProperty {
 		} else {
 			this.type = MjEntity.PRIMITIVES.get(returnType);
 		}
-		notEmpty = method.getAnnotation(NotEmpty.class) != null;
+		notEmpty = notNull();
 		searched = method.getAnnotation(Searched.class) != null;
 		Enabled enabled = method.getAnnotation(Enabled.class);
 		this.enabled = enabled != null ? enabled.value() : null;

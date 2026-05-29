@@ -12,7 +12,6 @@ import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.model.CodeItem;
 import org.minimalj.model.Keys;
-import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.mock.Mocking;
@@ -99,7 +98,7 @@ public class ComboBoxFormElement<T> extends AbstractFormElement<T> implements En
 		public BooleanComboBoxFormElement(Boolean key) {
 			super(key);
 			Property property = Keys.getProperty(key);
-			canBeEmpty = property.getAnnotation(NotEmpty.class) == null;
+			canBeEmpty = !property.notEmpty();
 			values = new ArrayList<>();
 			if (canBeEmpty) {
 				values.add(new CodeItem<Boolean>(null, EMPTY_NULL_STRING));

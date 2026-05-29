@@ -97,7 +97,7 @@ public class ClassValidator {
 		}
 		// note: it's allowed to omit an NotEmpty
 		// but it's not allowed to have one if the value is not required in the model
-		if (p.getAnnotation(NotEmpty.class) != null) {
+		if (p.notEmpty()) {
 			if (!Boolean.TRUE.equals(property.notEmpty)) {
 				throw new RuntimeException("Property should be marked as NotEmpty: " + property.name + " on " + entity.getClassName());
 			}
