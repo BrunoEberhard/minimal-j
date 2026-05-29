@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
+import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.properties.Property.StringBasedProperty;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.repository.sql.EmptyObjects;
@@ -24,13 +25,23 @@ public class FieldProperty implements StringBasedProperty {
 	private final Class<?> declaringClass;
 	private final boolean isFinal, isTransient;
 	private final Class<?> type;
+	private final boolean primitive;
 	
 	public FieldProperty(Field field, Class<?> declaringClass) {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
 		this.isTransient = FieldUtils.isTransient(field);
-		this.type = field.getType();
+		this.type = convertPrimitiveTypes(field.getType());
 		this.declaringClass = declaringClass;
+		this.primitive = field.getType() == Boolean.TYPE;
+	}
+	
+	private static Class<?> convertPrimitiveTypes(Class<?> clazz) {
+		if (clazz == Boolean.TYPE) {
+			return Boolean.class;
+		} else {
+			return clazz;
+		}
 	}
 
 	@Override
@@ -115,6 +126,11 @@ public class FieldProperty implements StringBasedProperty {
 			annotations.put(annotationClass, _getAnnotation(annotationClass));
 		}
 		return (T) annotations.get(annotationClass);
+	}
+	
+	@Override
+	public boolean notEmpty() {
+		return primitive || getAnnotation(NotEmpty.class) != null;
 	}
 
 	private <T extends Annotation> T _getAnnotation(Class<T> annotationClass) {

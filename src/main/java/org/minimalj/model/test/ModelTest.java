@@ -30,6 +30,7 @@ import org.minimalj.model.annotation.Size;
 import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.annotation.TechnicalField.TechnicalFieldType;
 import org.minimalj.model.annotation.Visible;
+import org.minimalj.model.properties.FieldProperty;
 import org.minimalj.model.properties.FlatProperties;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
@@ -410,6 +411,10 @@ public class ModelTest {
 		if (FieldUtils.isAllowedPrimitive(fieldType)) {
 			return;
 		}
+		if (fieldType == Boolean.TYPE) {
+			testCompanionField(field, messagePrefix);
+			return;
+		}
 		if (fieldType.isPrimitive()) {
 			problems.add(messagePrefix + " has invalid Type");
 		}
@@ -423,6 +428,47 @@ public class ModelTest {
 			testInlineClass(fieldType);
 		} else {
 			testClass(fieldType);
+		}
+	}
+
+	/**
+	 * A primitive field cannot be used as a key with the $ mechanism
+	 * (Keys.fillFields skips primitives). It therefore needs a companion static
+	 * Property field named "$&lt;fieldName&gt;", for example:
+	 *
+	 * <pre>
+	 * public boolean available;
+	 * public static Property $available = Properties.getProperty(Book.class, "available");
+	 * </pre>
+	 */
+	private void testCompanionField(Field field, String messagePrefix) {
+		String companionName = "$" + field.getName();
+		try {
+			Field companion = field.getDeclaringClass().getField(companionName);
+			if (!FieldUtils.isStatic(companion)) {
+				problems.add(messagePrefix + ": companion field " + companionName + " must be static");
+				return;
+			}
+			if (companion.getType() != Property.class) {
+				problems.add(messagePrefix + ": companion field " + companionName + " must be of type Property");
+				return;
+			}
+			Object value = FieldUtils.getStaticValue(companion);
+			if (!(value instanceof FieldProperty)) {
+				problems.add(messagePrefix + ": companion field " + companionName + " must reference a FieldProperty, for example Properties.getProperty("
+						+ field.getDeclaringClass().getSimpleName() + ".class, \"" + field.getName() + "\")");
+				return;
+			}
+			FieldProperty companionProperty = (FieldProperty) value;
+			if (companionProperty.getDeclaringClass() != field.getDeclaringClass() || !companionProperty.getName().equals(field.getName())) {
+				problems.add(messagePrefix + ": companion field " + companionName + " must reference the property " + field.getDeclaringClass().getSimpleName() + "." + field.getName()
+						+ ", but references " + companionProperty.getDeclaringClass().getSimpleName() + "." + companionProperty.getName());
+			}
+		} catch (NoSuchFieldException e) {
+			problems.add(messagePrefix + ": a primitive field needs a companion static field \"public static Property "
+					+ companionName + " = Properties.getProperty(" + field.getDeclaringClass().getSimpleName() + ".class, \"" + field.getName() + "\");\"");
+		} catch (SecurityException e) {
+			problems.add(messagePrefix + " makes SecurityException with the companion field " + companionName);
 		}
 	}
 

@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.Property;
 
 /**
  * This tests don't test models. It tests the tests for the model.
@@ -530,6 +532,57 @@ public class ModelTestTest {
 	public static class TestClass29e {
 		public Object id;
 		public List<TestClass29a> a;
+	}
+
+	//
+
+	@Test public void
+	should_accept_primitive_boolean_with_companion_field() {
+		ModelTest modelTest = new ModelTest(TestClass30.class);
+		assertValid(modelTest);
+	}
+
+	public static class TestClass30 {
+		public Object id;
+		public boolean available;
+		public static Property $available = Properties.getProperty(TestClass30.class, "available");
+	}
+
+	@Test public void
+	should_not_accept_primitive_boolean_without_companion_field() {
+		ModelTest modelTest = new ModelTest(TestClass31.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass31 {
+		public Object id;
+		public boolean available;
+	}
+
+	@Test public void
+	should_not_accept_primitive_boolean_with_companion_field_of_wrong_type() {
+		ModelTest modelTest = new ModelTest(TestClass32.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass32 {
+		public Object id;
+		public boolean available;
+		public static String $available = "available";
+	}
+
+	@Test public void
+	should_not_accept_companion_field_referencing_wrong_field() {
+		ModelTest modelTest = new ModelTest(TestClass33.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass33 {
+		public Object id;
+		@Size(255)
+		public String name;
+		public boolean available;
+		public static Property $available = Properties.getProperty(TestClass33.class, "name");
 	}
 
 }

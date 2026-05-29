@@ -3,7 +3,6 @@ package org.minimalj.example.library.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 import org.minimalj.model.Keys;
@@ -12,6 +11,8 @@ import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.NotEmpty;
 import org.minimalj.model.annotation.Searched;
 import org.minimalj.model.annotation.Size;
+import org.minimalj.model.properties.Properties;
+import org.minimalj.model.properties.Property;
 import org.minimalj.util.mock.Mocking;
 
 
@@ -27,7 +28,8 @@ public class Book implements Rendering, Mocking {
 	public String author;
 
 	public final Set<Media> media = new HashSet<>();
-	public Boolean available;
+	public boolean available;
+	public static Property $available = Properties.getProperty(Book.class, "available");
 	public LocalDate date;
 	@Size(4)
 	public Integer pages;
