@@ -51,7 +51,7 @@ public class WebTestFacade implements UiTestFacade {
 	private RemoteWebDriver driver;
 	
 	public enum UiTestBrowser {
-		firefox, chrome, headless;
+		firefox, chrome;
 	}
 	
 	public WebTestFacade(UiTestBrowser browser, boolean headless) {

@@ -17,6 +17,7 @@ import org.minimalj.util.StringUtils;
 public abstract class UiTest {
 	public static final String CONFIGURATION_UI_TEST_BROWSER = "UiTestBrowser";
 	public static final String CONFIGURATION_UI_TEST_ENGINE = "UiTestEngine";
+	public static final String CONFIGURATION_UI_TEST_HEADLESS = "UiTestHeadless";
 
 	public enum UiTestEngine {
 		selenium, playwright, minimal;
@@ -36,7 +37,7 @@ public abstract class UiTest {
 			}
 		}
 		
-		WebTestFacade.UiTestBrowser uiTestBrowser = UiTestBrowser.headless;
+		WebTestFacade.UiTestBrowser uiTestBrowser = UiTestBrowser.firefox;
 		String configurationUiTestDriver = Configuration.get(CONFIGURATION_UI_TEST_BROWSER);
 		if (!StringUtils.isEmpty(configurationUiTestDriver)) {
 			try {
@@ -46,7 +47,7 @@ public abstract class UiTest {
 			}
 		}
 
-		boolean headless = uiTestBrowser == UiTestBrowser.headless;
+		boolean headless = "true".equals(Configuration.get(CONFIGURATION_UI_TEST_HEADLESS, "false"));
 		if (engine == UiTestEngine.playwright) {
 			ui = new PlaywrightTestFacade(uiTestBrowser, headless);
 		} else if (engine == UiTestEngine.selenium) {

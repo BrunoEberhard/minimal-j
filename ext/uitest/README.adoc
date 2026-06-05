@@ -14,13 +14,12 @@ Es stehen drei Implementationen für das Testing zur Verfügung, welche alle die
 Über den VM Parameter UiTestBrowser kann man steuern, welcher Browser bei der Ausführung der Tests benutzet werden soll.
 
 Mit der Einstellung -DUiTestBrowser=firefox wird der Firefox Browser benutzt. Mit "chrome" der Chrome Browser.
-Mit `headless` (Standard) wird kein Browser-Fenster geöffnet.
 
+Mit -DUiTestHeadless öffnet der verwendete Browser kein UI.
 
+=== PlayWright
 Damit Playwright laufen kann, müssen einmalig die Browser installiert werden:
 
 ----
 mvn exec:java -e -D"exec.mainClass=com.microsoft.playwright.CLI" -D"exec.args=install"
 ----
-
-=== Line endings
