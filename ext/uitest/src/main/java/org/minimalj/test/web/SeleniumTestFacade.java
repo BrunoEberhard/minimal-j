@@ -43,8 +43,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class WebTestFacade implements UiTestFacade {
-	private static final Logger logger = Logger.getLogger(WebTestFacade.class.getName());
+public class SeleniumTestFacade implements UiTestFacade {
+	private static final Logger logger = Logger.getLogger(SeleniumTestFacade.class.getName());
 	private final UiTestBrowser browser;
 	private final boolean headless;
 	
@@ -54,7 +54,7 @@ public class WebTestFacade implements UiTestFacade {
 		firefox, chrome;
 	}
 	
-	public WebTestFacade(UiTestBrowser browser, boolean headless) {
+	public SeleniumTestFacade(UiTestBrowser browser, boolean headless) {
 		this.browser = browser;
 		this.headless = headless;
 	}
@@ -509,13 +509,13 @@ public class WebTestFacade implements UiTestFacade {
 
 		@Override
 		public String getText() {
-			return WebTestFacade.this.getText(formElement);
+			return SeleniumTestFacade.this.getText(formElement);
 		}
 
 		@Override
 		public void setText(String value) {
 			try {
-				WebTestFacade.this.setText(formElement, value);
+				SeleniumTestFacade.this.setText(formElement, value);
 				waitScript();
 			} catch (NoSuchElementException e) {
 				// catch this exception, value simply stays the same
@@ -743,7 +743,7 @@ public class WebTestFacade implements UiTestFacade {
 		@Override
 		public void setFilter(int column, String filterString) {
 			WebElement columnFilter = getColumnFilter(column);
-			WebTestFacade.this.setText(columnFilter, filterString);
+			SeleniumTestFacade.this.setText(columnFilter, filterString);
 			waitScript();
 		}
 		

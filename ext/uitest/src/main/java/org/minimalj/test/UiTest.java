@@ -10,8 +10,8 @@ import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.headless.HeadlessTestFacade;
 import org.minimalj.test.playwright.PlaywrightTestFacade;
-import org.minimalj.test.web.WebTestFacade;
-import org.minimalj.test.web.WebTestFacade.UiTestBrowser;
+import org.minimalj.test.web.SeleniumTestFacade;
+import org.minimalj.test.web.SeleniumTestFacade.UiTestBrowser;
 import org.minimalj.util.StringUtils;
 
 public abstract class UiTest {
@@ -37,11 +37,11 @@ public abstract class UiTest {
 			}
 		}
 		
-		WebTestFacade.UiTestBrowser uiTestBrowser = UiTestBrowser.firefox;
+		SeleniumTestFacade.UiTestBrowser uiTestBrowser = UiTestBrowser.firefox;
 		String configurationUiTestDriver = Configuration.get(CONFIGURATION_UI_TEST_BROWSER);
 		if (!StringUtils.isEmpty(configurationUiTestDriver)) {
 			try {
-				uiTestBrowser = WebTestFacade.UiTestBrowser.valueOf(configurationUiTestDriver);
+				uiTestBrowser = SeleniumTestFacade.UiTestBrowser.valueOf(configurationUiTestDriver);
 			} catch (Exception x) {
 				throw new IllegalArgumentException("Invalid " + CONFIGURATION_UI_TEST_BROWSER + ": " + configurationUiTestDriver);
 			}
@@ -51,7 +51,7 @@ public abstract class UiTest {
 		if (engine == UiTestEngine.playwright) {
 			ui = new PlaywrightTestFacade(uiTestBrowser, headless);
 		} else if (engine == UiTestEngine.selenium) {
-			ui = new WebTestFacade(uiTestBrowser, headless);
+			ui = new SeleniumTestFacade(uiTestBrowser, headless);
 		} else {
 			ui = new HeadlessTestFacade();
 		}

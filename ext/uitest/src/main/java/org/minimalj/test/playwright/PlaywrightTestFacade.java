@@ -21,7 +21,7 @@ import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.PageContainerTestFacade.SearchTableTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.UiTestFacade;
-import org.minimalj.test.web.WebTestFacade.UiTestBrowser;
+import org.minimalj.test.web.SeleniumTestFacade.UiTestBrowser;
 import org.minimalj.test.web.WebTestUtil;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
