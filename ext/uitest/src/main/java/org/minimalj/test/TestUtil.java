@@ -9,6 +9,7 @@ import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
+import org.minimalj.frontend.impl.json.JsonSessionManager;
 import org.minimalj.frontend.impl.web.WebServer;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCache;
@@ -25,6 +26,10 @@ public class TestUtil {
 			field.setAccessible(true);
 			field.set(null, null);
 			
+			field = JsonSessionManager.class.getDeclaredField("sessions");
+			field.setAccessible(true);
+			((Map<?, ?>) field.get(JsonSessionManager.getInstance())).clear();
+			
 			field = Backend.class.getDeclaredField("instance");
 			field.setAccessible(true);
 			field.set(null, null);
@@ -37,13 +42,21 @@ public class TestUtil {
 				w.setVisible(false);
 			}
 
+			clearCodeCache();
+
+			WebServer.stop();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void clearCodeCache() {
+		try {
 			CodeCache codeCache = Codes.getCache();
-			field = codeCache.getClass().getDeclaredField("cache");
+			Field field = codeCache.getClass().getDeclaredField("cache");
 			field.setAccessible(true);
 			Map<?, ?> cache = (Map<?, ?>) field.get(null);
 			cache.clear();
-
-			WebServer.stop();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
