@@ -102,6 +102,8 @@ public interface PageContainerTestFacade {
 			ActionTestFacade action = getAction(caption);
 			if (action.isEnabled()) {
 				action.run();
+			} else {
+				System.out.println(getTitle() + ": save action was not enabled");
 			}
 		}
 		
