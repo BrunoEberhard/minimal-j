@@ -14,6 +14,7 @@ public interface UiTestFacade {
 	PageContainerTestFacade getCurrentPageContainerTestFacade();
 
 	public default void login(String user, String password) {
+		logout();
 		UserPasswordLoginTestFacade userPasswordLogin = getLoginTestFacade();
 
 		userPasswordLogin.setUser(user);
