@@ -11,7 +11,6 @@ import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.headless.HeadlessTestFacade;
 import org.minimalj.test.playwright.PlaywrightTestFacade;
 import org.minimalj.test.web.SeleniumTestFacade;
-import org.minimalj.test.web.SeleniumTestFacade.UiTestBrowser;
 import org.minimalj.util.StringUtils;
 
 public abstract class UiTest {
@@ -22,7 +21,11 @@ public abstract class UiTest {
 	public enum UiTestEngine {
 		selenium, playwright, minimal;
 	}
-
+	
+	public enum UiTestBrowser {
+		firefox, chrome;
+	}
+	
 	private static UiTestFacade ui;
 	private static Application application;
 
@@ -37,11 +40,11 @@ public abstract class UiTest {
 			}
 		}
 		
-		SeleniumTestFacade.UiTestBrowser uiTestBrowser = UiTestBrowser.firefox;
+		UiTestBrowser uiTestBrowser = UiTestBrowser.firefox;
 		String configurationUiTestDriver = Configuration.get(CONFIGURATION_UI_TEST_BROWSER);
 		if (!StringUtils.isEmpty(configurationUiTestDriver)) {
 			try {
-				uiTestBrowser = SeleniumTestFacade.UiTestBrowser.valueOf(configurationUiTestDriver);
+				uiTestBrowser = UiTestBrowser.valueOf(configurationUiTestDriver);
 			} catch (Exception x) {
 				throw new IllegalArgumentException("Invalid " + CONFIGURATION_UI_TEST_BROWSER + ": " + configurationUiTestDriver);
 			}

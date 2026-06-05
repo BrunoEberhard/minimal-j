@@ -22,6 +22,7 @@ import org.minimalj.test.PageContainerTestFacade.NavigationTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
 import org.minimalj.test.PageContainerTestFacade.SearchTableTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
+import org.minimalj.test.UiTest.UiTestBrowser;
 import org.minimalj.test.UiTestFacade;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
@@ -49,10 +50,6 @@ public class SeleniumTestFacade implements UiTestFacade {
 	private final boolean headless;
 	
 	private RemoteWebDriver driver;
-	
-	public enum UiTestBrowser {
-		firefox, chrome;
-	}
 	
 	public SeleniumTestFacade(UiTestBrowser browser, boolean headless) {
 		this.browser = browser;
