@@ -1,13 +1,26 @@
 = Minimal-J uitest
 In diesem Projekt beinhaltet die Basisklassen, welche zum automatisierten GUI Testing via Selenium benötigt werden.
 
-=== Konfiguration
-Über den VM Parameter UiTestDriver kann man steuern, welchen Browser Selenium bei der Ausführung der Tests benutzen soll.
+=== Test-Engine: Selenium, Playwright oder interne Engine
+Es stehen drei Implementationen für das Testing zur Verfügung, welche alle dieselbe
+`UiTestFacade` implementieren.
 
-Mit der Einstellung -DUiTestDriver=firefox wird der Firefox Browser benutzt. Mit "chrome" der Chrome Browser.
+Über den VM Parameter UiTestEngine kann gewählt werden, welche benutzt wird:
 
-Bei VM Parameter UiTestHeadless=true werden die Tests ausgeführt ohne das ein Browser Fenster geöffnet wird.
-Bei nicht gesetztem UiTestDriver wird kein Browser verwendet. Dies führt zu einer 10x schnelleren Ausführung, muss
-jedoch nicht unbedingt das gleiche Verhalten zeigen.
+* `-DUiTestEngine=minimal` (Standard): verwendet die interne Engine von Minimal-J. Die ist ca 10x schneller als wenn ein Browser involviert ist.
+* `-DUiTestEngine=selenium`: verwendet Selenium (`WebTestFacade`).
+* `-DUiTestEngine=playwright`: verwendet Playwright (`PlaywrightTestFacade`).
+
+Über den VM Parameter UiTestBrowser kann man steuern, welcher Browser bei der Ausführung der Tests benutzet werden soll.
+
+Mit der Einstellung -DUiTestBrowser=firefox wird der Firefox Browser benutzt. Mit "chrome" der Chrome Browser.
+Mit `headless` (Standard) wird kein Browser-Fenster geöffnet.
+
+
+Damit Playwright laufen kann, müssen einmalig die Browser installiert werden:
+
+----
+mvn exec:java -e -D"exec.mainClass=com.microsoft.playwright.CLI" -D"exec.args=install"
+----
 
 === Line endings

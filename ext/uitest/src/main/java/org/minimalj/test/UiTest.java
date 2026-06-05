@@ -9,30 +9,48 @@ import org.minimalj.test.PageContainerTestFacade.DialogTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.PageContainerTestFacade.TableTestFacade;
 import org.minimalj.test.headless.HeadlessTestFacade;
+import org.minimalj.test.playwright.PlaywrightTestFacade;
 import org.minimalj.test.web.WebTestFacade;
+import org.minimalj.test.web.WebTestFacade.UiTestBrowser;
 import org.minimalj.util.StringUtils;
 
 public abstract class UiTest {
-	public static final String CONFIGURATION_UI_TEST_DRIVER = "UiTestDriver";
-	public static final String CONFIGURATION_UI_TEST_HEADLESS = "UiTestHeadless";
-	
+	public static final String CONFIGURATION_UI_TEST_BROWSER = "UiTestBrowser";
+	public static final String CONFIGURATION_UI_TEST_ENGINE = "UiTestEngine";
+
+	public enum UiTestEngine {
+		selenium, playwright, minimal;
+	}
+
 	private static UiTestFacade ui;
 	private static Application application;
 
 	static {
-		WebTestFacade.UiTestDriver uiTestDriver = null;
-		String configurationUiTestDriver = Configuration.get(CONFIGURATION_UI_TEST_DRIVER);
+		UiTestEngine engine = UiTestEngine.minimal;
+		String configurationUiTestEngine = Configuration.get(CONFIGURATION_UI_TEST_ENGINE);
+		if (!StringUtils.isEmpty(configurationUiTestEngine)) {
+			try {
+				engine = UiTestEngine.valueOf(configurationUiTestEngine);
+			} catch (Exception x) {
+				throw new IllegalArgumentException("Invalid " + CONFIGURATION_UI_TEST_ENGINE + ": " + configurationUiTestEngine);
+			}
+		}
+		
+		WebTestFacade.UiTestBrowser uiTestBrowser = UiTestBrowser.headless;
+		String configurationUiTestDriver = Configuration.get(CONFIGURATION_UI_TEST_BROWSER);
 		if (!StringUtils.isEmpty(configurationUiTestDriver)) {
 			try {
-				uiTestDriver = WebTestFacade.UiTestDriver.valueOf(configurationUiTestDriver);
+				uiTestBrowser = WebTestFacade.UiTestBrowser.valueOf(configurationUiTestDriver);
 			} catch (Exception x) {
-				throw new IllegalArgumentException("Invalid " + CONFIGURATION_UI_TEST_DRIVER + ": " + configurationUiTestDriver);
+				throw new IllegalArgumentException("Invalid " + CONFIGURATION_UI_TEST_BROWSER + ": " + configurationUiTestDriver);
 			}
 		}
 
-		if (uiTestDriver != null) {
-			boolean headless = "true".equals(Configuration.get(CONFIGURATION_UI_TEST_HEADLESS));
-			ui = new WebTestFacade(uiTestDriver, headless);
+		boolean headless = uiTestBrowser == UiTestBrowser.headless;
+		if (engine == UiTestEngine.playwright) {
+			ui = new PlaywrightTestFacade(uiTestBrowser, headless);
+		} else if (engine == UiTestEngine.selenium) {
+			ui = new WebTestFacade(uiTestBrowser, headless);
 		} else {
 			ui = new HeadlessTestFacade();
 		}
@@ -80,12 +98,15 @@ public abstract class UiTest {
 	}
 
 	public static void start(Application application) {
-		if (UiTest.application != application) {
+		if (isStarted() && UiTest.application != application) {
 			TestUtil.shutdown();
-			Application.setInstance(application);
-			UiTest.application = application;
-			ui.start(application);
 		}
+		Application.setInstance(application);
+		UiTest.application = application;
+		ui.start(application);
 	}
 
+	public static boolean isStarted() {
+		return application != null;
+	}
 }

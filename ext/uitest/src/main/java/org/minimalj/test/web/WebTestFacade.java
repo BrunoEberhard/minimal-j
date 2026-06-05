@@ -45,23 +45,23 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WebTestFacade implements UiTestFacade {
 	private static final Logger logger = Logger.getLogger(WebTestFacade.class.getName());
-	private final UiTestDriver driverName;
+	private final UiTestBrowser browser;
 	private final boolean headless;
 	
 	private RemoteWebDriver driver;
 	
-	public enum UiTestDriver {
-		firefox, chrome;
+	public enum UiTestBrowser {
+		firefox, chrome, headless;
 	}
 	
-	public WebTestFacade(UiTestDriver driverName, boolean headless) {
-		this.driverName = driverName;
+	public WebTestFacade(UiTestBrowser browser, boolean headless) {
+		this.browser = browser;
 		this.headless = headless;
 	}
 	
 	private void init() {
 		if (driver == null) {
-			driver = createDriver(driverName, headless);
+			driver = createDriver(browser, headless);
 			
 			Window window = driver.manage().window();
 			
@@ -75,10 +75,10 @@ public class WebTestFacade implements UiTestFacade {
 		}
 	}
 
-	static RemoteWebDriver createDriver(UiTestDriver driverName, boolean headless) {
+	static RemoteWebDriver createDriver(UiTestBrowser browser, boolean headless) {
 		String language = Locale.getDefault().getLanguage();
 		logger.info("Language for uitest is: " + language);
-		switch (driverName) {
+		switch (browser) {
 		case chrome:
 			ChromeOptions chromeOptions = new ChromeOptions();
 			var prefs = Map.of("autofill.profile_enabled", false, "autofill.credit_card_enabled", false, "credentials_enable_service", false,
