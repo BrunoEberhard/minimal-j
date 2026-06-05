@@ -29,19 +29,19 @@ import org.minimalj.util.LocaleContext;
 import org.minimalj.util.resources.Resources;
 
 public class JsonFrontend extends Frontend {
-	private static ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
-	private static ThreadLocal<Boolean> useInputTypesByThread = new ThreadLocal<>();
+	private final ThreadLocal<JsonPageManager> sessionByThread = new ThreadLocal<>();
+	private final ThreadLocal<Boolean> useInputTypesByThread = new ThreadLocal<>();
 
 	public static void setSession(JsonPageManager session) {
-		sessionByThread.set(session);
+		((JsonFrontend) Frontend.getInstance()).sessionByThread.set(session);
 	}
 
 	public static JsonPageManager getClientSession() {
-		return sessionByThread.get();
+		return ((JsonFrontend) Frontend.getInstance()).sessionByThread.get();
 	}
 	
 	public static void setUseInputTypes(boolean compact){
-		useInputTypesByThread.set(compact);
+		((JsonFrontend) Frontend.getInstance()).useInputTypesByThread.set(compact);
 	}
 	
 	@Override
