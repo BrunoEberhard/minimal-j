@@ -430,12 +430,15 @@ public class SeleniumTestFacade implements UiTestFacade {
 				return null;
 			}
 			WebElement formElement = ((HtmlFormTestFacade) form).form;
-			WebElement nextForm = (WebElement) ((JavascriptExecutor) driver).executeScript("var f = arguments[0];" //
-					+ "var row = f.closest('.formElement').parentElement;" //
-					+ "var css = row.className;" //
-					+ "if (css.includes('groupEnd') || css.includes('groupSingleRow')) return null;" //
-					+ "var next = row.nextElementSibling;" //
-					+ "return next ? next.querySelector('.form') : null;", formElement);
+			WebElement f = null;
+			while (formElement != null && !formElement.getAttribute("class").startsWith("groupVertical")) {
+				f = formElement;
+				formElement = formElement.findElement(By.xpath(".."));
+			}
+			if (formElement == null) {
+				return null;
+			}
+			var nextForm = f.findElement(By.xpath("following-sibling::" + f.getTagName()));
 			return nextForm != null ? new HtmlFormTestFacade(nextForm) : null;
 		}
 	}

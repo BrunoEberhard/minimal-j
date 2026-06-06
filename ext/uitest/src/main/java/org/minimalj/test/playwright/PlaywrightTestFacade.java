@@ -428,11 +428,16 @@ public class PlaywrightTestFacade implements UiTestFacade {
 			}
 			ElementHandle formElement = ((HtmlFormTestFacade) form).form;
 			ElementHandle nextForm = formElement.evaluateHandle("f => {" //
-					+ "  var row = f.closest('.formElement').parentElement;" //
-					+ "  var css = row.className;" //
-					+ "  if (css.includes('groupEnd') || css.includes('groupSingleRow')) return null;" //
-					+ "  var next = row.nextElementSibling;" //
-					+ "  return next ? next.querySelector('.form') : null;" //
+					+ "  var el = f;" //
+					+ "  var prev = null;" //
+					+ "  while (el != null && !el.className.startsWith('groupVertical')) {" //
+					+ "    prev = el;" //
+					+ "    el = el.parentElement;" //
+					+ "  }" //
+					+ "  if (el == null) return null;" //
+					+ "  var next = prev.nextElementSibling;" //
+					+ "  while (next != null && next.tagName !== prev.tagName) next = next.nextElementSibling;" //
+					+ "  return next;" //
 					+ "}").asElement();
 			return nextForm != null ? new HtmlFormTestFacade(nextForm) : null;
 		}
