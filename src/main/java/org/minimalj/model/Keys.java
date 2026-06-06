@@ -19,6 +19,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import org.minimalj.model.properties.ChainedProperty;
@@ -152,27 +153,30 @@ public class Keys {
 		}
 	}
 	
+	private static final AtomicInteger keyCount = new AtomicInteger();
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object createKey(Class<?> clazz, String fieldName, Class<?> declaringClass) {
+		int keyOffset = keyCount.addAndGet(1);
 		if (clazz == String.class) {
-			return new String(fieldName);
+			return new String(String.valueOf(keyOffset));
 		} else if (clazz == Integer.class) {
-			return new Integer(0);
+			return new Integer(keyOffset);
 		} else if (clazz == Long.class) {
-			return new Long(0);
+			return new Long(keyOffset);
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			Class<Enum> enumClass = (Class<Enum>) clazz;
 			return EnumUtils.createEnum(enumClass, fieldName);
 		} else if (clazz == Boolean.class) {
 			return new Boolean(false);
 		} else if (clazz == BigDecimal.class) {
-			return new BigDecimal(0);
+			return new BigDecimal(keyOffset);
 		} else if (clazz == LocalDate.class) {
-			return LocalDate.now();			
+			return LocalDate.MIN.plusDays(keyOffset);			
 		} else if (clazz == LocalDateTime.class) {
-			return LocalDateTime.now();	
+			return LocalDateTime.MIN.plusDays(keyOffset);
 		} else if (clazz == LocalTime.class) {
-			return LocalTime.now();				
+			return LocalTime.MIN.plusSeconds(keyOffset);				
 		} else if (clazz.isArray()) {
 			return Array.newInstance(clazz.getComponentType(), 0);
 		} else if (clazz == List.class) {
@@ -180,7 +184,7 @@ public class Keys {
 		} else if (clazz == Set.class) {
 			return new HashSet<>();
 		} else if (clazz.isAssignableFrom(String.class)) {
-			return new String(fieldName);
+			return new String(String.valueOf(keyOffset));
 		} else {
 			try {
 				Object keyObject = clazz.newInstance();
