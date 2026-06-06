@@ -406,6 +406,36 @@ public class PlaywrightTestFacade implements UiTestFacade {
 			ElementHandle button = dialog.querySelector("xpath=.//button[text()=" + escapeXpath(caption) + "]");
 			return new HtmlActionTestFacade(button);
 		}
+
+		@Override
+		public FormTestFacade formWithElement(String caption) {
+			ElementHandle element = dialog.querySelector("xpath=.//label[text()=" + escapeXpath(caption) + "]");
+			if (element == null) {
+				element = dialog.querySelector("xpath=.//*[@name=" + escapeXpath(caption) + "]");
+			}
+			if (element == null) {
+				return null;
+			}
+			// closest() walks up from the element to the nearest enclosing form
+			ElementHandle form = element.evaluateHandle("e => e.closest('.form')").asElement();
+			return form != null ? new HtmlFormTestFacade(form) : null;
+		}
+
+		@Override
+		public FormTestFacade nextForm(FormTestFacade form) {
+			if (!(form instanceof HtmlFormTestFacade)) {
+				return null;
+			}
+			ElementHandle formElement = ((HtmlFormTestFacade) form).form;
+			ElementHandle nextForm = formElement.evaluateHandle("f => {" //
+					+ "  var row = f.closest('.formElement').parentElement;" //
+					+ "  var css = row.className;" //
+					+ "  if (css.includes('groupEnd') || css.includes('groupSingleRow')) return null;" //
+					+ "  var next = row.nextElementSibling;" //
+					+ "  return next ? next.querySelector('.form') : null;" //
+					+ "}").asElement();
+			return nextForm != null ? new HtmlFormTestFacade(nextForm) : null;
+		}
 	}
 
 	private class HtmlActionTestFacade implements ActionTestFacade {

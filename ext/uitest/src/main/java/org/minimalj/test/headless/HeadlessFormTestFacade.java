@@ -34,6 +34,10 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		this.form = form;
 	}
 
+	public JsonFormContent getFormContent() {
+		return form;
+	}
+
 	public List<List<JsonComponent>> getRows() {
 		return (List<List<JsonComponent>>) form.get("rows");
 	}

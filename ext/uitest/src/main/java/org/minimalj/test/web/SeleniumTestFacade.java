@@ -409,6 +409,35 @@ public class SeleniumTestFacade implements UiTestFacade {
 			WebElement button = dialog.findElement(By.xpath(".//button[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
 			return new HtmlActionTestFacade(button);
 		}
+
+		@Override
+		public FormTestFacade formWithElement(String caption) {
+			List<WebElement> elements = dialog.findElements(By.xpath(".//label[text()=" + WebTestUtil.escapeXpath(caption) + "]"));
+			if (elements.isEmpty()) {
+				elements = dialog.findElements(By.xpath(".//*[@name=" + WebTestUtil.escapeXpath(caption) + "]"));
+			}
+			if (elements.isEmpty()) {
+				return null;
+			}
+			// closest() walks up from the element to the nearest enclosing form
+			WebElement form = (WebElement) ((JavascriptExecutor) driver).executeScript("return arguments[0].closest('.form');", elements.get(0));
+			return form != null ? new HtmlFormTestFacade(form) : null;
+		}
+
+		@Override
+		public FormTestFacade nextForm(FormTestFacade form) {
+			if (!(form instanceof HtmlFormTestFacade)) {
+				return null;
+			}
+			WebElement formElement = ((HtmlFormTestFacade) form).form;
+			WebElement nextForm = (WebElement) ((JavascriptExecutor) driver).executeScript("var f = arguments[0];" //
+					+ "var row = f.closest('.formElement').parentElement;" //
+					+ "var css = row.className;" //
+					+ "if (css.includes('groupEnd') || css.includes('groupSingleRow')) return null;" //
+					+ "var next = row.nextElementSibling;" //
+					+ "return next ? next.querySelector('.form') : null;", formElement);
+			return nextForm != null ? new HtmlFormTestFacade(nextForm) : null;
+		}
 	}
 
 	private class HtmlActionTestFacade implements ActionTestFacade {

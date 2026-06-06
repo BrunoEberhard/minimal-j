@@ -110,6 +110,24 @@ public interface PageContainerTestFacade {
 		public default FormTestFacade form() {
 			return getForm();
 		}
+		
+		/**
+		 * Returns the form which contains a FormElement with the specified caption,
+		 * taking the closest enclosing form. This is useful to address FormElements in
+		 * nested forms. Returns null if no such element exists (or if the facade does
+		 * not support nested forms).
+		 *
+		 * @param caption the caption of the FormElement contained in the form
+		 * @return the closest form containing the element, or null
+		 */
+		public default FormTestFacade formWithElement(String caption) {
+			return null;
+		}
+		
+		public default FormTestFacade nextForm(FormTestFacade form) {
+			// TODO return the next Form if 'form' is in a group (else null)
+			return null;
+		}
 	}
 	
 	public interface FormTestFacade {
