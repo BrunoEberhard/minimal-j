@@ -6,7 +6,7 @@ import org.minimalj.frontend.Frontend.Input;
 import org.minimalj.frontend.Frontend.NamedFile;
 import org.minimalj.model.properties.Property;
 
-public class UploadFormElement extends AbstractFormElement<NamedFile> {
+public class UploadFormElement extends AbstractFormElement<NamedFile> implements Enable {
 
 	private final Input<NamedFile[]> input;
 
@@ -31,6 +31,11 @@ public class UploadFormElement extends AbstractFormElement<NamedFile> {
 		return namedFiles.length == 0 ? null : namedFiles[0];
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		input.setEditable(enabled);
+	}
+	
 	@Override
 	public IComponent getComponent() {
 		return input;
