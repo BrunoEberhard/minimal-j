@@ -561,8 +561,6 @@ public class JsonPageManager implements PageManager {
 	}
 	
 	private static class UiTestMarker {
-		private final Map<String, Integer> captions = new HashMap<>();
-		
 		public void accept(Object t, String ui) {
 			if (t instanceof JsonComponent) {
 				JsonComponent component = (JsonComponent) t;
@@ -573,25 +571,14 @@ public class JsonPageManager implements PageManager {
 				String captionOrName = JsonFormContent.getCaptionOrName(component);
 				if (!StringUtils.isEmpty(captionOrName)) {
 					ui += ".getElement(\"" + captionOrName + "\")";
-				} else if (component.containsKey("formRowIndex")) {
-					ui += ".getElement(" + component.get("formRowIndex") + ", " + component.get("formColumnIndex") + ")";
+				} else if (component.containsKey("row")) {
+					ui += ".getElement(" + component.get("row") + ", " + component.get("column") + ")";
 				} 
 				if (component.containsKey("itemIndex")) {
 					ui += ".row(" + component.get("itemIndex") + ")";
 				}
 				
 				component.put("ui", ui);
-				if (component instanceof JsonFormContent) {
-					List<List<JsonComponent>> rows = (List<List<JsonComponent>>) component.get("rows");
-					for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
-						List<JsonComponent> columns = rows.get(rowIndex);
-						for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
-							JsonComponent c = columns.get(columnIndex);
-							c.put("formRowIndex", rowIndex);
-							c.put("formColumnIndex", columnIndex);
-						}
-					}
-				}
 				if (component.get("components") instanceof List) {
 					List<JsonComponent> components = (List<JsonComponent>) component.get("components");
 					for (int itemIndex = 0; itemIndex<components.size();itemIndex++) {
