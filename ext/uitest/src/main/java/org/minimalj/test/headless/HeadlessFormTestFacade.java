@@ -23,7 +23,6 @@ import org.minimalj.test.PageContainerTestFacade.ActionTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormElementTestFacade;
 import org.minimalj.test.PageContainerTestFacade.FormTestFacade;
 import org.minimalj.test.headless.HeadlessFrontend.HeadlessRadioButtons;
-import org.minimalj.test.headless.HeadlessFrontend.HeadlessSwitch;
 import org.minimalj.util.StringUtils;
 
 public class HeadlessFormTestFacade implements FormTestFacade {
@@ -407,6 +406,26 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 				Assertions.fail("Should be a Form");
 			}
 			Assertions.fail("Should be a vertical group, not " + component.get("type"));
+			return null;
+		}
+		
+		@Override
+		public FormElementTestFacade getElement(int row, int column) {
+			if (this instanceof FormTestFacade formTestFacade) {
+				return formTestFacade.getElement(row, column);
+			} else {
+				Assertions.fail("Should be a Form");
+			}
+			return null;
+		}
+
+		@Override
+		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue) {
+			if (getComponent() instanceof JsonFormContent jsonFormContent) {
+				return new HeadlessFormTestFacade(jsonFormContent).getElement(caption, isBooleanValue);
+			} else {
+				Assertions.fail("Should be a Form");
+			}
 			return null;
 		}
 	}

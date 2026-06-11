@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.application.Application;
+import org.minimalj.application.Configuration;
 import org.minimalj.application.Application.AuthenticatonMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
@@ -100,6 +101,18 @@ public class HeadlessFrontend extends JsonFrontend {
 	@Override
 	public <T> Input<T> createRadioButtons(List<T> items, InputComponentListener changeListener) {
 		return new HeadlessRadioButtons<>(items, changeListener);
+	}
+	
+	
+	@Override
+	public IComponent createVerticalGroup(IComponent... components) {
+		IComponent group = super.createVerticalGroup(components);
+		if (Configuration.isDevModeActive()) {
+			for (int i = 0; i < components.length - 1; i++) {
+				((JsonComponent) components[i]).put("nextComponent", components[i + 1]);
+			}
+		}
+		return group;
 	}
 	
 	public static class HeadlessRadioButtons<T> extends JsonRadioButtons<T> {

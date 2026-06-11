@@ -8,6 +8,7 @@ import java.util.Map;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.impl.json.JsonComponent;
+import org.minimalj.frontend.impl.json.JsonCustomFilter;
 import org.minimalj.frontend.impl.json.JsonFormContent;
 import org.minimalj.frontend.impl.json.JsonTable;
 import org.minimalj.frontend.page.Page.Dialog;
@@ -70,6 +71,9 @@ public class HeadlessDialogTestFacade implements DialogTestFacade {
 
 	@Override
 	public SearchTableTestFacade getSearchTable() {
+		if (dialog.getContent() instanceof JsonCustomFilter) {
+			return new HeadlessSearchTableTestFacade((JsonTable<?>) ((JsonCustomFilter) dialog.getContent()).get("table"));
+		}
 		return new HeadlessSearchTableTestFacade((JsonTable<?>) dialog.getContent());
 	}
 
@@ -92,58 +96,13 @@ public class HeadlessDialogTestFacade implements DialogTestFacade {
 			return null;
 		}
 		JsonFormContent target = ((HeadlessFormTestFacade) form).getFormContent();
-		JsonComponent content = (JsonComponent) dialog.getContent();
-		content = HeadlessFormTestFacade.unpackComponent(content);
-		JsonFormContent next = findNextForm(content, target);
-		return next != null ? new HeadlessFormTestFacade(next) : null;
-	}
-
-	/**
-	 * Searches for the parent form which contains {@code target} as a cell in one of
-	 * its rows. If that row belongs to a group (and is not the last row of it) the
-	 * form contained in the next row is returned, otherwise null.
-	 */
-	@SuppressWarnings("unchecked")
-	private JsonFormContent findNextForm(Object o, JsonFormContent target) {
-		if (o instanceof JsonFormContent parent) {
-			List<List<JsonComponent>> rows = (List<List<JsonComponent>>) parent.get("rows");
-			List<String> rowCss = (List<String>) parent.get("rowCss");
-			for (int i = 0; i < rows.size(); i++) {
-				for (JsonComponent cell : rows.get(i)) {
-					if (HeadlessFormTestFacade.unpackComponent(cell) == target) {
-						String css = rowCss.get(i);
-						if (css == null || css.contains(JsonFormContent.GROUP_END) || css.contains(JsonFormContent.GROUP_SINGLE_ROW)
-								|| i + 1 >= rows.size()) {
-							return null; // last row of the group (or not grouped)
-						}
-						for (JsonComponent nextCell : rows.get(i + 1)) {
-							JsonComponent next = HeadlessFormTestFacade.unpackComponent(nextCell);
-							if (next instanceof JsonFormContent nextForm) {
-								return nextForm;
-							}
-						}
-						return null;
-					}
-				}
-			}
+		if (target.get("nextComponent") instanceof JsonFormContent) {
+			return new HeadlessFormTestFacade((JsonFormContent) target.get("nextComponent"));
+		} else if (target.containsKey("nextComponent")) {
+			throw new IllegalArgumentException(target.get("nextComponent").getClass() + " instead Form");
+		} else {
+			return null;
 		}
-		if (o instanceof Collection<?> collection) {
-			for (var item : collection) {
-				var result = findNextForm(item, target);
-				if (result != null) {
-					return result;
-				}
-			}
-		}
-		if (o instanceof Map<?, ?> map) {
-			for (var item : map.values()) {
-				var result = findNextForm(item, target);
-				if (result != null) {
-					return result;
-				}
-			}
-		}
-		return null;
 	}
 
 	/**

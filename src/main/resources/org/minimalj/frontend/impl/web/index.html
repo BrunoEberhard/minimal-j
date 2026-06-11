@@ -1723,6 +1723,22 @@ $ICON
 	function isUiBlocked() {
 		return blockStyle.parentNode != undefined;
 	}
+
+	// Used by the ui tests to decide if the page has settled. It is true while a
+	// request is in flight and also while a text change is
+	// still scheduled (debounced) but not sent yet.
+	function isBusy() {
+		return pendingRequests > 0 || timerTextFieldChange != null;
+	}
+
+	// Used by the ui tests to force a pending (debounced) text change to be sent
+	// immediately instead of waiting for the 500ms timer.
+	function flushPending() {
+		if (timerTextFieldChange && lastChangedTextField) {
+			clearTimeout(timerTextFieldChange);
+			ontimeout();
+		}
+	}
 	
 	function blockUi() {
 		document.body.appendChild(blockStyle);
@@ -1746,14 +1762,26 @@ $ICON
 		xmlhttp.open("POST", "ajax_request.json", true);
         xmlhttp.overrideMimeType('application/json');
 	
+		var settled = false;
+		function settle() {
+			if (!settled) {
+				settled = true;
+				pendingRequests--;
+			}
+		}
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState === 4) {
 				if (xmlhttp.status === 200) {
 					onMessage(xmlhttp.responseText);
 				}
-				pendingRequests--;	
+				settle();
 			}
 		}
+		// make sure the counter is decremented even if the request never reaches
+		// readyState 4 (network error, timeout, aborted) so the ui tests don't hang
+		xmlhttp.onerror = settle;
+		xmlhttp.ontimeout = settle;
+		xmlhttp.onabort = settle;
 		pendingRequests++;
 		xmlhttp.send(JSON.stringify(data));
 	}
@@ -1781,6 +1809,12 @@ $ICON
 			websocket.onopen = function(evt) {
 				websocket.send(JSON.stringify(data));
 			}
+			// the socket isn't open yet, the message is sent in onopen above, but the
+			// counter still has to be incremented now so the ui tests see it as pending
+			pendingRequests++;
+			websocket.onerror = function(evt) {
+				pendingRequests--;
+			};
 		} else {
 			pendingRequests++;
 			websocket.send(JSON.stringify(data));

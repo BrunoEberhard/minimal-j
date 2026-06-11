@@ -30,10 +30,12 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.ElementHandle;
+import com.microsoft.playwright.ElementHandle.ClickOptions;
 import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.TimeoutError;
 import com.microsoft.playwright.options.ElementState;
 import com.microsoft.playwright.options.MouseButton;
 import com.microsoft.playwright.options.SelectOption;
@@ -597,13 +599,34 @@ public class PlaywrightTestFacade implements UiTestFacade {
 
 		@Override
 		public void action(String text) {
-			ElementHandle dropdownButton = formElement.querySelector("div.dropdownButton");
-			dropdownButton.click();
-			waitScript();
-			ElementHandle actionMenu = formElement.querySelector("div.dropdown");
-			ElementHandle item = actionMenu.querySelector("xpath=.//*[text()=" + escapeXpath(text) + "]");
-			item.click();
-			waitScript();
+			int count = 0;
+			ClickOptions clickOptions = new ClickOptions();
+			clickOptions.setTimeout(300); // 300ms
+			do {
+				ElementHandle dropdownButton = formElement.querySelector("div.dropdownButton");
+				dropdownButton.click();
+				waitScript();
+				ElementHandle actionMenu = formElement.querySelector("div.dropdown");
+				ElementHandle item = actionMenu.querySelector("xpath=.//*[text()=" + escapeXpath(text) + "]");
+				if (item.isVisible()) {
+					try {
+						item.click(clickOptions);
+						waitScript();
+						return;
+					} catch (TimeoutError e) {
+						// try again
+					}
+				} else {
+					// sometimes the dropdown doesn't appear -> retry
+					try {
+						Thread.sleep(2);
+					} catch (InterruptedException e) {
+						throw new RuntimeException();
+					}
+				}
+				count++;
+			} while (count < 100);
+			throw new IllegalStateException("Waited to long for action " + text);
 		}
 
 		@Override
@@ -665,6 +688,18 @@ public class PlaywrightTestFacade implements UiTestFacade {
 			ElementHandle groupVertical = formElement.querySelector("xpath=.//div[@class='groupVertical']");
 			ElementHandle groupItemElement = groupVertical.querySelectorAll(":scope > div").get(pos).querySelector(":scope > div");
 			return new HtmlFormTestFacade(groupItemElement);
+		}
+
+		@Override
+		public FormElementTestFacade getElement(int row, int column) {
+			ElementHandle form = classOf(formElement).contains("form") ? formElement : formElement.querySelector(".form");
+			return new HtmlFormTestFacade(form).getElement(row, column);
+		}
+
+		@Override
+		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue) {
+			ElementHandle form = classOf(formElement).contains("form") ? formElement : formElement.querySelector(".form");
+			return new HtmlFormTestFacade(form).getElement(caption, isBooleanValue);
 		}
 	}
 
@@ -895,7 +930,13 @@ public class PlaywrightTestFacade implements UiTestFacade {
 	}
 
 	public void waitScript() {
-		while (Boolean.TRUE.equals(page.evaluate("() => pendingRequests > 0"))) {
+		// flush any pending (debounced) text change so it is counted as busy below
+		page.evaluate("() => flushPending()");
+		long deadline = System.currentTimeMillis() + 30_000;
+		while (Boolean.TRUE.equals(page.evaluate("() => isBusy()"))) {
+			if (System.currentTimeMillis() > deadline) {
+				throw new RuntimeException("Timeout while waiting for the page to settle (mjIsBusy still true)");
+			}
 			try {
 				Thread.sleep(2);
 			} catch (InterruptedException e) {

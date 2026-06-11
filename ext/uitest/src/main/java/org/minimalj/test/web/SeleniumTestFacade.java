@@ -668,7 +668,21 @@ public class SeleniumTestFacade implements UiTestFacade {
 		public FormTestFacade row(int pos) {
 			WebElement groupItemElement = formElement.findElement(By.xpath(".//div[@class='groupVertical']")).findElements(By.xpath("./div")).get(pos).findElement(By.xpath("./div"));
 			return new HtmlFormTestFacade(groupItemElement);
-		}		
+		}
+
+		@Override
+		public FormElementTestFacade getElement(int row, int column) {
+			String clazz = formElement.getAttribute("class");
+			WebElement form = clazz != null && clazz.contains("form") ? formElement : formElement.findElement(By.className("form"));
+			return new HtmlFormTestFacade(form).getElement(row, column);
+		}
+
+		@Override
+		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue) {
+			String clazz = formElement.getAttribute("class");
+			WebElement form = clazz != null && clazz.contains("form") ? formElement : formElement.findElement(By.className("form"));
+			return new HtmlFormTestFacade(form).getElement(caption, isBooleanValue);
+		}
 	}
 
 	private class HtmlTableTestFacade implements TableTestFacade {
@@ -902,7 +916,13 @@ public class SeleniumTestFacade implements UiTestFacade {
 	}
 
 	public static void waitScript(JavascriptExecutor driver) {
-		while ((Boolean) driver.executeScript("return pendingRequests > 0") == Boolean.TRUE) {
+		// flush any pending (debounced) text change so it is counted as busy below
+		driver.executeScript("flushPending()");
+		long deadline = System.currentTimeMillis() + 30_000;
+		while ((Boolean) driver.executeScript("return isBusy()") == Boolean.TRUE) {
+			if (System.currentTimeMillis() > deadline) {
+				throw new RuntimeException("Timeout while waiting for the page to settle (mjIsBusy still true)");
+			}
 			try {
 				Thread.sleep(2);
 			} catch (InterruptedException e) {

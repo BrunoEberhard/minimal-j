@@ -207,7 +207,16 @@ public interface PageContainerTestFacade {
 		
 		// only allowed if FormElement is a TableFormElement
 		public FormTestFacade row(int pos);
-
+		
+		// only allowed if FormElement is a Form
+		public FormElementTestFacade getElement(int row, int column);
+		
+		// only allowed if FormElement is a Form
+		public FormElementTestFacade getElement(String caption, Boolean isBooleanValue);
+		
+		public default FormElementTestFacade getElement(String caption) {
+			return getElement(caption, null);
+		}
 	}
 
 	public interface TableTestFacade {
