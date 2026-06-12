@@ -438,9 +438,7 @@ public class ModelTest {
 	 * <pre>
 	 * public boolean available;
 	 *
-	 * public Property available() {
-	 * 	return Keys.property(this, "available");
-	 * }
+	 * public Object available() { return Keys.fieldOf(this, "available"); }
 	 * </pre>
 	 *
 	 * Unlike a static Property constant the method composes correctly in nested
@@ -449,7 +447,7 @@ public class ModelTest {
 	 */
 	private void testCompanionMethod(Field field, String messagePrefix) {
 		String name = field.getName();
-		String expected = "public Property " + name + "() { return Keys.property(this, \"" + name + "\"); }";
+		String expected = "public Object " + name + "() { return Keys.fieldOf(this, \"" + name + "\"); }";
 		Method method;
 		try {
 			method = field.getDeclaringClass().getMethod(name);
@@ -464,8 +462,8 @@ public class ModelTest {
 			problems.add(messagePrefix + ": companion method " + name + "() must not be static");
 			return;
 		}
-		if (method.getReturnType() != Property.class) {
-			problems.add(messagePrefix + ": companion method " + name + "() must return Property");
+		if (method.getReturnType() != Object.class) {
+			problems.add(messagePrefix + ": companion method " + name + "() must return Object");
 			return;
 		}
 		// best effort: verify the method really returns the key of this field. If the
@@ -530,22 +528,31 @@ public class ModelTest {
 		}
 	}
 
-	private void testCondition(String annotationName, Field field, String conditionMethod) {
-		if (StringUtils.equals(conditionMethod, "true", "false")) {
+	private void testCondition(String annotationName, Field field, String conditionString) {
+		if (StringUtils.equals(conditionString, "false")) {
 			return;
 		}
 		Property property = Properties.getProperty(field);
-		if (conditionMethod.startsWith("!")) {
-			conditionMethod = conditionMethod.substring(1);
+		if (conditionString.startsWith("!")) {
+			conditionString = conditionString.substring(1);
 		}
 		try {
 			Class<?> clazz = field.getDeclaringClass();
-			Method method = clazz.getMethod(conditionMethod);
+			try {
+				Field fieldCondition = clazz.getField(conditionString);
+				if (fieldCondition.getType() == Boolean.TYPE) {
+					return;
+				}
+			} catch (NoSuchFieldException noSuchFieldException) {
+				// go on
+			}
+			
+			Method method = clazz.getMethod(conditionString);
 			if (method.getReturnType() != Boolean.TYPE) {
-				problems.add("Condition: " + conditionMethod + " used in " + annotationName + " for " + property.getDeclaringClass().getName() + "." + property.getPath() + " does not return a boolean");
+				problems.add("Condition: " + conditionString + " used in " + annotationName + " for " + property.getDeclaringClass().getName() + "." + property.getPath() + " does not return a boolean");
 			}
 		} catch (NoSuchMethodException x) {
-			problems.add("Unknown condition: " + conditionMethod + " used in " + annotationName + " for " + property.getDeclaringClass().getName() + "." + property.getPath());
+			problems.add("Unknown condition: " + conditionString + " used in " + annotationName + " for " + property.getDeclaringClass().getName() + "." + property.getPath());
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		}

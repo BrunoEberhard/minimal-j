@@ -19,8 +19,8 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 	private final List<CodeItem<T>> values;
 	private final Input<CodeItem<T>> radioButtons;
 
-	public RadioButtonsFormElement(Boolean key, String resourceName) {
-		this(Keys.getProperty(key), createCodeItems(key, resourceName));
+	public RadioButtonsFormElement(Object key, String resourceName) {
+		this(Keys.getProperty(key), createCodeItems(Keys.getProperty(key), resourceName));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -34,8 +34,7 @@ public class RadioButtonsFormElement<T> extends AbstractFormElement<T> implement
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	static <T> List<CodeItem<T>> createCodeItems(Boolean key, String resourceNames) {
-		Property property = Keys.getProperty(key);
+	static <T> List<CodeItem<T>> createCodeItems(Property property, String resourceNames) {
 		List<CodeItem<T>> codeItems = new ArrayList<>();
 		if (!property.notEmpty()) {
 			codeItems.add(new CodeItem(null, Resources.getString(resourceNames + ".null")));

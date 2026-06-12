@@ -1,6 +1,7 @@
 package org.minimalj.frontend.form;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -695,16 +696,24 @@ public class Form<T> {
 		return true;
 	}
 
-	static boolean evaluateCondition(Object object, Property property, String methodName) {
-		if (Enabled.FALSE.equals(methodName)) {
+	static boolean evaluateCondition(Object object, Property property, String condition) {
+		if (Enabled.FALSE.equals(condition)) {
 			return false;
 		}
-		boolean invert = methodName.startsWith("!");
+		boolean invert = condition.startsWith("!");
 		if (invert)
-			methodName = methodName.substring(1);
+			condition = condition.substring(1);
 		try {
 			Class<?> clazz = object.getClass();
-			Method method = clazz.getMethod(methodName);
+			try {
+				Field field = clazz.getField(condition);
+				if (field.getType() == Boolean.TYPE) {
+					return ((Boolean) field.get(object)) ^ invert;
+				}
+			} catch (NoSuchFieldException x) {
+				// go on
+			}
+			Method method = clazz.getMethod(condition);
 			if (!((Boolean) method.invoke(object) ^ invert)) {
 				return false;
 			}

@@ -218,17 +218,24 @@ public class Keys {
 	 *
 	 * <pre>
 	 * public boolean available;
-	 * public Property available() { return Keys.propertyOf(this, "available"); }
+	 * 
+	 * public Property available() { return Keys.fieldOf(this, "available"); }
 	 * </pre>
 	 *
-	 * @param keyObject the key object the method is called on (<code>this</code>)
-	 * @param name      the name of the field
-	 * @return the (possibly chained) property for the field
+	 * @param object must be <code>this</code>
+	 * @param name   the name of the field
+	 * @return the (possibly chained) property for the field (if this is a key
+	 *         object) or the value of the field (if this is not a key object)
 	 */
-	public static Property propertyOf(Object keyObject, String name) {
-		Property property = Properties.getProperty(keyObject.getClass(), name);
-		Property enclosingProperty = properties.get(keyObject);
-		return enclosingProperty != null ? new ChainedProperty(enclosingProperty, property) : property;
+	public static Object fieldOf(Object object, String name) {
+		Property property = Properties.getProperty(object.getClass(), name);
+		Property enclosingProperty = properties.get(object);
+		property = enclosingProperty != null ? new ChainedProperty(enclosingProperty, property) : property;
+		if (Keys.isKeyObject(object)) {
+			return property;
+		} else {
+			return property.getValue(object);
+		}
 	}
 	
 	public static Property[] getProperties(Object[] keys) {

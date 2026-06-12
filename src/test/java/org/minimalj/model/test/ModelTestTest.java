@@ -15,7 +15,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.View;
 import org.minimalj.model.annotation.Materialized;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.properties.Property;
 
 /**
  * This tests don't test models. It tests the tests for the model.
@@ -546,7 +545,7 @@ public class ModelTestTest {
 		public Object id;
 		
 		public boolean available;
-		public Property available() { return Keys.propertyOf(this, "available"); }
+		public Object available() { return Keys.fieldOf(this, "available"); }
 	}
 
 	@Test public void
@@ -587,7 +586,7 @@ public class ModelTestTest {
 		public String name;
 
 		public boolean available;
-		public Property available() { return Keys.propertyOf(this, "name"); }
+		public Object available() { return Keys.fieldOf(this, "name"); }
 	}
 
 }
