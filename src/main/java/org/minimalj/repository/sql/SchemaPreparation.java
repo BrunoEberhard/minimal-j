@@ -131,8 +131,9 @@ public enum SchemaPreparation {
 		
 		List<AbstractTable<?>> createdTables = new ArrayList<>();
 		List<NewColumn> newColumns = new ArrayList<>();
+		List<String> updatedTables = new ArrayList<>();
 		for (AbstractTable<?> table : repository.tables.values()) {
-			updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, table);
+			updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, table, updatedTables);
 		}
 		for (AbstractTable<?> table : createdTables) {
 			table.createIndexes(repository.sqlDialect);
@@ -145,7 +146,13 @@ public enum SchemaPreparation {
 		}
 	}
 
-	protected void updateTable(SqlRepository repository, InformationSchema informationSchema, SchemaPreparation schemaPreparation, List<AbstractTable<?>> createdTables, List<NewColumn> newColumns, AbstractTable<?> table) {
+	protected void updateTable(SqlRepository repository, InformationSchema informationSchema, SchemaPreparation schemaPreparation, List<AbstractTable<?>> createdTables, List<NewColumn> newColumns, AbstractTable<?> table, List<String> updatedTables) {
+		if (updatedTables.contains(table.name)) {
+			// already updated. Can happen if table is referenced from two or more tables
+			return;
+		} else {
+			updatedTables.add(table.name);
+		}
 		if (!informationSchema.tableExists(table.name)) {
 			logger.info("New table: " + table.name);
 			table.createTable(repository.sqlDialect);
@@ -156,10 +163,10 @@ public enum SchemaPreparation {
 			}
 			if (table instanceof Table) {
 				for (Object dependableTable : ((Table) table).getDependableTables()) {
-					updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) dependableTable);
+					updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) dependableTable, updatedTables);
 				}
 				for (Object listTable : ((Table) table).getListTables()) {
-					updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) listTable);
+					updateTable(repository, informationSchema, schemaPreparation, createdTables, newColumns, (AbstractTable<?>) listTable, updatedTables);
 				}
 			}
 		}
