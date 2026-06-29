@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.minimalj.model.EnumUtils;
 import org.minimalj.model.annotation.AnnotationUtil;
 import org.minimalj.model.properties.Property;
+import org.minimalj.repository.sql.SqlDialect.H2SqlDialect;
 import org.minimalj.repository.sql.SqlDialect.PostgresqlDialect;
 import org.minimalj.util.IdUtils;
 import org.minimalj.util.StringUtils;
@@ -36,10 +37,11 @@ public enum SchemaPreparation {
 			createTables(repository);
 		} else {
 			if (repository.sqlDialect instanceof PostgresqlDialect) {
-				updateEnums(repository, this);
+				updatePostgresEnums(repository, this);
+			} else if (repository.sqlDialect instanceof H2SqlDialect) {
+				updateH2Enums(repository, this);
 			} else {
-				// In h2: read Information_schema, ALTER TABLE EXAMPLE ALTER COLUMN C ENUM('a', 'b', 'c') NOT NULL;
-				logger.fine("Update enums only implemented for Postgresql");
+				logger.fine("Update enums only implemented for Postgresql and H2");
 			}
 			updateTables(repository, this);
 			logger.fine("Unused tables are not removed");
@@ -321,7 +323,7 @@ public enum SchemaPreparation {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void updateEnums(SqlRepository repository, SchemaPreparation schemaPreparation) {
+	protected void updatePostgresEnums(SqlRepository repository, SchemaPreparation schemaPreparation) {
 		for (Class enumClass : repository.enums) {
 			String enumIdentifier = repository.sqlIdentifier.identifier(enumClass.getSimpleName(), Collections.emptyList()); // + "a";
 			int count = repository.find(Integer.class, enumExists(enumClass, enumIdentifier), 1).get(0);
@@ -342,6 +344,79 @@ public enum SchemaPreparation {
 						}
 					}
 				}
+			}
+		}
+	}
+
+	public static class H2EnumValue {
+		public String tableName;
+		public String columnName;
+		public String valueName;
+	}
+
+	/*
+	 * H2 has no shared enum types: every enum column lists all its possible values inline (ENUM('a', 'b', 'c')).
+	 * When new values are added to an enum class the already existing columns have to be widened. New tables and
+	 * columns are created with the current definition by updateTables, so only existing columns are handled here.
+	 * Existing values are kept in their order and the new values are appended (just like ALTER TYPE ... ADD VALUE
+	 * on Postgresql) so that the data of existing rows is not affected.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void updateH2Enums(SqlRepository repository, SchemaPreparation schemaPreparation) {
+		List<H2EnumValue> enumValues = repository.find(H2EnumValue.class,
+				"SELECT LOWER(col.table_name) tableName, LOWER(col.column_name) columnName, ev.value_name valueName "
+						+ "FROM information_schema.columns col JOIN information_schema.enum_values ev "
+						+ "ON col.table_schema = ev.object_schema AND col.table_name = ev.object_name AND col.ordinal_position = ev.enum_identifier "
+						+ "WHERE col.table_schema = current_schema AND col.data_type = 'ENUM' ORDER BY ev.value_ordinal",
+				10000);
+
+		List<AbstractTable<?>> tables = new ArrayList<>();
+		for (AbstractTable<?> table : repository.tables.values()) {
+			collectTables(table, tables);
+		}
+
+		for (AbstractTable<?> table : tables) {
+			for (Map.Entry<String, Property> column : table.getColumns().entrySet()) {
+				Property property = column.getValue();
+				if (!property.getClazz().isEnum()) {
+					continue;
+				}
+				String columnName = column.getKey();
+				List<String> values = enumValues.stream()
+						.filter(v -> v.tableName.equalsIgnoreCase(table.name) && v.columnName.equalsIgnoreCase(columnName))
+						.map(v -> v.valueName).collect(Collectors.toList());
+				if (values.isEmpty()) {
+					// column does not exist yet, it will be created by updateTables with the current definition
+					continue;
+				}
+				boolean changed = false;
+				for (Enum enumValue : (List<Enum>) EnumUtils.valueList((Class) property.getClazz())) {
+					if (!values.contains(enumValue.name())) {
+						values.add(enumValue.name());
+						changed = true;
+					}
+				}
+				if (changed) {
+					logger.info("Add enum values to column: " + table.name + "." + columnName);
+					String definition = "ENUM(" + values.stream().map(v -> "'" + v + "'").collect(Collectors.joining(", ")) + ")";
+					String s = "ALTER TABLE " + table.name + " ALTER COLUMN " + columnName + " " + definition + (property.notEmpty() ? " NOT NULL" : "");
+					execute(repository, s, new Serializable[0]);
+				}
+			}
+		}
+	}
+
+	private void collectTables(AbstractTable<?> table, List<AbstractTable<?>> tables) {
+		if (tables.contains(table)) {
+			return;
+		}
+		tables.add(table);
+		if (table instanceof Table) {
+			for (Object dependableTable : ((Table<?>) table).getDependableTables()) {
+				collectTables((AbstractTable<?>) dependableTable, tables);
+			}
+			for (Object listTable : ((Table<?>) table).getListTables()) {
+				collectTables((AbstractTable<?>) listTable, tables);
 			}
 		}
 	}
