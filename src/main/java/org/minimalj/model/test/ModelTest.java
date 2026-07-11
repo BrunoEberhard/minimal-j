@@ -431,8 +431,8 @@ public class ModelTest {
 	}
 
 	/**
-	 * A primitive field cannot be used as a key with the $ mechanism
-	 * (Keys.fillFields skips primitives). It therefore needs a companion method
+	 * A boolean field cannot be used as a key with the $ mechanism
+	 * (The Keys class cannot generated key objects for it). It therefore needs a companion method
 	 * named after the field that returns its key, for example:
 	 *
 	 * <pre>
