@@ -160,9 +160,9 @@ public class Keys {
 		int keyOffset = keyCount.addAndGet(1);
 		if (clazz == String.class) {
 			return new String(String.valueOf(keyOffset));
-		} else if (clazz == Integer.class) {
+		} else if (clazz == Integer.class || clazz == Integer.TYPE) {
 			return new Integer(keyOffset);
-		} else if (clazz == Long.class) {
+		} else if (clazz == Long.class || clazz == Long.TYPE) {
 			return new Long(keyOffset);
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			Class<Enum> enumClass = (Class<Enum>) clazz;
