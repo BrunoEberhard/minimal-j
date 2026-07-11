@@ -85,10 +85,10 @@ public class ModelTestTest {
 
 	//
 
-	@Test public void 
-	should_not_accept_primitiv_int() {
+	@Test public void
+	should_accept_primitiv_int() {
 		ModelTest modelTest = new ModelTest(TestClass3.class);
-		Assert.assertFalse(modelTest.isValid());
+		assertValid(modelTest);
 	}
 
 	public static class TestClass3 {
@@ -98,15 +98,28 @@ public class ModelTestTest {
 
 	//
 
-	@Test public void 
-	should_not_accept_primitiv_long() {
+	@Test public void
+	should_accept_primitiv_long() {
 		ModelTest modelTest = new ModelTest(TestClass4.class);
-		Assert.assertFalse(modelTest.isValid());
+		assertValid(modelTest);
 	}
 
 	public static class TestClass4 {
 		public Object id;
 		public long a;
+	}
+
+	//
+
+	@Test public void
+	should_not_accept_primitiv_double() {
+		ModelTest modelTest = new ModelTest(TestClass4b.class);
+		Assert.assertFalse(modelTest.isValid());
+	}
+
+	public static class TestClass4b {
+		public Object id;
+		public double a;
 	}
 	
 	//

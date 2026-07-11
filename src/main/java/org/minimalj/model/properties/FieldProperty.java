@@ -33,12 +33,16 @@ public class FieldProperty implements StringBasedProperty {
 		this.isTransient = FieldUtils.isTransient(field);
 		this.type = convertPrimitiveTypes(field.getType());
 		this.declaringClass = declaringClass;
-		this.primitive = field.getType() == Boolean.TYPE;
+		this.primitive = field.getType().isPrimitive();
 	}
-	
+
 	private static Class<?> convertPrimitiveTypes(Class<?> clazz) {
 		if (clazz == Boolean.TYPE) {
 			return Boolean.class;
+		} else if (clazz == Integer.TYPE) {
+			return Integer.class;
+		} else if (clazz == Long.TYPE) {
+			return Long.class;
 		} else {
 			return clazz;
 		}
@@ -68,6 +72,16 @@ public class FieldProperty implements StringBasedProperty {
 	public void setValue(Object object, Object value) {
 		try {
 			if (!isFinal) {
+				if (value == null && primitive) {
+					// a primitive field cannot hold null, fall back to its empty value
+					if (type == Boolean.class) {
+						value = Boolean.FALSE;
+					} else if (type == Integer.class) {
+						value = Integer.valueOf(0);
+					} else {
+						value = Long.valueOf(0L);
+					}
+				}
 				field.set(object, value);
 			} else {
 				Object finalObject = field.get(object);

@@ -190,6 +190,35 @@ public class KeysTest {
 	}
 	
 	@Test
+	public void accessPrimitiveIntAndLong() {
+		TestClass13 object = new TestClass13();
+		object.i = 42;
+		object.l = 43;
+
+		Property propertyI = Keys.getProperty(TestClass13.$.i);
+		Assert.assertEquals("Get should return the value of a public int field", 42, propertyI.getValue(object));
+
+		Property propertyL = Keys.getProperty(TestClass13.$.l);
+		Assert.assertEquals("Get should return the value of a public long field", 43L, propertyL.getValue(object));
+
+		propertyI.setValue(object, 44);
+		Assert.assertEquals("Set should change the value of a public int field", 44, object.i);
+
+		propertyL.setValue(object, null);
+		Assert.assertEquals("Set with null should change a primitive field to its empty value", 0, object.l);
+	}
+
+	@Test
+	public void accessPrimitiveIntOfInline() {
+		TestClass14 object = new TestClass14();
+		object.testClass13.i = 42;
+
+		Property property = Keys.getProperty(TestClass14.$.testClass13.i);
+		Assert.assertEquals("Get should return the value of an int field of a referenced Object", 42, property.getValue(object));
+		Assert.assertEquals("Chained property of an int field should have the complete path", "testClass13.i", property.getPath());
+	}
+
+	@Test
 	public void testExtensionClasses() {
 		TestClass12b testObject = new TestClass12b();
 
@@ -357,11 +386,26 @@ public class KeysTest {
 	}
 	
 	public static class TestClass12b extends TestClass12 {
-		
+
 		public static final TestClass12b $ = Keys.of(TestClass12b.class);
-		
+
 		public Integer b;
 
+	}
+
+	public static class TestClass13 {
+
+		public static final TestClass13 $ = Keys.of(TestClass13.class);
+
+		public int i;
+		public long l;
+	}
+
+	public static class TestClass14 {
+
+		public static final TestClass14 $ = Keys.of(TestClass14.class);
+
+		public final TestClass13 testClass13 = new TestClass13();
 	}
 
 

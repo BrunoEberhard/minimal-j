@@ -407,11 +407,11 @@ public class ModelTest {
 	
 	private void testTypeOfField(Field field, String messagePrefix) {
 		Class<?> fieldType = field.getType();
-		if (FieldUtils.isAllowedPrimitive(fieldType)) {
-			return;
-		}
 		if (fieldType == Boolean.TYPE) {
 			testCompanionMethod(field, messagePrefix);
+			return;
+		}
+		if (FieldUtils.isAllowedPrimitive(fieldType)) {
 			return;
 		}
 		if (fieldType.isPrimitive()) {
@@ -452,7 +452,7 @@ public class ModelTest {
 		try {
 			method = field.getDeclaringClass().getMethod(name);
 		} catch (NoSuchMethodException e) {
-			problems.add(messagePrefix + ": a primitive field needs a companion method \"" + expected + "\"");
+			problems.add(messagePrefix + ": a boolean field needs a companion method \"" + expected + "\"");
 			return;
 		} catch (SecurityException e) {
 			problems.add(messagePrefix + " makes SecurityException with the companion method " + name + "()");

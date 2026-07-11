@@ -32,6 +32,10 @@ public class Keys {
 
 	private static final Logger logger = Logger.getLogger(Keys.class.getName());
 	private static final Map<Object, Property> properties = new IdentityHashMap<>();
+	// reading a primitive int or long field boxes the value in a new object every
+	// time. Such keys cannot be found by identity. As every Integer or Long key
+	// has a globally unique value they can be looked up by value.
+	private static final Map<Object, Property> propertiesByValue = new HashMap<>();
 	private static final Map<Property, List<Property>> dependencies = new HashMap<>();
 
 	private static final HashSet<Object> keyObjects = new HashSet<>();
@@ -91,9 +95,9 @@ public class Keys {
 		}
 		T t = (T)createKey(property.getClazz(), propertyName, null);
 		keysForObject.put(propertyName, t);
-		
+
 		fillFields(t, property, 0);
-		properties.put(t, property);
+		registerProperty(t, property);
 
 		//
 		
@@ -149,10 +153,17 @@ public class Keys {
 			// if (properties.size() % 1000 == 0) {
 			// 	logger.finer(properties.size() + ": " + property.toString());
 			// }
-			properties.put(value, property);
+			registerProperty(value, property);
 		}
 	}
-	
+
+	private static void registerProperty(Object key, Property property) {
+		properties.put(key, property);
+		if (key instanceof Integer || key instanceof Long) {
+			propertiesByValue.put(key, property);
+		}
+	}
+
 	private static final AtomicInteger keyCount = new AtomicInteger();
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -204,9 +215,12 @@ public class Keys {
 	public static Property getProperty(Object key) {
 		if (key instanceof Property) {
 			return (Property) key;
-		} else {
-			return properties.get(key);
 		}
+		Property property = properties.get(key);
+		if (property == null && (key instanceof Integer || key instanceof Long)) {
+			property = propertiesByValue.get(key);
+		}
+		return property;
 	}
 
 	/**
