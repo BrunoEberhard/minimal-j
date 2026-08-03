@@ -68,9 +68,10 @@ public class Validator {
 			valueProperties.stream().filter(p -> !StringUtils.equals(p.getName(), "id", "version", "historized")).forEach(property -> {
 				Object value = property.getValue(object);
 
-				validateEmpty(validationMessages, value, property);
-				validateSize(validationMessages, value, property);
-				validateInvalid(validationMessages, object, value, property);
+				if (!validateInvalid(validationMessages, object, value, property)) {
+					validateEmpty(validationMessages, value, property);
+					validateSize(validationMessages, value, property);
+				}
 
 				List<ValidationMessage> innerMessages = validate(value, validated);
 				innerMessages.forEach(m -> validationMessages.add(new ValidationMessage(chain(property, m.getProperty()), m.getFormattedText())));
@@ -167,13 +168,15 @@ public class Validator {
 		}
 	}
 
-	private static void validateInvalid(List<ValidationMessage> validationMessages, Object object, Object value, Property property) {
+	private static boolean validateInvalid(List<ValidationMessage> validationMessages, Object object, Object value, Property property) {
 		if (value == null && property instanceof StringBasedProperty) {
 			String invalidValue = ((StringBasedProperty) property).getInvalidString(object);
 			if (invalidValue != null) {
 				validationMessages.add(Validation.createInvalidValidationMessage(property));
+				return true;
 			}
 		}
+		return false;
 	}
 	
 	public static boolean allUsedFieldsValid(List<ValidationMessage> validationMessages, Collection<Property> properties,
