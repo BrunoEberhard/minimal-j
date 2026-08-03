@@ -87,6 +87,9 @@ public class ChainedProperty implements StringBasedProperty {
 		if (property2 instanceof StringBasedProperty) {
 			Object value1 = property1.getValue(object);
 			((StringBasedProperty) property2).setInvalidString(value1, string);
+		} else if (property2 instanceof ChainedProperty) {
+			Object value1 = property1.getValue(object);
+			((ChainedProperty) property2).setInvalidString(value1, string);
 		}
 	}
 
