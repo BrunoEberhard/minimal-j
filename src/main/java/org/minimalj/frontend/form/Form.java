@@ -159,11 +159,11 @@ public class Form<T> {
 
 		if (fieldClass == String.class) {
 			return editable ? new StringFormElement(property) : new TextFormElement(property);
-		} else if (fieldClass == Boolean.class) {
+		} else if (fieldClass == Boolean.class || fieldClass == Boolean.TYPE) {
 			return new CheckBoxFormElement(property, editable);
-		} else if (fieldClass == Integer.class) {
+		} else if (fieldClass == Integer.class || fieldClass == Integer.TYPE) {
 			return new IntegerFormElement(property, editable);
-		} else if (fieldClass == Long.class) {
+		} else if (fieldClass == Long.class || fieldClass == Long.TYPE) {
 			return new LongFormElement(property, editable);
 		} else if (fieldClass == BigDecimal.class) {
 			return new BigDecimalFormElement(property, editable);

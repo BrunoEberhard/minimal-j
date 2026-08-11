@@ -163,7 +163,7 @@ public class ListUtil {
 		} else {
 			int w = width(property);
 			Class<?> clazz = property.getClazz();
-			if (Properties.isNumber(property) || Temporal.class.isAssignableFrom(clazz) || clazz == Boolean.class) {
+			if (Properties.isNumber(property) || Temporal.class.isAssignableFrom(clazz) || clazz == Boolean.class || clazz == Boolean.TYPE) {
 				return w;
 			} else {
 				return w * 3 / 2;

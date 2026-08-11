@@ -158,11 +158,11 @@ public class FieldUtils {
 		if (clazz == String.class) {
 			value = s;
 		} else if (!StringUtils.isEmpty(s)) {
-			if (clazz == Integer.class) {
+			if (clazz == Integer.class || clazz == Integer.TYPE) {
 				value = Integer.valueOf(s);
-			} else if (clazz == Long.class) {
+			} else if (clazz == Long.class || clazz == Long.TYPE) {
 				value = Long.valueOf(s);
-			} else if (clazz == Boolean.class) {
+			} else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
 				value = Boolean.valueOf(s);
 			} else if (clazz == BigDecimal.class) {
 				value = new BigDecimal(s);

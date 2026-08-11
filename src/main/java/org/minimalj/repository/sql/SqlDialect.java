@@ -46,9 +46,9 @@ public abstract class SqlDialect {
 	public void addColumnDefinition(StringBuilder s, Property property) {
 		Class<?> clazz = property.getClazz();
 		
-		if (clazz == Integer.class) {
+		if (clazz == Integer.class || clazz == Integer.TYPE) {
 			s.append("INTEGER");
-		} else if (clazz == Long.class) {
+		} else if (clazz == Long.class || clazz == Long.TYPE) {
 			s.append("BIGINT");
 		} else if (clazz == String.class) {
 			s.append("VARCHAR");
@@ -74,7 +74,7 @@ public abstract class SqlDialect {
 			} else {
 				s.append(" (").append(size).append(", ").append(decimal).append(')');
 			}
-		} else if (clazz == Boolean.class) {
+		} else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
 			s.append("BIT");
 		} else if (Enum.class.isAssignableFrom(clazz)) {
 			s.append("INTEGER");
@@ -215,7 +215,7 @@ public abstract class SqlDialect {
 			Class<?> clazz = property.getClazz();
 			if (clazz.isArray() && clazz.getComponentType() == Byte.TYPE) {
 				s.append("BYTEA");	
-			} else if (clazz == Boolean.class) {
+			} else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
 				s.append("BOOLEAN");	
 			} else  {
 				super.addColumnDefinition(s, property);
@@ -366,9 +366,9 @@ public abstract class SqlDialect {
 				s.append("CHAR(").append(DateUtils.getTimeSize(property)).append(")");				
 			} else if (clazz == LocalDateTime.class) {
 				s.append("CHAR(30)");
-			} else if (clazz == Boolean.class) {
+			} else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
 				s.append("SMALLINT");
-			} else if (clazz == Long.class) {
+			} else if (clazz == Long.class || clazz == Long.TYPE) {
 				s.append("LONG");				
 			} else {
 				super.addColumnDefinition(s, property);
