@@ -1,7 +1,6 @@
 package org.minimalj.repository.query;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.temporal.Temporal;
 
 import org.minimalj.model.Keys;
@@ -52,7 +51,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 
 	private void assertValidOperator(Property property, FieldOperator operator) {
 		Class<?> clazz = property.getClazz();
-		if (clazz == Integer.class || clazz == Long.class || clazz == BigDecimal.class || Temporal.class.isAssignableFrom(clazz)) return;
+		if (Properties.isNumber(property) || Temporal.class.isAssignableFrom(clazz)) return;
 		if (operator == FieldOperator.equal || operator == FieldOperator.notEqual)
 			return;
 		throw new IllegalArgumentException(operator + " only allowed for Integer, Long and BigDecimal fields");

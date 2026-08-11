@@ -1,6 +1,5 @@
 package org.minimalj.frontend.form.element;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +16,7 @@ import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingTextField;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
@@ -93,7 +93,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				if (placeholder != null) {
 					((JsonTextField) textField).setPlaceholder(placeholder);
 				}
-				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
+				if (Properties.isNumber(getProperty())) {
 					((JsonComponent) textField).setCssClass("textAlignRight");
 				}
 			} else if (Frontend.getInstance() instanceof SwingFrontend && textField instanceof SwingTextField) {
@@ -101,7 +101,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				if (placeholder != null) {
 					((SwingTextField) textField).setPlaceholderText(placeholder);
 				}
-				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
+				if (Properties.isNumber(getProperty())) {
 					((SwingTextField) textField).setHorizontalAlignment(SwingConstants.RIGHT);
 				}
 			}
@@ -117,6 +117,9 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 			return parse(textField.getValue());
 		} catch (RuntimeException x) {
 			invalidString = textField.getValue();
+//			if (invalidString == null) {
+//				invalidString = "";
+//			}
 			return null;
 		}
 	}

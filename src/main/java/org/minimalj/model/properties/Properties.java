@@ -86,5 +86,10 @@ public class Properties {
 	public static boolean hasTechnicalFields(Class<?> clazz) {
 		return Properties.getProperties(clazz).values().stream().anyMatch(p -> p.getAnnotation(TechnicalField.class) != null);
 	}
+	
+	public static boolean isNumber(Property property) {
+		Class<?> clazz = property.getClazz();
+		return Number.class.isAssignableFrom(clazz) || clazz == Integer.TYPE || clazz == Long.TYPE;
+	}
 
 }
