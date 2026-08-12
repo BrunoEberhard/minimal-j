@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import org.minimalj.model.properties.Property.StringBasedProperty;
-
-public class ChainedProperty implements StringBasedProperty {
+public class ChainedProperty implements Property {
 	private static Logger logger = Logger.getLogger(ChainedProperty.class.getName());
 
 	private final Property property1;
@@ -63,16 +61,6 @@ public class ChainedProperty implements StringBasedProperty {
 	}
 
 	@Override
-	public String getInvalidString(Object object) {
-		if (object != null && property2 instanceof StringBasedProperty) {
-			Object value1 = property1.getValue(object);
-			return value1 != null ? ((StringBasedProperty) property2).getInvalidString(value1) : null;
-		} else {
-			return null;
-		}
-	}
-	
-	@Override
 	public void setValue(Object object, Object value) {
 		Object value1 = property1.getValue(object);
 		if (value1 != null) {
@@ -82,17 +70,6 @@ public class ChainedProperty implements StringBasedProperty {
 		}
 	}
 	
-	@Override
-	public void setInvalidString(Object object, String string) {
-		if (property2 instanceof StringBasedProperty) {
-			Object value1 = property1.getValue(object);
-			((StringBasedProperty) property2).setInvalidString(value1, string);
-		} else if (property2 instanceof ChainedProperty) {
-			Object value1 = property1.getValue(object);
-			((ChainedProperty) property2).setInvalidString(value1, string);
-		}
-	}
-
 	@Override
 	public String getName() {
 		return property2.getName();

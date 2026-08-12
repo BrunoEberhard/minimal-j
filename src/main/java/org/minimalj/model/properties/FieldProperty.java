@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import org.minimalj.model.View;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.NotEmpty;
-import org.minimalj.model.properties.Property.StringBasedProperty;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.CloneHelper;
@@ -18,7 +17,7 @@ import org.minimalj.util.FieldUtils;
 import org.minimalj.util.GenericUtils;
 import org.minimalj.util.LoggingRuntimeException;
 
-public class FieldProperty implements StringBasedProperty {
+public class FieldProperty implements Property {
 	private static Logger logger = Logger.getLogger(FieldProperty.class.getName());
 
 	private final Field field;
@@ -31,21 +30,9 @@ public class FieldProperty implements StringBasedProperty {
 		this.field = field;
 		this.isFinal = FieldUtils.isFinal(field);
 		this.isTransient = FieldUtils.isTransient(field);
-		this.type = convertPrimitiveTypes(field.getType());
+		this.type = field.getType();
 		this.declaringClass = declaringClass;
 		this.primitive = field.getType().isPrimitive();
-	}
-
-	private static Class<?> convertPrimitiveTypes(Class<?> clazz) {
-		if (clazz == Boolean.TYPE) {
-			return Boolean.class;
-		} else if (clazz == Integer.TYPE) {
-			return Integer.class;
-		} else if (clazz == Long.TYPE) {
-			return Long.class;
-		} else {
-			return clazz;
-		}
 	}
 
 	@Override
@@ -61,11 +48,6 @@ public class FieldProperty implements StringBasedProperty {
 			throw new LoggingRuntimeException(e, logger, "get of " + field.getName() + " failed");
 		}
 	}
-	
-	@Override
-	public String getInvalidString(Object object) {
-		return InvalidValues.getInvalidString(object, field);
-	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -74,13 +56,16 @@ public class FieldProperty implements StringBasedProperty {
 			if (!isFinal) {
 				if (value == null && primitive) {
 					// a primitive field cannot hold null, fall back to its empty value
-					if (type == Boolean.class) {
+					if (type == Boolean.TYPE) {
 						value = Boolean.FALSE;
-					} else if (type == Integer.class) {
+					} else if (type == Integer.TYPE) {
 						value = Integer.valueOf(0);
 					} else {
 						value = Long.valueOf(0L);
 					}
+					InvalidValues.setInvalidString(object, field, null);
+				} else {
+					InvalidValues.setValid(object, field);
 				}
 				field.set(object, value);
 			} else {
@@ -103,11 +88,6 @@ public class FieldProperty implements StringBasedProperty {
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public void setInvalidString(Object object, String string) {
-		InvalidValues.setInvalidString(object, field, string);
 	}
 	
 	@Override
