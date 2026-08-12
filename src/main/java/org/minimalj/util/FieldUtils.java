@@ -234,4 +234,15 @@ public class FieldUtils {
 		}
 	};
 
+	public static Class<?> convertPrimitiveTypes(Class<?> clazz) {
+		if (clazz == Boolean.TYPE) {
+			return Boolean.class;
+		} else if (clazz == Integer.TYPE) {
+			return Integer.class;
+		} else if (clazz == Long.TYPE) {
+			return Long.class;
+		} else {
+			return clazz;
+		}
+	}
 }
