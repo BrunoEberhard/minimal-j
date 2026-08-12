@@ -471,7 +471,7 @@ public class ModelTest {
 		// signature check above already guarantees usability, so ignore failures here.
 		try {
 			Property property = (Property) method.invoke(Keys.of(field.getDeclaringClass()));
-			if (property == null || property.getClazz() != Boolean.class || !property.getName().equals(name)) {
+			if (property == null || (property.getClazz() != Boolean.class && property.getClazz() != Boolean.TYPE) || !property.getName().equals(name)) {
 				problems.add(messagePrefix + ": companion method " + name + "() must return \"" + expected + "\"");
 			}
 		} catch (Exception e) {
