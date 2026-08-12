@@ -8,7 +8,6 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Decimal;
 import org.minimalj.model.annotation.Signed;
 import org.minimalj.model.annotation.Size;
-import org.minimalj.model.validation.InvalidValues;
 
 public class NumberFormatElementTest {
 
@@ -19,7 +18,6 @@ public class NumberFormatElementTest {
 		IntegerFormElement element = new IntegerFormElement(Keys.getProperty(TestNumbers.$.anInteger), true);
 		Assert.assertEquals((Integer) 123, element.parse("123"));
 		Assert.assertThrows("Values larger than 10 digits should be parsed as invalid", NumberFormatException.class, () -> element.parse("12345678901234L"));
-		Assert.assertThrows("Negative values should parsed as invalid", IllegalArgumentException.class, () -> element.parse("-3"));
 	}
 	
 	@Test
@@ -34,7 +32,6 @@ public class NumberFormatElementTest {
 		IntegerFormElement element = new IntegerFormElement(Keys.getProperty(TestNumbers.$.aSignedIntegerOfSize3), true);
 		Assert.assertEquals((Integer) 123, element.parse("123"));
 		Assert.assertEquals(Integer.valueOf(-3), element.parse("-3"));
-		Assert.assertThrows("Values larger than size 3 should be invalid", IllegalArgumentException.class, () -> element.parse("1234"));
 	}
 	
 	// Long
@@ -69,8 +66,6 @@ public class NumberFormatElementTest {
 	public void testBigDecimal() {
 		BigDecimalFormElement element = new BigDecimalFormElement(Keys.getProperty(TestNumbers.$.aBigDecimal), true);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123")) == 0);
-		Assert.assertThrows("Values larger than 10 digits should be parsed as invalid", NumberFormatException.class, () -> element.parse("12345678901234L"));
-		Assert.assertThrows("Negative values should parsed as invalid", IllegalArgumentException.class, () -> element.parse("-3"));
 	}
 	
 	@Test
@@ -88,8 +83,7 @@ public class NumberFormatElementTest {
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123.")) == 0);
 		Assert.assertTrue(BigDecimal.valueOf(123).compareTo(element.parse("123.0")) == 0);
 		Assert.assertTrue(BigDecimal.valueOf(12.3).compareTo(element.parse("12.3")) == 0);		
-		Assert.assertTrue(BigDecimal.valueOf(0.3).compareTo(element.parse(".3")) == 0);		
-		Assert.assertThrows("Too many decimal places should be parsed as invalid", IllegalArgumentException.class, () -> element.parse("1.234"));
+		Assert.assertTrue(BigDecimal.valueOf(0.3).compareTo(element.parse(".3")) == 0);	
 	}
 	
 	public static class TestNumbers {

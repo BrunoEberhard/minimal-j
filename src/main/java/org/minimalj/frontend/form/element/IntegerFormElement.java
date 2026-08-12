@@ -22,16 +22,9 @@ public class IntegerFormElement extends NumberFormElement<Integer> implements Mo
 	@Override
 	public Integer parse(String text) throws NumberFormatException {
 		if (!StringUtils.isEmpty(text)) {
-			int value = Integer.parseInt(text);
-			if (value < 0 && !this.signed) {
-				throw new IllegalArgumentException("negative values not allowed");
-			}
-			int size = value < 0 ? text.length() - 1 : text.length();
-			if (size <= this.size) {
-				return value;
-			} else {
-				throw new IllegalArgumentException(text + " longer than " + this.size);
-			}
+			return Integer.parseInt(text);
+		} else if (getProperty().getClazz() == Integer.TYPE) {
+			throw new IllegalArgumentException("null not allowed for java primitive");
 		} else {
 			return null;
 		}

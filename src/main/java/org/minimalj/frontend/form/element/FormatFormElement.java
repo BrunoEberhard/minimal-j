@@ -52,6 +52,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 */
 	private String setText;
 	
+	private boolean isInvalid;
 	private String invalidString;
 	
 	public FormatFormElement(Property property, boolean editable) {
@@ -114,18 +115,25 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	public final T getValue() {
 		invalidString = null;
 		try {
+			isInvalid = false;
 			return parse(textField.getValue());
 		} catch (RuntimeException x) {
+			isInvalid = true;
 			invalidString = textField.getValue();
-//			if (invalidString == null) {
-//				invalidString = "";
-//			}
 			return null;
 		}
 	}
 
 	@Override
+	public boolean isInvalid() {
+		return isInvalid;
+	}
+	
+	@Override
 	public String getInvalidString() {
+		if (!isInvalid) {
+			throw new IllegalStateException();
+		}
 		return invalidString;
 	}
 	
@@ -139,9 +147,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	@Override
 	public final void setValue(T value) {
 		setText = value != null ? render(value) : null;
-		if (value != null) {
-			invalidString = null;
-		}
+		isInvalid = false;
 		if (textField != null && !StringUtils.equals(setText, textField.getValue())) {
 			textField.setValue(setText != null ? setText : invalidString);
 		}
@@ -149,8 +155,9 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	
 	@Override
 	public void setInvalidString(String string) {
+		isInvalid = true;
 		invalidString = string;
-		if (string != null && textField != null) {
+		if (textField != null) {
 			textField.setValue(string);
 		}
 	}
