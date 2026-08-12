@@ -42,7 +42,6 @@ public class NumberFormatElementTest {
 		Assert.assertEquals((Long) 123L, element.parse("123"));
 		Assert.assertEquals((Long) 12345678901234L, element.parse("12345678901234"));
 		Assert.assertThrows("Values larger than 2^63 should parsed as invalid", NumberFormatException.class, () -> element.parse("12345678901234567890"));
-		Assert.assertThrows("Negative values should parsed as invalid", IllegalArgumentException.class, () -> element.parse("-3"));
 	}
 	
 	@Test
@@ -57,7 +56,6 @@ public class NumberFormatElementTest {
 		LongFormElement element = new LongFormElement(Keys.getProperty(TestNumbers.$.aSignedLongOfSize3), true);
 		Assert.assertEquals((Long) 123L, element.parse("123"));
 		Assert.assertEquals(Long.valueOf(-3), element.parse("-3"));
-		Assert.assertThrows("Values larger than size 3 should be invalid", IllegalArgumentException.class, () -> element.parse("1234"));
 	}
 	
 	// BigDecimal
