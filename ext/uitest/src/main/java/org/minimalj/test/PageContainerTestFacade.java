@@ -3,6 +3,7 @@ package org.minimalj.test;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
+import org.minimalj.model.Column;
 import org.minimalj.model.Keys;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.StringUtils;
@@ -289,8 +290,12 @@ public interface PageContainerTestFacade {
 		}
 		
 		public default int column(Object key) {
-			String text = Resources.getPropertyName(Keys.getProperty(key));
-			return findColumn(text);
+			var property = Keys.getProperty(key);
+			String header = Resources.getPropertyName(property, Column.TABLE_HEADER);
+			if (header == null) {
+				header = Resources.getPropertyName(property);
+			}
+			return findColumn(header);
 		}
 
 		public default boolean isFilterVisible() {
