@@ -891,6 +891,7 @@ public class SeleniumTestFacade implements UiTestFacade {
 	}
 	
 	private String getText(WebElement element) {
+		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
 		String tagName = element.getTagName().toLowerCase();
 		if (tagName.equals("a") || tagName.equals("div") && element.getAttribute("class") != null && element.getAttribute("class").contains("text")) {
 			return element.getText();
