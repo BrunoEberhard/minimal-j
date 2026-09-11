@@ -1,3 +1,7 @@
+# Default: normalize every text file to LF in the repository and on checkout,
+# on every OS, regardless of each contributor's core.autocrlf setting.
+* text=auto eol=lf
+
 # Java sources
 *.java          text diff=java
 *.kt            text diff=kotlin
