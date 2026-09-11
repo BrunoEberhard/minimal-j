@@ -36,6 +36,8 @@ public interface FormElement<T> {
 	
 	public interface StringBasedFormElement<T> extends FormElement<T> {
 		
+		public boolean isInvalid();
+		
 		public String getInvalidString();
 		
 		public void setInvalidString(String string);

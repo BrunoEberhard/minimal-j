@@ -18,12 +18,13 @@ import org.minimalj.model.annotation.TechnicalField;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.properties.Property.StringBasedProperty;
 import org.minimalj.model.properties.VirtualProperty;
+import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.FieldUtils;
+import org.minimalj.util.NonNull;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.Resources;
 
@@ -68,9 +69,10 @@ public class Validator {
 			valueProperties.stream().filter(p -> !StringUtils.equals(p.getName(), "id", "version", "historized")).forEach(property -> {
 				Object value = property.getValue(object);
 
-				validateEmpty(validationMessages, value, property);
-				validateSize(validationMessages, value, property);
-				validateInvalid(validationMessages, object, value, property);
+				if (!validateInvalid(validationMessages, object, value, property)) {
+					validateEmpty(validationMessages, value, property);
+					validateSize(validationMessages, value, property);
+				}
 
 				List<ValidationMessage> innerMessages = validate(value, validated);
 				innerMessages.forEach(m -> validationMessages.add(new ValidationMessage(chain(property, m.getProperty()), m.getFormattedText())));
@@ -167,12 +169,58 @@ public class Validator {
 		}
 	}
 
-	private static void validateInvalid(List<ValidationMessage> validationMessages, Object object, Object value, Property property) {
-		if (value == null && property instanceof StringBasedProperty) {
-			String invalidValue = ((StringBasedProperty) property).getInvalidString(object);
-			if (invalidValue != null) {
+	private static boolean validateInvalid(List<ValidationMessage> validationMessages, Object object, Object value, Property property) {
+		if (InvalidValues.isInvalid(object, property)) {
+			String invalidString = InvalidValues.getInvalidString(object, property);
+			if (EmptyObjects.isEmpty(invalidString)) {
+				validationMessages.add(Validation.createEmptyValidationMessage(property));
+			} else {
 				validationMessages.add(Validation.createInvalidValidationMessage(property));
 			}
+			return true;
+		}
+		if (value instanceof Number) {
+			int signum = signum((Number) value);
+			if (signum == 0) {
+				NotEmpty notEmpty = property.getAnnotation(NotEmpty.class);
+				if (notEmpty != null && !notEmpty.zeroAllowed()) {
+					validationMessages.add(Validation.createInvalidValidationMessage(property));
+					return true;
+				}
+// Deactivated at the moment. TODO replace signed with unsigned?				
+//			} else if (signum < 0) {
+//				Signed signed = property.getAnnotation(Signed.class);
+//				if (signed == null) {
+//					validationMessages.add(Validation.createInvalidValidationMessage(property));
+//					return true;
+//				}
+			} else if (value instanceof BigDecimal) {
+				BigDecimal bigDecimal = (BigDecimal) value;
+				bigDecimal = bigDecimal.stripTrailingZeros();
+				int size = AnnotationUtil.getSize(property);
+				if (bigDecimal.precision() > size) {
+					validationMessages.add(Validation.createInvalidValidationMessage(property));
+					return true;
+				}
+				int decimalPlaces = AnnotationUtil.getDecimal(property);
+				if (bigDecimal.scale() > decimalPlaces) {
+					validationMessages.add(Validation.createInvalidValidationMessage(property));
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static int signum(@NonNull Number number) {
+		if (number instanceof Integer) {
+			return ((Integer) number).compareTo(0);
+		} else if (number instanceof BigDecimal) {
+			return ((BigDecimal) number).signum();
+		} else if (number instanceof Long) {
+			return ((Long) number).compareTo(0L);
+		} else {
+			throw new IllegalArgumentException("" + number);
 		}
 	}
 	

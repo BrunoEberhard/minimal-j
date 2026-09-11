@@ -1,7 +1,6 @@
 package org.minimalj.repository.query;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.temporal.Temporal;
 
 import org.minimalj.model.Keys;
@@ -11,6 +10,7 @@ import org.minimalj.model.properties.Property;
 import org.minimalj.repository.sql.EmptyObjects;
 import org.minimalj.util.ClassHolder;
 import org.minimalj.util.EqualsHelper;
+import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
 
 public class FieldCriteria extends Criteria implements Serializable {
@@ -52,7 +52,7 @@ public class FieldCriteria extends Criteria implements Serializable {
 
 	private void assertValidOperator(Property property, FieldOperator operator) {
 		Class<?> clazz = property.getClazz();
-		if (clazz == Integer.class || clazz == Long.class || clazz == BigDecimal.class || Temporal.class.isAssignableFrom(clazz)) return;
+		if (Properties.isNumber(property) || Temporal.class.isAssignableFrom(clazz)) return;
 		if (operator == FieldOperator.equal || operator == FieldOperator.notEqual)
 			return;
 		throw new IllegalArgumentException(operator + " only allowed for Integer, Long and BigDecimal fields");
@@ -60,8 +60,9 @@ public class FieldCriteria extends Criteria implements Serializable {
 
 	private void assertValidValueClass(Property property, Object value) {
 		if (value != null) {
-			if (!ViewUtils.resolve(property.getClazz()).isAssignableFrom(ViewUtils.resolve(value.getClass()))) {
-				throw new IllegalArgumentException("Value is " + value.getClass().getName() + " but must be " + property.getClazz().getSimpleName());
+			Class<?> propertyClass = FieldUtils.convertPrimitiveTypes(property.getClazz());
+			if (!ViewUtils.resolve(propertyClass).isAssignableFrom(ViewUtils.resolve(value.getClass()))) {
+				throw new IllegalArgumentException("Value is " + value.getClass().getName() + " but must be " + propertyClass.getSimpleName());
 			}
 		}
 	}

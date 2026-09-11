@@ -3,7 +3,7 @@ package org.minimalj.test.html;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.test.LoginFrameFacade.UserPasswordLoginTestFacade;
 import org.minimalj.test.PageContainerTestFacade;
 import org.minimalj.test.PageContainerTestFacade.PageTestFacade;
@@ -20,7 +20,7 @@ public class HtmlAuthenticationTest extends UiTest {
 	
 	@Test
 	public void testAuthenticatonModeRequired() {
-		start(new TestApplication(AuthenticatonMode.REQUIRED));
+		start(new TestApplication(AuthenticationMode.REQUIRED));
 
 		login();
 		
@@ -42,7 +42,7 @@ public class HtmlAuthenticationTest extends UiTest {
 	
 	@Test
 	public void testRelogin() {
-		start(new TestApplication(AuthenticatonMode.REQUIRED));
+		start(new TestApplication(AuthenticationMode.REQUIRED));
 		
 		login();
 
@@ -59,7 +59,7 @@ public class HtmlAuthenticationTest extends UiTest {
 
 	@Test
 	public void testBackAfterLogout() {
-		start(new TestApplication(AuthenticatonMode.REQUIRED));
+		start(new TestApplication(AuthenticationMode.REQUIRED));
 		
 		login();
 
@@ -84,7 +84,7 @@ public class HtmlAuthenticationTest extends UiTest {
 	
 	@Test
 	public void testAuthenticatonModeSuggested() {
-		start(new TestApplication(AuthenticatonMode.SUGGESTED));
+		start(new TestApplication(AuthenticationMode.SUGGESTED));
 		
 		Assertions.assertTrue(ui().getLoginTestFacade().hasSkipLogin());
 	}

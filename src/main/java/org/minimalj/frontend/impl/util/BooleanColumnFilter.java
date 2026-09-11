@@ -23,7 +23,7 @@ public class BooleanColumnFilter implements ColumnFilter {
 	
 	private BooleanColumnFilter(Property property, List<CodeItem<Boolean>> codeItems) {
 		this.property = Objects.requireNonNull(property);
-		if (property.getClazz() != Boolean.class) {
+		if (property.getClazz() != Boolean.class && property.getClazz() != Boolean.TYPE) {
 			throw new IllegalArgumentException(property.getClazz().getName() + " is not a Boolean");
 		}
 		this.codeItems = codeItems;

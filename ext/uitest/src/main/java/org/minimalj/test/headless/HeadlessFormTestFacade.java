@@ -234,8 +234,10 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 	
 	public static void setText(JsonComponent component, String value) {
 		if (component instanceof JsonPasswordField passwordField) {
+			assertEditable(passwordField);
 			passwordField.changedValue(value.toCharArray());
 		} else if (component instanceof JsonCombobox jsonCombobox) {
+			assertEditable(jsonCombobox);
 			var options = (LinkedHashMap<String, Map<String, String>>) jsonCombobox.get("options");
 			for (var optionEntry : options.entrySet()) {
 				var caption = optionEntry.getValue().get("text");
@@ -250,10 +252,17 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		} else {
 			component = unpackText(component);
 			if (component instanceof JsonInputComponent inputComponent) {
+				assertEditable(inputComponent);
 				inputComponent.changedValue(value);
 			} else {
 				throwNotInputComponent(component);
 			}
+		}
+	}
+	
+	private static void assertEditable(JsonInputComponent<?> inputComponent) {
+		if (Boolean.FALSE.equals(inputComponent.get(JsonInputComponent.EDITABLE))) {
+			throw new IllegalStateException("Component is not editable");
 		}
 	}
 	
@@ -300,6 +309,7 @@ public class HeadlessFormTestFacade implements FormTestFacade {
 		@Override
 		public void setChecked(boolean checked) {
 			if (getComponent() instanceof JsonCheckBox jsonCheckBox) {
+				assertEditable(jsonCheckBox);
 				jsonCheckBox.changedValue(checked);
 			}
 		}

@@ -55,6 +55,7 @@ import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.Rendering.FontStyle;
 import org.minimalj.model.annotation.Width;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 
@@ -552,7 +553,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 				stringValue = Rendering.toString(value, property);
 				color = getColor(Rendering.getColor(object, value));
 				styles = Rendering.getFontStyles(object, value);
-				if (Number.class.isAssignableFrom(property.getClazz())) {
+				if (Properties.isNumber(property)) {
 					setHorizontalAlignment(JLabel.TRAILING);
 				} else {
 					setHorizontalAlignment(JLabel.LEADING);
@@ -575,7 +576,7 @@ public class SwingTable<T> extends FlatScrollPane implements ITable<T> {
 					setHorizontalAlignment(JLabel.LEADING);
 				}
 			} else {
-				if (Number.class.isAssignableFrom(property.getClazz())) {
+				if (Properties.isNumber(property)) {
 					setHorizontalAlignment(JLabel.TRAILING);
 				} else {
 					setHorizontalAlignment(JLabel.LEADING);

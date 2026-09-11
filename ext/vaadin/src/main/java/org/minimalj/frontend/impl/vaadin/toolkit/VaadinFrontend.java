@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.ActionGroup;
@@ -398,7 +398,7 @@ public class VaadinFrontend extends Frontend {
 			public IContent getContent() {
 				List<Action> actions;
 				Action loginAction = dialog.getSaveAction();
-				if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+				if (Application.getInstance().getAuthenticatonMode() != AuthenticationMode.REQUIRED) {
 					SkipLoginAction skipLoginAction = new SkipLoginAction();
 					actions = List.of(skipLoginAction, loginAction);
 				} else {

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn -q -o compile)",
+      "Bash(mvn -q -o test-compile)",
+      "Bash(mvn -q -o test -Dtest=HtmlTableFilterTest -DUiTestDriver=chrome -DUiTestEngine=playwright -DUiTestHeadless=true)",
+      "Bash(mvn -o test -Dtest=HtmlTableFilterTest -DUiTestDriver=chrome -DUiTestEngine=playwright -DUiTestHeadless=true)",
+      "Bash(mvn -o test -Dtest=HtmlAuthenticationTest -DUiTestDriver=chrome -DUiTestEngine=playwright -DUiTestHeadless=true)",
+      "Bash(mvn -o test -Dtest=HtmlTableFilterTest,HtmlAuthenticationTest)",
+      "Bash(mvn -q compile -Dmaven.compiler.proc=none)",
+      "Bash(mvn compile *)"
+    ]
+  }
+}

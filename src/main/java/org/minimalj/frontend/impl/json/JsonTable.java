@@ -27,6 +27,7 @@ import org.minimalj.model.Keys;
 import org.minimalj.model.Rendering;
 import org.minimalj.model.Rendering.ColorName;
 import org.minimalj.model.Rendering.FontStyle;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.sql.EmptyObjects;
@@ -117,7 +118,7 @@ public class JsonTable<T> extends JsonComponent implements ITable<T> {
 				return alignment.name();
 			}
 		} 
-		if (Number.class.isAssignableFrom(property.getClazz())) {
+		if (Properties.isNumber(property)) {
 			return ColumnAlignment.end.name();
 		}
 		return null;

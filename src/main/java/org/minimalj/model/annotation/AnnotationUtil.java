@@ -49,9 +49,9 @@ public class AnnotationUtil {
 		
 		if (property.getClazz() == BigDecimal.class) {
 			return Size.BIG_DECIMAL_DEFAULT;
-		} else if (property.getClazz() == Integer.class) {
+		} else if (property.getClazz() == Integer.class || property.getClazz() == Integer.TYPE) {
 			return Size.INTEGER;
-		} else if (property.getClazz() == Long.class) {
+		} else if (property.getClazz() == Long.class || property.getClazz() == Long.TYPE) {
 			return Size.LONG;
 		}
 		

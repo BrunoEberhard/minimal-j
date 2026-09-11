@@ -10,6 +10,7 @@ import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.web.WebServer;
+import org.minimalj.security.Subject;
 import org.minimalj.util.Codes;
 import org.minimalj.util.Codes.CodeCache;
 
@@ -44,6 +45,8 @@ public class TestUtil {
 			cache.clear();
 
 			WebServer.stop();
+			
+			Subject.setCurrent(null);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

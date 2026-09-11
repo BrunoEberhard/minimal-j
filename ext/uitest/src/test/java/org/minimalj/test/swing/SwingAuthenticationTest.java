@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.frontend.impl.swing.NavigationTree;
 import org.minimalj.frontend.impl.swing.Swing;
 import org.minimalj.frontend.impl.swing.SwingFrame;
@@ -40,7 +40,7 @@ public class SwingAuthenticationTest {
 
 	@Test
 	public void testAuthenticatonModeRequired() throws InterruptedException, InvocationTargetException {
-		Swing.start(new TestApplication(AuthenticatonMode.REQUIRED));
+		Swing.start(new TestApplication(AuthenticationMode.REQUIRED));
 
 		UiTestFacade ui = new SwingTestFacade();
 		
@@ -72,7 +72,7 @@ public class SwingAuthenticationTest {
 
 	@Test
 	public void testAuthenticatonModeSuggested() throws InterruptedException, InvocationTargetException {
-		Swing.start(new TestApplication(AuthenticatonMode.SUGGESTED));
+		Swing.start(new TestApplication(AuthenticationMode.SUGGESTED));
 
 		UiTestFacade ui = new SwingTestFacade();
 		
@@ -102,7 +102,7 @@ public class SwingAuthenticationTest {
 	
 	@Test
 	public void testAuthenticatonModeOptional() throws InterruptedException, InvocationTargetException {
-		Swing.start(new TestApplication(AuthenticatonMode.OPTIONAL));
+		Swing.start(new TestApplication(AuthenticationMode.OPTIONAL));
 		
 		UiTestFacade ui = new SwingTestFacade();
 		PageContainerTestFacade pageContainer = ui.getCurrentPageContainerTestFacade();

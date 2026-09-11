@@ -1,6 +1,5 @@
 package org.minimalj.frontend.form.element;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +16,7 @@ import org.minimalj.frontend.impl.json.JsonComponent;
 import org.minimalj.frontend.impl.json.JsonTextField;
 import org.minimalj.frontend.impl.swing.toolkit.SwingFrontend;
 import org.minimalj.frontend.impl.swing.toolkit.SwingTextField;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.Validation;
@@ -52,6 +52,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	 */
 	private String setText;
 	
+	private boolean isInvalid;
 	private String invalidString;
 	
 	public FormatFormElement(Property property, boolean editable) {
@@ -93,7 +94,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				if (placeholder != null) {
 					((JsonTextField) textField).setPlaceholder(placeholder);
 				}
-				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
+				if (Properties.isNumber(getProperty())) {
 					((JsonComponent) textField).setCssClass("textAlignRight");
 				}
 			} else if (Frontend.getInstance() instanceof SwingFrontend && textField instanceof SwingTextField) {
@@ -101,7 +102,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 				if (placeholder != null) {
 					((SwingTextField) textField).setPlaceholderText(placeholder);
 				}
-				if (Number.class.isAssignableFrom(getProperty().getClazz())) {
+				if (Properties.isNumber(getProperty())) {
 					((SwingTextField) textField).setHorizontalAlignment(SwingConstants.RIGHT);
 				}
 			}
@@ -114,15 +115,25 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	public final T getValue() {
 		invalidString = null;
 		try {
+			isInvalid = false;
 			return parse(textField.getValue());
 		} catch (RuntimeException x) {
+			isInvalid = true;
 			invalidString = textField.getValue();
 			return null;
 		}
 	}
 
 	@Override
+	public boolean isInvalid() {
+		return isInvalid;
+	}
+	
+	@Override
 	public String getInvalidString() {
+		if (!isInvalid) {
+			throw new IllegalStateException();
+		}
 		return invalidString;
 	}
 	
@@ -136,9 +147,7 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	@Override
 	public final void setValue(T value) {
 		setText = value != null ? render(value) : null;
-		if (value != null) {
-			invalidString = null;
-		}
+		isInvalid = false;
 		if (textField != null && !StringUtils.equals(setText, textField.getValue())) {
 			textField.setValue(setText != null ? setText : invalidString);
 		}
@@ -146,8 +155,9 @@ public abstract class FormatFormElement<T> extends AbstractFormElement<T> implem
 	
 	@Override
 	public void setInvalidString(String string) {
+		isInvalid = true;
 		invalidString = string;
-		if (string != null && textField != null) {
+		if (textField != null) {
 			textField.setValue(string);
 		}
 	}

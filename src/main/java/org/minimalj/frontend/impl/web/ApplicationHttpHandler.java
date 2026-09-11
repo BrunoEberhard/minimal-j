@@ -9,10 +9,10 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
 import org.minimalj.frontend.impl.json.JsonFrontend;
 import org.minimalj.frontend.impl.json.JsonSessionManager;
+import org.minimalj.util.resources.Resources;
 
 public class ApplicationHttpHandler implements MjHttpHandler {
 	private static final Logger logger = Logger.getLogger(ApplicationHttpHandler.class.getName());
@@ -68,7 +68,7 @@ public class ApplicationHttpHandler implements MjHttpHandler {
 			handleTemplate(exchange, path);
 			break;
 		case "/application.png":
-			exchange.sendResponse(200, ResourcesHttpHandler.read(Application.getInstance().getIcon()), "image/png");
+			exchange.sendResponse(200, ResourcesHttpHandler.read(Resources.getApplicationIcon()), "image/png");
 			break;
 		default:
 			if (path.startsWith("/download")) {

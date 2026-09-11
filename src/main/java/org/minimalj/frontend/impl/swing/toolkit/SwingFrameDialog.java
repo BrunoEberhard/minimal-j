@@ -13,9 +13,9 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.minimalj.application.Application;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.page.Page.Dialog;
+import org.minimalj.util.resources.Resources;
 
 public class SwingFrameDialog extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -29,7 +29,7 @@ public class SwingFrameDialog extends JFrame {
 		
 		setTitle(dialog.getTitle());
 
-		InputStream inputStream = Application.getInstance().getIcon();
+		InputStream inputStream = Resources.getApplicationIcon();
 		if (inputStream != null) {
 			try {
 				setIconImage(ImageIO.read(inputStream));

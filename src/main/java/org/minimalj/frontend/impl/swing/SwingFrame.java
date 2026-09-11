@@ -25,7 +25,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.SwingMenuBar.SwingBarProvider;
@@ -35,6 +35,7 @@ import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 
@@ -59,9 +60,9 @@ public class SwingFrame extends JFrame {
 	public final Action toolbarAction;
 
 	public SwingFrame() {
-		AuthenticatonMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
-		loginAction = authenticatonMode != AuthenticatonMode.NOT_AVAILABLE ? new SwingLoginAction() : null;
-		logoutAction = authenticatonMode != AuthenticatonMode.NOT_AVAILABLE && authenticatonMode != AuthenticatonMode.REQUIRED ? new SwingLogoutAction() : null;
+		AuthenticationMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
+		loginAction = authenticatonMode != AuthenticationMode.NOT_AVAILABLE ? new SwingLoginAction() : null;
+		logoutAction = authenticatonMode != AuthenticationMode.NOT_AVAILABLE && authenticatonMode != AuthenticationMode.REQUIRED ? new SwingLogoutAction() : null;
 
 		closeWindowAction = new CloseWindowAction();
 		closeTabAction = new CloseTabAction();
@@ -313,7 +314,7 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void updateIcon() {
-		InputStream inputStream = Application.getInstance().getIcon();
+		InputStream inputStream = Resources.getApplicationIcon();
 		if (inputStream != null) {
 			try {
 				setIconImage(ImageIO.read(inputStream));

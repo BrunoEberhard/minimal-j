@@ -5,7 +5,6 @@ import java.util.Random;
 import org.minimalj.model.Keys;
 import org.minimalj.model.annotation.Size;
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.mock.Mocking;
 
@@ -23,16 +22,9 @@ public class LongFormElement extends NumberFormElement<Long> implements Mocking 
 	@Override
 	public Long parse(String text) throws NumberFormatException {
 		if (!StringUtils.isEmpty(text)) {
-			long value = Long.parseLong(text);
-			if (value < 0 && !this.signed) {
-				throw new IllegalArgumentException("negative values not allowed");
-			}
-			int size = value < 0 ? text.length() - 1 : text.length();
-			if (size <= this.size) {
-				return value;
-			} else {
-				throw new IllegalArgumentException(text + " longer than " + this.size);
-			}
+			return Long.parseLong(text);
+		} else if (getProperty().getClazz() == Long.TYPE) {
+			throw new IllegalArgumentException("null not allowed for java primitive");
 		} else {
 			return null;
 		}

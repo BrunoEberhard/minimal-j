@@ -1,5 +1,6 @@
 package org.minimalj.util.resources;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -97,6 +98,33 @@ public class Resources {
 
 	public static String getResourceName(Class<?> clazz) {
 		return getAccess().getResourceName(clazz);
+	}
+	
+	
+	public static String getApplicationName() {
+		if (Resources.isAvailable(APPLICATION_NAME)) {
+			return Resources.getString(APPLICATION_NAME);
+		} else {
+			return Application.getInstance().getClass().getSimpleName();
+		}
+	}
+	
+	public static InputStream getApplicationIcon() {
+		Class<?> applicationClass = Application.getInstance().getClass();
+		String applicationIconName;
+		if (Resources.isAvailable(Resources.APPLICATION_ICON)) {
+			applicationIconName = Resources.getString(Resources.APPLICATION_ICON);
+		} else {
+			applicationIconName = applicationClass.getSimpleName() + ".png";
+		}
+		InputStream icon = applicationClass.getResourceAsStream(applicationIconName);
+		if (icon == null) {
+			icon = applicationClass.getResourceAsStream("/" + applicationIconName);
+		}
+		if (icon == null) {
+			icon = applicationClass.getResourceAsStream("/application_16.png");
+		}		
+		return icon;
 	}
 
 	//

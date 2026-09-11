@@ -41,11 +41,4 @@ public interface Property {
 	public default boolean notEmpty() {
 		return getAnnotation(NotEmpty.class) != null;
 	}
-	
-	public interface StringBasedProperty extends Property {
-		
-		public String getInvalidString(Object object);
-		
-		public void setInvalidString(Object object, String string);
-	}
 }

@@ -41,18 +41,7 @@ public class BigDecimalFormElement extends NumberFormElement<BigDecimal> impleme
 	@Override
 	public BigDecimal parse(String text) throws IllegalArgumentException {
 		if (!StringUtils.isEmpty(text)) {
-			BigDecimal value = new BigDecimal(text);
-			if (value.signum() < 0 && !this.signed) {
-				throw new IllegalArgumentException("negative values not allowed");
-			}
-			value = value.stripTrailingZeros();
-			if (value.precision() > this.size) {
-				throw new IllegalArgumentException("Precision " + value.precision() + " > " + this.size);
-			}
-			if (value.scale() > this.decimalPlaces) {
-				throw new IllegalArgumentException("Decimal places " + value.scale() + " > " + this.decimalPlaces);
-			}
-			return value;
+			return new BigDecimal(text).stripTrailingZeros();
 		} else {
 			return null;
 		}

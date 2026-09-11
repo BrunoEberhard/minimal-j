@@ -27,6 +27,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	private boolean initialized = false;
 
 	private T object;
+	private boolean isInvalid;
 	private String invalidString;
 
 	AbstractLookupFormElement(T key, boolean editable) {
@@ -147,6 +148,7 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	@Override
 	public void setValue(T object) {
 		this.object = object;
+		isInvalid = false;
 		if (lookup != null) {
 			lookup.setValue(render(object));
 		}
@@ -164,21 +166,28 @@ public abstract class AbstractLookupFormElement<T> extends AbstractFormElement<T
 	}
 	
 	@Override
+	public boolean isInvalid() {
+		return isInvalid;
+	}
+	
+	@Override
 	public String getInvalidString() {
+		if (!isInvalid) {
+			throw new IllegalStateException();
+		}
 		return invalidString;
 	}
 
 	@Override
 	public void setInvalidString(String string) {
 		this.invalidString = string;
-		if (string != null) {
-			this.object = null;
-			if (lookup != null) {
-				lookup.setValue(null);
-			}
-			if (readOnlyInput != null) {
-				readOnlyInput.setValue(string);
-			}
+		this.isInvalid = true;
+		this.object = null;
+		if (lookup != null) {
+			lookup.setValue(null);
+		}
+		if (readOnlyInput != null) {
+			readOnlyInput.setValue(string);
 		}
 	}
 	

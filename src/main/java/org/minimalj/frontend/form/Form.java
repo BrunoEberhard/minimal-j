@@ -56,7 +56,7 @@ import org.minimalj.model.annotation.Enabled;
 import org.minimalj.model.annotation.Visible;
 import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Property;
-import org.minimalj.model.properties.Property.StringBasedProperty;
+import org.minimalj.model.validation.InvalidValues;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.security.model.Password;
 import org.minimalj.util.ChangeListener;
@@ -159,11 +159,11 @@ public class Form<T> {
 
 		if (fieldClass == String.class) {
 			return editable ? new StringFormElement(property) : new TextFormElement(property);
-		} else if (fieldClass == Boolean.class) {
+		} else if (fieldClass == Boolean.class || fieldClass == Boolean.TYPE) {
 			return new CheckBoxFormElement(property, editable);
-		} else if (fieldClass == Integer.class) {
+		} else if (fieldClass == Integer.class || fieldClass == Integer.TYPE) {
 			return new IntegerFormElement(property, editable);
-		} else if (fieldClass == Long.class) {
+		} else if (fieldClass == Long.class || fieldClass == Long.TYPE) {
 			return new LongFormElement(property, editable);
 		} else if (fieldClass == BigDecimal.class) {
 			return new BigDecimalFormElement(property, editable);
@@ -455,11 +455,15 @@ public class Form<T> {
 	private void set(Property property, Object object) {
 		FormElement element = elements.get(property);
 		try {
-			Object value = property.getValue(object);
-			element.setValue(value);
-			if (value == null && element instanceof StringBasedFormElement && property instanceof StringBasedProperty) {
-				String invalidString = ((StringBasedProperty) property).getInvalidString(object);
-				((StringBasedFormElement) element).setInvalidString(invalidString);
+			if (InvalidValues.isInvalid(object, property)) {
+				if (element instanceof StringBasedFormElement) {
+					((StringBasedFormElement) element).setInvalidString(InvalidValues.getInvalidString(object, property));
+				} else {
+					element.setValue(null);
+				}
+			} else {
+				Object value = property.getValue(object);
+				element.setValue(value);
 			}
 		} catch (Exception x) {
 			ExceptionUtils.logReducedStackTrace(logger, x);
@@ -549,9 +553,13 @@ public class Form<T> {
 			setValue(property, newValue, changedProperties);
 			logger.finer(() -> "Changed properties: " + changedProperties.stream().map(Property::getPath).collect(Collectors.joining(", ")));
 
-			String newInvalidString = changedField instanceof StringBasedFormElement ? ((StringBasedFormElement<?>) changedField).getInvalidString() : null;
-			if (property instanceof StringBasedProperty) {
-				((StringBasedProperty) property).setInvalidString(object, newInvalidString);
+			if (changedField instanceof StringBasedFormElement) {
+				StringBasedFormElement<?> stringBasedFormElement = (StringBasedFormElement<?>) changedField;
+				if (stringBasedFormElement.isInvalid()) {
+					InvalidValues.setInvalidString(object, property, stringBasedFormElement.getInvalidString());
+				} else {
+					InvalidValues.setValid(object, property);
+				}
 			}
 			
 			if (!changedProperties.isEmpty()) {

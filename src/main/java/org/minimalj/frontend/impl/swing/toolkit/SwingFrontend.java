@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EventObject;
@@ -62,7 +61,7 @@ import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
 import org.minimalj.frontend.action.Action.ActionChangeListener;
@@ -776,7 +775,7 @@ public class SwingFrontend extends Frontend {
 	public boolean showLogin(Dialog dialog) {
 		SkipLoginAction skipLoginAction = new SkipLoginAction();
 		List<Action> actions;
-		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED && !hasContext()) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticationMode.REQUIRED && !hasContext()) {
 			actions = Arrays.asList(skipLoginAction, dialog.getSaveAction());
 		} else {
 			actions = Collections.singletonList(dialog.getSaveAction());

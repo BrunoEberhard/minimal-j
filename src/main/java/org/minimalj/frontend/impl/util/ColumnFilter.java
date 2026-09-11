@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import org.minimalj.frontend.Frontend.IComponent;
 import org.minimalj.frontend.Frontend.InputComponentListener;
 import org.minimalj.model.Column;
+import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.model.validation.ValidationMessage;
 import org.minimalj.repository.query.Criteria;
@@ -30,7 +31,7 @@ public interface ColumnFilter extends Predicate<Object> {
 			}
 		}
 		Class<?> clazz = property.getClazz();
-		if (Temporal.class.isAssignableFrom(clazz) || Number.class.isAssignableFrom(clazz)) {
+		if (Temporal.class.isAssignableFrom(clazz) || Properties.isNumber(property)) {
 			return new ValueOrRangeColumnFilter(property);
 		} else {
 			return new StringColumnFilter(property);

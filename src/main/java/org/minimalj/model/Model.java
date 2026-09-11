@@ -9,11 +9,12 @@ import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.util.FieldUtils;
 import org.minimalj.util.IdUtils;
+import org.minimalj.util.resources.Resources;
 
 public interface Model {
 
 	public default String getName() {
-		return getClass().getSimpleName();
+		return Resources.getApplicationName();
 	}
 	
 	/**

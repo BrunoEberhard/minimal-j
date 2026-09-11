@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -56,7 +56,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		setPrimarySection(Section.DRAWER);
 		addToNavbar(new DrawerToggle());
 		
-		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticationMode.NOT_AVAILABLE) {
 			loginButton = new Button();
 			loginButton.setIcon(VaadinIcon.SIGN_IN.create());
 			loginButton.addClickListener(event -> Backend.getInstance().getAuthentication().showLogin());
@@ -85,7 +85,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		
 		addToDrawer(menuLayout);
 
-		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticationMode.REQUIRED) {
 			updateNavigation();
 		}
 		if (Application.getInstance().getAuthenticatonMode().showLoginAtStart()) {
@@ -186,7 +186,7 @@ public class VaadinPageManager extends AppLayout implements PageManager {
 		
 		updateAuthenticationButtons();
 		
-		if (subject == null && Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
+		if (subject == null && Application.getInstance().getAuthenticatonMode() == AuthenticationMode.REQUIRED) {
 			clearNavigation();
 			Backend.getInstance().getAuthentication().showLogin();
 		} else {
