@@ -3,7 +3,7 @@ name: Java CI with Maven
 on:
   push:
     branches:
-      - main # Führen Sie den Workflow bei jedem Push auf den 'main'-Branch aus
+      - master # Führen Sie den Workflow bei jedem Push auf den 'master'-Branch aus
       - develop # Fügen Sie weitere Branches hinzu, falls nötig
   # pull_request: # Optional: Führen Sie den Workflow auch bei Pull Requests aus
   #   branches:
