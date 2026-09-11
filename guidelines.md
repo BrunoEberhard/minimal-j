@@ -115,6 +115,22 @@ LF on checkout. If a file still shows up as fully changed after a `git pull` or 
 you did not edit it, it most likely has stray CRLF line endings in your working copy - run
 `git add --renormalize .` (or re-checkout the file) to fix it.
 
+## Branch Version Policy
+
+- `master` must always hold a stable (non-SNAPSHOT) version.
+- `develop` must always hold a SNAPSHOT version.
+
+This is enforced by `check-branch-version.sh` at the repository root, in two places:
+- CI: `.github/workflows/java-build.yaml` runs it on every push to `master`/`develop` and fails the
+  build if the `pom.xml` version violates the rule for that branch. This is the actual guarantee,
+  since it can't be skipped by a contributor.
+- Locally (opt-in, for immediate feedback): run `git config core.hooksPath .githooks` once per
+  clone to install a pre-commit hook that runs the same check before every commit - including
+  automated commits made by `mvn release:prepare` (see task_release_setup.txt), so a missing
+  `-DupdateWorkingCopyVersions=false` is caught before it's committed rather than after it's
+  pushed. The hook can be bypassed with `git commit --no-verify`, so it is only a convenience, not
+  the enforcement mechanism.
+
 ## Contributing
 
 - Fork the repository
