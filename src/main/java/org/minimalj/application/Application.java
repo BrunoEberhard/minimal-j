@@ -218,13 +218,42 @@ public abstract class Application implements Model {
 	}
 
 	public enum AuthenticatonMode {
-		REQUIRED, SUGGESTED, OPTIONAL, NOT_AVAILABLE;
+		/**
+		 * All users and every action needs authentication.
+		 * A login dialog is presented at the beginning of each session.
+		 * Users cannot cancel this login.
+		 */
+		REQUIRED,
+		
+		/**
+		 * A login dialog is presented at the beginning of each session.
+		 * Users can cancel this login and still do some reasonable actions.
+		 */
+		SUGGESTED, 
+		
+		/**
+		 * No login dialog is presented at the beginning of each session.
+		 * But there is the option to login.
+		 */
+		OPTIONAL, 
+		
+		/**
+		 * Authentication is neither needed nor possible.
+		 */
+		NOT_AVAILABLE;
 		
 		public boolean showLoginAtStart() {
 			return this == REQUIRED || this == SUGGESTED;
 		}
 	}
 	
+	/**
+	 * Defines the authentication behavior.
+	 * Needs only to be overridden if authentication is OPTIONAL
+	 * or SUGGESTED for the application.
+	 * 
+	 * @return REQUIRED if an authentication is active else NOT_AVAILABLE.
+	 */
 	public AuthenticatonMode getAuthenticatonMode() {
 		if (Backend.getInstance().isAuthenticationActive()) {
 			return AuthenticatonMode.REQUIRED;
