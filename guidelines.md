@@ -98,6 +98,23 @@ The project uses JUnit for testing. Key annotations:
 - The project is hosted on github
 - There is a /.github/workflow/java-build.yaml file to trigger the workflow from github
 
+## Line Endings (CRLF)
+
+The repository standardizes on LF line endings for all text files, the common recommendation for
+Java projects (Java sources, and most build/CI tooling, are line-ending agnostic at runtime, but a
+consistent repository encoding avoids noisy whole-file diffs when contributors use different OSes).
+
+This is enforced by `.gitattributes` at the repository root:
+- `* text=auto eol=lf` normalizes every text file to LF when it is committed and checks it out as
+  LF again, on every OS, independent of a contributor's local `core.autocrlf` setting.
+- Specific extensions further down the file keep their diff drivers (e.g. `*.java text diff=java`)
+  and known binary types (`*.jar`, `*.class`, ...) are marked `binary` so they are never touched.
+
+Contributors don't need to configure `core.autocrlf` themselves; `.gitattributes` already forces
+LF on checkout. If a file still shows up as fully changed after a `git pull` or checkout although
+you did not edit it, it most likely has stray CRLF line endings in your working copy - run
+`git add --renormalize .` (or re-checkout the file) to fix it.
+
 ## Contributing
 
 - Fork the repository
