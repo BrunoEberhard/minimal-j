@@ -35,6 +35,7 @@ import org.minimalj.frontend.page.EmptyPage;
 import org.minimalj.frontend.page.Page;
 import org.minimalj.security.Subject;
 import org.minimalj.util.StringUtils;
+import org.minimalj.util.resources.Resources;
 
 import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 
@@ -313,7 +314,7 @@ public class SwingFrame extends JFrame {
 	}
 
 	protected void updateIcon() {
-		InputStream inputStream = Application.getInstance().getIcon();
+		InputStream inputStream = Resources.getApplicationIcon();
 		if (inputStream != null) {
 			try {
 				setIconImage(ImageIO.read(inputStream));

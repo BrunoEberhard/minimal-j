@@ -19,7 +19,6 @@
 package org.minimalj.application;
 
 import java.awt.Dimension;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +50,6 @@ import org.minimalj.security.TextFileAuthentication;
 import org.minimalj.transaction.Transaction;
 import org.minimalj.util.StringUtils;
 import org.minimalj.util.resources.MultiResourceBundle;
-import org.minimalj.util.resources.Resources;
 
 /**
  * Extend this class to define your Application.<p>
@@ -178,31 +176,6 @@ public abstract class Application implements Model {
 		} else {
 			return null;
 		}
-	}
-	
-	public String getName() {
-		if (Resources.isAvailable(Resources.APPLICATION_NAME)) {
-			return Resources.getString(Resources.APPLICATION_NAME);
-		} else {
-			return getClass().getSimpleName();
-		}
-	}
-	
-	public InputStream getIcon() {
-		String applicationIconName;
-		if (Resources.isAvailable(Resources.APPLICATION_ICON)) {
-			applicationIconName = Resources.getString(Resources.APPLICATION_ICON);
-		} else {
-			applicationIconName = getClass().getSimpleName() + ".png";
-		}
-		InputStream icon = getClass().getResourceAsStream(applicationIconName);
-		if (icon == null) {
-			icon = getClass().getResourceAsStream("/" + applicationIconName);
-		}
-		if (icon == null) {
-			icon = getClass().getResourceAsStream("/application_16.png");
-		}		
-		return icon;
 	}
 	
 	public Dimension getFrameSize(Dimension screenSize) {

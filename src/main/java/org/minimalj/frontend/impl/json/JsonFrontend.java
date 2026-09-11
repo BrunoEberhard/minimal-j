@@ -293,7 +293,7 @@ public class JsonFrontend extends Frontend {
     }
 	   
 	private static String getIconLink() {
-		if (Application.getInstance().getIcon() != null) {
+		if (Resources.getApplicationIcon() != null) {
 			return "<link rel=\"icon\" href=\"application.png\" type=\"image/png\">";
 		} else {
 			return "";
