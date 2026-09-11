@@ -19,6 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Check branch/version policy
+      run: ./check-branch-version.sh "$GITHUB_REF_NAME"
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:

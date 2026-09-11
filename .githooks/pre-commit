@@ -1,0 +1,5 @@
+#!/bin/sh
+# Enable with:  git config core.hooksPath .githooks
+root=$(git rev-parse --show-toplevel)
+branch=$(git rev-parse --abbrev-ref HEAD)
+"$root/check-branch-version.sh" "$branch" "$root/pom.xml"
