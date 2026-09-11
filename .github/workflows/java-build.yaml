@@ -5,9 +5,6 @@ on:
     branches:
       - master # Führen Sie den Workflow bei jedem Push auf den 'master'-Branch aus
       - develop # Fügen Sie weitere Branches hinzu, falls nötig
-  # pull_request: # Optional: Führen Sie den Workflow auch bei Pull Requests aus
-  #   branches:
-  #     - main
 
 jobs:
   build:
@@ -23,7 +20,7 @@ jobs:
       run: ./check-branch-version.sh "$GITHUB_REF_NAME"
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
