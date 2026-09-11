@@ -26,8 +26,16 @@ Before starting:
     git checkout master
     git pull origin master
     git merge develop
-    git push origin master
-- pom.xml on master must be on a SNAPSHOT version (the maven-release-plugin requires this).
+  Do not push this merge yet. Right after the merge, master's pom.xml is a SNAPSHOT (inherited
+  from develop), which would fail the branch/version policy (see guidelines.md) if pushed as its
+  own commit - CI rejects a SNAPSHOT on master, and so does the local opt-in pre-commit hook, if
+  you have it enabled. Leave the merge commit local; it gets pushed together with the
+  release-version commit in step 1 below, by which point the version is no longer a SNAPSHOT. If
+  the local hook is enabled and rejects the merge commit itself, that one commit can be made with
+  git commit --no-verify - it's a transient local state, immediately superseded by release:prepare.
+- pom.xml on master must be on a SNAPSHOT version after the merge (the maven-release-plugin
+  requires this to know what version to release) - the merge above satisfies this as a purely
+  local, not-yet-pushed state.
 - ~/.m2/settings.xml must contain a <server> entry with id 'central' holding the Sonatype Central token
   (used by the central-publishing-maven-plugin, publishingServerId 'central'), and a GPG key must be
   available locally, since the sonatype-release profile signs every artifact with maven-gpg-plugin.
