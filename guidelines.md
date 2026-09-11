@@ -126,7 +126,7 @@ This is enforced by `check-branch-version.sh` at the repository root, in two pla
   since it can't be skipped by a contributor.
 - Locally (opt-in, for immediate feedback): run `git config core.hooksPath .githooks` once per
   clone to install a pre-commit hook that runs the same check before every commit - including
-  automated commits made by `mvn release:prepare` (see task_release_setup.txt), so a missing
+  automated commits made by `mvn release:prepare` (see RELEASING.md), so a missing
   `-DupdateWorkingCopyVersions=false` is caught before it's committed rather than after it's
   pushed. The hook can be bypassed with `git commit --no-verify`, so it is only a convenience, not
   the enforcement mechanism.
