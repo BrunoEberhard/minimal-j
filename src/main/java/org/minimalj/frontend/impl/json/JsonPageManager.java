@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.application.Configuration;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
@@ -340,7 +340,7 @@ public class JsonPageManager implements PageManager {
 			if (Subject.getCurrent() != null) {
 				Backend.getInstance().getAuthentication().getLogoutAction().run();
 			}
-			if (Application.getInstance().getAuthenticatonMode() == AuthenticatonMode.REQUIRED) {
+			if (Application.getInstance().getAuthenticatonMode() == AuthenticationMode.REQUIRED) {
 				Backend.getInstance().getAuthentication().showLogin();
 			}
 		}
@@ -470,7 +470,7 @@ public class JsonPageManager implements PageManager {
 		Subject.setCurrent(subject);
 		updateNavigation();
 
-		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.NOT_AVAILABLE) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticationMode.NOT_AVAILABLE) {
 			output.add("canLogin", subject == null);
 			output.add("canLogout", subject != null);
 		}
@@ -630,7 +630,7 @@ public class JsonPageManager implements PageManager {
 
 	public void showLogin(Dialog dialog) {
 		Action[] actions;
-		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticationMode.REQUIRED) {
 			SkipLoginAction skipLoginAction = new SkipLoginAction();
 			actions = new org.minimalj.frontend.action.Action[] {skipLoginAction, dialog.getSaveAction()};
 		} else {

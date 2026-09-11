@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.minimalj.application.Application;
 import org.minimalj.application.Configuration;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.action.Action;
@@ -37,7 +37,7 @@ public class HeadlessFrontend extends JsonFrontend {
 	@Override
 	public boolean showLogin(Dialog dialog) {
 		List<Action> actions;
-		if (Application.getInstance().getAuthenticatonMode() != AuthenticatonMode.REQUIRED) {
+		if (Application.getInstance().getAuthenticatonMode() != AuthenticationMode.REQUIRED) {
 			SkipLoginAction skipLoginAction = new SkipLoginAction(dialog);
 			actions = Arrays.asList(skipLoginAction, dialog.getSaveAction());
 		} else {

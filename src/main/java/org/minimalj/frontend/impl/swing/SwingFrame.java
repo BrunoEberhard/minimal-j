@@ -25,7 +25,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import org.minimalj.application.Application;
-import org.minimalj.application.Application.AuthenticatonMode;
+import org.minimalj.application.Application.AuthenticationMode;
 import org.minimalj.backend.Backend;
 import org.minimalj.frontend.Frontend;
 import org.minimalj.frontend.impl.swing.SwingMenuBar.SwingBarProvider;
@@ -60,9 +60,9 @@ public class SwingFrame extends JFrame {
 	public final Action toolbarAction;
 
 	public SwingFrame() {
-		AuthenticatonMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
-		loginAction = authenticatonMode != AuthenticatonMode.NOT_AVAILABLE ? new SwingLoginAction() : null;
-		logoutAction = authenticatonMode != AuthenticatonMode.NOT_AVAILABLE && authenticatonMode != AuthenticatonMode.REQUIRED ? new SwingLogoutAction() : null;
+		AuthenticationMode authenticatonMode = Application.getInstance().getAuthenticatonMode();
+		loginAction = authenticatonMode != AuthenticationMode.NOT_AVAILABLE ? new SwingLoginAction() : null;
+		logoutAction = authenticatonMode != AuthenticationMode.NOT_AVAILABLE && authenticatonMode != AuthenticationMode.REQUIRED ? new SwingLogoutAction() : null;
 
 		closeWindowAction = new CloseWindowAction();
 		closeTabAction = new CloseTabAction();

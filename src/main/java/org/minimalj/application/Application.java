@@ -217,7 +217,7 @@ public abstract class Application implements Model {
 		}
 	}
 
-	public enum AuthenticatonMode {
+	public enum AuthenticationMode {
 		/**
 		 * All users and every action needs authentication.
 		 * A login dialog is presented at the beginning of each session.
@@ -254,11 +254,11 @@ public abstract class Application implements Model {
 	 * 
 	 * @return REQUIRED if an authentication is active else NOT_AVAILABLE.
 	 */
-	public AuthenticatonMode getAuthenticatonMode() {
+	public AuthenticationMode getAuthenticatonMode() {
 		if (Backend.getInstance().isAuthenticationActive()) {
-			return AuthenticatonMode.REQUIRED;
+			return AuthenticationMode.REQUIRED;
 		} else {
-			return AuthenticatonMode.NOT_AVAILABLE;
+			return AuthenticationMode.NOT_AVAILABLE;
 		}
 	}
 	

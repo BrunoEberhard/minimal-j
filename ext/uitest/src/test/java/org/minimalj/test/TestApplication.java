@@ -16,16 +16,16 @@ import org.minimalj.transaction.Role;
 import org.minimalj.util.resources.Resources;
 
 public class TestApplication extends Application {
-	private final AuthenticatonMode authenticatonMode;
+	private final AuthenticationMode authenticatonMode;
 
 	public static final String TEST_PAGE_TITLE = "Title Test Page";
 	
-	public TestApplication(AuthenticatonMode authenticatonMode) {
+	public TestApplication(AuthenticationMode authenticatonMode) {
 		this.authenticatonMode = authenticatonMode;
 	}
 
 	@Override
-	public AuthenticatonMode getAuthenticatonMode() {
+	public AuthenticationMode getAuthenticatonMode() {
 		return authenticatonMode;
 	}
 
