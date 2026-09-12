@@ -1,23 +1,4 @@
-This text file describes how release management is done in minimal-j
-
-Branches
-
-The master branch must contain a stable release. Some releases are deployed to maven repostory
-with profile 'sonatype-release'.
-
-The development branch must contain a SNAPSHOT release based on the last stable release in the master branch.
-
-Builds
-
-The versions in the master branch can be updated manually. When the master branch is pushed to github then
-the version is build and the result is deployed to the github packages.
-
-Official releases are build with profile 'sonatype-release' with release:prepare and release:perform
-
-In the development branch there must be only SNAPSHOT version. When it's pushed to github it should be build
-there and a package with SNAPSHOT datestamp should be created.
-
-Manual local release to Sonatype / Maven Central
+Release management
 
 Releases are triggered manually, from the developer's machine, on the master branch.
 
