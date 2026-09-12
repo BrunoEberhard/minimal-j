@@ -98,11 +98,9 @@ The project uses JUnit for testing. Key annotations:
 - The project is hosted on github
 - There is a /.github/workflow/java-build.yaml file to trigger the workflow from github
 
-## Line Endings (CRLF)
+## Line Endings
 
-The repository standardizes on LF line endings for all text files, the common recommendation for
-Java projects (Java sources, and most build/CI tooling, are line-ending agnostic at runtime, but a
-consistent repository encoding avoids noisy whole-file diffs when contributors use different OSes).
+The repository standardizes on LF line endings for all text files. Not CR and LF.
 
 This is enforced by `.gitattributes` at the repository root:
 - `* text=auto eol=lf` normalizes every text file to LF when it is committed and checks it out as
