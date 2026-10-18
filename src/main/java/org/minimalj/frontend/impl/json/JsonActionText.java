@@ -19,7 +19,7 @@ public class JsonActionText extends JsonComponent {
 			} else if (e instanceof Action) {
 				components.add(new JsonAction((Action) e));
 			}
-			put("components", components);
 		}
+		put("components", components);
 	}
 }
