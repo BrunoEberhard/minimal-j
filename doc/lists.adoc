@@ -5,7 +5,7 @@ problems because they load too many objects from the database at the wrong time.
 user may be slow only because for every found result all the depending objects are load too. Even if they
 are not displayed on the result page.
 
-Minimal-J separates two kind of list fields very strictly. The difference in the class definitions may
+Minimal-J separates the kinds of list fields very strictly. The difference in the class definitions may
 look small but the behavior is very different and should be know to developers.
 
 IMPORTANT: It's very crucial if the elements of a list contain an id field or not. If they contain no id
@@ -116,6 +116,82 @@ will return a unmodifiable List with all elements of the selected range preloade
 
 Again note that of course these are not the real sql statements. Prepared statements are use and the question marks are replaced with the
 actual values when the statements are logged.
+
+=== Elements with an id that depend on the parent
+
+Sometimes the elements should have an id (for example because they are many or are shown on a DetailPage) but still belong to
+exactly one parent. Then the element class implements `Dependable` and `getParent` returns the field referencing the parent:
+
+[source,java,title="OrderLine.java"]
+----
+public class OrderLine implements Dependable<Order> {
+	public static final OrderLine $ = Keys.of(OrderLine.class);
+
+	public Object id;
+	public Order order;
+	@Size(30) @NotEmpty
+	public String product;
+	public Integer quantity;
+
+	@Override
+	public Order getParent() {
+		return order;
+	}
+}
+----
+
+[source,java,title="Order.java"]
+----
+public class Order {
+	public Object id;
+	public List<OrderLine> lines;
+}
+----
+
+No cross table is created. The table of `OrderLine` contains a column referencing the `Order`. When the order is saved the
+reference to the order is set in every line automatically.
+
+== Persistence
+
+A list is always saved together with the entity containing it. Inserting the entity inserts the list, updating the entity replaces
+the stored list with the current content of the field and deleting the entity deletes the list. There is no separate method to save
+only the list. What happens with the elements depends on the element class:
+
+[cols="1,1,2"]
+|===
+|Element class |Table |Update of the containing entity
+
+|no id
+|`PARENT__FIELD` with the parent id, a position and the fields of the element
+|The rows are updated by position, surplus rows are deleted.
+
+|id
+|cross table `PARENT__FIELD` with the parent id, the elementId and a position
+|Only the references are updated. Elements without id are inserted. *Changes on already existing elements are not saved*, they have to be updated separately.
+
+|id and `Dependable`
+|the table of the element, with a reference to the parent
+|Existing elements are updated, new elements are inserted and elements not in the list anymore are deleted.
+|===
+
+Some additional rules (checked by the `ModelTest`):
+
+* Element classes with an id are added to the repository automatically. They don't need to be listed in `getEntityClasses()`.
+* A list of elements with an id must not be final. A list of elements without an id may be final.
+* Classes without an id (list elements, inlined classes) must not contain lists themselves.
+
+A one to many relation can also be modelled without a list field. The child gets a reference to the parent and the parent
+gets a method to query the children (see `Owner` in the PetClinic example):
+
+[source,java]
+----
+public List<Pet> getPets() {
+	if (Keys.isKeyObject(this)) return Keys.methodOf(this, "pets");
+	return Backend.find(Pet.class, By.field(Pet.$.owner, this));
+}
+----
+
+In this case the children are not saved with the parent but always on their own.
 
 == Rule
 

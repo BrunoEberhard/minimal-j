@@ -54,7 +54,13 @@ Minimal-J is a Java framework for building business applications. It enforces a 
 - `Repository` interface: `read`, `find`, `count`, `insert`, `update`, `delete`
 - `SqlRepository`: ORM over H2 (embedded/test), MariaDB, PostgreSQL, or MSSQL
 - Schema is derived automatically from entity classes registered in `Application.getEntityClasses()`
-- `SubTable`/`ListTable`/`CrossTable` handle nested lists and many-to-many relations
+
+**Lists in entities**
+
+A `List` field is saved together with its owning entity (insert / update / delete); there is no separate save for list elements. Behaviour depends on the element class — details in `doc/lists.adoc`:
+- no `id`: owned by the parent, stored in table `PARENT__FIELD`, loaded eagerly. These elements cannot be referenced from other entities — if that is needed, give the element class an `id` (making it an entity of its own)
+- `id`: cross table, lazy `RelationList`. New elements (without id yet) are inserted with the parent, but updating the parent does **not** save changes on already existing elements
+- `id` and implements `Dependable<PARENT>`: the element table references the parent; elements are updated, inserted and deleted with the parent
 
 **Application** (`org.minimalj.application`)
 - Extend `Application` as entry point; override `getEntityClasses()`, `getNavigation()`, `createDefaultPage()`, optionally `createRepository()`, `createAuthentication()`
