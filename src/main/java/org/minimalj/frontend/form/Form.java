@@ -384,11 +384,10 @@ public class Form<T> {
 		/**
 		 * 
 		 * @param input            The new value of the property that has changed
-		 * @param copyOfEditObject The current object of the This reference should
-		 *                         <b>not</b> be changed. It should be treated as a read
-		 *                         only version or a copy of the object. It's probably
-		 *                         not a real copy as it is to expensive to copy the
-		 *                         object for every call.
+		 * @param copyOfEditObject The object containing the property that has changed.
+		 *                         Note that this object contains the <i>old</i> value
+		 *                         of the property. It is a clone. Changes on this
+		 *                         object will have no effect.
 		 * @return The new value the updater wants to set to the toKey property
 		 */
 		public TO update(FROM input, EDIT_OBJECT copyOfEditObject);
