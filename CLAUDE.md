@@ -33,6 +33,7 @@ Minimal-J is a Java framework for building business applications. It enforces a 
 - Plain Java classes with public fields (not getters/setters)
 - FieldUtils.isAllowedPrimitive specifies the allowed classes for model fields. Besides the object classes the primitives `int` and `long` are allowed (they act as not-null / NOT NULL fields). A primitive `boolean` field needs a companion method returning `Keys.fieldOf(this, "fieldName")`; other primitives are not allowed.
 - `String` fields require a `@Size` annotation — this is mandatory
+- Fields annotated with `@NotEmpty` become `NOT NULL` columns. Tests that insert entities must fill these fields, otherwise the insert fails
 - Model class names must be unique across all packages (table names are derived from the simple class name). Only enums may share a name. Checked by `ModelTest`
 - Implement `Rendering` to control how an object displays as text
 - Implement `Code` for lookup/reference data (think enums that live in the DB)
