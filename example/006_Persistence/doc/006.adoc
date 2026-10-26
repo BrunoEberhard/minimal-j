@@ -69,6 +69,12 @@ Aug 05, 2015 9:04:11 AM org.minimalj.backend.sql.LoggingPreparedStatement log
 FEIN:    15ms INSERT INTO EXAMPLE_PERSON (FIRST_NAME, LAST_NAME, id) VALUES ('Peter', 'Muster', 'e415162a-4a2e-4df4-a9bc-7ef2638dbe89')
 ----
 
+=== Class names
+The table names are derived from the simple name of the class (without the package). This means all classes of the data model
+must have unique names. It's not allowed to have two classes with the same name in different packages, even if they are
+used in different parts of the application. This applies to entities but also to the classes used as list elements or
+inlined fields. Only enums may have the same name. The ModelTest reports a violation of this rule.
+
 === Field names
 Field names in Minimal-J are restricted to the characters a-z, A-Z and 0-9. And here you see why. In the database
 the field names are translated to snakeCase (there is a method for it in StringUtils). This means that before every
