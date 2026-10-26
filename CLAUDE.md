@@ -56,6 +56,7 @@ Minimal-J is a Java framework for building business applications. It enforces a 
 - `Repository` interface: `read`, `find`, `count`, `insert`, `update`, `delete`
 - `SqlRepository`: ORM over H2 (embedded/test), MariaDB, PostgreSQL, or MSSQL
 - Schema is derived automatically from entity classes registered in `Application.getEntityClasses()`
+- Optional initial data for `Code` classes: if a resource `<SimpleClassName>.csv` exists next to the class (e.g. `PetType.csv`), it is read on every start, after schema preparation (skipped only with `schemaPreparation=none`). The first line is the header with field names, separator is `,`. Code fields in the csv are given by their id. Only missing rows are inserted: rows with an `id` column are matched by id, rows without by comparing all fields. Existing rows are never updated or deleted. `static final` constants of a `Code` class (fields of its own type, except `$`) are inserted the same way
 
 **Lists in entities**
 
