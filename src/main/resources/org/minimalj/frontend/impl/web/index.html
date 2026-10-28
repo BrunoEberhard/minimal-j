@@ -212,6 +212,9 @@ $ICON
 							} else {
 								formElement.classList.remove("hideFormElement");
 							}
+						} else if (property === "formId") {
+							// e.g. a wizard switches the form of its next action
+							element.setAttribute("onclick", "action(\"" + id + "\", \"" + value + "\");");
 						} else if (property === "link") {
 							element.setAttribute("href", config.link);
 						} else if (property === "value" && element.tagName === "INPUT" && element.type === "checkbox") {
@@ -1536,7 +1539,9 @@ $ICON
 		}		
 		if (formId) {
 			var formElement = document.getElementById(formId);
-			formElement.classList.add("showValidations");
+			if (formElement) {
+				formElement.classList.add("showValidations");
+			}
 		}
 		closeActionMenu();
 		var data = {

@@ -56,7 +56,8 @@ public abstract class Wizard<RESULT> extends Action implements Dialog {
 	@Override
 	public void run() {
 		switchContent = Frontend.getInstance().createSwitchContent();
-
+		
+		dialogShown = false; // a wizard can be run again after it was finished or canceled
 		stepIndex = 0;
 		step = getFirstStep();
 		switchStep();
