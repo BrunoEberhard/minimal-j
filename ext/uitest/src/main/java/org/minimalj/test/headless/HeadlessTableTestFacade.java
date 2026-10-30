@@ -67,7 +67,8 @@ public class HeadlessTableTestFacade implements TableTestFacade {
 		if (cell instanceof String string) {
 			return string;
 		} else if (cell instanceof Map map) {
-			return (String)map.get("value");
+			// Link-Zellen haben den Text unter "action" (oder mit Route unter "value")
+			return (String) (map.containsKey("action") ? map.get("action") : map.get("value"));
 		}
 		return null;
 	}
