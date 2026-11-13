@@ -39,7 +39,7 @@ Run from the master branch:
    explicitly, for example:
 
    ```
-   mvn release:prepare -Psonatype-release -DupdateWorkingCopyVersions=false -DreleaseVersion=2.38.0.0 -Dtag=minimalj-2.38.0.0
+   mvn release:prepare -Psonatype-release -DupdateWorkingCopyVersions=false -DreleaseVersion=2.39.0 -Dtag=minimalj-2.39.0
    ```
 
    By default release:prepare creates two commits on master: one setting the release version, and a
