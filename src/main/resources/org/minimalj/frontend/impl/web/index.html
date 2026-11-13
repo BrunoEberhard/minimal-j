@@ -937,7 +937,6 @@ $ICON
 			}
 			if (content.maxHeight) {
 				element.style.width = "unset";
-				element.style.maxHeight = (content.maxHeight * 5 - 3) + "em";
 			}
 		} else if (type === "Dashboard") {
 			element = document.createElement("div");
@@ -988,6 +987,12 @@ $ICON
 		}
 		if (content.description != undefined) {
 			element.setAttribute("title", content.description);
+		}
+		if (content.maxHeight) {
+			element.style.maxHeight = (content.maxHeight * 0.97 + 0.5) + "rem";
+		}
+		if (content.minHeight) {
+			element.style.minHeight = (content.minHeight * 0.97 + 0.5) + "rem";
 		}
 		return element;
 	}
