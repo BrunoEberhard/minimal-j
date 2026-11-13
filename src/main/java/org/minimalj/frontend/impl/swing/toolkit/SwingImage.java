@@ -6,12 +6,15 @@ import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ComponentAdapter;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -69,7 +72,7 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 	public void setValue(byte[] imageData) {
 		this.imageData = imageData;
 		if (imageData != null) {
-			icon = new ImageIcon(imageData);
+			icon = createIcon(imageData);
 			resize();
 			image.addComponentListener(new ComponentAdapter() {
 				public void componentResized(java.awt.event.ComponentEvent e) {
@@ -91,6 +94,20 @@ public class SwingImage extends JPanel implements Input<byte[]> {
 			getParent().invalidate();
 			getParent().repaint();
 		}
+	}
+
+	// The AWT Toolkit only decodes GIF, JPEG and PNG. ImageIO also knows
+	// the formats of registered plugins (e.g. WebP)
+	private static ImageIcon createIcon(byte[] imageData) {
+		try {
+			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
+			if (bufferedImage != null) {
+				return new ImageIcon(bufferedImage);
+			}
+		} catch (IOException | RuntimeException x) {
+			// fall back to Toolkit
+		}
+		return new ImageIcon(imageData);
 	}
 
 	private void resize() {
