@@ -153,6 +153,9 @@ public enum SchemaPreparation {
 		for (NewColumn newColumn : newColumns) {
 			newColumn.table.createConstraint(repository.sqlDialect, newColumn.name, newColumn.property);
 		}
+		for (AbstractTable<?> table : repository.tables.values()) {
+			table.createConstraints(repository.sqlDialect);
+		}
 	}
 
 	protected void updateTable(SqlRepository repository, InformationSchema informationSchema, SchemaPreparation schemaPreparation, List<AbstractTable<?>> createdTables, List<NewColumn> newColumns, AbstractTable<?> table, List<String> updatedTables) {

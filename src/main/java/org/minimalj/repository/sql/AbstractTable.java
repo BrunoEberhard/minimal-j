@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 
 import org.minimalj.model.Code;
 import org.minimalj.model.Dependable;
+import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtils;
 import org.minimalj.model.annotation.Comment;
 import org.minimalj.model.annotation.TechnicalField;
@@ -51,6 +53,8 @@ public abstract class AbstractTable<T> {
 
 	protected final List<String> indexes = new ArrayList<>();
 	protected final List<String> constraints = new ArrayList<>();
+	
+	private Set<String> foreignKeyColumns; // columns (lower case) with a foreign key;
 
 	protected final String selectByIdQuery;
 	protected final String insertQuery;
@@ -130,7 +134,7 @@ public abstract class AbstractTable<T> {
 		addPrimaryKey(dialect, s);
 		dialect.addCreateStatementEnd(s);
 		execute(s.toString());
-		
+
 		createTableComment();
 		createColumnComments();
 	}
@@ -230,15 +234,15 @@ public abstract class AbstractTable<T> {
 	protected void createConstraints(SqlDialect dialect) {
 		for (Map.Entry<String, Property> column : getColumns().entrySet()) {
 			Property property = column.getValue();
-			
 			createConstraint(dialect, column.getKey(), property);
 		}
 	}
 
 	protected void createConstraint(SqlDialect dialect, String column, Property property) {
 		Class<?> fieldClass = property.getClazz();
-		// TODO Contained könnte noch andere Felder enthalten
-		if (IdUtils.hasId(fieldClass) && !Dependable.class.isAssignableFrom(clazz)) {
+		// The column of the parent gets no foreign key: when the parent is deleted
+		// its dependables are deleted too. All other references (e.g. the article of a position) need a constraint.
+		if (IdUtils.hasId(fieldClass) && !column.equals(parentColumn())) {
 			fieldClass = ViewUtils.resolve(fieldClass);
 			AbstractTable<?> referencedTable = sqlRepository.getAbstractTable(fieldClass);
 			if (referencedTable.isHistorized()) {
@@ -249,7 +253,38 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
+	/**
+	 * @return the column of a dependable table that references the parent, otherwise null
+	 */
+	private String parentColumn() {
+		if (!Dependable.class.isAssignableFrom(clazz)) {
+			return null;
+		}
+		return sqlRepository.name(((Dependable<?>) Keys.of(clazz)).getParent());
+	}
+
+	private Set<String> getForeignKeyColumns() {
+		if (foreignKeyColumns == null) {
+			foreignKeyColumns = new HashSet<>(sqlRepository.find(String.class,
+					"SELECT LOWER(kcu.column_name) FROM information_schema.table_constraints tc "
+							+ "JOIN information_schema.key_column_usage kcu ON kcu.constraint_name = tc.constraint_name AND kcu.constraint_schema = tc.constraint_schema "
+							+ "WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = current_schema AND LOWER(tc.table_name) = ?",
+					Integer.MAX_VALUE, getTableName().toLowerCase()));
+		}
+		return foreignKeyColumns;
+	}
+
 	protected final void createConstraint(SqlDialect dialect, String column, AbstractTable<?> referencedTable) {
+		if (!getForeignKeyColumns().add(column.toLowerCase())) {
+			return; // constraint already exists 
+		}
+		Integer orphans = sqlRepository.execute(Integer.class, "SELECT COUNT(*) FROM " + getTableName() + " t WHERE t." + column
+				+ " IS NOT NULL AND NOT EXISTS (SELECT 1 FROM " + referencedTable.getTableName() + " r WHERE r.ID = t." + column + ")");
+		if (orphans != null && orphans > 0) {
+			sqlLogger.severe("Constraint " + getTableName() + "." + column + " -> " + referencedTable.getTableName() + " not created: "
+					+ orphans + " rows reference a missing " + referencedTable.getTableName());
+			return;
+		}
 		String constraintName = sqlRepository.sqlIdentifier.constraint(getTableName(), column, referencedTable.getTableName());
 		String constraint = dialect.createConstraint(constraintName, getTableName(), column, referencedTable.getTableName());
 		if (constraint != null) {

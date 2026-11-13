@@ -138,7 +138,9 @@ public class Table<T> extends AbstractTable<T> {
 		super.createConstraints(dialect);
 		for (Object object : lists.values()) {
 			AbstractTable subTable = (AbstractTable) object;
-			subTable.createConstraints(dialect);
+			if (!Dependable.class.isAssignableFrom(subTable.clazz)) {
+				subTable.createConstraints(dialect);
+			}
 		}
 	}
 	
