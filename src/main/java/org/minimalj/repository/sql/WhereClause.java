@@ -181,6 +181,10 @@ public class WhereClause<T> {
 		if ("id".equals(wholeFieldPath)) {
 			return wholeFieldPath + " " + criteriaString;
 		}
+		String listStatement = listWhereStatement(table, wholeFieldPath, criteriaString);
+		if (listStatement != null) {
+			return listStatement;
+		}
 		String fieldPath = wholeFieldPath;
 		String column;
 		while (true) {
@@ -204,6 +208,24 @@ public class WhereClause<T> {
 		} else {
 			return column + " " + criteriaString;
 		}
+	}
+
+	/**
+	 * A path into a list of elements without id selects the objects with at least one matching element.
+	 */
+	private static String listWhereStatement(AbstractTable<?> table, String wholeFieldPath, String criteriaString) {
+		if (!(table instanceof Table)) {
+			return null;
+		}
+		for (Map.Entry<Property, ListTable> entry : ((Table<?>) table).lists.entrySet()) {
+			String listPath = entry.getKey().getPath() + ".";
+			if (wholeFieldPath.startsWith(listPath) && entry.getValue() instanceof SubTable) {
+				SubTable<?, ?> subTable = (SubTable<?, ?>) entry.getValue();
+				String restOfFieldPath = wholeFieldPath.substring(listPath.length());
+				return "id IN (SELECT id FROM " + subTable.getTableName() + " WHERE " + whereStatement(subTable, restOfFieldPath, criteriaString) + ")";
+			}
+		}
+		return null;
 	}
 
 	private String criteriaString(FieldOperator criteriaOperator, Object value) {

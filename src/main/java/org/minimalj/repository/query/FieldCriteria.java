@@ -2,9 +2,14 @@ package org.minimalj.repository.query;
 
 import java.io.Serializable;
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.minimalj.model.Keys;
 import org.minimalj.model.ViewUtils;
+import org.minimalj.model.properties.ChainedProperty;
 import org.minimalj.model.properties.Properties;
 import org.minimalj.model.properties.Property;
 import org.minimalj.repository.sql.EmptyObjects;
@@ -97,7 +102,38 @@ public class FieldCriteria extends Criteria implements Serializable {
 	@Override
 	public boolean test(Object object) {
 		Property p = getProperty();
-		object = p.getValue(object);
+		for (Object fieldValue : values(ChainedProperty.getChain(p), object)) {
+			if (testValue(p, fieldValue)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * A list in the chain (e.g. items.target) yields the values of all elements.
+	 * The object matches if any of them matches, as in the SQL repository.
+	 */
+	private static List<Object> values(List<Property> chain, Object object) {
+		List<Object> values = Collections.singletonList(object);
+		for (int i = 0; i < chain.size(); i++) {
+			Property property = chain.get(i);
+			boolean last = i == chain.size() - 1;
+			List<Object> nextValues = new ArrayList<>();
+			for (Object value : values) {
+				Object nextValue = value != null ? property.getValue(value) : null;
+				if (!last && nextValue instanceof Collection) {
+					nextValues.addAll((Collection<?>) nextValue);
+				} else {
+					nextValues.add(nextValue);
+				}
+			}
+			values = nextValues;
+		}
+		return values;
+	}
+
+	private boolean testValue(Property p, Object object) {
 		Object value = getValue();
 		boolean equal = getOperator() == FieldOperator.equal;
 		if (equal || getOperator() == FieldOperator.notEqual) {
