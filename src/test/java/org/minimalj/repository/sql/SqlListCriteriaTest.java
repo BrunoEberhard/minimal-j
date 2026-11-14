@@ -44,6 +44,12 @@ public class SqlListCriteriaTest extends SqlTest {
 		Assert.assertEquals(0, repository.count(ListOwner.class, By.field(key, "other")));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testListOfEntitiesNotSupported() {
+		ChainedProperty key = new ChainedProperty(Keys.getProperty(ListOwner.$.targets), Keys.getProperty(ListTarget.$.name));
+		repository.count(ListOwner.class, By.field(key, "1"));
+	}
+
 	private void insertOwner(String name, ListTarget... targets) {
 		ListOwner owner = new ListOwner();
 		owner.name = name;
@@ -63,6 +69,7 @@ public class SqlListCriteriaTest extends SqlTest {
 		@Size(30)
 		public String name;
 		public final List<ListItem> items = new ArrayList<>();
+		public List<ListTarget> targets = new ArrayList<>();
 	}
 
 	public static class ListItem {
@@ -74,6 +81,8 @@ public class SqlListCriteriaTest extends SqlTest {
 	}
 
 	public static class ListTarget {
+		public static final ListTarget $ = Keys.of(ListTarget.class);
+
 		public Object id;
 		@Size(30)
 		public String name;

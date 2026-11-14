@@ -44,6 +44,9 @@ public class WhereClause<T> {
 				value = IdUtils.getId(value);
 			}
 			whereStatement(fieldCriteria.getPath(), fieldCriteria.getOperator(), value);
+			if (table.isHistorized()) {
+				clause = "(" + clause + " AND historized = 0)";
+			}
 		} else if (query instanceof SearchCriteria) {
 			SearchCriteria searchCriteria = (SearchCriteria) query;
 			String searchLowerCase = convertUserSearch(searchCriteria.getQuery()).toLowerCase();
@@ -177,7 +180,7 @@ public class WhereClause<T> {
 		}
 	}
 
-	private static String whereStatement(AbstractTable<?> table, String wholeFieldPath, String criteriaString) {
+	static String whereStatement(AbstractTable<?> table, String wholeFieldPath, String criteriaString) {
 		if ("id".equals(wholeFieldPath)) {
 			return wholeFieldPath + " " + criteriaString;
 		}
@@ -211,18 +214,15 @@ public class WhereClause<T> {
 	}
 
 	/**
-	 * A path into a list of elements without id selects the objects with at least one matching element.
+	 * @return where statement for a path into a list or null if the path doesn't start with a list
 	 */
 	private static String listWhereStatement(AbstractTable<?> table, String wholeFieldPath, String criteriaString) {
-		if (!(table instanceof Table)) {
-			return null;
-		}
-		for (Map.Entry<Property, ListTable> entry : ((Table<?>) table).lists.entrySet()) {
-			String listPath = entry.getKey().getPath() + ".";
-			if (wholeFieldPath.startsWith(listPath) && entry.getValue() instanceof SubTable) {
-				SubTable<?, ?> subTable = (SubTable<?, ?>) entry.getValue();
-				String restOfFieldPath = wholeFieldPath.substring(listPath.length());
-				return "id IN (SELECT id FROM " + subTable.getTableName() + " WHERE " + whereStatement(subTable, restOfFieldPath, criteriaString) + ")";
+		if (table instanceof Table) {
+			for (Map.Entry<Property, ListTable> entry : ((Table<?>) table).lists.entrySet()) {
+				String listPath = entry.getKey().getPath() + ".";
+				if (wholeFieldPath.startsWith(listPath)) {
+					return ((AbstractTable<?>) entry.getValue()).elementWhereStatement(wholeFieldPath.substring(listPath.length()), criteriaString);
+				}
 			}
 		}
 		return null;

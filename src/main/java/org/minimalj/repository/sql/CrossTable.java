@@ -28,6 +28,12 @@ public class CrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> imple
 	}
 	
 	@Override
+	protected String elementWhereStatement(String fieldPath, String criteriaString) {
+		// the fields of the elements are not in this table
+		return null;
+	}
+
+	@Override
 	protected void createConstraints(SqlDialect dialect) {
 		super.createIdConstraint(dialect);
 		Class<?> referencedClass = ViewUtils.resolve(getClazz());

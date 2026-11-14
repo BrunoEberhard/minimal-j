@@ -133,6 +133,11 @@ class HistorizedSubTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> impl
 	}
 	
 	@Override
+	protected String elementWhereStatement(String fieldPath, String criteriaString) {
+		return "id IN (SELECT id FROM " + getTableName() + " WHERE " + WhereClause.whereStatement(this, fieldPath, criteriaString) + " AND endVersion = " + Integer.MAX_VALUE + ")";
+	}
+
+	@Override
 	protected String selectByIdQuery() {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM ").append(getTableName()).append(" WHERE id = ? AND endVersion = " + Integer.MAX_VALUE + " ORDER BY position");

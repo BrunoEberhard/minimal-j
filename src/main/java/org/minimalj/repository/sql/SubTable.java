@@ -28,7 +28,12 @@ public class SubTable<PARENT, ELEMENT> extends AbstractTable<ELEMENT> implements
 		this.parentIdProperty = parentIdProperty;
 		this.hasId = IdUtils.hasId(clazz);
 	}
-	
+
+	@Override
+	protected String elementWhereStatement(String fieldPath, String criteriaString) {
+		return "id IN (SELECT id FROM " + getTableName() + " WHERE " + WhereClause.whereStatement(this, fieldPath, criteriaString) + ")";
+	}
+
 	@Override
 	protected void createConstraints(SqlDialect dialect) {
 		super.createConstraints(dialect);

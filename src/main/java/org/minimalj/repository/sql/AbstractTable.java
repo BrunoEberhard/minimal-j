@@ -301,6 +301,16 @@ public abstract class AbstractTable<T> {
 		}
 	}
 
+	/**
+	 * Used if this table stores the elements of a list.
+	 * 
+	 * @param fieldPath path in the element class
+	 * @return where statement that selects the ids of the parents with at least one matching element or null if not supported
+	 */
+	protected String elementWhereStatement(String fieldPath, String criteriaString) {
+		return null;
+	}
+
 	protected String findColumn(String fieldPath) {
 		for (Map.Entry<String, Property> entry : columns.entrySet()) {
 			if (entry.getValue().getPath().equals(fieldPath)) {

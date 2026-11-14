@@ -27,6 +27,12 @@ class HistorizedCrossTable<PARENT, ELEMENT> extends SubTable<PARENT, ELEMENT> im
 	}
 
 	@Override
+	protected String elementWhereStatement(String fieldPath, String criteriaString) {
+		// the fields of the elements are not in this table
+		return null;
+	}
+
+	@Override
 	protected void createConstraints(SqlDialect dialect) {
 		// skip, doesn't work on most database because of composed keys
 	}
