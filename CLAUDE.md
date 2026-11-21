@@ -79,3 +79,5 @@ A `List` field is saved together with its owning entity (insert / update / delet
 - `Code` objects are always referenced as views — updating an entity does not cascade to its Code references
 - Resources/i18n: property files named after the `Application` subclass, loaded via `MultiResourceBundle`
 - `@Role` annotation on `Transaction` or `Page` for authorization; `Subject.hasRole(...)` for runtime checks
+- References between entities: reference the other entity class directly, not its `id`. For large entities (especially ones with references or lists themselves) reference a View of the entity, usually named `Ref` (e.g. `Article.ArticleRef implements View<Article>`). Exceptions: circular dependencies, and fields that could reference different classes
+- Plain reads and writes of entities use `Backend.read`, `Backend.find`, `Backend.findFirst` and `Backend.save` directly, not a dedicated `Transaction` class. Write a `Transaction` only when the logic combines several reads or writes, or needs its own `@Role`. `Backend.save` does not check roles or validate; the caller has to
